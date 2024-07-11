@@ -25,7 +25,7 @@ public class AiServiceJpaConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean aiServiceEntityManager(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource,
                                                                          @Qualifier("aiServiceJpaVendorAdapter") JpaVendorAdapter aiServiceJpaVendorAdapter,
-                                                                         AiServiceJpaProperties aiServiceJpaProperties ) {
+                                                                         @Qualifier("aiServiceJpaProperties") AiServiceJpaProperties aiServiceJpaProperties ) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(aiServiceDynamicDataSource);
@@ -44,7 +44,7 @@ public class AiServiceJpaConfig {
     }
 
     @Bean
-    public JpaVendorAdapter aiServiceJpaVendorAdapter(AiServiceJpaProperties aiServiceJpaProperties) {
+    public JpaVendorAdapter aiServiceJpaVendorAdapter(@Qualifier("aiServiceJpaProperties") AiServiceJpaProperties aiServiceJpaProperties) {
         AbstractJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setShowSql(aiServiceJpaProperties.isShowSql());
         jpaVendorAdapter.setDatabasePlatform(aiServiceJpaProperties.getDatabasePlatform());

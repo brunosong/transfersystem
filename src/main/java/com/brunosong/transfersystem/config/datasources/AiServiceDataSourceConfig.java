@@ -15,7 +15,6 @@ import java.util.Map;
 @Configuration
 public class AiServiceDataSourceConfig {
 
-
     @Bean("aiServiceRealDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.aiservice-real")
     public DataSource aiServiceRealDataSource() throws IllegalArgumentException {
@@ -28,7 +27,6 @@ public class AiServiceDataSourceConfig {
         return DataSourceBuilder.create().build();
     }
 
-    @Primary
     @Bean(name = "aiServiceDynamicDataSource")
     public DataSource aiServiceDynamicDataSource(@Qualifier("aiServiceRealDataSource") DataSource aiServiceRealDataSource,
                                                  @Qualifier("aiServiceDevDataSource") DataSource aiServiceDevDataSource) {
