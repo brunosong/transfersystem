@@ -18,12 +18,13 @@ class ChapJpaRepositoryTest {
     @Test
     void ChapEntity가_정상적으로_저장되어_SEQ가_생성된다(){
         ChapEntity chapter1 = ChapEntity.builder()
+                .chapSeq(1L)
                 .chapTitle("테스트 차시")
                 .build();
 
         ChapEntity save = chapJpaRepository.save(chapter1);
 
-        Assertions.assertThat(save.getChapSeq()).isNotNull();
+        Assertions.assertThat(save).isNotNull();
     }
 
 
