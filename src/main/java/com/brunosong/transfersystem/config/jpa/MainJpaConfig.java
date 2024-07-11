@@ -14,37 +14,38 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+/* Main 패키지에서는 repository 사용 */
 @EnableJpaRepositories(
-        basePackages = "com.brunosong.transfersystem.aiservice.infrastructure",
-        entityManagerFactoryRef = "aiServiceEntityManager",
-        transactionManagerRef = "aiServiceJpaTransactionManager"
+        basePackages = "com.brunosong.transfersystem.main.repository",
+        entityManagerFactoryRef = "mainEntityManager",
+        transactionManagerRef = "mainJpaTransactionManager"
 )
 @Configuration
-public class AiServiceJpaConfig {
+public class MainJpaConfig {
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean aiServiceEntityManager(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource,
-                                                                         @Qualifier("aiServiceJpaVendorAdapter") JpaVendorAdapter aiServiceJpaVendorAdapter,
-                                                                         @Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
+    public LocalContainerEntityManagerFactoryBean mainEntityManager(@Qualifier("mainDataSource") DataSource mainDataSource,
+                                                                    @Qualifier("mainJpaVendorAdapter") JpaVendorAdapter mainJpaVendorAdapter,
+                                                                    @Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(aiServiceDynamicDataSource);
+        em.setDataSource(mainDataSource);
         em.setPackagesToScan(customJpaProperties.getScanPackagePath());
-        em.setJpaVendorAdapter(aiServiceJpaVendorAdapter);
-        em.setPersistenceUnitName("aiServiceEntityManager");
+        em.setJpaVendorAdapter(mainJpaVendorAdapter);
+        em.setPersistenceUnitName("mainEntityManager");
         em.setJpaPropertyMap(customJpaProperties.getProperties());
         return em;
     }
 
     @Bean
-    public PlatformTransactionManager aiServiceJpaTransactionManager(@Qualifier("aiServiceEntityManager") LocalContainerEntityManagerFactoryBean aiServiceEntityManager) {
+    public PlatformTransactionManager mainJpaTransactionManager(@Qualifier("mainEntityManager") LocalContainerEntityManagerFactoryBean mainEntityManager) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(aiServiceEntityManager.getObject());
+        transactionManager.setEntityManagerFactory(mainEntityManager.getObject());
         return transactionManager;
     }
 
     @Bean
-    public JpaVendorAdapter aiServiceJpaVendorAdapter(@Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
+    public JpaVendorAdapter mainJpaVendorAdapter(@Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
         AbstractJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         jpaVendorAdapter.setShowSql(customJpaProperties.isShowSql());
         jpaVendorAdapter.setDatabasePlatform(customJpaProperties.getDatabasePlatform());

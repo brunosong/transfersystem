@@ -2,7 +2,8 @@ spring:
   application:
     name: BrunosongTransferSystem
 
-  aiservice-jpa:
+
+  custom-jpa:
     scan-package-path: com.brunosong.transfersystem.aiservice.infrastructure
     properties:
       hibernate:
@@ -12,14 +13,26 @@ spring:
     database-platform: org.hibernate.dialect.MariaDB106Dialect
 
   datasource:
+    main:
+      # Transfer Service (Main)
+      driver-class-name: org.h2.Driver
+      jdbcUrl: jdbc:h2:mem:main;DB_CLOSE_DELAY=-1;MODE=MySQL
+      username: sa
+      password:
+
+    # AI Service Real
     aiservice-real:
       driver-class-name: org.h2.Driver
       jdbcUrl: jdbc:h2:mem:aiserviceReal;DB_CLOSE_DELAY=-1;MODE=MySQL
       username: sa
       password:
 
+    # AI Service Dev
     aiservice-dev:
       driver-class-name: org.h2.Driver
       jdbcUrl: jdbc:h2:mem:aiserviceDev;DB_CLOSE_DELAY=-1;MODE=MySQL
       username: sa
       password:
+
+
+
