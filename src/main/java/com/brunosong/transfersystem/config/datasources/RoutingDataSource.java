@@ -9,7 +9,7 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
     private static final ThreadLocal<DataSourceType> CONTEXT = new ThreadLocal<>();
 
     public static void setDataSourceType(DataSourceType dataSourceType) {
-        log.info("BCMS DATASOURCE IS {}" , dataSourceType.name());
+        log.info("AI_SERVICE DATASOURCE SETTING IS {}" , dataSourceType.name());
         CONTEXT.set(dataSourceType);
     }
 
