@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Primary;
 
 @Configuration
 @ConfigurationProperties(
-        prefix = "spring.custom-jpa"
+        prefix = "spring.aiservice-jpa"
 )
 @Primary
-public class CustomJpaProperties extends JpaProperties {
+public class AiServiceJpaProperties extends JpaProperties {
 
     String scanPackagePath;
 

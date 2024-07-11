@@ -1,6 +1,7 @@
 package com.brunosong.transfersystem.config.jpa;
 
-import com.brunosong.transfersystem.config.properties.CustomJpaProperties;
+import com.brunosong.transfersystem.config.properties.AiServiceJpaProperties;
+import com.brunosong.transfersystem.config.properties.MainJpaProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +27,14 @@ public class MainJpaConfig {
     @Bean
     public LocalContainerEntityManagerFactoryBean mainEntityManager(@Qualifier("mainDataSource") DataSource mainDataSource,
                                                                     @Qualifier("mainJpaVendorAdapter") JpaVendorAdapter mainJpaVendorAdapter,
-                                                                    @Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
+                                                                    MainJpaProperties mainJpaProperties) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(mainDataSource);
-        em.setPackagesToScan(customJpaProperties.getScanPackagePath());
+        em.setPackagesToScan(mainJpaProperties.getScanPackagePath());
         em.setJpaVendorAdapter(mainJpaVendorAdapter);
         em.setPersistenceUnitName("mainEntityManager");
-        em.setJpaPropertyMap(customJpaProperties.getProperties());
+        em.setJpaPropertyMap(mainJpaProperties.getProperties());
         return em;
     }
 
@@ -45,11 +46,11 @@ public class MainJpaConfig {
     }
 
     @Bean
-    public JpaVendorAdapter mainJpaVendorAdapter(@Qualifier("customJpaProperties") CustomJpaProperties customJpaProperties) {
+    public JpaVendorAdapter mainJpaVendorAdapter(MainJpaProperties mainJpaProperties) {
         AbstractJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        jpaVendorAdapter.setShowSql(customJpaProperties.isShowSql());
-        jpaVendorAdapter.setDatabasePlatform(customJpaProperties.getDatabasePlatform());
-        jpaVendorAdapter.setGenerateDdl(customJpaProperties.isGenerateDdl());
+        jpaVendorAdapter.setShowSql(mainJpaProperties.isShowSql());
+        jpaVendorAdapter.setDatabasePlatform(mainJpaProperties.getDatabasePlatform());
+        jpaVendorAdapter.setGenerateDdl(mainJpaProperties.isGenerateDdl());
         return jpaVendorAdapter;
     }
 
