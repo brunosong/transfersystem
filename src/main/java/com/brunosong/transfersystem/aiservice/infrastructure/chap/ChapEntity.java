@@ -1,5 +1,6 @@
 package com.brunosong.transfersystem.aiservice.infrastructure.chap;
 
+import com.brunosong.transfersystem.aiservice.domain.Chap;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -25,5 +26,21 @@ public class ChapEntity {
 
     @Column(name = "chap_type")
     private String chapType;
+
+    public Chap toModel(){
+        return Chap.builder()
+            .chapSeq(this.getChapSeq())
+            .chapTitle(this.getChapTitle())
+            .chapType(Chap.ChapTypeEnum.valueOf(this.getChapType()))
+            .build();
+    }
+
+    public static ChapEntity fromModel(Chap chap) {
+        return ChapEntity.builder()
+                .chapSeq(chap.getChapSeq())
+                .chapTitle(chap.getChapTitle())
+                .chapType(chap.getChapType().name())
+                .build();
+    }
 
 }
