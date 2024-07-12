@@ -2,10 +2,15 @@ package com.brunosong.transfersystem.main.service;
 
 
 import com.brunosong.transfersystem.main.domain.chap.MainChap;
+import com.brunosong.transfersystem.main.domain.course.MainCourse;
 import com.brunosong.transfersystem.main.dto.TranActionDto;
+import com.brunosong.transfersystem.main.dto.TranDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
+import com.brunosong.transfersystem.main.dto.TranDto.CourseTranDto;
 import com.brunosong.transfersystem.main.dto.TranEnum;
 import com.brunosong.transfersystem.main.repository.MainChapRepository;
+import com.brunosong.transfersystem.main.repository.MainCourseRepository;
+import com.brunosong.transfersystem.main.service.exception.TranCustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,33 +24,64 @@ import java.util.stream.Collectors;
 public class TranService {
     private final MainChapRepository mainChapRepository;
 
+    private final MainCourseRepository mainCourseRepository;
+
     private final MigrationServiceSelector migrationServiceSelector;
 
+
+    /* AI Service 로 데이터를 이관한다. (DB -> DB)  */
     public void aiServiceTransferProcess(TranActionDto tranActionDto) {
         migrationServiceSelector.useAiService();
         log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
-        /* Chapter */
-        List<MainChap> mainChaps = mainChapRepository.findAll();
-
-        List<ChapTranDto> chapTranDtoList = mainChaps.stream().map(ChapTranDto::fromEntity)
-                .collect(Collectors.toList());
-
-        migrationServiceSelector.getCurrentService().transferChap(chapTranDtoList, tranActionDto.getDbProfile());
+        mainChapProcess(tranActionDto);
 
         migrationServiceSelector.clearCurrentService();
     }
 
 
+    /* AI Service 로 카푸카를 이용해서 데이터를 이관한다. (DB -> Kafka -> DB)  */
     public void aiKafkaServiceTransferProcess(TranActionDto tranActionDto) {
         migrationServiceSelector.useAiKafkaService();
         log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
+        mainCourseProcess(tranActionDto);
 
-
-
+        mainChapProcess(tranActionDto);
 
         migrationServiceSelector.clearCurrentService();
+    }
+
+
+    public void mainCourseProcess(TranActionDto tranActionDto) {
+
+        /* Course 로직 */
+        List<MainCourse> mainCourses = mainCourseRepository.findAll();
+
+        if(mainCourses.isEmpty()) {
+            throw new TranCustomException("Empty MainCourse");
+        }
+
+        List<CourseTranDto> courseTranDtoList = mainCourses.stream().map(CourseTranDto::fromEntity)
+                .collect(Collectors.toList());
+
+        migrationServiceSelector.getCurrentService().transferCourse(courseTranDtoList, tranActionDto.getDbProfile());
+
+    }
+
+    public void mainChapProcess(TranActionDto tranActionDto) {
+
+        /* Chapter */
+        List<MainChap> mainChaps = mainChapRepository.findAll();
+
+        if(mainChaps.isEmpty()) {
+            throw new TranCustomException("Empty MainChap");
+        }
+
+        List<ChapTranDto> chapTranDtoList = mainChaps.stream().map(ChapTranDto::fromEntity)
+                .collect(Collectors.toList());
+
+        migrationServiceSelector.getCurrentService().transferChap(chapTranDtoList, tranActionDto.getDbProfile());
     }
 
 

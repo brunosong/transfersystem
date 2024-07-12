@@ -35,7 +35,7 @@ public class MigrationAiService implements MigrationService {
         List<ChapSaveDto> chapSaveDtoList = chapTranDtoList.stream().map(chapMapper::toChapSaveDto)
                 .collect(Collectors.toList());
 
-        saveProcess(dbProfile, () -> {
+        saveChapProcess(dbProfile, () -> {
             for (ChapSaveDto chapSaveDto : chapSaveDtoList) {
                 chapService.save(chapSaveDto);
             }
@@ -44,7 +44,7 @@ public class MigrationAiService implements MigrationService {
 
     }
 
-    public void saveProcess(String dbProfile ,Supplier<?> process) {
+    public void saveChapProcess(String dbProfile ,Supplier<?> process) {
         if(dbProfile.equals("real")) {
             RoutingDataSource.setDataSourceType(DataSourceType.AISERVICE_REAL);
         } else {
