@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public class AiServiceDataSourceConfig {
         return DataSourceBuilder.create().build();
     }
 
+    @DependsOn({"aiServiceRealDataSource", "aiServiceDevDataSource"})
     @Bean(name = "aiServiceDynamicDataSource")
     public DataSource aiServiceDynamicDataSource(@Qualifier("aiServiceRealDataSource") DataSource aiServiceRealDataSource,
                                                  @Qualifier("aiServiceDevDataSource") DataSource aiServiceDevDataSource) {
@@ -43,6 +45,10 @@ public class AiServiceDataSourceConfig {
         return routingDataSource;
     }
 
-
+    @DependsOn({"aiServiceDynamicDataSource"})
+    @Bean("aiLazyDataSource")
+    public LazyConnectionDataSourceProxy aiLazyDataSource(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource) {
+        return new LazyConnectionDataSourceProxy(aiServiceDynamicDataSource);
+    }
 
 }

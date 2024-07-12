@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -23,12 +24,12 @@ import javax.sql.DataSource;
 public class AiServiceJpaConfig {
 
     @Bean("aiServiceEntityManager")
-    public LocalContainerEntityManagerFactoryBean aiServiceEntityManager(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource,
+    public LocalContainerEntityManagerFactoryBean aiServiceEntityManager(@Qualifier("aiLazyDataSource") LazyConnectionDataSourceProxy aiLazyDataSource,
                                                                          @Qualifier("aiServiceJpaVendorAdapter") JpaVendorAdapter aiServiceJpaVendorAdapter,
                                                                          AiServiceJpaProperties aiServiceJpaProperties) {
 
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(aiServiceDynamicDataSource);
+        em.setDataSource(aiLazyDataSource);
         em.setPackagesToScan(aiServiceJpaProperties.getScanPackagePath());
         em.setJpaVendorAdapter(aiServiceJpaVendorAdapter);
         em.setPersistenceUnitName("aiServiceEntityManager");
