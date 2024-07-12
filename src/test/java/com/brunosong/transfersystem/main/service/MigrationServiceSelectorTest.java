@@ -1,6 +1,6 @@
 package com.brunosong.transfersystem.main.service;
 
-import com.brunosong.transfersystem.aiservice.service.TranActionAiServiceImpl;
+import com.brunosong.transfersystem.aiservice.service.MigrationAiService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { TranActionServiceSelectorTest.Config.class , TranActionServiceSelector.class })
-class TranActionServiceSelectorTest {
+@ContextConfiguration(classes = { MigrationServiceSelectorTest.Config.class , MigrationServiceSelector.class })
+class MigrationServiceSelectorTest {
 
     @Autowired
-    TranActionServiceSelector tranActionServiceSelector;
+    MigrationServiceSelector migrationServiceSelector;
 
     @Test
     void 스레드가_동시에_접근해도_항상_같은_서비스를_리턴한다() throws InterruptedException {
@@ -30,8 +30,8 @@ class TranActionServiceSelectorTest {
         int numberOfThreads = 2;
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch endLatch = new CountDownLatch(numberOfThreads);
-        AtomicReference<Class<? extends TranActionService>> initialServiceClassA = new AtomicReference<>();
-        AtomicReference<Class<? extends TranActionService>> initialServiceClassB = new AtomicReference<>();
+        AtomicReference<Class<? extends MigrationService>> initialServiceClassA = new AtomicReference<>();
+        AtomicReference<Class<? extends MigrationService>> initialServiceClassB = new AtomicReference<>();
 
         Runnable runnableA = () -> {
             try {
@@ -39,16 +39,16 @@ class TranActionServiceSelectorTest {
                 log.info("Start : useAiService");
 
                 // given
-                tranActionServiceSelector.useAiService();
+                migrationServiceSelector.useAiService();
 
-                Class<? extends TranActionService> aiService = tranActionServiceSelector.getCurrentService().getClass();
+                Class<? extends MigrationService> aiService = migrationServiceSelector.getCurrentService().getClass();
                 if(initialServiceClassA.get() == null) initialServiceClassA.set(aiService);
 
                 assertThat(initialServiceClassA.get()).isEqualTo(aiService);
 
                 //when
                 Thread.sleep(1000);
-                aiService = tranActionServiceSelector.getCurrentService().getClass();
+                aiService = migrationServiceSelector.getCurrentService().getClass();
 
                 // then
                 assertThat(initialServiceClassA.get()).isEqualTo(aiService);
@@ -67,16 +67,16 @@ class TranActionServiceSelectorTest {
                 startLatch.await();
 
                 // given
-                tranActionServiceSelector.useAiKafkaService();
+                migrationServiceSelector.useAiKafkaService();
 
-                Class<? extends TranActionService> aiKafkaService = tranActionServiceSelector.getCurrentService().getClass();
+                Class<? extends MigrationService> aiKafkaService = migrationServiceSelector.getCurrentService().getClass();
                 if(initialServiceClassB.get() == null) initialServiceClassB.set(aiKafkaService);
 
                 assertThat(initialServiceClassB.get()).isEqualTo(aiKafkaService);
 
                 // when
                 Thread.sleep(1000);
-                aiKafkaService = tranActionServiceSelector.getCurrentService().getClass();
+                aiKafkaService = migrationServiceSelector.getCurrentService().getClass();
 
                 assertThat(initialServiceClassB.get()).isEqualTo(aiKafkaService);
 
@@ -106,19 +106,19 @@ class TranActionServiceSelectorTest {
     @TestConfiguration
     static class Config {
 
-        @Bean("tranActionAiService")
-        public TranActionService tranActionAiService() {
-            return new TranActionAiServiceImpl();
+        @Bean("migrationAiService")
+        public MigrationService migrationAiService() {
+            return new MigrationAiService();
         }
 
-        @Bean("tranActionAiKafkaService")
-        public TranActionService tranActionAiKafkaService() {
-            return new TranActionAiKafkaServiceImpl();
+        @Bean("migrationAiKafkaService")
+        public MigrationService migrationAiKafkaService() {
+            return new MigrationAiKafkaService();
         }
 
-        @Bean("tranActionDefaultService")
-        public TranActionService tranActionDefaultService() {
-            return new TranActionDefaultServiceImpl();
+        @Bean("migrationDefaultService")
+        public MigrationService migrationDefaultService() {
+            return new MigrationDefaultService();
         }
 
     }

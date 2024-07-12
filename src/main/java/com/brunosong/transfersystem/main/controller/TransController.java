@@ -1,8 +1,8 @@
 package com.brunosong.transfersystem.main.controller;
 
-import com.brunosong.transfersystem.main.service.ServiceSelector;
+import com.brunosong.transfersystem.main.service.MigrationServiceSelector;
 import com.brunosong.transfersystem.main.service.ServiceSelector2;
-import com.brunosong.transfersystem.main.service.TranActionService;
+import com.brunosong.transfersystem.main.service.MigrationService;
 import com.brunosong.transfersystem.main.service.TranService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransController {
 
     private final TranService tranService;
-    private final ServiceSelector serviceSelector;
+    private final MigrationServiceSelector migrationServiceSelector;
 
     private final ServiceSelector2 serviceSelector2;
 
@@ -33,7 +33,7 @@ public class TransController {
     @GetMapping("/doTran2")
     public ResponseEntity<?> doTran2() throws InterruptedException {
 
-        serviceSelector.useServiceB();
+        migrationServiceSelector.useAiService();
         tranService.aiServiceKafkaTransProcess(1L);
 
         return new ResponseEntity<>("Hello",HttpStatus.OK);
@@ -49,7 +49,7 @@ public class TransController {
 
     @GetMapping("/doTran4")
     public ResponseEntity<?> doTran4() throws InterruptedException {
-        TranActionService tranActionAiKafkaService = ac.getBean("tranActionAiKafkaService", TranActionService.class);
+        MigrationService tranActionAiKafkaService = ac.getBean("tranActionAiKafkaService", MigrationService.class);
         serviceSelector2.useServiceA(tranActionAiKafkaService);
         tranService.aiServiceKafkaTransProcess(1L);
 

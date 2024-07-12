@@ -9,8 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 public class Chap {
 
-
-
     private Long chapSeq;
     private String chapTitle;
 

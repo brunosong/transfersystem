@@ -31,6 +31,7 @@ class ChapServiceTest {
 
         ChapSaveDto chapSaveDto = new ChapSaveDto();
         chapSaveDto.setChapSeq(1L);
+        chapSaveDto.setChapType("ENG");
 
         //stub
         when(chapRepository.findById(1L)).thenReturn(Optional.of(chap));
@@ -53,6 +54,7 @@ class ChapServiceTest {
         //given
         ChapSaveDto chapSaveDto = new ChapSaveDto();
         chapSaveDto.setChapSeq(1L);
+        chapSaveDto.setChapType("ENG");
 
         //stub
         when(chapRepository.findById(1L)).thenReturn(Optional.empty());

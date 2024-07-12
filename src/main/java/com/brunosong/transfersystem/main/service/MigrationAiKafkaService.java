@@ -6,17 +6,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("tranActionAiKafkaService")
+@Service("migrationAiKafkaService")
 @RequiredArgsConstructor
-public class TranActionAiKafkaServiceImpl implements TranActionService {
+public class MigrationAiKafkaService implements MigrationService {
 
     @Override
-    public void insertChap(List<TranDto.ChapTranDto> chapTranDtoList) {
+    public void transferCourse(List<TranDto.CourseTranDto> courseTranDtoList) {
 
     }
 
     @Override
-    public void insertCourse(List<TranDto.CourseTranDto> courseTranDtoList) {
+    public void transferChap(List<TranDto.ChapTranDto> chapTranDtoList) {
 
     }
 }
