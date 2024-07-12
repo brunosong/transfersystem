@@ -1,5 +1,6 @@
 package com.brunosong.transfersystem.main.controller;
 
+import com.brunosong.transfersystem.main.dto.TranActionDto;
 import com.brunosong.transfersystem.main.service.MigrationServiceSelector;
 import com.brunosong.transfersystem.main.service.ServiceSelector2;
 import com.brunosong.transfersystem.main.service.MigrationService;
@@ -16,43 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransController {
 
     private final TranService tranService;
-    private final MigrationServiceSelector migrationServiceSelector;
-
-    private final ServiceSelector2 serviceSelector2;
-
-    private final ApplicationContext ac;
 
     @GetMapping("/doTran")
-    public ResponseEntity<?> doTran() throws InterruptedException {
+    public ResponseEntity<?> doTran() {
 
-        tranService.aiServiceDbTransProcess(1L);
+        TranActionDto tranActionDto = new TranActionDto();
+        tranActionDto.setTargetService("aiService");
+        tranActionDto.setDbProfile("real");
 
+        if(tranActionDto.getTargetService().equals("aiService")) {
+            tranService.aiServiceTransferProcess(tranActionDto);
+        } else if(tranActionDto.getTargetService().equals("aiKafkaService")) {
+            tranService.aiKafkaServiceTransferProcess(tranActionDto);
+        }
         return new ResponseEntity<>("Hello",HttpStatus.OK);
+
     }
 
-    @GetMapping("/doTran2")
-    public ResponseEntity<?> doTran2() throws InterruptedException {
-
-        migrationServiceSelector.useAiService();
-        tranService.aiServiceKafkaTransProcess(1L);
-
-        return new ResponseEntity<>("Hello",HttpStatus.OK);
-    }
-
-    @GetMapping("/doTran3")
-    public ResponseEntity<?> doTran3() throws InterruptedException {
-
-        tranService.aiServiceDbTransProcess(1L);
-
-        return new ResponseEntity<>("Hello",HttpStatus.OK);
-    }
-
-    @GetMapping("/doTran4")
-    public ResponseEntity<?> doTran4() throws InterruptedException {
-        MigrationService tranActionAiKafkaService = ac.getBean("tranActionAiKafkaService", MigrationService.class);
-        serviceSelector2.useServiceA(tranActionAiKafkaService);
-        tranService.aiServiceKafkaTransProcess(1L);
-
-        return new ResponseEntity<>("Hello",HttpStatus.OK);
-    }
 }

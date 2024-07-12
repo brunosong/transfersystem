@@ -1,12 +1,18 @@
 package com.brunosong.transfersystem.aiservice.kafka;
 
-//@Slf4j
-//@Component
-//@RequiredArgsConstructor
-//@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")
-public class ChapConsumer {
+import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
-//    private final ChapMapper chapMapper;
+@Slf4j
+@Component
+@RequiredArgsConstructor
+@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")
+public class ChapConsumer {
+//
 //
 //    private final ChapService chapService;
 //
@@ -16,7 +22,7 @@ public class ChapConsumer {
 //        process(change);
 //    }
 //
-//    @KafkaListener(topics = "tb_cmn_chap_depdc_rlts_dev", groupId = "tb_cmn_chap_depdc_rlts_dev_group")
+//    @KafkaListener(topics = "bruno_chap_topic", groupId = "tb_cmn_chap_depdc_rlts_dev_group")
 //    private void listenDev(KafkaSendDto kafkaSendDto) {
 //        List<ChapDepdcRltsSaveDto> change = change(kafkaSendDto);
 //        process(change);

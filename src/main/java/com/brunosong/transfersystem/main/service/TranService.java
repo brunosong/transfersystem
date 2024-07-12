@@ -2,14 +2,15 @@ package com.brunosong.transfersystem.main.service;
 
 
 import com.brunosong.transfersystem.main.domain.chap.MainChap;
+import com.brunosong.transfersystem.main.dto.TranActionDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
+import com.brunosong.transfersystem.main.dto.TranEnum;
 import com.brunosong.transfersystem.main.repository.MainChapRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,12 +19,11 @@ import java.util.stream.Collectors;
 public class TranService {
     private final MainChapRepository mainChapRepository;
 
-    private final MigrationServiceSelector serviceSelector;
+    private final MigrationServiceSelector migrationServiceSelector;
 
-
-    public void aiServiceDbTransProcess(Long chapSep) {
-
-        log.info("TransService is {} " , serviceSelector.getCurrentService().getClass().getName() );
+    public void aiServiceTransferProcess(TranActionDto tranActionDto) {
+        migrationServiceSelector.useAiService();
+        log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
         /* Chapter */
         List<MainChap> mainChaps = mainChapRepository.findAll();
@@ -31,15 +31,22 @@ public class TranService {
         List<ChapTranDto> chapTranDtoList = mainChaps.stream().map(ChapTranDto::fromEntity)
                 .collect(Collectors.toList());
 
-        serviceSelector.getCurrentService().transferChap(chapTranDtoList);
+        migrationServiceSelector.getCurrentService().transferChap(chapTranDtoList, tranActionDto.getDbProfile());
 
+        migrationServiceSelector.clearCurrentService();
     }
 
-    public void aiServiceKafkaTransProcess(Long chapSep) throws InterruptedException {
+
+    public void aiKafkaServiceTransferProcess(TranActionDto tranActionDto) {
+        migrationServiceSelector.useAiKafkaService();
+        log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
 
 
 
+
+        migrationServiceSelector.clearCurrentService();
     }
+
 
 }

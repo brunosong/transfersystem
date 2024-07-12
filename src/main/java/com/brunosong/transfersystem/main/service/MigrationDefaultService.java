@@ -15,13 +15,12 @@ import java.util.List;
 public class MigrationDefaultService implements MigrationService {
 
     @Override
-    public void transferCourse(List<CourseTranDto> courseTranDtoList) {
+    public void transferCourse(List<CourseTranDto> courseTranDtoList, String dbProfile) {
 
     }
 
     @Override
-    public void transferChap(List<ChapTranDto> chapTranDtoList) {
+    public void transferChap(List<ChapTranDto> chapTranDtoList, String dbProfile) {
 
     }
-
 }

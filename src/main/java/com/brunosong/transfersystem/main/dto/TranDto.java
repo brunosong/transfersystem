@@ -4,8 +4,6 @@ import com.brunosong.transfersystem.main.domain.chap.MainChap;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
-
 public class TranDto {
 
     @Getter

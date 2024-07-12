@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface MigrationService {
 
-    void transferCourse(List<CourseTranDto> courseTranDtoList);
+    void transferCourse(List<CourseTranDto> courseTranDtoList, String dbProfile);
 
-    void transferChap(List<ChapTranDto> chapTranDtoList);
+    void transferChap(List<ChapTranDto> chapTranDtoList, String dbProfile);
 
 
 }

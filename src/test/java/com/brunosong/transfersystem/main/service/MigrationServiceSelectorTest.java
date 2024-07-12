@@ -1,12 +1,15 @@
 package com.brunosong.transfersystem.main.service;
 
 import com.brunosong.transfersystem.aiservice.service.MigrationAiService;
+
+import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -103,17 +106,18 @@ class MigrationServiceSelectorTest {
 
     }
 
+
     @TestConfiguration
     static class Config {
 
         @Bean("migrationAiService")
         public MigrationService migrationAiService() {
-            return new MigrationAiService();
+            return new MigrationAiService(null,null);
         }
 
         @Bean("migrationAiKafkaService")
         public MigrationService migrationAiKafkaService() {
-            return new MigrationAiKafkaService();
+            return new MigrationAiKafkaService(new KafkaTemplate<>(() -> { return null; }));
         }
 
         @Bean("migrationDefaultService")
