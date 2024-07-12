@@ -2,8 +2,10 @@ package com.brunosong.transfersystem.aiservice.infrastructure.chap;
 
 import com.brunosong.transfersystem.aiservice.domain.Chap;
 import com.brunosong.transfersystem.aiservice.service.chap.port.ChapRepository;
+import com.brunosong.transfersystem.config.datasources.RoutingDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 

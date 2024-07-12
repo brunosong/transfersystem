@@ -1,12 +1,11 @@
 package com.brunosong.transfersystem.main.controller;
 
+import com.brunosong.transfersystem.aiservice.infrastructure.chap.ChapJpaRepository;
+import com.brunosong.transfersystem.config.annotation.UseAiServiceDevDataSource;
+import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource;
 import com.brunosong.transfersystem.main.dto.TranActionDto;
-import com.brunosong.transfersystem.main.service.MigrationServiceSelector;
-import com.brunosong.transfersystem.main.service.ServiceSelector2;
-import com.brunosong.transfersystem.main.service.MigrationService;
 import com.brunosong.transfersystem.main.service.TranService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransController {
 
     private final TranService tranService;
+
+    private final ChapJpaRepository chapJpaRepository;
 
     @GetMapping("/doTran")
     public ResponseEntity<?> doTran() {
@@ -30,6 +31,28 @@ public class TransController {
         } else if(tranActionDto.getTargetService().equals("aiKafkaService")) {
             tranService.aiKafkaServiceTransferProcess(tranActionDto);
         }
+        return new ResponseEntity<>("Hello",HttpStatus.OK);
+
+    }
+
+
+    @UseAiServiceRealDataSource
+    @GetMapping("/checkAiReal")
+    public ResponseEntity<?> checkAiReal() {
+
+        System.out.println(chapJpaRepository.findAll());
+
+        return new ResponseEntity<>("Hello",HttpStatus.OK);
+
+    }
+
+
+    @UseAiServiceDevDataSource
+    @GetMapping("/checkAiDev")
+    public ResponseEntity<?> checkADev() {
+
+        System.out.println(chapJpaRepository.findAll());
+
         return new ResponseEntity<>("Hello",HttpStatus.OK);
 
     }

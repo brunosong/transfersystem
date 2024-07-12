@@ -39,7 +39,10 @@ public class DataSourceInitializer implements ApplicationListener<ContextRefresh
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         initializeDataSource(mainDataSource, "db/main/data.sql");
+        initializeDataSource(aiServiceRealDataSource, "db/aiservice/real/schema.sql");
 //        initializeDataSource(aiServiceRealDataSource, "classpath:db/aiservice/real/data.sql");
+
+
 //        initializeDataSource(aiServiceDevDataSource, "classpath:db/aiservice/dev/data.sql");
     }
 

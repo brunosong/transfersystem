@@ -3,8 +3,8 @@ package com.brunosong.transfersystem.aiservice.service;
 import com.brunosong.transfersystem.aiservice.dto.chap.ChapDto.ChapSaveDto;
 import com.brunosong.transfersystem.aiservice.mapper.ChapMapper;
 import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
-import com.brunosong.transfersystem.config.annotation.UseAiServiceDevDataSource;
-import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource;
+import com.brunosong.transfersystem.config.datasources.DataSourceType;
+import com.brunosong.transfersystem.config.datasources.RoutingDataSource;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
 import com.brunosong.transfersystem.main.dto.TranDto.CourseTranDto;
 import com.brunosong.transfersystem.main.service.MigrationService;
@@ -35,29 +35,25 @@ public class MigrationAiService implements MigrationService {
         List<ChapSaveDto> chapSaveDtoList = chapTranDtoList.stream().map(chapMapper::toChapSaveDto)
                 .collect(Collectors.toList());
 
-        Supplier<?> saveProcess = () -> {
+        saveProcess(dbProfile, () -> {
             for (ChapSaveDto chapSaveDto : chapSaveDtoList) {
                 chapService.save(chapSaveDto);
             }
             return null;
-        };
+        });
 
+    }
+
+    public void saveProcess(String dbProfile ,Supplier<?> process) {
         if(dbProfile.equals("real")) {
-            aiRealDbSave(saveProcess);
+            RoutingDataSource.setDataSourceType(DataSourceType.AISERVICE_REAL);
         } else {
-            aiDevDbSave(saveProcess);
+            RoutingDataSource.setDataSourceType(DataSourceType.AISERVICE_DEV);
         }
-    }
 
-    /* 템플릿 메소드 패턴을 사용할지 전략패턴을 사용할지 고민하다 템플릿 메소드 적용 */
-    @UseAiServiceRealDataSource
-    private void aiRealDbSave(Supplier<?> supplier) {
-        supplier.get();
-    }
+        process.get();
 
-    @UseAiServiceDevDataSource
-    private void aiDevDbSave(Supplier<?> supplier) {
-        supplier.get();
+        RoutingDataSource.clearDataSourceType();
     }
 
 }

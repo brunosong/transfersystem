@@ -35,6 +35,7 @@ spring:
       initialization-mode: never
 
     # AI Service Real
+    # The Real DDL is not working because the JPA setting on aiServiceDynamicDataSource is using the default aiservice-dev datasource for DDL creation.
     aiservice-real:
       driver-class-name: org.h2.Driver
       jdbcUrl: jdbc:h2:mem:aiserviceReal;DB_CLOSE_DELAY=-1;MODE=MySQL

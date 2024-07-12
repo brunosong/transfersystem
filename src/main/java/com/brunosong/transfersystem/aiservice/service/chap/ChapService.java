@@ -5,7 +5,6 @@ import com.brunosong.transfersystem.aiservice.dto.chap.ChapDto.ChapSaveDto;
 import com.brunosong.transfersystem.aiservice.service.chap.port.ChapRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ public class ChapService {
 
     private final ChapRepository chapRepository;
 
-    @Transactional("aiServiceJpaTransactionManager")
     public void save(ChapSaveDto saveDto) {
 
         Optional<Chap> findChap = chapRepository.findById(saveDto.getChapSeq());

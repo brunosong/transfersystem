@@ -22,7 +22,7 @@ import javax.sql.DataSource;
 @Configuration
 public class AiServiceJpaConfig {
 
-    @Bean
+    @Bean("aiServiceEntityManager")
     public LocalContainerEntityManagerFactoryBean aiServiceEntityManager(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource,
                                                                          @Qualifier("aiServiceJpaVendorAdapter") JpaVendorAdapter aiServiceJpaVendorAdapter,
                                                                          AiServiceJpaProperties aiServiceJpaProperties) {
@@ -36,7 +36,7 @@ public class AiServiceJpaConfig {
         return em;
     }
 
-    @Bean
+    @Bean("aiServiceJpaTransactionManager")
     public PlatformTransactionManager aiServiceJpaTransactionManager(@Qualifier("aiServiceEntityManager") LocalContainerEntityManagerFactoryBean aiServiceEntityManager) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(aiServiceEntityManager.getObject());

@@ -1,5 +1,6 @@
 package com.brunosong.transfersystem.config.datasources;
 
+import com.brunosong.transfersystem.mock.TestDataSourceConfig;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = RoutingDataSourceTest.DataSourceConfig.class)
+@ContextConfiguration(classes = TestDataSourceConfig.class)
 class RoutingDataSourceTest {
 
     @Autowired
@@ -39,41 +40,4 @@ class RoutingDataSourceTest {
         }
     }
 
-    @TestConfiguration
-    public static class DataSourceConfig {
-
-        @Bean
-        public DataSource dataSource() {
-            Map<Object, Object> dataSourceMap = new HashMap<>();
-            dataSourceMap.put(DataSourceType.AISERVICE_REAL, realDataSource());
-            dataSourceMap.put(DataSourceType.AISERVICE_DEV, devDataSource());
-
-            RoutingDataSource routingDataSource = new RoutingDataSource();
-            routingDataSource.setTargetDataSources(dataSourceMap);
-            routingDataSource.setDefaultTargetDataSource(devDataSource());
-
-            return routingDataSource;
-        }
-
-        @Bean
-        public DataSource realDataSource() {
-            return DataSourceBuilder.create()
-                    .url("jdbc:h2:mem:real")
-                    .username("sa")
-                    .password("")
-                    .driverClassName("org.h2.Driver")
-                    .build();
-        }
-
-        @Bean
-        public DataSource devDataSource() {
-            return DataSourceBuilder.create()
-                    .url("jdbc:h2:mem:dev")
-                    .username("sa")
-                    .password("")
-                    .driverClassName("org.h2.Driver")
-                    .build();
-        }
-
-    }
 }
