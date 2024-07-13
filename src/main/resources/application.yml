@@ -2,6 +2,13 @@ spring:
   application:
     name: BrunosongTransferSystem
 
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+
+
   # JPA Properties Setting
   aiservice-jpa:
     scan-package-path: com.brunosong.transfersystem.aiservice.infrastructure

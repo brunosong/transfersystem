@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -20,17 +21,19 @@ public class TransController {
     private final AiChapJpaRepository aiChapJpaRepository;
 
     @GetMapping("/doTran")
-    public ResponseEntity<?> doTran() {
+    public ResponseEntity<?> doTran(@RequestParam("targetService") String targetService,
+                                    @RequestParam("dbProfile") String dbProfile) {
 
         TranActionDto tranActionDto = new TranActionDto();
-        tranActionDto.setTargetService("aiService");
-        tranActionDto.setDbProfile("real");
+        tranActionDto.setTargetService(targetService);
+        tranActionDto.setDbProfile(dbProfile);
 
         if(tranActionDto.getTargetService().equals("aiService")) {
             tranService.aiServiceTransferProcess(tranActionDto);
         } else if(tranActionDto.getTargetService().equals("aiKafkaService")) {
             tranService.aiKafkaServiceTransferProcess(tranActionDto);
         }
+
         return new ResponseEntity<>("Hello",HttpStatus.OK);
 
     }

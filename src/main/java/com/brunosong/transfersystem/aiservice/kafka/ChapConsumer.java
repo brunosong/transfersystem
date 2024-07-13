@@ -1,53 +1,65 @@
 package com.brunosong.transfersystem.aiservice.kafka;
 
-import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
+import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto.AiChapSaveDto;
+import com.brunosong.transfersystem.aiservice.dto.kafka.KafkaReceiveDto.KafkaChapReceiveDto;
+import com.brunosong.transfersystem.aiservice.mapper.ChapMapper;
+import com.brunosong.transfersystem.aiservice.service.chap.AiChapService;
+import com.brunosong.transfersystem.config.annotation.UseAiServiceDevDataSource;
+import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource;
+import com.brunosong.transfersystem.config.datasources.DataSourceType;
+import com.brunosong.transfersystem.config.datasources.RoutingDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")
+//@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")
 public class ChapConsumer {
-//
-//
-//    private final ChapService chapService;
-//
-//    @KafkaListener(topics = "bruno_chap_topic", groupId = "bruno_chap_topic_group")
-//    private void listen(ChapSaveDto chapSaveDto) {
-//        List<ChapDepdcRltsSaveDto> change = change(kafkaSendDto);
-//        process(change);
-//    }
-//
-//    @KafkaListener(topics = "bruno_chap_topic", groupId = "tb_cmn_chap_depdc_rlts_dev_group")
-//    private void listenDev(KafkaSendDto kafkaSendDto) {
-//        List<ChapDepdcRltsSaveDto> change = change(kafkaSendDto);
-//        process(change);
-//    }
-//
-//    /* 변환처리 */
-//    public List<ChapDepdcRltsSaveDto> change(KafkaSendDto kafkaSendDto) {
-//
-//        List<TranVo> tranVoList = kafkaSendDto.getTranVoList();
-//        List<ChapDepdcRltsSaveDto> dtoList = new ArrayList<>();
-//
-//        for(TranVo tranVo : tranVoList){
-//            ChapDepdcRltsSaveDto dto = chapMapper.toChapDepdcRltsSaveDto(tranVo);
-//            dtoList.add(dto);
-//        }
-//
-//        return dtoList;
-//    }
-//
-//    /* 저장로직 */
-//    public void process(List<ChapDepdcRltsSaveDto> dtoList) {
-//        for (ChapDepdcRltsSaveDto chapDepdcRltsSaveDto : dtoList) {
-//            chapDepdcRltsService.save(chapDepdcRltsSaveDto);
-//        }
-//    }
 
+    private final AiChapService chapService;
+    private final ChapMapper chapMapper;
+
+    @KafkaListener(topics = "ai_chap_topic", groupId = "ai_chap_topic_group")
+    private void listen(KafkaChapReceiveDto kafkaChapReceiveDto) {
+        realProcess(kafkaChapReceiveDto);
+    }
+
+    @KafkaListener(topics = "ai_chap_dev_topic", groupId = "ai_chap_dev_topic_group")
+    private void listenDev(KafkaChapReceiveDto kafkaChapReceiveDto) {
+        devProcess(kafkaChapReceiveDto);
+    }
+
+    public void process(KafkaChapReceiveDto kafkaChapReceiveDto) {
+        if(null == kafkaChapReceiveDto.getChapTranDtoList()) {
+            AiChapSaveDto aiChapSaveDto =
+                    chapMapper.kafkaDtoToChapSaveDto(kafkaChapReceiveDto.getChapDto());
+
+            chapService.save(aiChapSaveDto);
+        } else {
+            List<AiChapSaveDto> aiChapSaveDtoList = kafkaChapReceiveDto.getChapTranDtoList().stream()
+                    .map(chapMapper::kafkaDtoToChapSaveDto).collect(Collectors.toList());
+
+            for (AiChapSaveDto aiChapSaveDto : aiChapSaveDtoList) {
+                chapService.save(aiChapSaveDto);
+            }
+        }
+    }
+
+    @UseAiServiceRealDataSource
+    public void realProcess(KafkaChapReceiveDto kafkaChapReceiveDto) {
+        process(kafkaChapReceiveDto);
+    }
+
+    @UseAiServiceDevDataSource
+    public void devProcess(KafkaChapReceiveDto kafkaChapReceiveDto) {
+        process(kafkaChapReceiveDto);
+    }
 
 }
