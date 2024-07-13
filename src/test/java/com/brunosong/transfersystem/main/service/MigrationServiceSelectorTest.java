@@ -2,7 +2,6 @@ package com.brunosong.transfersystem.main.service;
 
 import com.brunosong.transfersystem.aiservice.service.MigrationAiService;
 
-import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

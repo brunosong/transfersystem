@@ -1,8 +1,9 @@
 package com.brunosong.transfersystem.aiservice.service;
 
-import com.brunosong.transfersystem.aiservice.dto.chap.ChapDto.ChapSaveDto;
+import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto;
+import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto.AiChapSaveDto;
 import com.brunosong.transfersystem.aiservice.mapper.ChapMapper;
-import com.brunosong.transfersystem.aiservice.service.chap.ChapService;
+import com.brunosong.transfersystem.aiservice.service.chap.AiChapService;
 import com.brunosong.transfersystem.config.datasources.DataSourceType;
 import com.brunosong.transfersystem.config.datasources.RoutingDataSource;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
@@ -10,16 +11,18 @@ import com.brunosong.transfersystem.main.dto.TranDto.CourseTranDto;
 import com.brunosong.transfersystem.main.service.MigrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+/* AiService 기능을 호출하는 클라이언트 Service */
 @Service("migrationAiService")
 @RequiredArgsConstructor
 public class MigrationAiService implements MigrationService {
 
-    private final ChapService chapService;
+    private final AiChapService aiChapService;
 
     private final ChapMapper chapMapper;
 
@@ -29,21 +32,24 @@ public class MigrationAiService implements MigrationService {
 
     }
 
+    @Transactional("aiServiceJpaTransactionManager")
     @Override
     public void transferChap(List<ChapTranDto> chapTranDtoList, String dbProfile) {
 
-        List<ChapSaveDto> chapSaveDtoList = chapTranDtoList.stream().map(chapMapper::toChapSaveDto)
+        List<AiChapDto.AiChapSaveDto> aiChapSaveDtoList = chapTranDtoList.stream().map(chapMapper::toChapSaveDto)
                 .collect(Collectors.toList());
 
         saveChapProcess(dbProfile, () -> {
-            for (ChapSaveDto chapSaveDto : chapSaveDtoList) {
-                chapService.save(chapSaveDto);
+            for (AiChapSaveDto aiChapSaveDto : aiChapSaveDtoList) {
+                aiChapService.save(aiChapSaveDto);
             }
             return null;
         });
 
     }
 
+
+    
     public void saveChapProcess(String dbProfile ,Supplier<?> process) {
         if(dbProfile.equals("real")) {
             RoutingDataSource.setDataSourceType(DataSourceType.AISERVICE_REAL);

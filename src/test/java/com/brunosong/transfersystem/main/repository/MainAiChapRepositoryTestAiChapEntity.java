@@ -14,7 +14,7 @@ import java.util.List;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("jpa-test")
 @Sql("/data.sql")
-class MainChapRepositoryTest {
+class MainAiChapRepositoryTestAiChapEntity {
 
 
     @Autowired

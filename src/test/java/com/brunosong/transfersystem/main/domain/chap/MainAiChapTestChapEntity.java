@@ -12,7 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("jpa-test")
-class MainChapTest {
+class MainAiChapTestChapEntity {
 
     @Autowired
     MainChapRepository mainChapRepository;

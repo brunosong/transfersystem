@@ -1,10 +1,8 @@
 package com.brunosong.transfersystem.aiservice.mapper;
 
-import com.brunosong.transfersystem.aiservice.dto.chap.ChapDto;
-import com.brunosong.transfersystem.aiservice.dto.chap.ChapDto.ChapSaveDto;
-import com.brunosong.transfersystem.main.dto.TranDto;
+import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto;
+import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto.AiChapSaveDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +14,24 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = ChapMapperTest.TestMapperConfig.class)
-class ChapMapperTest {
+@ContextConfiguration(classes = AiChapChapMapperTestEntity.TestMapperConfig.class)
+class AiChapChapMapperTestEntity {
 
     @Autowired
     ChapMapper chapMapper;
 
     @Test
-    void ChapTranDto에서_ChapSaveDto로_변환된다() {
+    void ChapTranDto에서_AiChapSaveDto로_변환된다() {
         ChapTranDto chapTranDto = new ChapTranDto();
         chapTranDto.setChapSeq(1L);
         chapTranDto.setChapTitle("테스트 차시1");
         chapTranDto.setChapType("KOR");
 
-        ChapSaveDto chapSaveDto = chapMapper.toChapSaveDto(chapTranDto);
+        AiChapSaveDto aiChapSaveDto = chapMapper.toChapSaveDto(chapTranDto);
 
-        assertThat(chapTranDto.getChapSeq()).isEqualTo(chapSaveDto.getChapSeq());
-        assertThat(chapTranDto.getChapTitle()).isEqualTo(chapSaveDto.getChapTitle());
-        assertThat(chapTranDto.getChapType()).isEqualTo(chapSaveDto.getChapType());
+        assertThat(chapTranDto.getChapSeq()).isEqualTo(aiChapSaveDto.getAiChapSeq());
+        assertThat(chapTranDto.getChapTitle()).isEqualTo(aiChapSaveDto.getAiChapTitle());
+        assertThat(chapTranDto.getChapType()).isEqualTo(aiChapSaveDto.getAiChapType());
     }
 
     @TestConfiguration

@@ -10,19 +10,19 @@ import org.springframework.test.context.ActiveProfiles;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("jpa-test")
-class ChapJpaRepositoryTest {
+class AiChapAiChapJpaRepositoryTestEntity {
 
     @Autowired
-    ChapJpaRepository chapJpaRepository;
+    AiChapJpaRepository aiChapJpaRepository;
 
     @Test
     void ChapEntity가_정상적으로_저장된다(){
-        ChapEntity chapter1 = ChapEntity.builder()
-                .chapSeq(1L)
-                .chapTitle("테스트 차시")
+        AiChapEntity chapter1 = AiChapEntity.builder()
+                .aiChapSeq(1L)
+                .aiChapTitle("테스트 차시")
                 .build();
 
-        ChapEntity save = chapJpaRepository.save(chapter1);
+        AiChapEntity save = aiChapJpaRepository.save(chapter1);
         Assertions.assertThat(save).isNotNull();
     }
 

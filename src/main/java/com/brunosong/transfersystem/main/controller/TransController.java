@@ -1,6 +1,6 @@
 package com.brunosong.transfersystem.main.controller;
 
-import com.brunosong.transfersystem.aiservice.infrastructure.chap.ChapJpaRepository;
+import com.brunosong.transfersystem.aiservice.infrastructure.chap.AiChapJpaRepository;
 import com.brunosong.transfersystem.config.annotation.UseAiServiceDevDataSource;
 import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource;
 import com.brunosong.transfersystem.main.dto.TranActionDto;
@@ -17,7 +17,7 @@ public class TransController {
 
     private final TranService tranService;
 
-    private final ChapJpaRepository chapJpaRepository;
+    private final AiChapJpaRepository aiChapJpaRepository;
 
     @GetMapping("/doTran")
     public ResponseEntity<?> doTran() {
@@ -40,7 +40,7 @@ public class TransController {
     @GetMapping("/checkAiReal")
     public ResponseEntity<?> checkAiReal() {
 
-        System.out.println(chapJpaRepository.findAll());
+        System.out.println(aiChapJpaRepository.findAll());
 
         return new ResponseEntity<>("Hello",HttpStatus.OK);
 
@@ -51,7 +51,7 @@ public class TransController {
     @GetMapping("/checkAiDev")
     public ResponseEntity<?> checkADev() {
 
-        System.out.println(chapJpaRepository.findAll());
+        System.out.println(aiChapJpaRepository.findAll());
 
         return new ResponseEntity<>("Hello",HttpStatus.OK);
 
