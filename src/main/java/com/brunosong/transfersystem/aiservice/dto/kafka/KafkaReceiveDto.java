@@ -16,7 +16,7 @@ public class KafkaReceiveDto {
     public static class KafkaChapReceiveDto {
 
         private String dbProfile;
-        private KafkaChapDto chapDto;
+        private KafkaChapDto chapTranDto;
         private List<KafkaChapDto> chapTranDtoList;
 
     }

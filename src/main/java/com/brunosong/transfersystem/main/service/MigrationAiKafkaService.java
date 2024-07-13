@@ -1,6 +1,5 @@
 package com.brunosong.transfersystem.main.service;
 
-import com.brunosong.transfersystem.main.dto.TranDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
 import com.brunosong.transfersystem.main.dto.TranDto.CourseTranDto;
 import lombok.Getter;
@@ -25,14 +24,18 @@ public class MigrationAiKafkaService implements MigrationService {
     @Override
     public void transferChap(List<ChapTranDto> chapTranDtoList, String dbProfile) {
 
-        KafkaSendListDto kafkaSendListDto = new KafkaSendListDto();
-        kafkaSendListDto.setChapTranDtoList(chapTranDtoList);
+        KafkaSendDto kafkaSendDto = new KafkaSendDto();
 
-        if(dbProfile.equals("real")) {
-            kafkaTemplate.send("ai_chap_topic", kafkaSendListDto );
-        } else {
-            kafkaTemplate.send("ai_chap_dev_topic", kafkaSendListDto );
+
+        for (ChapTranDto chapTranDto: chapTranDtoList) {
+            kafkaSendDto.setChapTranDto(chapTranDto);
+            if(dbProfile.equals("real")) {
+                kafkaTemplate.send("ai_chap_topic", kafkaSendDto );
+            } else {
+                kafkaTemplate.send("ai_chap_dev_topic", kafkaSendDto );
+            }
         }
+
     }
 
     // List를 통째로 보내는 메소드
@@ -60,7 +63,7 @@ public class MigrationAiKafkaService implements MigrationService {
     public static class KafkaSendDto {
 
         private ChapTranDto chapTranDto;
-        private List<CourseTranDto> courseTranDtoList;
+        private CourseTranDto courseTranDto;
 
     }
 
