@@ -4,8 +4,7 @@ import com.brunosong.transfersystem.aiservice.domain.AiChap;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class AiChapChapEntityTestEntity {
-
+class AiChapEntityTest {
 
     @Test
     void 엔티티클래스에서_도메인객체를_사용해서_엔티티객체로_변환할_수_있다(){

@@ -1,6 +1,5 @@
 package com.brunosong.transfersystem.aiservice.mapper;
 
-import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto;
 import com.brunosong.transfersystem.aiservice.dto.chap.AiChapDto.AiChapSaveDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
 import org.mapstruct.Mapper;

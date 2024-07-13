@@ -1,6 +1,5 @@
 package com.brunosong.transfersystem.aiservice.infrastructure.course;
 
-import com.brunosong.transfersystem.aiservice.domain.AiChap;
 import com.brunosong.transfersystem.aiservice.domain.AiCourse;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import javax.persistence.Table;
 
 
 @Entity
-@Table(name = "ai_chap")
+@Table(name = "ai_course")
 @Builder
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,7 +23,6 @@ public class AiCourseEntity {
 
     @Column(name = "ai_course_name")
     private String aiCourseName;
-
 
     public AiCourse toModel(){
         return AiCourse.builder()

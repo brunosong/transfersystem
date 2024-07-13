@@ -10,13 +10,13 @@ import org.springframework.test.context.ActiveProfiles;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("jpa-test")
-class AiChapAiChapJpaRepositoryTestEntity {
+class AiChapJpaRepositoryTest {
 
     @Autowired
     AiChapJpaRepository aiChapJpaRepository;
 
     @Test
-    void ChapEntity가_정상적으로_저장된다(){
+    void ChapEntity_정상적으로_저장된다(){
         AiChapEntity chapter1 = AiChapEntity.builder()
                 .aiChapSeq(1L)
                 .aiChapTitle("테스트 차시")
