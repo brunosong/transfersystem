@@ -7,6 +7,11 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+#      max-poll-records: 1 # 한건에 리스트를 보낼것이고 리스트에 시간이 많이 걸리기에 한건만 가져온다
+#      max-poll-interval-ms: 600000 # 메시지를 처리할 최대 시간 (10분)
+#      enable-auto-commit: false   # 자동으로 커밋하는걸 방지하여
+#      auto-offset-reset: earliest  # offset 커밋내역이 없으면 offset 첨부터 읽어 들인다
+
 
 
   # JPA Properties Setting
