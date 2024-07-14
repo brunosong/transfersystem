@@ -1,13 +1,30 @@
 package com.brunosong.transfersystem.main.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+import javax.validation.constraints.NotBlank;
+
 public class TranActionDto {
 
-    private String targetService;
-    private String dbProfile;
+    @Getter
+    @Setter
+    public static class TranActionReqDto {
+
+        @NotBlank(message = "Target service is required")
+        private String targetService;
+
+        @NotBlank(message = "Database profile is required")
+        private String dbProfile;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class TranActionRespDto {
+        private String message;
+    }
 
 }

@@ -24,4 +24,23 @@ public class AiChapDto {
 
     }
 
+    @Getter
+    @Setter
+    public static class AiChapRespDto {
+
+        Long aiChapSeq;
+        String aiChapTitle;
+        String aiChapType;
+
+        public static AiChapRespDto fromDomain(AiChap aiChap) {
+            AiChapRespDto aiChapRespDto = new AiChapRespDto();
+            aiChapRespDto.setAiChapSeq(aiChap.getAiChapSeq());
+            aiChapRespDto.setAiChapTitle(aiChap.getAiChapTitle());
+            aiChapRespDto.setAiChapType(aiChap.getAiChapType().name());
+            return aiChapRespDto;
+        }
+
+    }
+
+
 }

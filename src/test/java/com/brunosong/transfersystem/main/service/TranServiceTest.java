@@ -2,6 +2,7 @@ package com.brunosong.transfersystem.main.service;
 
 import com.brunosong.transfersystem.main.domain.chap.MainChap;
 import com.brunosong.transfersystem.main.dto.TranActionDto;
+import com.brunosong.transfersystem.main.dto.TranActionDto.TranActionReqDto;
 import com.brunosong.transfersystem.main.dto.TranDto;
 import com.brunosong.transfersystem.main.repository.MainChapRepository;
 import com.brunosong.transfersystem.main.repository.MainCourseRepository;
@@ -57,7 +58,7 @@ class TranServiceTest {
                 .build();
         mainChaps.add(model);
 
-        TranActionDto tranActionDto = new TranActionDto();
+        TranActionReqDto tranActionDto = new TranActionReqDto();
         tranActionDto.setDbProfile("real");
 
         when(mainChapRepository.findAll()).thenReturn(mainChaps);
@@ -77,7 +78,7 @@ class TranServiceTest {
 
         List<MainChap> mainChaps = new ArrayList<>();
 
-        TranActionDto tranActionDto = new TranActionDto();
+        TranActionReqDto tranActionDto = new TranActionReqDto();
         tranActionDto.setDbProfile("real");
 
         when(mainChapRepository.findAll()).thenReturn(mainChaps);

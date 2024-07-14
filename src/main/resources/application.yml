@@ -1,6 +1,16 @@
 spring:
   application:
     name: BrunosongTransferSystem
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    content-type: text/html
+
+  devtools:
+    restart:
+      enabled: false
 
   kafka:
     producer:

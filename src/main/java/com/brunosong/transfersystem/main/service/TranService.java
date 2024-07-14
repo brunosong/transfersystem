@@ -4,6 +4,7 @@ package com.brunosong.transfersystem.main.service;
 import com.brunosong.transfersystem.main.domain.chap.MainChap;
 import com.brunosong.transfersystem.main.domain.course.MainCourse;
 import com.brunosong.transfersystem.main.dto.TranActionDto;
+import com.brunosong.transfersystem.main.dto.TranActionDto.TranActionReqDto;
 import com.brunosong.transfersystem.main.dto.TranDto.ChapTranDto;
 import com.brunosong.transfersystem.main.dto.TranDto.CourseTranDto;
 import com.brunosong.transfersystem.main.repository.MainChapRepository;
@@ -28,30 +29,30 @@ public class TranService {
 
 
     /* AI Service 로 데이터를 이관한다. (DB -> DB)  */
-    public void aiServiceTransferProcess(TranActionDto tranActionDto) {
+    public void aiServiceTransferProcess(TranActionReqDto tranActionReqDto) {
         migrationServiceSelector.useAiService();
         log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
-        mainChapProcess(tranActionDto);
+        mainChapProcess(tranActionReqDto);
 
         migrationServiceSelector.clearCurrentService();
     }
 
 
     /* AI Service 로 카푸카를 이용해서 데이터를 이관한다. (DB -> Kafka -> DB)  */
-    public void aiKafkaServiceTransferProcess(TranActionDto tranActionDto) {
+    public void aiKafkaServiceTransferProcess(TranActionReqDto tranActionReqDto) {
         migrationServiceSelector.useAiKafkaService();
         log.info("Selected MigrationService is {} " , migrationServiceSelector.getCurrentService().getClass().getSimpleName() );
 
-        mainCourseProcess(tranActionDto);
+        mainCourseProcess(tranActionReqDto);
 
-        mainChapProcess(tranActionDto);
+        mainChapProcess(tranActionReqDto);
 
         migrationServiceSelector.clearCurrentService();
     }
 
 
-    public void mainCourseProcess(TranActionDto tranActionDto) {
+    public void mainCourseProcess(TranActionReqDto tranActionReqDto) {
 
         /* Course 로직 */
         List<MainCourse> mainCourses = mainCourseRepository.findAll();
@@ -63,11 +64,11 @@ public class TranService {
         List<CourseTranDto> courseTranDtoList = mainCourses.stream().map(CourseTranDto::fromEntity)
                 .collect(Collectors.toList());
 
-        migrationServiceSelector.getCurrentService().transferCourse(courseTranDtoList, tranActionDto.getDbProfile());
+        migrationServiceSelector.getCurrentService().transferCourse(courseTranDtoList, tranActionReqDto.getDbProfile());
 
     }
 
-    public void mainChapProcess(TranActionDto tranActionDto) {
+    public void mainChapProcess(TranActionReqDto tranActionReqDto) {
 
         /* Chapter */
         List<MainChap> mainChaps = mainChapRepository.findAll();
@@ -79,7 +80,7 @@ public class TranService {
         List<ChapTranDto> chapTranDtoList = mainChaps.stream().map(ChapTranDto::fromEntity)
                 .collect(Collectors.toList());
 
-        migrationServiceSelector.getCurrentService().transferChap(chapTranDtoList, tranActionDto.getDbProfile());
+        migrationServiceSelector.getCurrentService().transferChap(chapTranDtoList, tranActionReqDto.getDbProfile());
     }
 
 
