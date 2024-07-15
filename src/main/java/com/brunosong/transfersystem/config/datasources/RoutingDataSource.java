@@ -9,13 +9,17 @@ public class RoutingDataSource extends AbstractRoutingDataSource {
     private static final ThreadLocal<DataSourceType> contextHolder = new ThreadLocal<>();
 
     public static void setDataSourceType(DataSourceType dataSourceType) {
-        log.info("AI_SERVICE DATASOURCE SETTING IS {}" , dataSourceType.name());
+        log.info("DATASOURCE SETTING IS {}" , dataSourceType.name());
         contextHolder.set(dataSourceType);
     }
 
     public static void clearDataSourceType() {
-        log.info("AI_SERVICE clearDataSourceType IS {}" , contextHolder.getClass());
+        log.info("clearDataSourceType IS {}" , contextHolder.getClass());
         contextHolder.remove();
+    }
+
+    public static DataSourceType getDataSourceType() {
+        return contextHolder.get();
     }
 
     @Override

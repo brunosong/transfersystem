@@ -26,7 +26,6 @@ public class MigrationAiKafkaService implements MigrationService {
 
         KafkaSendDto kafkaSendDto = new KafkaSendDto();
 
-
         for (ChapTranDto chapTranDto: chapTranDtoList) {
             kafkaSendDto.setChapTranDto(chapTranDto);
             if(dbProfile.equals("real")) {

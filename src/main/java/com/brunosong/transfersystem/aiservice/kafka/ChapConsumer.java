@@ -9,6 +9,7 @@ import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-//@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")
+@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")   // 카푸카 리스너만 사용을 하지 않도록 설정
 public class ChapConsumer {
 
     private final AiChapService chapService;
