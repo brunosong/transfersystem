@@ -28,13 +28,13 @@ public class ChapConsumer {
     private final ChapMapper chapMapper;
 
     @KafkaListener(topics = "ai_chap_topic", groupId = "ai_chap_topic_group", containerFactory = "manualCommitFactory")
-    private void listenAiChapTopic(KafkaChapReceiveDto kafkaChapReceiveDto, Acknowledgment ack) {
+    public void listenAiChapTopic(KafkaChapReceiveDto kafkaChapReceiveDto, Acknowledgment ack) {
         processMessage(kafkaChapReceiveDto,ack,true);
     }
 
 
     @KafkaListener(topics = "ai_chap_dev_topic", groupId = "ai_chap_dev_topic_group", containerFactory = "manualCommitFactory")
-    private void listenAiChapDevTopic(KafkaChapReceiveDto kafkaChapReceiveDto, Acknowledgment ack) {
+    public void listenAiChapDevTopic(KafkaChapReceiveDto kafkaChapReceiveDto, Acknowledgment ack) {
         processMessage(kafkaChapReceiveDto,ack,false);
     }
 
@@ -52,16 +52,16 @@ public class ChapConsumer {
     }
 
     @KafkaListener(topics = "ai_chap_topic.DLT", groupId = "ai_chap_topic_group.DLT", containerFactory = "manualCommitFactory")
-    private void listen(ConsumerRecord<?, ?> record) {
+    public void listen(ConsumerRecord<?, ?> record) {
         processDLT(record);
     }
 
     @KafkaListener(topics = "ai_chap_dev_topic.DLT", groupId = "ai_chap_dev_topic_group.DLT", containerFactory = "manualCommitFactory")
-    private void listenDev(ConsumerRecord<?, ?> record) {
+    public void listenDev(ConsumerRecord<?, ?> record) {
         processDLT(record);
     }
 
-    private void processDLT(ConsumerRecord<?, ?> record) {
+    public void processDLT(ConsumerRecord<?, ?> record) {
         // Dead Letter 메시지 로그
         log.error("Dead Letter Topic - Key: {}, Value: {}, Partition: {}, Offset: {}",
                 record.key(), record.value(), record.partition(), record.offset());
