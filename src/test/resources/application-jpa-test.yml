@@ -1,5 +1,8 @@
 # 스프링 설정
 spring:
+  kafka:
+    enabled: true
+    main-start: false
   jpa:
     show_sql: true
     generate-ddl: true
