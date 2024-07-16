@@ -1,13 +1,9 @@
 package com.brunosong.transfersystem.main.service;
 
 import com.brunosong.transfersystem.main.domain.chap.MainChap;
-import com.brunosong.transfersystem.main.dto.TranActionDto;
 import com.brunosong.transfersystem.main.dto.TranActionDto.TranActionReqDto;
-import com.brunosong.transfersystem.main.dto.TranDto;
 import com.brunosong.transfersystem.main.repository.MainChapRepository;
 import com.brunosong.transfersystem.main.repository.MainCourseRepository;
-import com.brunosong.transfersystem.main.service.exception.TranCustomException;
-import com.brunosong.transfersystem.mock.MockMigrationService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +12,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

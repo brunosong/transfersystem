@@ -8,6 +8,9 @@ spring:
     encoding: UTF-8
     content-type: text/html
 
+  messages:
+    encoding: UTF-8
+
   devtools:
     restart:
       enabled: false

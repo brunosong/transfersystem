@@ -1,25 +1,31 @@
 package com.brunosong.transfersystem.main.controller;
 
-import com.brunosong.transfersystem.aiservice.infrastructure.chap.AiChapJpaRepository;
 import com.brunosong.transfersystem.main.dto.TranActionDto.TranActionReqDto;
 import com.brunosong.transfersystem.main.dto.TranActionDto.TranActionRespDto;
 import com.brunosong.transfersystem.main.service.TranService;
+import com.brunosong.transfersystem.main.service.exception.TranCustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
+import java.util.Locale;
 
 @RestController
 @RequiredArgsConstructor
 public class TransController {
 
     private final TranService tranService;
+    private final MessageSource messageSource;
 
     @PostMapping("/doTran")
-    public ResponseEntity<TranActionRespDto> doTran(@RequestBody TranActionReqDto tranActionReqDto,
+    public ResponseEntity<TranActionRespDto> doTran(@Valid @RequestBody TranActionReqDto tranActionReqDto,
                                                     BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -33,13 +39,16 @@ public class TransController {
             tranService.aiKafkaServiceTransferProcess(tranActionReqDto);
         }
 
-        // 메시지 생성 Todo. MessageSource 로 바꿔야 한다.
-        String message = "정상적으로 targetService: " + tranActionReqDto.getTargetService() +
-                " and dbProfile: " + tranActionReqDto.getDbProfile() + "로 이관되었습니다.";
+        String message = messageSource.getMessage("transfer.success",
+                new Object[]{tranActionReqDto.getTargetService(), tranActionReqDto.getDbProfile()}, Locale.getDefault());
 
         return new ResponseEntity<>(new TranActionRespDto(message), HttpStatus.OK);
 
     }
 
+    @ExceptionHandler(TranCustomException.class)
+    public ResponseEntity<TranActionRespDto> handleTranCustomException(TranCustomException ex) {
+        return new ResponseEntity<>(new TranActionRespDto(ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 }
