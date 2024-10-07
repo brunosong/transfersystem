@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service.mapper;
 
-import com.brunosong.transfer.system.transfer.service.dto.TranDto;
 import org.springframework.stereotype.Component;
 
 @Component

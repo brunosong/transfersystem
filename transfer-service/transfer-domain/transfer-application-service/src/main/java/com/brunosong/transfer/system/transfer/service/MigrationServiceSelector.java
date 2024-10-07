@@ -8,43 +8,43 @@ import org.springframework.stereotype.Component;
 @Component
 public class MigrationServiceSelector {
 
-    private MigrationService migrationDefaultService;
-    private MigrationService migrationAiService;
-    private MigrationService migrationAiKafkaService;
-
-    /* 동시성 이슈를 해결하기 위해 ThreadLocal 사용 */
-    private final ThreadLocal<MigrationService> currentService = ThreadLocal.withInitial(() -> migrationDefaultService);
-
-    @Autowired
-    public MigrationServiceSelector(@Qualifier("migrationDefaultService") MigrationService migrationDefaultService,
-                                    @Qualifier("migrationAiKafkaService") MigrationService migrationAiKafkaService,
-                                    @Qualifier("migrationAiService") MigrationService migrationAiService) {
-
-        this.migrationDefaultService = migrationDefaultService;
-        this.migrationAiService = migrationAiService;
-        this.migrationAiKafkaService = migrationAiKafkaService;
-    }
-
-
-    public void useDefaultService() {
-        currentService.set(migrationDefaultService);
-    }
-
-    public void useAiService() {
-        currentService.set(migrationAiService);
-    }
-
-    public void useAiKafkaService() {
-        currentService.set(migrationAiKafkaService);
-    }
-
-    public MigrationService getCurrentService() {
-        return currentService.get();
-    }
-
-    public void clearCurrentService() {
-        currentService.remove();
-    }
+//    private MigrationService migrationDefaultService;
+//    private MigrationService migrationAiService;
+//    private MigrationService migrationAiKafkaService;
+//
+//    /* 동시성 이슈를 해결하기 위해 ThreadLocal 사용 */
+//    private final ThreadLocal<MigrationService> currentService = ThreadLocal.withInitial(() -> migrationDefaultService);
+//
+//    @Autowired
+//    public MigrationServiceSelector(@Qualifier("migrationDefaultService") MigrationService migrationDefaultService,
+//                                    @Qualifier("migrationAiKafkaService") MigrationService migrationAiKafkaService,
+//                                    @Qualifier("migrationAiService") MigrationService migrationAiService) {
+//
+//        this.migrationDefaultService = migrationDefaultService;
+//        this.migrationAiService = migrationAiService;
+//        this.migrationAiKafkaService = migrationAiKafkaService;
+//    }
+//
+//
+//    public void useDefaultService() {
+//        currentService.set(migrationDefaultService);
+//    }
+//
+//    public void useAiService() {
+//        currentService.set(migrationAiService);
+//    }
+//
+//    public void useAiKafkaService() {
+//        currentService.set(migrationAiKafkaService);
+//    }
+//
+//    public MigrationService getCurrentService() {
+//        return currentService.get();
+//    }
+//
+//    public void clearCurrentService() {
+//        currentService.remove();
+//    }
 
 
 }
