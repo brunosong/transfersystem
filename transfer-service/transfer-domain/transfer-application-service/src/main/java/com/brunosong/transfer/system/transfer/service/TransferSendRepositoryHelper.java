@@ -16,6 +16,7 @@ import java.util.List;
 public class TransferSendRepositoryHelper extends TransferSendHelper {
 
     private final SaveTargetRepository saveTargetRepository;
+
     public TransferSendRepositoryHelper(CourseRepository courseRepository, ChapterRepository chapterRepository, SaveTargetRepository saveTargetRepository) {
         super(courseRepository, chapterRepository);
         this.saveTargetRepository = saveTargetRepository;
@@ -31,7 +32,6 @@ public class TransferSendRepositoryHelper extends TransferSendHelper {
         }
 
         saveTargetRepository.saveCourses(courseList);
-
     }
 
     @Override
