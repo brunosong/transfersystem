@@ -44,25 +44,25 @@ class TransferSendRepositoryHelperTest {
         courseList = new ArrayList<>();
         courseList.add(new Course(1L, "테스트 코스1"));
 
-        when(courseRepository.findAll()).thenReturn(courseList);
+        when(courseRepository.findByUpSeq(any())).thenReturn(courseList);
     }
 
     @Test
     void COURSE_정상적으로_로직이_흘러갔다() {
         transferSendRepositoryHelper.courseTransferProcess(excutionTransferCommand);
-        verify(courseRepository,times(1)).findAll();
+        verify(courseRepository,times(1)).findByUpSeq(any());
         verify(saveTargetRepository,times(1)).saveCourses(courseList);
     }
 
     @Test
     void COURSELIST_값이없을때_EXCEIPTION을_반환한다() {
-        when(courseRepository.findAll()).thenReturn(Collections.emptyList());
+        when(courseRepository.findByUpSeq(any())).thenReturn(Collections.emptyList());
 
         assertThrows(CourseNotFoundException.class, () -> {
             transferSendRepositoryHelper.courseTransferProcess(excutionTransferCommand);
         });
 
-        verify(courseRepository,times(1)).findAll();
+        verify(courseRepository,times(1)).findByUpSeq(any());
     }
 
 

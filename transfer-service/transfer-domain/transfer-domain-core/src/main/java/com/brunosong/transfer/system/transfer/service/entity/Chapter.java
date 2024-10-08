@@ -9,4 +9,5 @@ public class Chapter {
     private Long chapSeq;
     private String chapTitle;
     private String chapType;
+    private int chapOrder;
 }

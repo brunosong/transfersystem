@@ -5,5 +5,5 @@ import com.brunosong.transfer.system.transfer.service.entity.Course;
 import java.util.List;
 
 public interface CourseRepository {
-    List<Course> findAll();
+    List<Course> findByUpSeq(Long upSeq);
 }

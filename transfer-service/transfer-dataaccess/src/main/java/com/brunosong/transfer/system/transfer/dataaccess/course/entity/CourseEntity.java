@@ -1,8 +1,11 @@
 package com.brunosong.transfer.system.transfer.dataaccess.course.entity;
 
+import com.brunosong.transfer.system.transfer.dataaccess.chapter.entity.ChapterEntity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -20,5 +23,14 @@ public class CourseEntity {
     @Column(name = "course_name")
     private String courseName;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    @OrderBy("chapOrder ASC")
+    private List<ChapterEntity> chapterList = new ArrayList<>();
 
+    public void addChapter(ChapterEntity chapterEntity) {
+        chapterEntity.setCourse(this);
+        chapterList.add(chapterEntity);
+        chapterEntity.setChapOrder(chapterList.size());
+    }
 }

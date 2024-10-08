@@ -22,6 +22,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>transfer-application-service</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>

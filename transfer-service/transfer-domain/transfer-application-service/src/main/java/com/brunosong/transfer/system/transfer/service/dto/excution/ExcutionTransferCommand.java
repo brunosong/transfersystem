@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -13,10 +13,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class ExcutionTransferCommand {
 
-    @NotBlank(message = "Target service is required")
-    private String targetService;
-
-    @NotBlank(message = "Database profile is required")
-    private String dbProfile;
+    @NotNull(message = "upSeq is null")
+    private Long upSeq;
 
 }
