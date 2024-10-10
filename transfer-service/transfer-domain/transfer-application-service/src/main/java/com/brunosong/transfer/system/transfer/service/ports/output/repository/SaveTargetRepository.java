@@ -6,6 +6,6 @@ import com.brunosong.transfer.system.transfer.service.entity.Course;
 import java.util.List;
 
 public interface SaveTargetRepository {
-    void saveCourses(List<Course> courseList);
+    void saveCourse(Course course);
     void saveChapters(List<Chapter> chapterList);
 }

@@ -27,19 +27,19 @@ public class TransferSendRepositoryHelper extends TransferSendHelper {
     @Override
     public void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
         //course 정보를 가져오고
-        List<Course> courseList = courseRepository.findByUpSeq(excutionTransferCommand.getUpSeq());
+        Course course = courseRepository.findById(excutionTransferCommand.getCourseSeq());
 
-        if(courseList.isEmpty()) {
+        if(course == null) {
             throw new CourseNotFoundException("Empty Course");
         }
 
-        saveTargetRepository.saveCourses(courseList);
+        saveTargetRepository.saveCourse(course);
     }
 
     @Override
     void chapterTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
 
-        List<Chapter> chapterList = chapterRepository.findByCourseSeq(excutionTransferCommand.getUpSeq());
+        List<Chapter> chapterList = chapterRepository.findByCourseSeq(excutionTransferCommand.getCourseSeq());
 
         if(chapterList.isEmpty()) {
             throw new ChapterNotFoundException("Empty Chapter");
