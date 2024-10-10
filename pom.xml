@@ -87,6 +87,11 @@
                 <artifactId>transfer-application-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>transfer-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

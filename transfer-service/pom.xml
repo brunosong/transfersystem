@@ -16,6 +16,7 @@
         <module>transfer-container</module>
         <module>transfer-dataaccess</module>
         <module>transfer-messaging</module>
+        <module>transfer-application</module>
     </modules>
 
 </project>
