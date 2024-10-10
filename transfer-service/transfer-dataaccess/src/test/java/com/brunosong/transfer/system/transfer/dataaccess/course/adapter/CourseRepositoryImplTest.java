@@ -55,7 +55,7 @@ class CourseRepositoryImplTest {
 
     @Test
     void COURSE_ENTITY_에서_COURSE_로_변경되어_가져온다() {
-        Course course = courseRepository.findById(courseSeq);
+        Course course = courseRepository.findById(courseSeq).get();
 
         Assertions.assertThat(course.getChapterList()).hasSize(2);
 

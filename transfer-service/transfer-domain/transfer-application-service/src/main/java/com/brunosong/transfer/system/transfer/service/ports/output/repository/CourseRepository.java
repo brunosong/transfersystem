@@ -2,6 +2,8 @@ package com.brunosong.transfer.system.transfer.service.ports.output.repository;
 
 import com.brunosong.transfer.system.transfer.service.entity.Course;
 
+import java.util.Optional;
+
 public interface CourseRepository {
-    Course findById(Long courseSeq);
+    Optional<Course> findById(Long courseSeq);
 }

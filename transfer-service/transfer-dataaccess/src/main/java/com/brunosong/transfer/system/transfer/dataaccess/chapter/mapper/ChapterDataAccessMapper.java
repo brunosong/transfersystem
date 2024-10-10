@@ -13,6 +13,7 @@ public class ChapterDataAccessMapper {
                 .chapTitle(chapterEntity.getChapTitle())
                 .chapType(chapterEntity.getChapType() != null ? chapterEntity.getChapType().name() : "")
                 .chapOrder(chapterEntity.getChapOrder())
+                .courseSeq(chapterEntity.getCourse().getCourseSeq())
                 .build();
     }
 }

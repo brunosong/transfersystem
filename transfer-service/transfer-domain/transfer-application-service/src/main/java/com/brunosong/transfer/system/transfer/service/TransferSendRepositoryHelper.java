@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -27,13 +28,13 @@ public class TransferSendRepositoryHelper extends TransferSendHelper {
     @Override
     public void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
         //course 정보를 가져오고
-        Course course = courseRepository.findById(excutionTransferCommand.getCourseSeq());
+        Optional<Course> course = courseRepository.findById(excutionTransferCommand.getCourseSeq());
 
-        if(course == null) {
+        if(course.isEmpty()) {
             throw new CourseNotFoundException("Empty Course");
         }
 
-        saveTargetRepository.saveCourse(course);
+        saveTargetRepository.saveCourse(course.get());
     }
 
     @Override

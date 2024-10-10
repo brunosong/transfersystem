@@ -18,8 +18,8 @@ public class CourseRepositoryImpl implements CourseRepository {
     private final CourseDataAccessMapper courseDataAccessMapper;
 
     @Override
-    public Course findById(Long courseSeq) {
+    public Optional<Course> findById(Long courseSeq) {
         Optional<CourseEntity> courseEntity = courseJpaRepository.findById(courseSeq);
-        return courseDataAccessMapper.courseEntityToCourse(courseEntity.get());
+        return Optional.of(courseDataAccessMapper.courseEntityToCourse(courseEntity.get()));
     }
 }
