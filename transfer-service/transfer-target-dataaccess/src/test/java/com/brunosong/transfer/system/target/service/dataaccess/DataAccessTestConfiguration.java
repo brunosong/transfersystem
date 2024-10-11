@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.transfer.dataaccess;
+package com.brunosong.transfer.system.target.service.dataaccess;
 
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

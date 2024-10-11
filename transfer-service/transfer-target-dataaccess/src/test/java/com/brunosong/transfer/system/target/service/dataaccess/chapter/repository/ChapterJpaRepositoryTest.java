@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.transfer.dataaccess.chapter.repository;
+package com.brunosong.transfer.system.target.service.dataaccess.chapter.repository;
 
-import com.brunosong.transfer.system.transfer.dataaccess.DataAccessTestConfiguration;
+import com.brunosong.transfer.system.target.service.dataaccess.DataAccessTestConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 

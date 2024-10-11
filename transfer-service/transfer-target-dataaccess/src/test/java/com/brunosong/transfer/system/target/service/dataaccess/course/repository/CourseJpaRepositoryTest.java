@@ -1,9 +1,9 @@
-package com.brunosong.transfer.system.transfer.dataaccess.course.repository;
+package com.brunosong.transfer.system.target.service.dataaccess.course.repository;
 
-import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.entity.ChapterEntity;
-import com.brunosong.transfer.system.transfer.dataaccess.DataAccessTestConfiguration;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.repository.CourseJpaRepository;
+import com.brunosong.transfer.system.target.service.dataaccess.DataAccessTestConfiguration;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.entity.CourseEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.repository.CourseJpaRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

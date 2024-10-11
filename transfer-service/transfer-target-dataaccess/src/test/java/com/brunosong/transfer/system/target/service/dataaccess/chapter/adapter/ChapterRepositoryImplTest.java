@@ -1,6 +1,11 @@
-package com.brunosong.transfer.system.transfer.dataaccess.chapter.adapter;
+package com.brunosong.transfer.system.target.service.dataaccess.chapter.adapter;
 
-import com.brunosong.transfer.system.transfer.dataaccess.DataAccessTestConfiguration;
+import com.brunosong.transfer.system.target.service.dataaccess.DataAccessTestConfiguration;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.adapter.ChapterRepositoryImpl;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.mapper.ChapterDataAccessMapper;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.entity.CourseEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.repository.CourseJpaRepository;
 import com.brunosong.transfer.system.transfer.service.entity.Chapter;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
 import org.assertj.core.api.Assertions;

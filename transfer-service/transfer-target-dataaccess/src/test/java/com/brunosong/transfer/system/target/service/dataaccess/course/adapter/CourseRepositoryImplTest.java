@@ -1,12 +1,12 @@
-package com.brunosong.transfer.system.transfer.dataaccess.course.adapter;
+package com.brunosong.transfer.system.target.service.dataaccess.course.adapter;
 
-import com.brunosong.transfer.system.transfer.dataaccess.DataAccessTestConfiguration;
-import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.entity.ChapterEntity;
-import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.mapper.ChapterDataAccessMapper;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.adapter.CourseRepositoryImpl;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.mapper.CourseDataAccessMapper;
-import com.brunosong.transfer.system.transfer.service.dataaccess.course.repository.CourseJpaRepository;
+import com.brunosong.transfer.system.target.service.dataaccess.DataAccessTestConfiguration;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.chapter.mapper.ChapterDataAccessMapper;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.adapter.CourseRepositoryImpl;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.entity.CourseEntity;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.mapper.CourseDataAccessMapper;
+import com.brunosong.transfer.system.target.service.dataaccess.aiservice.course.repository.CourseJpaRepository;
 import com.brunosong.transfer.system.transfer.service.entity.Course;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
