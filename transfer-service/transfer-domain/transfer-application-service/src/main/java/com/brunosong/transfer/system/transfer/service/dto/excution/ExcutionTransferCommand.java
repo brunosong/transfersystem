@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 public class ExcutionTransferCommand {
 
-    @NotNull(message = "courseSeq is null")
-    private Long courseSeq;
+    @NotNull(message = "materialId is null")
+    private Long materialId;
 
 }

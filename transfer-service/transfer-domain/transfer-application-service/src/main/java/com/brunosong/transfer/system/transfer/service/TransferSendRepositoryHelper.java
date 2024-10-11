@@ -3,10 +3,12 @@ package com.brunosong.transfer.system.transfer.service;
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.Chapter;
 import com.brunosong.transfer.system.transfer.service.entity.Course;
+import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.exception.ChapterNotFoundException;
 import com.brunosong.transfer.system.transfer.service.exception.CourseNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
+import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.SaveTargetRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -20,33 +22,34 @@ public class TransferSendRepositoryHelper extends TransferSendHelper {
 
     private final SaveTargetRepository saveTargetRepository;
 
-    public TransferSendRepositoryHelper(CourseRepository courseRepository, ChapterRepository chapterRepository, SaveTargetRepository saveTargetRepository) {
-        super(courseRepository, chapterRepository);
+    public TransferSendRepositoryHelper(LearningMaterialRepository learningMaterialRepository,
+                                        SaveTargetRepository saveTargetRepository) {
+        super(learningMaterialRepository);
         this.saveTargetRepository = saveTargetRepository;
     }
 
     @Override
     public void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
-        //course 정보를 가져오고
-        Optional<Course> course = courseRepository.findById(excutionTransferCommand.getCourseSeq());
 
-        if(course.isEmpty()) {
+        List<LearningMaterial> learningMaterialList = getLearningMaterialList(excutionTransferCommand.getMaterialId());
+
+        if(learningMaterialList.isEmpty()) {
             throw new CourseNotFoundException("Empty Course");
         }
 
-        saveTargetRepository.saveCourse(course.get());
+        // saveTargetRepository.saveCourse(course.get());
     }
 
     @Override
     void chapterTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
 
-        List<Chapter> chapterList = chapterRepository.findByCourseSeq(excutionTransferCommand.getCourseSeq());
+//        List<Chapter> chapterList = chapterRepository.findByCourseSeq(excutionTransferCommand.getCourseSeq());
+//
+//        if(chapterList.isEmpty()) {
+//            throw new ChapterNotFoundException("Empty Chapter");
+//        }
 
-        if(chapterList.isEmpty()) {
-            throw new ChapterNotFoundException("Empty Chapter");
-        }
-
-        saveTargetRepository.saveChapters(chapterList);
+        //saveTargetRepository.saveChapters(chapterList);
     }
 
 }

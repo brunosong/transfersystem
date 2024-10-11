@@ -17,6 +17,7 @@
         <module>transfer-dataaccess</module>
         <module>transfer-messaging</module>
         <module>transfer-application</module>
+        <module>transfer-target-dataaccess</module>
     </modules>
 
 </project>

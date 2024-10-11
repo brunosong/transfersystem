@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.transfer.service.ports.output.message.publi
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.CourseRequestPublisher;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
+import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +16,10 @@ public class TransferSendMessageHelper extends TransferSendHelper {
     private final CourseRequestPublisher courseRequestPublisher;
     private final ChapterRequestPublisher chapterRequestPublisher;
 
-    public TransferSendMessageHelper(CourseRepository courseRepository,
-                                     ChapterRepository chapterRepository,
+    public TransferSendMessageHelper(LearningMaterialRepository learningMaterialRepository,
                                      CourseRequestPublisher courseRequestPublisher,
                                      ChapterRequestPublisher chapterRequestPublisher) {
-        super(courseRepository, chapterRepository);
+        super(learningMaterialRepository);
         this.courseRequestPublisher = courseRequestPublisher;
         this.chapterRequestPublisher = chapterRequestPublisher;
     }

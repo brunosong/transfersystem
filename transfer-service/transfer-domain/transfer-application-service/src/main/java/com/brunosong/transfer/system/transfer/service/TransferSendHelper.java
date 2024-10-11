@@ -1,17 +1,23 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
+import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
+
+import java.util.List;
 
 public abstract class TransferSendHelper {
 
-    protected final CourseRepository courseRepository;
-    protected final ChapterRepository chapterRepository;
+    private final LearningMaterialRepository learningMaterialRepository;
 
-    public TransferSendHelper(CourseRepository courseRepository, ChapterRepository chapterRepository) {
-        this.courseRepository = courseRepository;
-        this.chapterRepository = chapterRepository;
+    public TransferSendHelper(LearningMaterialRepository learningMaterialRepository) {
+        this.learningMaterialRepository = learningMaterialRepository;
+    }
+
+    public List<LearningMaterial> getLearningMaterialList(Long materialId) {
+        return learningMaterialRepository.findById(materialId);
     }
 
     abstract void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand);

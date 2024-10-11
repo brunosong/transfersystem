@@ -3,8 +3,6 @@ package com.brunosong.transfersystem.aiservice.kafka;
 import com.brunosong.transfersystem.aiservice.dto.kafka.KafkaReceiveDto.KafkaChapReceiveDto;
 import com.brunosong.transfersystem.aiservice.mapper.ChapMapper;
 import com.brunosong.transfersystem.aiservice.service.chap.AiChapService;
-import com.brunosong.transfersystem.config.annotation.UseAiServiceDevDataSource;
-import com.brunosong.transfersystem.config.annotation.UseAiServiceRealDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
