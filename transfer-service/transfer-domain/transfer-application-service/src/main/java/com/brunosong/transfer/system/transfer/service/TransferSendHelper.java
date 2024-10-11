@@ -16,7 +16,7 @@ public abstract class TransferSendHelper {
         this.learningMaterialRepository = learningMaterialRepository;
     }
 
-    public List<LearningMaterial> getLearningMaterialList(Long materialId) {
+    public LearningMaterial getLearningMaterial(Long materialId) {
         return learningMaterialRepository.findById(materialId);
     }
 
