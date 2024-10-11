@@ -1,8 +1,9 @@
 package com.brunosong.transfer.system.transfer.dataaccess.course.repository;
 
-import com.brunosong.transfer.system.transfer.dataaccess.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.entity.ChapterEntity;
 import com.brunosong.transfer.system.transfer.dataaccess.DataAccessTestConfiguration;
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.repository.CourseJpaRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,8 +11,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Optional;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ContextConfiguration(classes = DataAccessTestConfiguration.class)

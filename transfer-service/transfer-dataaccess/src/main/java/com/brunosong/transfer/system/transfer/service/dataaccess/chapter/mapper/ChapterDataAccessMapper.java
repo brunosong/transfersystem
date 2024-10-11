@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.transfer.dataaccess.chapter.mapper;
+package com.brunosong.transfer.system.transfer.service.dataaccess.chapter.mapper;
 
-import com.brunosong.transfer.system.transfer.dataaccess.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.entity.ChapterEntity;
 import com.brunosong.transfer.system.transfer.service.entity.Chapter;
 import org.springframework.stereotype.Component;
 

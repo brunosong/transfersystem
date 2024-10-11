@@ -1,8 +1,8 @@
-package com.brunosong.transfer.system.transfer.dataaccess.course.adapter;
+package com.brunosong.transfer.system.transfer.service.dataaccess.course.adapter;
 
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
-import com.brunosong.transfer.system.transfer.dataaccess.course.mapper.CourseDataAccessMapper;
-import com.brunosong.transfer.system.transfer.dataaccess.course.repository.CourseJpaRepository;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.mapper.CourseDataAccessMapper;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.repository.CourseJpaRepository;
 import com.brunosong.transfer.system.transfer.service.entity.Course;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
 import lombok.AllArgsConstructor;

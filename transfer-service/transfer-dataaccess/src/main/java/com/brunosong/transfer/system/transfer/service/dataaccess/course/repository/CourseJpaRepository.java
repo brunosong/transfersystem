@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.transfer.dataaccess.course.repository;
+package com.brunosong.transfer.system.transfer.service.dataaccess.course.repository;
 
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.transfer.dataaccess.chapter.entity;
+package com.brunosong.transfer.system.transfer.service.dataaccess.chapter.entity;
 
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
 import lombok.*;
 
 import javax.persistence.*;

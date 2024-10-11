@@ -1,7 +1,7 @@
-package com.brunosong.transfer.system.transfer.dataaccess.course.mapper;
+package com.brunosong.transfer.system.transfer.service.dataaccess.course.mapper;
 
-import com.brunosong.transfer.system.transfer.dataaccess.chapter.mapper.ChapterDataAccessMapper;
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.mapper.ChapterDataAccessMapper;
+import com.brunosong.transfer.system.transfer.service.dataaccess.course.entity.CourseEntity;
 import com.brunosong.transfer.system.transfer.service.entity.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

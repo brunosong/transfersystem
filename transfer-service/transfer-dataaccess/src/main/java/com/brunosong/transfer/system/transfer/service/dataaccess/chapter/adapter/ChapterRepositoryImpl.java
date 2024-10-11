@@ -1,8 +1,7 @@
-package com.brunosong.transfer.system.transfer.dataaccess.chapter.adapter;
+package com.brunosong.transfer.system.transfer.service.dataaccess.chapter.adapter;
 
-import com.brunosong.transfer.system.transfer.dataaccess.chapter.mapper.ChapterDataAccessMapper;
-import com.brunosong.transfer.system.transfer.dataaccess.chapter.repository.ChapterJpaRepository;
-import com.brunosong.transfer.system.transfer.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.mapper.ChapterDataAccessMapper;
+import com.brunosong.transfer.system.transfer.service.dataaccess.chapter.repository.ChapterJpaRepository;
 import com.brunosong.transfer.system.transfer.service.entity.Chapter;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
 import org.springframework.stereotype.Component;
