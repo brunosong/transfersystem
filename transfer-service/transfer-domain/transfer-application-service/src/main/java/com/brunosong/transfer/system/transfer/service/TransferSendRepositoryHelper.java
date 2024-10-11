@@ -31,12 +31,13 @@ public class TransferSendRepositoryHelper extends TransferSendHelper {
     @Override
     public void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
 
-        List<LearningMaterial> learningMaterialList = getLearningMaterialList(excutionTransferCommand.getMaterialId());
+        LearningMaterial learningMaterial = getLearningMaterial(excutionTransferCommand.getMaterialId());
 
-        if(learningMaterialList.isEmpty()) {
-            throw new CourseNotFoundException("Empty Course");
+        if(learningMaterial != null) {
+            throw new CourseNotFoundException("Not found LearningMaterial");
         }
 
+        saveTargetRepository.saveLearningMetadata();
         // domain.findCourse()
         // saveTargetRepository.saveCourse(course.get());
     }
