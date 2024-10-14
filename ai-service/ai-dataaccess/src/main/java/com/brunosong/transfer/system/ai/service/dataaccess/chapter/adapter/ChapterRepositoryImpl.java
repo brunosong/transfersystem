@@ -2,8 +2,8 @@ package com.brunosong.transfer.system.ai.service.dataaccess.chapter.adapter;
 
 import com.brunosong.transfer.system.ai.service.dataaccess.chapter.mapper.ChapterDataAccessMapper;
 import com.brunosong.transfer.system.ai.service.dataaccess.chapter.repository.ChapterJpaRepository;
-import com.brunosong.transfer.system.transfer.service.entity.Chapter;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
+import com.brunosong.transfer.system.ai.service.domain.entity.Chapter;
+import com.brunosong.transfer.system.ai.service.ports.output.repository.ChapterRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

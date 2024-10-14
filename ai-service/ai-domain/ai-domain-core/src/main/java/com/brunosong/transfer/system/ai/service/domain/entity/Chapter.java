@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.transfer.service.entity;
+package com.brunosong.transfer.system.ai.service.domain.entity;
 
 import lombok.Builder;
 import lombok.Getter;

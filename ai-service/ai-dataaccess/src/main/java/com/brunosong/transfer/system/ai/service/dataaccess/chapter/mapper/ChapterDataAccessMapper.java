@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.ai.service.dataaccess.chapter.mapper;
 
 import com.brunosong.transfer.system.ai.service.dataaccess.chapter.entity.ChapterEntity;
-import com.brunosong.transfer.system.transfer.service.entity.Chapter;
+import com.brunosong.transfer.system.ai.service.domain.entity.Chapter;
 import org.springframework.stereotype.Component;
 
 @Component

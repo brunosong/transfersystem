@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @Getter
 @Entity
-@Table(name = "main_chap")
+@Table(name = "ai_chapter")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

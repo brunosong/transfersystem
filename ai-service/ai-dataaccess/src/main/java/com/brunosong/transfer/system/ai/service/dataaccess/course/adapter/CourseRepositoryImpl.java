@@ -1,10 +1,10 @@
 package com.brunosong.transfer.system.ai.service.dataaccess.course.adapter;
 
-import com.brunosong.transfer.system.ai.service.dataaccess.course.repository.CourseJpaRepository;
 import com.brunosong.transfer.system.ai.service.dataaccess.course.entity.CourseEntity;
 import com.brunosong.transfer.system.ai.service.dataaccess.course.mapper.CourseDataAccessMapper;
-import com.brunosong.transfer.system.transfer.service.entity.Course;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
+import com.brunosong.transfer.system.ai.service.dataaccess.course.repository.CourseJpaRepository;
+import com.brunosong.transfer.system.ai.service.domain.entity.Course;
+import com.brunosong.transfer.system.ai.service.ports.output.repository.CourseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
