@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 class TransferSendRepositoryHelperTest {
 
     @Autowired
-    TransferSendRepositoryHelper transferSendRepositoryHelper;
+    TransferSendServiceHelper transferSendRepositoryHelper;
 
     @Autowired
     CourseRepository courseRepository;
@@ -57,9 +57,9 @@ class TransferSendRepositoryHelperTest {
 
     @Test
     void COURSE_정상적으로_로직이_흘러갔다() {
-        transferSendRepositoryHelper.courseTransferProcess(excutionTransferCommand);
+        transferSendRepositoryHelper.transferLearningLevelOne(excutionTransferCommand);
         verify(courseRepository,times(1)).findById(any());
-        verify(saveTargetRepository,times(1)).saveCourse(course);
+        verify(saveTargetRepository,times(1)).saveMaterialLevelOne(course);
     }
 
     @Test
@@ -67,7 +67,7 @@ class TransferSendRepositoryHelperTest {
         when(courseRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(CourseNotFoundException.class, () -> {
-            transferSendRepositoryHelper.courseTransferProcess(excutionTransferCommand);
+            transferSendRepositoryHelper.transferLearningLevelOne(excutionTransferCommand);
         });
     }
 

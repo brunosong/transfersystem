@@ -24,15 +24,6 @@ public class TransferSendMessageHelper extends TransferSendHelper {
         this.chapterRequestPublisher = chapterRequestPublisher;
     }
 
-    @Override
-    void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
-
-    }
-
-    @Override
-    void chapterTransferProcess(ExcutionTransferCommand excutionTransferCommand) {
-
-    }
 
     /* AI Service 로 카푸카를 이용해서 데이터를 이관한다. (DB -> Kafka -> DB)  */
 //    public void aiKafkaServiceTransferProcess(ExcutionTransferCommand excutionTransferCommand) {

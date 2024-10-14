@@ -23,8 +23,9 @@ public class LearningMaterialEntity {
 
     private String title;
     private String description;
+    private int learningLevel;
 
-    @OneToMany(mappedBy = "learningMaterialEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "learningMaterial", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<LearningMaterialMetadataEntity> metadataList;
 
 }

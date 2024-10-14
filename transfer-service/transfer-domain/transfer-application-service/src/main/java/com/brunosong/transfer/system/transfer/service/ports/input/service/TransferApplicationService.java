@@ -4,5 +4,8 @@ import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTrans
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferResponse;
 
 public interface TransferApplicationService {
-    ExcutionTransferResponse excutionTransfer(ExcutionTransferCommand excutionTransferCommand);
+
+    ExcutionTransferResponse excutionServiceTransfer(ExcutionTransferCommand excutionTransferCommand);
+
+    ExcutionTransferResponse excutionMessagingTransfer(ExcutionTransferCommand excutionTransferCommand);
 }

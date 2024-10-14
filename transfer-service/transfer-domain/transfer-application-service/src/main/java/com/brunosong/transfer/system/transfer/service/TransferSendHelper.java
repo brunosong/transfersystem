@@ -16,6 +16,4 @@ public abstract class TransferSendHelper {
         return learningMaterialRepository.findById(materialId);
     }
 
-    abstract void courseTransferProcess(ExcutionTransferCommand excutionTransferCommand);
-    abstract void chapterTransferProcess(ExcutionTransferCommand excutionTransferCommand);
 }

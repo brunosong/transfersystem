@@ -15,6 +15,7 @@
     <modules>
         <module>ai-domain</module>
         <module>ai-container</module>
+        <module>ai-dataaccess</module>
     </modules>
 
 </project>
