@@ -22,4 +22,10 @@ public class CourseRepositoryImpl implements CourseRepository {
         Optional<CourseEntity> courseEntity = courseJpaRepository.findById(courseSeq);
         return Optional.of(courseDataAccessMapper.courseEntityToCourse(courseEntity.get()));
     }
+
+    @Override
+    public Course save(Course course) {
+        CourseEntity resultEntity = courseJpaRepository.save(courseDataAccessMapper.courseToCourseEntity(course));
+        return courseDataAccessMapper.courseEntityToCourse(resultEntity);
+    }
 }

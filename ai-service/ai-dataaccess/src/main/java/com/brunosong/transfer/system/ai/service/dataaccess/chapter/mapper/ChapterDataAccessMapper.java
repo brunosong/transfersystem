@@ -4,6 +4,8 @@ import com.brunosong.transfer.system.ai.service.dataaccess.chapter.entity.Chapte
 import com.brunosong.transfer.system.ai.service.domain.entity.Chapter;
 import org.springframework.stereotype.Component;
 
+import static com.brunosong.transfer.system.ai.service.dataaccess.chapter.entity.ChapterEntity.*;
+
 @Component
 public class ChapterDataAccessMapper {
 
@@ -14,6 +16,15 @@ public class ChapterDataAccessMapper {
                 .chapType(chapterEntity.getChapType() != null ? chapterEntity.getChapType().name() : "")
                 .chapOrder(chapterEntity.getChapOrder())
                 .courseSeq(chapterEntity.getCourse().getCourseSeq())
+                .build();
+    }
+
+    public ChapterEntity chapterToChapterEntity(Chapter chapter) {
+        return ChapterEntity.builder()
+                .chapSeq(chapter.getChapSeq())
+                .chapTitle(chapter.getChapTitle())
+                .chapType(ChapterTypeEnum.valueOf(chapter.getChapType()))
+                .chapOrder(chapter.getChapOrder())
                 .build();
     }
 }

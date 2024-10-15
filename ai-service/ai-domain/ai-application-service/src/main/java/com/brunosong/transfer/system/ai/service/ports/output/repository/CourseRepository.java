@@ -6,4 +6,5 @@ import java.util.Optional;
 
 public interface CourseRepository {
     Optional<Course> findById(Long courseSeq);
+    Course save(Course course);
 }

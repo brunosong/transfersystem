@@ -1,10 +1,14 @@
 package com.brunosong.transfer.system.ai.service.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Chapter {
     private Long chapSeq;
     private Long courseSeq;

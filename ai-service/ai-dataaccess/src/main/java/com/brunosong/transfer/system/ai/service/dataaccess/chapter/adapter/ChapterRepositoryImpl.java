@@ -7,6 +7,7 @@ import com.brunosong.transfer.system.ai.service.ports.output.repository.ChapterR
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -26,6 +27,11 @@ public class ChapterRepositoryImpl implements ChapterRepository {
         return chapterJpaRepository.findByCourseCourseSeq(courseSeq).stream()
                                                                 .map(dataAccessMapper::chapterEntityToChapter)
                                                                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<Chapter> save(Chapter chapter) {
+        return Optional.empty();
     }
 
 }
