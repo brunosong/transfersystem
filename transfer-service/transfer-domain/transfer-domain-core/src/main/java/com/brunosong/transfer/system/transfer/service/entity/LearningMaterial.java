@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class LearningMaterial {
 
-    private Long id;
+    private String id;
     private String title;
     private String description;
     private List<LearningMaterialMetadata> metadataList;

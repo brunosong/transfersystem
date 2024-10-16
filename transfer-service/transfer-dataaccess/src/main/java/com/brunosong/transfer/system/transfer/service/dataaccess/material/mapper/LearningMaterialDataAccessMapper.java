@@ -1,18 +1,18 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.material.mapper;
 
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialEntity;
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialMetadataEntity;
+import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialMongoEntity;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterialMetadata;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 public class LearningMaterialDataAccessMapper {
 
-    public LearningMaterial learningMaterialEntityToLearningMaterial(LearningMaterialEntity materialEntity) {
+    public LearningMaterial learningMaterialEntityToLearningMaterial(LearningMaterialMongoEntity materialEntity) {
         return LearningMaterial.builder()
                 .id(materialEntity.getId())
                 .title(materialEntity.getTitle())
@@ -22,13 +22,12 @@ public class LearningMaterialDataAccessMapper {
 
 
     public List<LearningMaterialMetadata> materialMetadataEntitiesToMaterialMetadataList(
-                                            List<LearningMaterialMetadataEntity> materialMetadataEntities) {
+                                            List<Map<String,Object>> materialMetadataEntities) {
 
-        return materialMetadataEntities.stream().map(entity -> LearningMaterialMetadata
-                                                                .builder()
-                                                                .materialId(entity.getLearningMaterial().getId())
-                                                                .attributeName(entity.getAttributeName())
-                                                                .attributeValue(entity.getAttributeValue())
+        return materialMetadataEntities.stream().map(map -> LearningMaterialMetadata.builder()
+                                                                .materialId((String)map.get("materialId"))
+                                                                .attributeName((String)map.get("attributeName"))
+                                                                .attributeValue((String)map.get("attributeValue"))
                                                                 .build())
                                                 .collect(Collectors.toList());
     }

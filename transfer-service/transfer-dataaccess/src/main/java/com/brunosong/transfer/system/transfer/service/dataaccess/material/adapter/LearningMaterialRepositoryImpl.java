@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.material.adapter;
 
-import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialJpaRepository;
+import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.material.mapper.LearningMaterialDataAccessMapper;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
@@ -11,18 +11,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class LearningMaterialRepositoryImpl implements LearningMaterialRepository {
 
-    private final LearningMaterialJpaRepository learningMaterialJpaRepository;
+    private final LearningMaterialMongoRepository learningMaterialMongoRepository;
     private final LearningMaterialDataAccessMapper learningMaterialDataAccessMapper;
 
-    public LearningMaterialRepositoryImpl(LearningMaterialJpaRepository learningMaterialJpaRepository,
+    public LearningMaterialRepositoryImpl(LearningMaterialMongoRepository learningMaterialMongoRepository,
                                           LearningMaterialDataAccessMapper learningMaterialDataAccessMapper) {
-        this.learningMaterialJpaRepository = learningMaterialJpaRepository;
+        this.learningMaterialMongoRepository = learningMaterialMongoRepository;
         this.learningMaterialDataAccessMapper = learningMaterialDataAccessMapper;
     }
 
     @Override
-    public LearningMaterial findById(Long materialId) {
-        return learningMaterialJpaRepository.findById(materialId).map(
-                learningMaterialDataAccessMapper::learningMaterialEntityToLearningMaterial).get();
+    public LearningMaterial findById(String materialId) {
+        return learningMaterialMongoRepository.findById(materialId)
+                .map(learningMaterialDataAccessMapper::learningMaterialEntityToLearningMaterial).get();
     }
 }

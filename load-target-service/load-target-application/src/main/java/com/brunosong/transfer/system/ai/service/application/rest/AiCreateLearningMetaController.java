@@ -2,7 +2,7 @@ package com.brunosong.transfer.system.ai.service.application.rest;
 
 import com.brunosong.transfer.system.ai.service.dto.create.CreateLearningMetaCommand;
 import com.brunosong.transfer.system.ai.service.dto.create.CreateLearningMetaResponse;
-import com.brunosong.transfer.system.ai.service.ports.input.service.AiCreateLearningMetaService;
+import com.brunosong.transfer.system.ai.service.ports.input.service.CreateLearningMetaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AiCreateLearningMetaController {
 
-    private final AiCreateLearningMetaService aiCreateLearningMetaService;
+    private final CreateLearningMetaService createLearningMetaService;
 
     @PostMapping
     public ResponseEntity<CreateLearningMetaResponse> createLearningMeta(@RequestBody CreateLearningMetaCommand createLearningMetaCommand) {

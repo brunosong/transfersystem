@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
 
 @Component
-public class AiCreateLearningMetaDataMapper {
+public class CreateLearningMetaDataMapper {
 
     public Course learningMaterialToCourse(LearningMaterial learningMaterial) {
         return Course.builder()

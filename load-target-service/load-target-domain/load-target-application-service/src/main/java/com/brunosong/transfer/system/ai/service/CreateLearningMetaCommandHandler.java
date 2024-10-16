@@ -3,7 +3,7 @@ package com.brunosong.transfer.system.ai.service;
 import com.brunosong.transfer.system.ai.service.domain.entity.Course;
 import com.brunosong.transfer.system.ai.service.dto.create.CreateLearningMetaCommand;
 import com.brunosong.transfer.system.ai.service.dto.create.CreateLearningMetaResponse;
-import com.brunosong.transfer.system.ai.service.mapper.AiCreateLearningMetaDataMapper;
+import com.brunosong.transfer.system.ai.service.mapper.CreateLearningMetaDataMapper;
 import com.brunosong.transfer.system.ai.service.ports.output.repository.CourseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,10 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class CreateLearningMetaCommandHandler {
     private final CourseRepository courseRepository;
-    private final AiCreateLearningMetaDataMapper aiCreateLearningMetaDataMapper;
+    private final CreateLearningMetaDataMapper aiCreateLearningMetaDataMapper;
 
     public CreateLearningMetaCommandHandler(CourseRepository courseRepository,
-                                            AiCreateLearningMetaDataMapper aiCreateLearningMetaDataMapper) {
+                                            CreateLearningMetaDataMapper aiCreateLearningMetaDataMapper) {
         this.courseRepository = courseRepository;
         this.aiCreateLearningMetaDataMapper = aiCreateLearningMetaDataMapper;
     }
