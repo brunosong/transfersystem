@@ -12,7 +12,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @TestPropertySource(properties = {"spring.data.mongodb.uuid-representation=java_legacy","logging.level.org.springframework.data.mongodb.core.MongoTemplate=DEBUG"})
 @ContextConfiguration(classes = TestDataAccessConfiguration.class)

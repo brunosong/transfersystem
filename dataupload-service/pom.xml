@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>dataupload-domain</module>
+        <module>dataupload-container</module>
     </modules>
 
     <dependencies>
