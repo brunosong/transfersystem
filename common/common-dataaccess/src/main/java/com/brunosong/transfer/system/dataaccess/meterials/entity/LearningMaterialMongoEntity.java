@@ -1,9 +1,6 @@
 package com.brunosong.transfer.system.dataaccess.meterials.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,10 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collation = "learningMaterial")
+@Document(collection = "learningMaterial")
 public class LearningMaterialMongoEntity {
 
     @Id
