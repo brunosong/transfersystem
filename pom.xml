@@ -7,6 +7,7 @@
         <module>load-target-service</module>
         <module>transfer-service</module>
         <module>common</module>
+        <module>dataupload-service</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -100,6 +101,16 @@
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>common-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>dataupload-domain-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>dataupload-application-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

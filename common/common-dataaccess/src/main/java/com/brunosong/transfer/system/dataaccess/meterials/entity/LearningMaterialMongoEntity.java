@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "learningMaterial")
+@Document(collection = "learningMaterialView")
 public class LearningMaterialMongoEntity {
 
     @Id

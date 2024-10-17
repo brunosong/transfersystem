@@ -26,14 +26,14 @@ class LearningMaterialMongoRepositoryTest {
     void 저장_가져오기_테스트() {
 
         LearningMaterialMongoEntity materialMongo =
-                new LearningMaterialMongoEntity("1234","TEST1","내용 TEST", 1,new ArrayList<>());
+                new LearningMaterialMongoEntity(null,"TEST1","내용 TEST", 1,new ArrayList<>());
         learningMaterialMongoRepository.save(materialMongo); // 저장
 
         List<LearningMaterialMongoEntity> mongoEntities = learningMaterialMongoRepository.findAll();
         System.out.println(mongoEntities.get(0).getId());
         Assertions.assertThat(mongoEntities.get(0).getId()).isNotNull();
 
-        LearningMaterialMongoEntity result = learningMaterialMongoRepository.findById(mongoEntities.get(0).getId()).get();
+        LearningMaterialMongoEntity result = learningMaterialMongoRepository.findById(mongoEntities.get(0).getId().toString()).get();
         Assertions.assertThat(mongoEntities.get(0).getId()).isEqualTo(result.getId());
 
 
