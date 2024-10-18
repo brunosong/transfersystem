@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferResponse;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class TransferExcutionHandler {
     private final TransferSendMessageHelper transferSendMessageHelper;
 
     @Transactional
-    public void createMaterial(ExcutionTransferCommand excutionTransferCommand) {
+    public ExcutionTransferResponse createMaterial(ExcutionTransferCommand excutionTransferCommand) {
 
         if (excutionTransferCommand.getTransType() == TransType.DB) {
             transferSendServiceHelper.transferAction(excutionTransferCommand);
@@ -22,6 +23,7 @@ public class TransferExcutionHandler {
             transferSendMessageHelper.transferAction(excutionTransferCommand);
         }
 
+        return null;
     }
 
 }
