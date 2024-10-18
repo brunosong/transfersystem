@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.material.mapper;
 
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialMongoEntity;
+import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterialMetadata;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Component
 public class LearningMaterialDataAccessMapper {
 
-    public LearningMaterial learningMaterialEntityToLearningMaterial(LearningMaterialMongoEntity materialEntity) {
+    public LearningMaterial learningMaterialEntityToLearningMaterial(LearningMaterialViewEntity materialEntity) {
         return LearningMaterial.builder()
                 .id(materialEntity.getId())
                 .title(materialEntity.getTitle())

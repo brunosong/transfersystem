@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "learningMaterialView")
-public class LearningMaterialMongoEntity {
+public class LearningMaterialViewEntity {
 
     @Id
     private String id;

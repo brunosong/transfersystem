@@ -3,23 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>transfer-system</artifactId>
+        <artifactId>dataupload-service</artifactId>
         <groupId>com.brunosong.transfer.system</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dataupload-service</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>dataupload-domain</module>
-        <module>dataupload-container</module>
-        <module>dataupload-dataaccess</module>
-    </modules>
+    <artifactId>dataupload-dataaccess</artifactId>
 
-    <dependencies>
-
-    </dependencies>
-
+    
 
 </project>

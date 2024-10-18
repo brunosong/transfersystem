@@ -1,12 +1,11 @@
 package com.brunosong.transfer.system.dataaccess.meterials.repository;
 
 import com.brunosong.transfer.system.dataaccess.TestDataAccessConfiguration;
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialMongoEntity;
+import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -24,15 +23,15 @@ class LearningMaterialMongoRepositoryTest {
     @Test
     void 저장_가져오기_테스트() {
 
-        LearningMaterialMongoEntity materialMongo =
-                new LearningMaterialMongoEntity(null,"TEST1","내용 TEST", 1,new ArrayList<>());
+        LearningMaterialViewEntity materialMongo =
+                new LearningMaterialViewEntity(null,"TEST1","내용 TEST", 1,new ArrayList<>());
         learningMaterialMongoRepository.save(materialMongo); // 저장
 
-        List<LearningMaterialMongoEntity> mongoEntities = learningMaterialMongoRepository.findAll();
+        List<LearningMaterialViewEntity> mongoEntities = learningMaterialMongoRepository.findAll();
         System.out.println(mongoEntities.get(0).getId());
         Assertions.assertThat(mongoEntities.get(0).getId()).isNotNull();
 
-        LearningMaterialMongoEntity result = learningMaterialMongoRepository.findById(mongoEntities.get(0).getId().toString()).get();
+        LearningMaterialViewEntity result = learningMaterialMongoRepository.findById(mongoEntities.get(0).getId().toString()).get();
         Assertions.assertThat(mongoEntities.get(0).getId()).isEqualTo(result.getId());
 
 
