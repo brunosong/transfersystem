@@ -14,6 +14,6 @@ import javax.validation.constraints.NotNull;
 public class ExcutionTransferCommand {
 
     @NotNull(message = "materialId is null")
-    private Long materialId;
+    private String materialId;
 
 }

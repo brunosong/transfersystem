@@ -1,11 +1,12 @@
 package com.brunosong.transfer.system.ai.service.domain.entity;
 
+import com.brunosong.transfer.system.domain.entity.AggregateRoot;
 import com.brunosong.transfer.system.domain.entity.BaseEntity;
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 
 import java.util.List;
 
-public class LearningMaterial extends BaseEntity<LearningMaterialId> {
+public class LearningMaterial extends AggregateRoot<LearningMaterialId> {
 
     private String title;
     private String description;

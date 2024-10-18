@@ -1,21 +1,71 @@
 package com.brunosong.transfer.system.transfer.service.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.brunosong.transfer.system.domain.entity.AggregateRoot;
+import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 
 import java.util.List;
 
-@Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class LearningMaterial {
+public class LearningMaterial extends AggregateRoot<LearningMaterialId> {
 
-    private String id;
     private String title;
     private String description;
     private List<LearningMaterialMetadata> metadataList;
 
+    private LearningMaterial(Builder builder) {
+        setId(builder.id);
+        this.title = builder.title;
+        this.description = builder.description;
+        this.metadataList = builder.metadataList;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<LearningMaterialMetadata> getMetadataList() {
+        return metadataList;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static final class Builder {
+        private LearningMaterialId id;
+        private String title;
+        private String description;
+        private List<LearningMaterialMetadata> metadataList;
+
+        private Builder() {
+        }
+
+
+        public Builder id(LearningMaterialId id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder metadataList(List<LearningMaterialMetadata> metadataList) {
+            this.metadataList = metadataList;
+            return this;
+        }
+
+        public LearningMaterial build() {
+            return new LearningMaterial(this);
+        }
+    }
 }

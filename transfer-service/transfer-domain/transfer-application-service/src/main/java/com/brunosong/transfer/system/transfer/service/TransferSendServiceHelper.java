@@ -4,7 +4,7 @@ import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTrans
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.exception.CourseNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
-import com.brunosong.transfer.system.transfer.service.ports.output.service.TargetSaveService;
+import com.brunosong.transfer.system.transfer.service.ports.output.service.LearningMaterialSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransferSendServiceHelper extends TransferSendHelper {
 
-    private final TargetSaveService targetSaveService;
+    private final LearningMaterialSendService learningMaterialSendService;
 
     public TransferSendServiceHelper(LearningMaterialRepository learningMaterialRepository,
-                                     TargetSaveService targetSaveService) {
+                                     LearningMaterialSendService learningMaterialSendService) {
         super(learningMaterialRepository);
-        this.targetSaveService = targetSaveService;
+        this.learningMaterialSendService = learningMaterialSendService;
     }
 
     public void transferLearningLevelOne(ExcutionTransferCommand excutionTransferCommand) {
@@ -28,7 +28,7 @@ public class TransferSendServiceHelper extends TransferSendHelper {
             throw new CourseNotFoundException("Not found LearningMaterial");
         }
 
-        targetSaveService.saveMaterialLevelOne(learningMaterial);
+        learningMaterialSendService.sendLearningMaterial(learningMaterial);
     }
 
 }

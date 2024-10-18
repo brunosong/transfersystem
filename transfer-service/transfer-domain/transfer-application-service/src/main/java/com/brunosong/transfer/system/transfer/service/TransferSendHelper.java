@@ -12,7 +12,7 @@ public abstract class TransferSendHelper {
         this.learningMaterialRepository = learningMaterialRepository;
     }
 
-    public LearningMaterial getLearningMaterial(Long materialId) {
+    public LearningMaterial getLearningMaterial(String materialId) {
         return learningMaterialRepository.findById(materialId);
     }
 

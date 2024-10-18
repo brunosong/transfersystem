@@ -7,16 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
-public class AiCreateLearningMetaController {
+
+public class CreateLearningMetaController {
 
     private final CreateLearningMetaService createLearningMetaService;
 
-    @PostMapping
+    @PostMapping("/learning-metadata")
     public ResponseEntity<CreateLearningMetaResponse> createLearningMeta(@RequestBody CreateLearningMetaCommand createLearningMetaCommand) {
 //        log.info("Creating customer with username: {}", createCustomerCommand.getUsername());
 //        CreateCustomerResponse response = customerApplicationService.createCustomer(createCustomerCommand);
