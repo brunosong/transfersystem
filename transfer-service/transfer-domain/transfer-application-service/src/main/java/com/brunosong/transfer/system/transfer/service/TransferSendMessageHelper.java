@@ -1,13 +1,12 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.exception.CourseNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.ChapterRequestPublisher;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.CourseRequestPublisher;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.ChapterRepository;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.CourseRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
 //@Component
@@ -22,6 +21,16 @@ public class TransferSendMessageHelper extends TransferSendHelper {
         super(learningMaterialRepository);
         this.courseRequestPublisher = courseRequestPublisher;
         this.chapterRequestPublisher = chapterRequestPublisher;
+    }
+
+    public void transferAction(ExcutionTransferCommand excutionTransferCommand) {
+
+        LearningMaterial learningMaterial = getLearningMaterial(excutionTransferCommand.getMaterialId());
+
+        if(learningMaterial == null) {
+            throw new CourseNotFoundException("Not found LearningMaterial");
+        }
+
     }
 
 

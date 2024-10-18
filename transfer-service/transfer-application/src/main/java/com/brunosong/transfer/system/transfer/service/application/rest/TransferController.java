@@ -25,7 +25,7 @@ public class TransferController {
     public ResponseEntity<ExcutionTransferResponse> doTran(@Valid @RequestBody ExcutionTransferCommand excutionTransferCommand,
                                                            BindingResult bindingResult) {
 
-        ExcutionTransferResponse excutionTransferResponse = transferApplicationService.excutionServiceTransfer(excutionTransferCommand);
+        ExcutionTransferResponse excutionTransferResponse = transferApplicationService.excutionTransfer(excutionTransferCommand);
         return new ResponseEntity<>(excutionTransferResponse, HttpStatus.OK);
     }
 }

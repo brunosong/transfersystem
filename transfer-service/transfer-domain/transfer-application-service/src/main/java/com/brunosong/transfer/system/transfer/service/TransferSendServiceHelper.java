@@ -20,7 +20,7 @@ public class TransferSendServiceHelper extends TransferSendHelper {
         this.learningMaterialSendService = learningMaterialSendService;
     }
 
-    public void transferLearningLevelOne(ExcutionTransferCommand excutionTransferCommand) {
+    public void transferAction(ExcutionTransferCommand excutionTransferCommand) {
 
         LearningMaterial learningMaterial = getLearningMaterial(excutionTransferCommand.getMaterialId());
 

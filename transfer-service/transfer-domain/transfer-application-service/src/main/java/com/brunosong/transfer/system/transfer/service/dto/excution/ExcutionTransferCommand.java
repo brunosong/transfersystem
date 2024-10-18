@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dto.excution;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,9 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExcutionTransferCommand {
+
+    @NotNull(message = "transType is null")
+    private TransType transType;
 
     @NotNull(message = "materialId is null")
     private String materialId;

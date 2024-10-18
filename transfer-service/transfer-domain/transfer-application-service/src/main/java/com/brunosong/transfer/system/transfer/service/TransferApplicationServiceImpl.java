@@ -14,18 +14,12 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class TransferApplicationServiceImpl implements TransferApplicationService {
 
-    private final TransferSendServiceHelper transferSendRepositoryHelper;
+    private final TransferExcutionHandler transferExcutionHandler;
 
     @Override
-    public ExcutionTransferResponse excutionServiceTransfer(ExcutionTransferCommand excutionTransferCommand) {
+    public ExcutionTransferResponse excutionTransfer(ExcutionTransferCommand excutionTransferCommand) {
 
 
-
-        return null;
-    }
-
-    @Override
-    public ExcutionTransferResponse excutionMessagingTransfer(ExcutionTransferCommand excutionTransferCommand) {
         return null;
     }
 }

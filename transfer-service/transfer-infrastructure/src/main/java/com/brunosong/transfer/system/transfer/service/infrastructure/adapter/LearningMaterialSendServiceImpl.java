@@ -14,8 +14,8 @@ public class LearningMaterialSendServiceImpl implements LearningMaterialSendServ
 
     @Override
     public void sendLearningMaterial(LearningMaterial learningMaterial) {
-
-
+        System.out.println(loadTargetServiceClient);
+        System.out.println("API 호출");
 
     }
 
