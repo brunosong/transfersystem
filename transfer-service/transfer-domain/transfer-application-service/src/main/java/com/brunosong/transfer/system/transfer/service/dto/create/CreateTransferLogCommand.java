@@ -7,10 +7,6 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class CreateTransferLogCommand {
 
 

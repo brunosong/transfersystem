@@ -12,7 +12,7 @@
     <artifactId>transfer-application-service</artifactId>
 
     <dependencies>
-                <dependency>
+        <dependency>
             <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>transfer-domain-core</artifactId>
         </dependency>

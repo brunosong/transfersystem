@@ -1,7 +1,7 @@
-package com.brunosong.transfer.system.transfer.service.ports.output.service;
+package com.brunosong.transfer.system.transfer.service.ports.output.api;
 
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 
-public interface LearningMaterialSendService {
+public interface LearningMaterialApiSendService {
     void sendLearningMaterial(LearningMaterial learningMaterial);
 }

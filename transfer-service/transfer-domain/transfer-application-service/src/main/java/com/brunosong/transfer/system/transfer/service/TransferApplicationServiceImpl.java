@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferResponse;
 import com.brunosong.transfer.system.transfer.service.ports.input.service.TransferApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +14,10 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class TransferApplicationServiceImpl implements TransferApplicationService {
 
-    private final TransferExcutionHandler transferExcutionHandler;
+    private final TransferExecutionHandler transferExecutionHandler;
 
     @Override
-    public ExcutionTransferResponse excutionTransfer(ExcutionTransferCommand excutionTransferCommand) {
-        return transferExcutionHandler.createMaterial(excutionTransferCommand);
+    public ExcutionTransferResponse executionTransfer(ExecutionTransferCommand executionTransferCommand) {
+        return transferExecutionHandler.execution(executionTransferCommand);
     }
 }

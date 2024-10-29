@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExcutionTransferCommand {
+public class ExecutionTransferCommand {
 
     @NotNull(message = "transType is null")
     private TransType transType;

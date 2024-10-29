@@ -95,6 +95,11 @@
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>transfer-infrastructure</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>common-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>

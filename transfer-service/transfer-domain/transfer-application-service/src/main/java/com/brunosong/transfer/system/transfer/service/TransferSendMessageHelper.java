@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.exception.CourseNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.ChapterRequestPublisher;
@@ -23,9 +22,7 @@ public class TransferSendMessageHelper extends TransferSendHelper {
         this.chapterRequestPublisher = chapterRequestPublisher;
     }
 
-    public void transferAction(ExcutionTransferCommand excutionTransferCommand) {
-
-        LearningMaterial learningMaterial = getLearningMaterial(excutionTransferCommand.getMaterialId());
+    public void transferAction(LearningMaterial learningMaterial) {
 
         if(learningMaterial == null) {
             throw new CourseNotFoundException("Not found LearningMaterial");
