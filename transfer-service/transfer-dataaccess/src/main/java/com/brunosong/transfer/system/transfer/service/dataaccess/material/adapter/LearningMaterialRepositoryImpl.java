@@ -1,11 +1,14 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.material.adapter;
 
+import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
 import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.material.mapper.LearningMaterialDataAccessMapper;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -21,8 +24,8 @@ public class LearningMaterialRepositoryImpl implements LearningMaterialRepositor
     }
 
     @Override
-    public LearningMaterial findById(String materialId) {
+    public Optional<LearningMaterial> findById(String materialId) {
         return learningMaterialMongoRepository.findById(materialId)
-                .map(learningMaterialDataAccessMapper::learningMaterialEntityToLearningMaterial).get();
+                .map(learningMaterialDataAccessMapper::learningMaterialEntityToLearningMaterial);
     }
 }

@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -19,14 +21,13 @@ public class LearningMaterialCreateHelper {
     @Transactional
     public LearningMaterial createMaterial(ExecutionTransferCommand executionTransferCommand) {
 
-        LearningMaterial material =
-                learningMaterialRepository.findById(executionTransferCommand.getMaterialId());
+        Optional<LearningMaterial> material = learningMaterialRepository.findById(executionTransferCommand.getMaterialId());
 
-        if(material == null) {
+        if(!material.isPresent()) {
             throw new CourseNotFoundException("Not found LearningMaterial");
         }
 
-        return material;
+        return material.get();
     }
 
 
