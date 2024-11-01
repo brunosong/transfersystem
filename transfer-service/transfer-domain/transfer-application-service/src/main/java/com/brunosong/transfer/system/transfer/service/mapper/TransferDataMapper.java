@@ -1,5 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.mapper;
 
+import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,5 +21,12 @@ public class TransferDataMapper {
 //        courseTranDto.setCourseName(mainCourse.getCourseName());
 //        return courseTranDto;
 //    }
+
+    public TransferLog executionTransferCommandToTransferLog(ExecutionTransferCommand executionTransferCommand) {
+        return TransferLog.builder()
+                .createAdminId(executionTransferCommand.getAdminId())
+
+                .build();
+    }
 
 }

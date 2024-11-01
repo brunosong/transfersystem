@@ -20,4 +20,7 @@ public class ExecutionTransferCommand {
     @NotNull(message = "materialId is null")
     private String materialId;
 
+    @NotNull(message = "adminId is null")
+    private String adminId;
+
 }
