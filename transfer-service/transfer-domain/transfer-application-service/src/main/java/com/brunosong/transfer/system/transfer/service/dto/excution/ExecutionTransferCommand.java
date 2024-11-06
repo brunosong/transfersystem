@@ -1,10 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dto.excution;
 
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -12,6 +9,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ExecutionTransferCommand {
 
     @NotNull(message = "transType is null")

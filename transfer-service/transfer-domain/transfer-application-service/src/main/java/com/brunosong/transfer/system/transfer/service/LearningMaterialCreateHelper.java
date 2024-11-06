@@ -7,7 +7,6 @@ import com.brunosong.transfer.system.transfer.service.ports.output.repository.Le
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
