@@ -9,7 +9,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -25,4 +28,14 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
         return transferLogDataAccessMapper.transferLogEntityToTransferLog(save);
     }
 
+    @Override
+    public Optional<TransferLog> findById(UUID transferLogId) {
+        return transferLogJpaRepository.findById(transferLogId).map(transferLogDataAccessMapper::transferLogEntityToTransferLog);
+    }
+
+    @Override
+    public Optional<List<TransferLog>> findAll() {
+        return Optional.of(transferLogJpaRepository.findAll().stream().map(transferLogDataAccessMapper::transferLogEntityToTransferLog)
+                .collect(Collectors.toList()));
+    }
 }

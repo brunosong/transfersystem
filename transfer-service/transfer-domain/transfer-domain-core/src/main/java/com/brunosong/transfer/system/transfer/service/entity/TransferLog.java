@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class TransferLog extends AggregateRoot<TransferLogId> {
-
-    private TransferLogId id;
     private String createAdminId;
     private LearningMaterialId learningMaterialId;
     private LocalDateTime createdAt;
@@ -21,10 +19,6 @@ public class TransferLog extends AggregateRoot<TransferLogId> {
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
         this.learningMaterialId = builder.learningMaterialId;
-    }
-
-    public TransferLogId getId() {
-        return id;
     }
 
     public String getCreateAdminId() {

@@ -33,8 +33,6 @@ class TransferLogLogJpaRepositoryTest {
                 .id(uuid)
                 .createAdminId("BrunoSong")
                 .build();
-
-
     }
 
 }
