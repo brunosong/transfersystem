@@ -2,12 +2,13 @@ package com.brunosong.transfer.system.transfer.service.exception;
 
 import com.brunosong.transfer.system.domain.exception.DomainException;
 
-public class MaterialNotFoundException extends DomainException {
-    public MaterialNotFoundException(String message) {
+public class TransferDomainException extends DomainException {
+
+    public TransferDomainException(String message) {
         super(message);
     }
 
-    public MaterialNotFoundException(String message, Throwable cause) {
+    public TransferDomainException(String message, Throwable cause) {
         super(message, cause);
     }
 }

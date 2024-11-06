@@ -19,11 +19,11 @@ public class LearningMaterialCreateHelper {
     private final LearningMaterialRepository learningMaterialRepository;
 
     public LearningMaterial createMaterial(ExecutionTransferCommand executionTransferCommand) {
-        LearningMaterial learningMaterial = checkLearningMaterial(executionTransferCommand.getMaterialId());
+        LearningMaterial learningMaterial = checkAndFindLearningMaterial(executionTransferCommand.getMaterialId());
         return learningMaterial;
     }
 
-    private LearningMaterial checkLearningMaterial(String materialId) {
+    private LearningMaterial checkAndFindLearningMaterial(String materialId) {
         Optional<LearningMaterial> material = learningMaterialRepository.findById(materialId);
 
         if(material.isEmpty()) {
