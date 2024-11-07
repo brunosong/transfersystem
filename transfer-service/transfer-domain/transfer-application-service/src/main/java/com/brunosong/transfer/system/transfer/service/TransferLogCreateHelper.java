@@ -23,6 +23,7 @@ public class TransferLogCreateHelper {
 
     public TransferLog persistTransferLog(ExecutionTransferCommand command) {
         TransferLog transferLog = transferDataMapper.executionTransferCommandToTransferLog(command);
+        transferLog.initializeTransferLog();
         return saveTransferLog(transferLog);
     }
 
