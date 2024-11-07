@@ -110,6 +110,11 @@
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>common-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>dataupload-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>

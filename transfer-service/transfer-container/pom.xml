@@ -41,6 +41,10 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>common-dataaccess</artifactId>
+        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>com.h2database</groupId>-->
