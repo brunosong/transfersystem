@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSendService;
+import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSender;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import org.mockito.Mockito;
@@ -21,8 +21,8 @@ public class TransferTestConfiguration {
     }
 
     @Bean
-    public LearningMaterialApiSendService learningMaterialApiSendService() {
-        return Mockito.mock(LearningMaterialApiSendService.class);
+    public LearningMaterialApiSender learningMaterialApiSendService() {
+        return Mockito.mock(LearningMaterialApiSender.class);
     }
 
 }

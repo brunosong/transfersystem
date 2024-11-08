@@ -16,6 +16,10 @@
             <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>transfer-application-service</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>kafka-model</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

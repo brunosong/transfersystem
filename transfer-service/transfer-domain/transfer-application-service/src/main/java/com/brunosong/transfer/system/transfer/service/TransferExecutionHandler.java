@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTrans
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
+import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.LearningMaterialRequestPublisher;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransferExecutionHandler {
 
     private final LearningMaterialCreateHelper learningMaterialCreateHelper;
-    private final TransferSendServiceHelper transferSendServiceHelper;
+    private final TransferApiSendHelper transferApiSendHelper;
     private final TransferLogCreateHelper transferLogCreateHelper;
-
+    private final LearningMaterialRequestPublisher learningMaterialRequestPublisher;
     private final TransferDataMapper transferDataMapper;
 
     @Transactional
@@ -27,7 +28,9 @@ public class TransferExecutionHandler {
                 learningMaterialCreateHelper.createMaterial(executionTransferCommand);
 
         if (executionTransferCommand.getTransType() == TransType.API) {
-            transferSendServiceHelper.transferAction(material);
+            transferApiSendHelper.transferAction(material);
+        } else if (executionTransferCommand.getTransType() == TransType.MESSAGING) {
+            learningMaterialRequestPublisher.publish(material);
         }
 
         TransferLog transferLog = transferLogCreateHelper.persistTransferLog(executionTransferCommand);

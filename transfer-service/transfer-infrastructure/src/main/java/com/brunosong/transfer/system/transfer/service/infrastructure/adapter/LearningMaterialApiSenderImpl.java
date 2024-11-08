@@ -1,13 +1,11 @@
 package com.brunosong.transfer.system.transfer.service.infrastructure.adapter;
 
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
-import com.brunosong.transfer.system.transfer.service.infrastructure.feign.LoadTargetServiceClient;
-import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSendService;
-import lombok.RequiredArgsConstructor;
+import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSender;
 import org.springframework.stereotype.Service;
 
 @Service
-public class LearningMaterialApiSendServiceImpl implements LearningMaterialApiSendService {
+public class LearningMaterialApiSenderImpl implements LearningMaterialApiSender {
 
 //    private final LoadTargetServiceClient loadTargetServiceClient;
 
