@@ -1,8 +1,10 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
@@ -26,6 +28,9 @@ public class TransferApplicationServiceTest {
     @Autowired
     LearningMaterialRepository learningMaterialRepository;
 
+    @Autowired
+    TransferLogRepository transferLogRepository;
+
     private ExecutionTransferCommand command;
 
     @BeforeAll
@@ -44,10 +49,19 @@ public class TransferApplicationServiceTest {
 
     @Test
     void test() {
+
+        UUID id = UUID.randomUUID();
+
+        TransferLog transferLog = TransferLog.builder()
+                .id(new TransferLogId(id))
+                .materialId(new LearningMaterialId("1111"))
+                .build();
+        when(transferLogRepository.save(any())).thenReturn(transferLog);
+
        command = ExecutionTransferCommand.builder()
                 .adminId("BrunoSong")
                 .transType(TransType.API)
-                .materialId(UUID.randomUUID().toString())
+                .materialId(id.toString())
                 .build();
 
        transferExecutionHandler.execution(command);

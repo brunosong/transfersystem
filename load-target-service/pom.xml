@@ -14,9 +14,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>load-target-domain</module>
-        <module>load-target-container</module>
+<!--        <module>load-target-container</module>-->
         <module>load-target-dataaccess</module>
-        <module>load-target-application</module>
+<!--        <module>load-target-application</module>-->
         <module>load-target-messaging</module>
     </modules>
 

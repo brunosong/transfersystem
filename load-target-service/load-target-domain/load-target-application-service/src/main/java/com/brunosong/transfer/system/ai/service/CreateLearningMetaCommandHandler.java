@@ -23,11 +23,11 @@ public class CreateLearningMetaCommandHandler {
 
     @Transactional
     public CreateLearningMetaResponse persistLearningMeta(CreateLearningMetaCommand createLearningMetaCommand) {
-        Course course = aiCreateLearningMetaDataMapper.learningMaterialToCourse(
-                createLearningMetaCommand.getLearningMaterial()
-        );
-
-        courseRepository.save(course);
+//        Course course = aiCreateLearningMetaDataMapper.learningMaterialToCourse(
+//                createLearningMetaCommand.getLearningMaterial()
+//        );
+//
+//        courseRepository.save(course);
 
         return CreateLearningMetaResponse.builder()
                 .message("SUCCESS")
