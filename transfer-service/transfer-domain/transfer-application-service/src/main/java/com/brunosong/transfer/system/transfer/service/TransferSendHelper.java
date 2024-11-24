@@ -1,14 +1,7 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 
 public abstract class TransferSendHelper {
-
-    private final LearningMaterialRepository learningMaterialRepository;
-
-    public TransferSendHelper(LearningMaterialRepository learningMaterialRepository) {
-        this.learningMaterialRepository = learningMaterialRepository;
-    }
-
+    abstract void transferAction(LearningMaterial learningMaterial);
 }

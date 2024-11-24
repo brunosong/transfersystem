@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LearningMaterialMetadata {
-    private Long id;
-    private String materialId;
     private String attributeName;
     private String attributeValue;
 }

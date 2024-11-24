@@ -17,6 +17,7 @@ public class LearningMaterialDataAccessMapper {
         return LearningMaterial.builder()
                 .id(new LearningMaterialId(materialEntity.getId()))
                 .title(materialEntity.getTitle())
+                .description(materialEntity.getDescription())
                 .metadataList(materialMetadataEntitiesToMaterialMetadataList(materialEntity.getMetadataList()))
                 .build();
     }
@@ -26,7 +27,6 @@ public class LearningMaterialDataAccessMapper {
                                             List<Map<String,Object>> materialMetadataEntities) {
 
         return materialMetadataEntities.stream().map(map -> LearningMaterialMetadata.builder()
-                                                                .materialId((String)map.get("materialId"))
                                                                 .attributeName((String)map.get("attributeName"))
                                                                 .attributeValue((String)map.get("attributeValue"))
                                                                 .build())

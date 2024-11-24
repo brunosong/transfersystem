@@ -24,8 +24,6 @@ public class TransferMessagingDataMapper {
     public List<LearningMaterialMetadataAvroModel> learningMaterialMetadataToLearningMaterialMetadataAvro(List<LearningMaterialMetadata> metadata) {
         return metadata.stream().map( meta ->
                 LearningMaterialMetadataAvroModel.newBuilder()
-                    .setId(meta.getMaterialId())
-                    .setMaterialId(meta.getMaterialId())
                     .setAttributeName(meta.getAttributeName())
                     .setAttributeValue(meta.getAttributeValue())
                     .build()

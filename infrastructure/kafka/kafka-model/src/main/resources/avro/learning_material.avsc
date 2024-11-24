@@ -29,8 +29,6 @@
           "name":"LearningMaterialMetadataAvroModel",
           "type":"record",
           "fields":[
-            {"name":"id", "type": "string"},
-            {"name":"materialId", "type": "string"},
             {"name":"attributeName", "type": "string"},
             {"name":"attributeValue", "type": "string"}
           ]

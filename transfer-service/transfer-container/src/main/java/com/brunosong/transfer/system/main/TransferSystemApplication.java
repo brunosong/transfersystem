@@ -2,20 +2,16 @@ package com.brunosong.transfer.system.main;
 
 import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
 import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
-import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.util.List;
 import java.util.Map;
 
-@EnableMongoRepositories(basePackages = "com.brunosong.transfer.system.dataaccess")
 @SpringBootApplication(scanBasePackages = "com.brunosong.transfer.system")
 public class TransferSystemApplication {
-
     @Bean
     CommandLineRunner initData(LearningMaterialMongoRepository learningMaterialMongoRepository) {
         return args -> {
@@ -25,8 +21,8 @@ public class TransferSystemApplication {
                         .description("Basic Java programming concepts")
                         .learningLevel(1)
                         .metadataList(List.of(
-                                Map.of("author", "John Doe", "pages", 120),
-                                Map.of("format", "PDF", "language", "English")
+                                Map.of("attributeName", "John Doe", "attributeValue", "120"),
+                                Map.of("attributeName", "PDF", "attributeValue", "English")
                         ))
                         .build();
 
@@ -35,8 +31,8 @@ public class TransferSystemApplication {
                         .description("In-depth Java programming techniques")
                         .learningLevel(3)
                         .metadataList(List.of(
-                                Map.of("author", "Jane Smith", "pages", 300),
-                                Map.of("format", "eBook", "language", "English")
+                                Map.of("attributeName", "Jane Smith", "attributeValue", "300"),
+                                Map.of("attributeName", "eBook", "attributeValue", "English")
                         ))
                         .build();
 
@@ -45,8 +41,8 @@ public class TransferSystemApplication {
                         .description("Getting started with Spring Boot")
                         .learningLevel(2)
                         .metadataList(List.of(
-                                Map.of("author", "Alex Brown", "pages", 200),
-                                Map.of("format", "Video", "language", "English")
+                                Map.of("attributeName", "Alex Brown", "attributeValue", "200"),
+                                Map.of("attributeName", "Video", "attributeValue", "English")
                         ))
                         .build();
 

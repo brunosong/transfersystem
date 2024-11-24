@@ -1,11 +1,10 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferResponse;
+import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
-import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.LearningMaterialRequestPublisher;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,8 +16,8 @@ public class TransferExecutionHandler {
 
     private final LearningMaterialCreateHelper learningMaterialCreateHelper;
     private final TransferApiSendHelper transferApiSendHelper;
+    private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferLogCreateHelper transferLogCreateHelper;
-    private final LearningMaterialRequestPublisher learningMaterialRequestPublisher;
     private final TransferDataMapper transferDataMapper;
 
     @Transactional
@@ -30,7 +29,7 @@ public class TransferExecutionHandler {
         if (executionTransferCommand.getTransType() == TransType.API) {
             transferApiSendHelper.transferAction(material);
         } else if (executionTransferCommand.getTransType() == TransType.MESSAGING) {
-            learningMaterialRequestPublisher.publish(material);
+            messagingSendHelper.transferAction(material);
         }
 
         TransferLog transferLog = transferLogCreateHelper.persistTransferLog(executionTransferCommand);
