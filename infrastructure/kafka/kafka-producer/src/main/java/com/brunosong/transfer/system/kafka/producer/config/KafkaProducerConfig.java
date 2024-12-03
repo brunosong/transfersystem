@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.kafka.producer;
+package com.brunosong.transfer.system.kafka.producer.config;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
 import com.brunosong.transfer.system.kafka.config.data.KafkaProducerConfigData;
