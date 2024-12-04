@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>load-target-service</module>
+        <module>data-migration-service</module>
         <module>transfer-service</module>
         <module>common</module>
         <module>dataupload-service</module>
@@ -49,17 +49,27 @@
         <dependencies>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>load-target-domain-core</artifactId>
+                <artifactId>data-migration-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>load-target-domain</artifactId>
+                <artifactId>data-migration-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>load-target-application-service</artifactId>
+                <artifactId>data-migration-application-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>data-migration-dataaccess</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>data-migration-messaging</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
