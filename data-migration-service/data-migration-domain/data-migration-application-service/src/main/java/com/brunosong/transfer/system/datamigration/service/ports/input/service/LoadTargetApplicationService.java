@@ -1,8 +1,8 @@
 package com.brunosong.transfer.system.datamigration.service.ports.input.service;
 
-import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLoadTargetCommand;
-import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLoadTargetResponse;
+import com.brunosong.transfer.system.datamigration.service.dto.create.CreateDataMigrationInfoCommand;
+import com.brunosong.transfer.system.datamigration.service.dto.create.CreateDataMigrationInfoResponse;
 
 public interface LoadTargetApplicationService {
-      CreateLoadTargetResponse createLoadTarget(CreateLoadTargetCommand createLoadTargetCommand);
+      CreateDataMigrationInfoResponse createLoadTarget(CreateDataMigrationInfoCommand createDataMigrationInfoCommand);
 }
