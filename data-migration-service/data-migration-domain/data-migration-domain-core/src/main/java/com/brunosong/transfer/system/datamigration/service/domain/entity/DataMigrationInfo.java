@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.datamigration.service.domain.entity;
 
 import com.brunosong.transfer.system.domain.entity.AggregateRoot;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DatabaseEnvironment;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbEnvironment;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationDestinationService;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationServiceStatus;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationMode;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbCredentials;
 
@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public class DataMigrationInfo extends AggregateRoot<DataMigrationInfoId> {
 
-    private final MigrationDestinationService destinationService;
-    private final DatabaseEnvironment dbEnvironment;
+    private final DestinationServiceStatus destinationService;
+    private final DestinationDbEnvironment dbEnvironment;
     private final MigrationMode migrationMode;
     private final DestinationDbCredentials destinationDbCredentials;
 
@@ -24,7 +24,7 @@ public class DataMigrationInfo extends AggregateRoot<DataMigrationInfoId> {
         destinationDbCredentials = builder.destinationDbCredentials;
     }
 
-    public MigrationDestinationService getDestinationService() {
+    public DestinationServiceStatus getDestinationService() {
         return destinationService;
     }
 
@@ -32,7 +32,7 @@ public class DataMigrationInfo extends AggregateRoot<DataMigrationInfoId> {
         setId(new DataMigrationInfoId(UUID.randomUUID()));
     }
 
-    public DatabaseEnvironment getDbEnvironment() {
+    public DestinationDbEnvironment getDbEnvironment() {
         return dbEnvironment;
     }
 
@@ -55,8 +55,8 @@ public class DataMigrationInfo extends AggregateRoot<DataMigrationInfoId> {
     public static final class Builder {
 
         private DataMigrationInfoId dataMigrationInfoId;
-        private MigrationDestinationService destinationService;
-        private DatabaseEnvironment dbEnvironment;
+        private DestinationServiceStatus destinationService;
+        private DestinationDbEnvironment dbEnvironment;
         private MigrationMode migrationMode;
         private DestinationDbCredentials destinationDbCredentials;
 
@@ -67,12 +67,12 @@ public class DataMigrationInfo extends AggregateRoot<DataMigrationInfoId> {
             return this;
         }
 
-        public Builder destinationService(MigrationDestinationService val) {
+        public Builder destinationService(DestinationServiceStatus val) {
             destinationService = val;
             return this;
         }
 
-        public Builder dbEnvironment(DatabaseEnvironment val) {
+        public Builder dbEnvironment(DestinationDbEnvironment val) {
             dbEnvironment = val;
             return this;
         }

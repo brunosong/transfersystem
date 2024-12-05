@@ -1,5 +1,5 @@
 package com.brunosong.transfer.system.datamigration.service.domain.valueobject;
 
-public enum DatabaseEnvironment {
+public enum DestinationDbEnvironment {
     PRODUCTION, DEVELOPMENT
 }

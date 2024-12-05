@@ -3,8 +3,8 @@ package com.brunosong.transfer.system.datamigration.service.mapper;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigrationInfo;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DatabaseEnvironment;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationDestinationService;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbEnvironment;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationServiceStatus;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationMode;
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateDataMigrationInfoCommand;
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateDataMigrationInfoResponse;
@@ -38,8 +38,8 @@ class DataMigrationDataMapperTest {
                 dataMigrationDataMapper.createDataMigrationInfoCommandToDataMigrationInfo(command);
 
         // then
-        Assertions.assertThat(info.getDestinationService()).isEqualTo(MigrationDestinationService.AI);
-        Assertions.assertThat(info.getDbEnvironment()).isEqualTo(DatabaseEnvironment.DEVELOPMENT);
+        Assertions.assertThat(info.getDestinationService()).isEqualTo(DestinationServiceStatus.AI);
+        Assertions.assertThat(info.getDbEnvironment()).isEqualTo(DestinationDbEnvironment.DEVELOPMENT);
         Assertions.assertThat(info.getMigrationMode()).isEqualTo(MigrationMode.DB);
 
     }
