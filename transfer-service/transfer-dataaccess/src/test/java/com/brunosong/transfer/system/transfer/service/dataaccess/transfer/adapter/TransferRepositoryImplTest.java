@@ -1,10 +1,10 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
-import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.dataaccess.TestJpaConfiguration;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper.TransferLogDataAccessMapper;
-import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,20 +21,20 @@ import java.util.UUID;
 })
 @TestPropertySource(properties = {"spring.jpa.show-sql=true"})
 @DataJpaTest
-class TransferLogRepositoryImplTest {
+class TransferRepositoryImplTest {
 
     @Autowired
     TransferLogRepositoryImpl transferLogRepository;
 
     @Test
     void save() {
-        TransferLog transferLog = TransferLog.builder()
-                .id(new TransferLogId(UUID.randomUUID()))
+        Transfer transfer = Transfer.builder()
+                .id(new TransferId(UUID.randomUUID()))
                 .createAdminId("brunosong")
                 .materialId(new LearningMaterialId("123456"))
                 .build();
 
-        TransferLog result = transferLogRepository.save(transferLog);
+        Transfer result = transferLogRepository.save(transfer);
 
         Assertions.assertThat(result.getCreatedAt()).isNotNull();
     }
@@ -42,16 +42,16 @@ class TransferLogRepositoryImplTest {
     @Test
     void findById() {
 
-        TransferLog transferLog = TransferLog.builder()
-                .id(new TransferLogId(UUID.randomUUID()))
+        Transfer transfer = Transfer.builder()
+                .id(new TransferId(UUID.randomUUID()))
                 .createAdminId("brunosong")
                 .materialId(new LearningMaterialId("123456"))
                 .build();
 
-        transferLogRepository.save(transferLog);
-        Optional<TransferLog> byId = transferLogRepository.findById(transferLog.getId().getValue());
+        transferLogRepository.save(transfer);
+        Optional<Transfer> byId = transferLogRepository.findById(transfer.getId().getValue());
 
-        Assertions.assertThat(transferLog.getId()).isEqualTo(byId.get().getId());
+        Assertions.assertThat(transfer.getId()).isEqualTo(byId.get().getId());
     }
 
 }

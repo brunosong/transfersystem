@@ -1,16 +1,20 @@
-package com.brunosong.transfer.system.transfer.service.dto.excution;
+package com.brunosong.transfer.system.transfer.service.dto.create;
 
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExecutionTransferCommand {
+public class CreateTransferCommand {
+
+    @NotNull(message = "adminId is null")
+    private UUID adminId;
 
     @NotNull(message = "transType is null")
     private TransType transType;
@@ -18,7 +22,7 @@ public class ExecutionTransferCommand {
     @NotNull(message = "materialId is null")
     private String materialId;
 
-    @NotNull(message = "adminId is null")
-    private String adminId;
+    @NotNull(message = "dataMigrationInfoId is null")
+    private UUID dataMigrationInfoId;
 
 }

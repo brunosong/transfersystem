@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
-import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
-import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.exception.MaterialNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import org.assertj.core.api.Assertions;
@@ -31,15 +31,15 @@ class LearningMaterialCreateHelperTest {
     @Autowired
     private LearningMaterialRepository learningMaterialRepository;
 
-    ExecutionTransferCommand command;
+    CreateTransferCommand command;
 
-    TransferLog transferLog;
+    Transfer transfer;
 
     @BeforeAll
     public void init() {
-        command = ExecutionTransferCommand.builder().build();
-        transferLog = TransferLog.builder()
-                .id(new TransferLogId(UUID.randomUUID()))
+        command = CreateTransferCommand.builder().build();
+        transfer = Transfer.builder()
+                .id(new TransferId(UUID.randomUUID()))
                 .materialId(new LearningMaterialId("abcd1"))
                 .build();
     }

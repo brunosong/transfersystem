@@ -1,24 +1,27 @@
 package com.brunosong.transfer.system.transfer.service.entity;
 
 import com.brunosong.transfer.system.domain.entity.AggregateRoot;
+import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
-import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class TransferLog extends AggregateRoot<TransferLogId> {
-    private String createAdminId;
+public class Transfer extends AggregateRoot<TransferId> {
     private LearningMaterialId learningMaterialId;
+    private DataMigrationInfoId dataMigrationInfoId;
     private LocalDateTime createdAt;
+    private String createAdminId;
     private LocalDateTime updatedAt;
 
-    private TransferLog(Builder builder) {
+    private Transfer(Builder builder) {
         setId(builder.id);
         this.createAdminId = builder.createAdminId;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
         this.learningMaterialId = builder.learningMaterialId;
+        this.dataMigrationInfoId = builder.dataMigrationInfoId;
     }
 
     public String getCreateAdminId() {
@@ -34,7 +37,7 @@ public class TransferLog extends AggregateRoot<TransferLogId> {
     }
 
     public void initializeTransferLog() {
-        setId(new TransferLogId(UUID.randomUUID()));
+        setId(new TransferId(UUID.randomUUID()));
     }
 
     public static Builder builder() {
@@ -42,22 +45,28 @@ public class TransferLog extends AggregateRoot<TransferLogId> {
     }
 
     public static final class Builder {
-        private TransferLogId id;
+        private TransferId id;
         private String createAdminId;
         private LearningMaterialId learningMaterialId;
+        private DataMigrationInfoId dataMigrationInfoId;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
         private Builder() {
         }
 
-        public Builder id(TransferLogId id) {
+        public Builder id(TransferId id) {
             this.id = id;
             return this;
         }
 
         public Builder materialId(LearningMaterialId learningMaterialId) {
             this.learningMaterialId = learningMaterialId;
+            return this;
+        }
+
+        public Builder dataMigrationInfoId(DataMigrationInfoId dataMigrationInfoId) {
+            this.dataMigrationInfoId = dataMigrationInfoId;
             return this;
         }
 
@@ -76,8 +85,8 @@ public class TransferLog extends AggregateRoot<TransferLogId> {
             return this;
         }
 
-        public TransferLog build() {
-            return new TransferLog(this);
+        public Transfer build() {
+            return new Transfer(this);
         }
     }
 }

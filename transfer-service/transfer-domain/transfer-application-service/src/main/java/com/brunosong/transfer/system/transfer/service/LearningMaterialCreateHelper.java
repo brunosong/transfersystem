@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.exception.MaterialNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
@@ -17,7 +17,7 @@ public class LearningMaterialCreateHelper {
 
     private final LearningMaterialRepository learningMaterialRepository;
 
-    public LearningMaterial createMaterial(ExecutionTransferCommand command) {
+    public LearningMaterial createMaterial(CreateTransferCommand command) {
         LearningMaterial learningMaterial = checkAndFindLearningMaterial(command.getMaterialId());
         return learningMaterial;
     }

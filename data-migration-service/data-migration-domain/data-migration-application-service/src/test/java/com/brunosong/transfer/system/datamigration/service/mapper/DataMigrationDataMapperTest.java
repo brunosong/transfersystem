@@ -2,7 +2,7 @@ package com.brunosong.transfer.system.datamigration.service.mapper;
 
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigrationInfo;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataMigrationInfoId;
+import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbEnvironment;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationServiceStatus;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationMode;

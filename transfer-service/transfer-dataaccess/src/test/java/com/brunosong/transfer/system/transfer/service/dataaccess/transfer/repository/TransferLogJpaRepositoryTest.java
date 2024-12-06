@@ -17,7 +17,7 @@ import java.util.UUID;
 @TestPropertySource(properties = {"spring.jpa.show-sql=true"})
 @ContextConfiguration(classes = {TestJpaConfiguration.class})
 @DataJpaTest
-class TransferLogLogJpaRepositoryTest {
+class TransferLogJpaRepositoryTest {
 
     @Autowired
     TransferLogJpaRepository jpaRepository;

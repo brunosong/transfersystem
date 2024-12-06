@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.valueobject;
+package com.brunosong.transfer.system.domain.valueobject;
 
 import com.brunosong.transfer.system.domain.valueobject.BaseId;
 

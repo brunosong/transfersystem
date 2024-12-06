@@ -1,17 +1,16 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
-import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
-import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -31,7 +30,7 @@ public class TransferApplicationServiceTest {
     @Autowired
     TransferLogRepository transferLogRepository;
 
-    private ExecutionTransferCommand command;
+    private CreateTransferCommand command;
 
     @BeforeAll
     public void init() {
@@ -52,13 +51,13 @@ public class TransferApplicationServiceTest {
 
         UUID id = UUID.randomUUID();
 
-        TransferLog transferLog = TransferLog.builder()
-                .id(new TransferLogId(id))
+        Transfer transfer = Transfer.builder()
+                .id(new TransferId(id))
                 .materialId(new LearningMaterialId("1111"))
                 .build();
-        when(transferLogRepository.save(any())).thenReturn(transferLog);
+        when(transferLogRepository.save(any())).thenReturn(transfer);
 
-       command = ExecutionTransferCommand.builder()
+       command = CreateTransferCommand.builder()
                 .adminId("BrunoSong")
                 .transType(TransType.API)
                 .materialId(id.toString())

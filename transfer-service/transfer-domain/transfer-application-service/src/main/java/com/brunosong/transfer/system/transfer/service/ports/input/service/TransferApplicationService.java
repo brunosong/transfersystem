@@ -1,10 +1,10 @@
 package com.brunosong.transfer.system.transfer.service.ports.input.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExcutionTransferResponse;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
 
 public interface TransferApplicationService {
 
-    ExcutionTransferResponse executionTransfer(ExecutionTransferCommand executionTransferCommand);
+    CreateTransferResponse createTransfer(CreateTransferCommand createTransferCommand);
 
 }

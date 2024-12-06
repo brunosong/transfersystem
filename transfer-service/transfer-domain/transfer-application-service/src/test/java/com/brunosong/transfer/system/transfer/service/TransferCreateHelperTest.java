@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
-import com.brunosong.transfer.system.domain.valueobject.TransferLogId;
-import com.brunosong.transfer.system.transfer.service.dto.excution.ExecutionTransferCommand;
-import com.brunosong.transfer.system.transfer.service.entity.TransferLog;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import org.assertj.core.api.Assertions;
@@ -21,23 +21,23 @@ import static org.mockito.Mockito.when;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = TransferTestConfiguration.class)
-class TransferLogCreateHelperTest {
+class TransferCreateHelperTest {
 
     @Autowired
     TransferLogRepository transferLogRepository;
 
     @Autowired
-    TransferLogCreateHelper transferLogCreateHelper;
+    TransferCreateHelper transferCreateHelper;
 
-    ExecutionTransferCommand command;
+    CreateTransferCommand command;
 
-    TransferLog transferLog;
+    Transfer transfer;
 
     @BeforeAll
     public void init() {
-        command = ExecutionTransferCommand.builder().build();
-        transferLog = TransferLog.builder()
-                .id(new TransferLogId(UUID.randomUUID()))
+        command = CreateTransferCommand.builder().build();
+        transfer = Transfer.builder()
+                .id(new TransferId(UUID.randomUUID()))
                 .materialId(new LearningMaterialId("abcd1"))
                 .build();
     }
@@ -46,7 +46,7 @@ class TransferLogCreateHelperTest {
     @DisplayName("저장이 되지 않으면 TransferDomainException이 발생한다")
     void persistTransferLog() {
         when(transferLogRepository.save(any())).thenReturn(null);
-        Assertions.assertThatThrownBy(()-> transferLogCreateHelper.persistTransferLog(command))
+        Assertions.assertThatThrownBy(()-> transferCreateHelper.persistTransferLog(command))
                 .isInstanceOf(TransferDomainException.class);
     }
 

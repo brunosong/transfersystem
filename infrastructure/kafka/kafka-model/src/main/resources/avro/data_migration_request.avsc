@@ -1,0 +1,59 @@
+{
+  "namespace": "com.brunosong.transfer.system.kafka.transfer.avro.model",
+  "type": "record",
+  "name": "DataMigrationRequestAvroModel",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "dataMigrationInfoId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "learningMaterial",
+      "type": {
+        "type": "record",
+        "name": "LearningMaterialAvroModel",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "metadataList",
+            "type": {
+              "type": "array",
+              "items": {
+                "type": "record",
+                "name": "LearningMaterialMetadataAvroModel",
+                "fields": [
+                  {
+                    "name": "attributeName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "attributeValue",
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
