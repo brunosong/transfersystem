@@ -74,7 +74,7 @@
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>load-target-container</artifactId>
+                <artifactId>data-migration-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
