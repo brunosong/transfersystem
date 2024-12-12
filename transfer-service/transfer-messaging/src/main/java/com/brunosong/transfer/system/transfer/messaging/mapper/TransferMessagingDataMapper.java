@@ -1,9 +1,11 @@
 package com.brunosong.transfer.system.transfer.messaging.mapper;
 
+import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialMetadataAvroModel;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterialMetadata;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,10 +14,10 @@ import java.util.stream.Collectors;
 @Component
 public class TransferMessagingDataMapper {
 
-    public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(LearningMaterial learningMaterial) {
-        return LearningMaterialAvroModel.newBuilder()
+    public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
+        return DataMigrationRequestAvroModel.newBuilder()
                 .setId(learningMaterial.getId().getValue())
-                .setTitle(learningMaterial.getTitle())
+                .setLearningMaterial(learningMaterial.getTitle())
                 .setDescription(learningMaterial.getDescription())
                 .setMetadataList(learningMaterialMetadataToLearningMaterialMetadataAvro(learningMaterial.getMetadataList()))
                 .build();

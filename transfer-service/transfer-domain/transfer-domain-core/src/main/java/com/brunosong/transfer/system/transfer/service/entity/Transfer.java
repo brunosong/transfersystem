@@ -36,7 +36,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         return updatedAt;
     }
 
-    public void initializeTransferLog() {
+    public void initializeTransfer() {
         setId(new TransferId(UUID.randomUUID()));
     }
 

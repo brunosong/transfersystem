@@ -55,8 +55,8 @@ class MaterialSendingPublisherTest {
                 .build();
 
         // when
-        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(learningMaterial)).thenReturn(avroModel);
-        sut.publish(learningMaterial);
+        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(null, learningMaterial)).thenReturn(avroModel);
+        sut.publish(null, learningMaterial);
 
         // then
         verify(kafkaProducer, times(1)).send(anyString(), anyString(), any(LearningMaterialAvroModel.class), any());
@@ -86,8 +86,8 @@ class MaterialSendingPublisherTest {
 
 
         // when
-        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(learningMaterial)).thenReturn(avroModel);
-        sut.publish(learningMaterial);
+        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(null, learningMaterial)).thenReturn(avroModel);
+        sut.publish(null, learningMaterial);
 
 
         // then

@@ -22,8 +22,8 @@ public class TransferCreateHelper {
     }
 
     public Transfer persistTransferLog(CreateTransferCommand command) {
-        Transfer transfer = transferDataMapper.executionTransferCommandToTransfer(command);
-        transfer.initializeTransferLog();
+        Transfer transfer = transferDataMapper.createTransferCommandToTransfer(command);
+        transfer.initializeTransfer();
         return saveTransferLog(transfer);
     }
 

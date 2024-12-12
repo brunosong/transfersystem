@@ -12,7 +12,7 @@ import java.util.UUID;
 @Component
 public class TransferDataMapper {
 
-    public Transfer executionTransferCommandToTransfer(CreateTransferCommand command) {
+    public Transfer createTransferCommandToTransfer(CreateTransferCommand command) {
         return Transfer.builder()
                 .materialId(new LearningMaterialId(command.getMaterialId()))
                 .dataMigrationInfoId(new DataMigrationInfoId(command.getDataMigrationInfoId()))

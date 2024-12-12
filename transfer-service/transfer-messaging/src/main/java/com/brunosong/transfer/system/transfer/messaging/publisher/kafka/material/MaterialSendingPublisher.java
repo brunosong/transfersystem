@@ -6,6 +6,7 @@ import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialA
 import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.LearningMaterialRequestPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,10 +31,10 @@ public class MaterialSendingPublisher implements LearningMaterialRequestPublishe
     }
 
     @Override
-    public void publish(LearningMaterial learningMaterial) {
+    public void publish(Transfer transfer, LearningMaterial learningMaterial) {
 
         LearningMaterialAvroModel learningMaterialAvroModel =
-                transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(learningMaterial);
+                transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(transfer, learningMaterial);
 
         String learningMaterialId = learningMaterialAvroModel.getId();
 

@@ -22,17 +22,22 @@ public class TransferExecutionHandler {
 
     @Transactional
     public CreateTransferResponse execution(CreateTransferCommand createTransferCommand) {
-
+        // 비즈니스 모델이 있어야 한다. 여기서 비즈니스 모델은 Transfer가 되야 한다.
         LearningMaterial material =
                 learningMaterialCreateHelper.createMaterial(createTransferCommand);
 
+        Transfer transfer =
+                transferDataMapper.createTransferCommandToTransfer(createTransferCommand);
+
+        transfer.initializeTransfer();
+
         if (createTransferCommand.getTransType() == TransType.API) {
-            transferApiSendHelper.transferAction(material);
+            transferApiSendHelper.transferAction(transfer, material);
         } else if (createTransferCommand.getTransType() == TransType.MESSAGING) {
-            messagingSendHelper.transferAction(material);
+            messagingSendHelper.transferAction(transfer, material);
         }
 
-        Transfer transfer = transferCreateHelper.persistTransferLog(createTransferCommand);
+        transferCreateHelper.persistTransferLog(createTransferCommand);
 
         CreateTransferResponse createTransferResponse =
                 transferDataMapper.transferLogToExcutionTransferResponse(transfer, "Create transfer log success");
