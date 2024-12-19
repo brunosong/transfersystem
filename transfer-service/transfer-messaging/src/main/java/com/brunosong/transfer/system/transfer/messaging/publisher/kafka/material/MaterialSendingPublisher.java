@@ -2,6 +2,7 @@ package com.brunosong.transfer.system.transfer.messaging.publisher.kafka.materia
 
 import com.brunosong.transfer.system.kafka.producer.KafkaMessageHelper;
 import com.brunosong.transfer.system.kafka.producer.service.KafkaProducer;
+import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
@@ -16,12 +17,12 @@ import org.springframework.stereotype.Component;
 public class MaterialSendingPublisher implements LearningMaterialRequestPublisher {
 
     private final TransferMessagingDataMapper transferMessagingDataMapper;
-    private final KafkaProducer<String, LearningMaterialAvroModel> kafkaProducer;
+    private final KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer;
     private final TransferServiceConfigData transferServiceConfigData;
     private final KafkaMessageHelper kafkaMessageHelper;
 
     public MaterialSendingPublisher(TransferMessagingDataMapper transferMessagingDataMapper,
-                                    KafkaProducer<String, LearningMaterialAvroModel> kafkaProducer,
+                                    KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
                                     TransferServiceConfigData transferServiceConfigData,
                                     KafkaMessageHelper kafkaMessageHelper) {
         this.transferMessagingDataMapper = transferMessagingDataMapper;
@@ -33,18 +34,18 @@ public class MaterialSendingPublisher implements LearningMaterialRequestPublishe
     @Override
     public void publish(Transfer transfer, LearningMaterial learningMaterial) {
 
-        LearningMaterialAvroModel learningMaterialAvroModel =
-                transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(transfer, learningMaterial);
+        DataMigrationRequestAvroModel dataMigrationRequestAvroModel =
+                transferMessagingDataMapper.toLearningMaterialAvroModel(transfer, learningMaterial);
 
-        String learningMaterialId = learningMaterialAvroModel.getId();
+        String learningMaterialId = dataMigrationRequestAvroModel.getId();
 
         kafkaProducer.send(transferServiceConfigData.getMaterialRequestTopicName(),
                             learningMaterialId,
-                            learningMaterialAvroModel,
+                            dataMigrationRequestAvroModel,
                             kafkaMessageHelper.getKafkaCallback(transferServiceConfigData.getMaterialRequestTopicName(),
-                                                                learningMaterialAvroModel,
+                                                                dataMigrationRequestAvroModel,
                                                                 learningMaterialId,
-                                                                "LearningMaterialAvroModel")
+                                                   "DataMigrationRequestAvroModel")
                             );
 
     }

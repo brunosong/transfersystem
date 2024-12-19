@@ -55,7 +55,7 @@ class MaterialSendingPublisherTest {
                 .build();
 
         // when
-        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(null, learningMaterial)).thenReturn(avroModel);
+        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(learningMaterial)).thenReturn(avroModel);
         sut.publish(null, learningMaterial);
 
         // then
@@ -86,7 +86,7 @@ class MaterialSendingPublisherTest {
 
 
         // when
-        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(null, learningMaterial)).thenReturn(avroModel);
+        when(transferMessagingDataMapper.learningMaterialToLearningMaterialAvroModel(learningMaterial)).thenReturn(avroModel);
         sut.publish(null, learningMaterial);
 
 

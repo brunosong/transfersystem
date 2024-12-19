@@ -14,10 +14,17 @@ import java.util.stream.Collectors;
 @Component
 public class TransferMessagingDataMapper {
 
-    public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
+    public DataMigrationRequestAvroModel toLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
         return DataMigrationRequestAvroModel.newBuilder()
+                .setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
+                .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
+                .build();
+    }
+
+    public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(LearningMaterial learningMaterial) {
+        return LearningMaterialAvroModel.newBuilder()
                 .setId(learningMaterial.getId().getValue())
-                .setLearningMaterial(learningMaterial.getTitle())
+                .setTitle(learningMaterial.getTitle())
                 .setDescription(learningMaterial.getDescription())
                 .setMetadataList(learningMaterialMetadataToLearningMaterialMetadataAvro(learningMaterial.getMetadataList()))
                 .build();

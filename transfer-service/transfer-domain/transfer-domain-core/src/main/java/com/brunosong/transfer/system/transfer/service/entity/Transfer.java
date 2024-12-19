@@ -24,6 +24,14 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.dataMigrationInfoId = builder.dataMigrationInfoId;
     }
 
+    public LearningMaterialId getLearningMaterialId() {
+        return learningMaterialId;
+    }
+
+    public DataMigrationInfoId getDataMigrationInfoId() {
+        return dataMigrationInfoId;
+    }
+
     public String getCreateAdminId() {
         return createAdminId;
     }
