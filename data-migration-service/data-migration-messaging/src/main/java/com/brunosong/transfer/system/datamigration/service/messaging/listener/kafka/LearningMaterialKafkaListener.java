@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.listener.kafka;
 
-import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.LoadTargetMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.LearningMaterialMessageListener;
+import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
+import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
@@ -15,7 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class LearningMaterialKafkaListener implements KafkaConsumer<LearningMaterialAvroModel> {
+public class LearningMaterialKafkaListener implements KafkaConsumer<DataMigrationRequestAvroModel> {
 
     private final LearningMaterialMessageListener learningMaterialMessageListener;
     private final LoadTargetMessagingDataMapper loadTargetMessagingDataMapper;
@@ -28,15 +28,14 @@ public class LearningMaterialKafkaListener implements KafkaConsumer<LearningMate
 
     @Override
     @KafkaListener(id = "${}", topics = "${}")
-    public void receive(@Payload List<LearningMaterialAvroModel> message,
+    public void receive(@Payload List<DataMigrationRequestAvroModel> message,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
-
-        message.forEach(learningMaterialAvroModel -> {
-            learningMaterialMessageListener.load(
-                    loadTargetMessagingDataMapper.learningMaterialAvroModelToLearningMaterial(learningMaterialAvroModel)
+        message.forEach(dataMigrationRequestAvroModel -> {
+            learningMaterialMessageListener.migration(
+                    loadTargetMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
             );
         });
 

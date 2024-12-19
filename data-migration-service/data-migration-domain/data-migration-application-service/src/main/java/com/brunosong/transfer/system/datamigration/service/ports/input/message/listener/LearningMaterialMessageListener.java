@@ -4,5 +4,5 @@ package com.brunosong.transfer.system.datamigration.service.ports.input.message.
 import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
 
 public interface LearningMaterialMessageListener {
-    void load(LearningMaterial learningMaterial);
+    void migration(LearningMaterial learningMaterial);
 }

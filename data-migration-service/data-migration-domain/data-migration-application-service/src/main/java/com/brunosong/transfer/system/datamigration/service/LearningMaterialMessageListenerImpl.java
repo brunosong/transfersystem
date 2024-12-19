@@ -2,6 +2,7 @@ package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.LearningMaterialMessageListener;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -9,11 +10,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class LearningMaterialMessageListenerImpl implements LearningMaterialMessageListener {
 
-    // 여기에서 디비를 선택할 수 있는 클래스를 적용한다.
+    private final LearningMaterialDataMigrationHandler dataMigrationHandler;
+
+    public LearningMaterialMessageListenerImpl(LearningMaterialDataMigrationHandler dataMigrationHandler) {
+        this.dataMigrationHandler = dataMigrationHandler;
+    }
 
     @Override
-    public void load(LearningMaterial learningMaterial) {
-
+    public void migration(LearningMaterial learningMaterial) {
+        dataMigrationHandler.convert();
+        dataMigrationHandler.save();
     }
 
 }
