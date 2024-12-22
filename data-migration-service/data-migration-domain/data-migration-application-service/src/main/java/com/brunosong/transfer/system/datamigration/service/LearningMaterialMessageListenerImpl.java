@@ -16,7 +16,7 @@ public class LearningMaterialMessageListenerImpl implements LearningMaterialMess
     }
 
     @Override
-    public void migration(LearningMaterial learningMaterial) {
+    public void migration(String dataMigrationInfoId, LearningMaterial learningMaterial) {
         dataMigrationHandler.convert();
         dataMigrationHandler.save();
     }

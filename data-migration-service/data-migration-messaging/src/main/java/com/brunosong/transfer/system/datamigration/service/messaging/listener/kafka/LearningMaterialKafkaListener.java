@@ -27,14 +27,18 @@ public class LearningMaterialKafkaListener implements KafkaConsumer<DataMigratio
     }
 
     @Override
-    @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}", topics = "${data-migration-service.material-request-topic}")
+    @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}",
+                topics = "${data-migration-service.material-request-topic}")
     public void receive(@Payload List<DataMigrationRequestAvroModel> message,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
         message.forEach(dataMigrationRequestAvroModel -> {
+            String dataMigrationInfoId = dataMigrationRequestAvroModel.getDataMigrationInfoId();
+
             learningMaterialMessageListener.migration(
+                    dataMigrationInfoId,
                     loadTargetMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
             );
         });
