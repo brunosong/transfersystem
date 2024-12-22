@@ -2,7 +2,6 @@ package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.LearningMaterialMessageListener;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
