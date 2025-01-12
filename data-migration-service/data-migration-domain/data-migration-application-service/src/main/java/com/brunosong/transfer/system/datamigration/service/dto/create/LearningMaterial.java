@@ -3,19 +3,17 @@ package com.brunosong.transfer.system.datamigration.service.dto.create;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class CreateLearningMetaCommand {
-
+public class LearningMaterial {
     @NotNull
-    private UUID dataMigrationInfoId;
-
+    private String title;
     @NotNull
-    private LearningMaterial learningMaterial;
-
+    private String description;
 }

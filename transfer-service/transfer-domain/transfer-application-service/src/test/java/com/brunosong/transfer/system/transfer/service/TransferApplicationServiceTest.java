@@ -58,7 +58,7 @@ public class TransferApplicationServiceTest {
         when(transferLogRepository.save(any())).thenReturn(transfer);
 
        command = CreateTransferCommand.builder()
-                .adminId("BrunoSong")
+                .adminId(UUID.randomUUID())
                 .transType(TransType.API)
                 .materialId(id.toString())
                 .build();

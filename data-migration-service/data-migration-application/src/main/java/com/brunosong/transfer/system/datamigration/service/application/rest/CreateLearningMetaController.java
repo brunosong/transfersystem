@@ -1,7 +1,11 @@
 package com.brunosong.transfer.system.datamigration.service.application.rest;
 
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLearningMetaCommand;
+import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLearningMetaResponse;
+import com.brunosong.transfer.system.datamigration.service.ports.input.service.CreateLearningMetaService;
+import com.brunosong.transfer.system.datamigration.service.ports.input.service.DataMigrationApplicationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,15 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
-
+@Slf4j
 public class CreateLearningMetaController {
 
-    //private final CreateLearningMetaService createLearningMetaService;
+    private final CreateLearningMetaService createLearningMetaService;
 
-    @PostMapping("/learning-metadata")
+    @PostMapping("/learning-metadata-migration")
     public ResponseEntity<CreateLearningMetaCommand> createLearningMeta(@RequestBody CreateLearningMetaCommand createLearningMetaCommand) {
-//        log.info("Creating customer with username: {}", createCustomerCommand.getUsername());
-//        CreateCustomerResponse response = customerApplicationService.createCustomer(createCustomerCommand);
+        log.info("start createLearningMeta");
+        CreateLearningMetaResponse learningMeta = createLearningMetaService.createLearningMeta(createLearningMetaCommand);
+
         return ResponseEntity.ok(null);
     }
 

@@ -5,12 +5,14 @@ import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMat
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 
 import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication(scanBasePackages = "com.brunosong.transfer.system")
+@EnableFeignClients(basePackages = "com.brunosong.transfer.system")
 public class TransferSystemApplication {
     @Bean
     CommandLineRunner initData(LearningMaterialMongoRepository learningMaterialMongoRepository) {

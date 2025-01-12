@@ -11,11 +11,11 @@ import javax.sql.DataSource;
 public class MainDataSourceConfig {
 
     /* spring.datasource에 바로 지정해서 dataSource()를 사용해도 가능하지만 명확환 예제를 위해 mainDataSource() 생성 */
-    @Bean("mainDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.main")
-    public DataSource mainDataSource() throws IllegalArgumentException {
-        return DataSourceBuilder.create().build();
-    }
+//    @Bean("mainDataSource")
+//    @ConfigurationProperties(prefix = "spring.datasource.main")
+//    public DataSource mainDataSource() throws IllegalArgumentException {
+//        return DataSourceBuilder.create().build();
+//    }
 
 
 }

@@ -28,6 +28,8 @@ public class CreateLearningMetaCommandHandler {
 //
 //        courseRepository.save(course);
 
+        log.info("Transfer Success");
+
         return CreateLearningMetaResponse.builder()
                 .message("SUCCESS")
                 .build();

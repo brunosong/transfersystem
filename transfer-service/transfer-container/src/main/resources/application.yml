@@ -6,6 +6,14 @@ spring:
 transfer-service:
   material-request-topic-name: material-request
 
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: full
+
 
 kafka-config:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
