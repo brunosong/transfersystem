@@ -14,9 +14,8 @@ import java.util.UUID;
 public class CreateLearningMetaCommand {
 
     @NotNull
-    private UUID empId;
-    @NotNull
-    private boolean isReal;
+    private UUID dataMigrationInfoId;
+
     @NotNull
     private LearningMaterial learningMaterial;
 
