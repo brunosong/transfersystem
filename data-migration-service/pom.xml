@@ -14,9 +14,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>data-migration-domain</module>
-<!--        <module>load-target-container</module>-->
+        <module>data-migration-container</module>
         <module>data-migration-dataaccess</module>
-<!--        <module>load-target-application</module>-->
+        <module>data-migration-application</module>
         <module>data-migration-messaging</module>
     </modules>
 

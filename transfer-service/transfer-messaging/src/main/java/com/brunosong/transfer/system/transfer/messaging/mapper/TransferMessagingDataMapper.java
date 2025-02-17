@@ -9,6 +9,7 @@ import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -16,6 +17,7 @@ public class TransferMessagingDataMapper {
 
     public DataMigrationRequestAvroModel toLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
         return DataMigrationRequestAvroModel.newBuilder()
+                .setId(UUID.randomUUID().toString())
                 .setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
                 .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .build();

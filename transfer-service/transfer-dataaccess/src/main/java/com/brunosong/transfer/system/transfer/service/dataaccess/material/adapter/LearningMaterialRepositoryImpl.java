@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.material.adapter;
 
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
 import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.material.mapper.LearningMaterialDataAccessMapper;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;

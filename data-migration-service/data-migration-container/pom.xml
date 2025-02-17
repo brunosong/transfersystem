@@ -34,6 +34,10 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
         </dependency>
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>data-migration-messaging</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

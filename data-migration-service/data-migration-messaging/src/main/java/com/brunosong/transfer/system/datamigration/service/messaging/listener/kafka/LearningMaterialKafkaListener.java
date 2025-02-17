@@ -28,7 +28,7 @@ public class LearningMaterialKafkaListener implements KafkaConsumer<DataMigratio
 
     @Override
     @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}",
-                topics = "${data-migration-service.material-request-topic}")
+                topics = "${data-migration-service.material-request-topic-name}")
     public void receive(@Payload List<DataMigrationRequestAvroModel> message,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,

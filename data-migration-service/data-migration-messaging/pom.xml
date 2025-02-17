@@ -12,9 +12,20 @@
     <artifactId>data-migration-messaging</artifactId>
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>kafka-model</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>kafka-consumer</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>kafka-config-data</artifactId>
         </dependency>
 
         <dependency>

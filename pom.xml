@@ -45,6 +45,20 @@
         <avro.version>1.11.0</avro.version>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -146,6 +160,12 @@
 
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>dataupload-container</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>kafka-model</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -189,6 +209,18 @@
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <release>17</release>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.ferstl</groupId>
+                <artifactId>depgraph-maven-plugin</artifactId>
+                <version>4.0.2</version>
+                <configuration>
+                    <createImage>true</createImage>
+                    <showGroupIds>true</showGroupIds>
+                    <showVersions>true</showVersions>
+                    <showDuplicates>true</showDuplicates>
+                    <showConflicts>true</showConflicts>
                 </configuration>
             </plugin>
         </plugins>
