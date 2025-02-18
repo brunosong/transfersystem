@@ -14,8 +14,8 @@
     <modules>
         <module>kafka-producer</module>
         <module>kafka-model</module>
-        <module>kafka-config-data</module>
         <module>kafka-consumer</module>
+        <module>kafka-config-data</module>
     </modules>
 
     <repositories>
@@ -59,6 +59,11 @@
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
                 <version>${avro.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>7.0.1</version>
             </dependency>
         </dependencies>
 

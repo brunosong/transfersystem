@@ -19,14 +19,7 @@
 
         <dependency>
             <groupId>io.confluent</groupId>
-            <artifactId>kafka-schema-registry-maven-plugin</artifactId>
-            <version>7.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-schema-registry-client</artifactId>
-            <version>7.0.1</version>
+            <artifactId>kafka-avro-serializer</artifactId>
         </dependency>
     </dependencies>
 

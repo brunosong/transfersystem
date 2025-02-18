@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")   // 카푸카 리스너만 사용을 하지 않도록 설정
+//@RequiredArgsConstructor
+//@ConditionalOnProperty(value = "spring.kafka.enabled" , havingValue = "true")   // 카푸카 리스너만 사용을 하지 않도록 설정
 public class ChapConsumer {
 //
 //    private final AiChapService chapService;

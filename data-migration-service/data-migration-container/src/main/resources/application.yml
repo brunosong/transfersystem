@@ -20,8 +20,6 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
 
-data-migration-service:
-  material-request-topic-name: material-request
 
 kafka-config:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
@@ -29,6 +27,8 @@ kafka-config:
   schema-registry-url: http://localhost:8081
   num-of-partitions: 3
   replication-factor: 3
+
+
 
 kafka-consumer-config:
   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -48,6 +48,8 @@ kafka-consumer-config:
   max-partition-fetch-bytes-boost-factor: 1
   poll-timeout-ms: 150
 
+data-migration-service:
+  material-request-topic-name: material-request
 
 
 server:
