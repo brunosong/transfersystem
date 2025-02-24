@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dto.create;
 
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import lombok.*;
 
 @Getter
@@ -8,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class CreateTransferResponse {
-    private String message;
-    private String transferLogId;
+    private String logMessage;
+    private TransferId transferLogId;
 }

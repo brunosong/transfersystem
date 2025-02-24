@@ -4,6 +4,8 @@ import com.brunosong.transfer.system.domain.entity.AggregateRoot;
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
+import com.brunosong.transfer.system.transfer.service.valueobject.TransferStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,6 +13,8 @@ import java.util.UUID;
 public class Transfer extends AggregateRoot<TransferId> {
     private LearningMaterialId learningMaterialId;
     private DataMigrationInfoId dataMigrationInfoId;
+    private TransferStatus transferStatus;
+    private TransType transType;
     private LocalDateTime createdAt;
     private String createAdminId;
     private LocalDateTime updatedAt;
@@ -22,6 +26,39 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.updatedAt = builder.updatedAt;
         this.learningMaterialId = builder.learningMaterialId;
         this.dataMigrationInfoId = builder.dataMigrationInfoId;
+    }
+
+    public void updateTransferStatus(TransferStatus transferStatus) {
+        this.transferStatus = transferStatus;
+    }
+
+    public void markSent() {
+        if (this.transferStatus != TransferStatus.PENDING) {
+            throw new IllegalStateException("Cannot mark sent from " + this.transferStatus);
+        }
+        this.transferStatus = TransferStatus.SENT;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markProcessed() {
+        if (this.transferStatus != TransferStatus.SENT) {
+            throw new IllegalStateException("Cannot mark processed from " + this.transferStatus);
+        }
+        this.transferStatus = TransferStatus.PROCESSED;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markSuccess() {
+        if (this.transferStatus != TransferStatus.PROCESSED) {
+            throw new IllegalStateException("Cannot mark success from " + this.transferStatus);
+        }
+        this.transferStatus = TransferStatus.SUCCESS;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void markFailed() {
+        this.transferStatus = TransferStatus.FAILED;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public LearningMaterialId getLearningMaterialId() {
@@ -44,8 +81,18 @@ public class Transfer extends AggregateRoot<TransferId> {
         return updatedAt;
     }
 
+    public TransferStatus getTransferStatus() {
+        return transferStatus;
+    }
+
+    public TransType getTransType() {
+        return transType;
+    }
+
     public void initializeTransfer() {
         setId(new TransferId(UUID.randomUUID()));
+        this.transferStatus = TransferStatus.PENDING;
+        this.createdAt = LocalDateTime.now();
     }
 
     public static Builder builder() {
@@ -57,6 +104,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         private String createAdminId;
         private LearningMaterialId learningMaterialId;
         private DataMigrationInfoId dataMigrationInfoId;
+        private TransferStatus transferStatus;
+        private TransType transType;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -90,6 +139,16 @@ public class Transfer extends AggregateRoot<TransferId> {
 
         public Builder updatedAt(LocalDateTime updatedAt) {
             this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public Builder transferStatus(TransferStatus transferStatus) {
+            this.transferStatus = transferStatus;
+            return this;
+        }
+
+        public Builder transType(TransType transType) {
+            this.transType = transType;
             return this;
         }
 

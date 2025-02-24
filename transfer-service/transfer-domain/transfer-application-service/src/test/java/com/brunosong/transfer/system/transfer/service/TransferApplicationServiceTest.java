@@ -63,6 +63,6 @@ public class TransferApplicationServiceTest {
                 .materialId(id.toString())
                 .build();
 
-       transferExecutionHandler.execution(command);
+       transferExecutionHandler.sendData(command);
     }
 }

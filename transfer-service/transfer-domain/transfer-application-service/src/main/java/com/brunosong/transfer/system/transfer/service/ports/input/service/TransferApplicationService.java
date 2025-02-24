@@ -5,6 +5,6 @@ import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferR
 
 public interface TransferApplicationService {
 
-    CreateTransferResponse createTransfer(CreateTransferCommand createTransferCommand);
+    CreateTransferResponse executeTransfer(CreateTransferCommand createTransferCommand);
 
 }

@@ -25,7 +25,7 @@ public class TransferController {
     public ResponseEntity<CreateTransferResponse> doTran(@Valid @RequestBody CreateTransferCommand createTransferCommand,
                                                          BindingResult bindingResult) {
 
-        CreateTransferResponse createTransferResponse = transferApplicationService.createTransfer(createTransferCommand);
+        CreateTransferResponse createTransferResponse = transferApplicationService.executeTransfer(createTransferCommand);
         return new ResponseEntity<>(createTransferResponse, HttpStatus.OK);
     }
 }
