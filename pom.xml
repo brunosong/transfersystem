@@ -9,6 +9,7 @@
         <module>common</module>
         <module>dataupload-service</module>
         <module>infrastructure</module>
+        <module>metaupload-service</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -141,6 +142,26 @@
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>dataupload-application-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>metaupload-domain-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>metaupload-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>metaupload-application-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>metaupload-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
