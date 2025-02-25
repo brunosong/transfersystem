@@ -50,7 +50,7 @@ kafka-consumer-config:
 
 data-migration-service:
   material-request-topic-name: material-request
-
+  material-response-topic-name: material-response
 
 server:
   port: 8001

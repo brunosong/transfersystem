@@ -9,4 +9,5 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "data-migration-service")
 public class DataMigrationServiceConfigData {
     private String materialRequestTopicName;
+    private String materialResponseTopicName;
 }

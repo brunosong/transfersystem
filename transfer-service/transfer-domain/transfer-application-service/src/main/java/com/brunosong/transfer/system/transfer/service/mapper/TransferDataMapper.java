@@ -5,7 +5,6 @@ import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransferStatus;
 import org.springframework.stereotype.Component;
 
 @Component

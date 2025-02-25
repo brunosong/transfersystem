@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.listener.kafka;
 
-import com.brunosong.transfer.system.datamigration.service.messaging.mapper.LoadTargetMessagingDataMapper;
+import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMagrationMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.LearningMaterialMessageListener;
 import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
@@ -15,15 +15,15 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class LearningMaterialKafkaListener implements KafkaConsumer<DataMigrationRequestAvroModel> {
+public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigrationRequestAvroModel> {
 
     private final LearningMaterialMessageListener learningMaterialMessageListener;
-    private final LoadTargetMessagingDataMapper loadTargetMessagingDataMapper;
+    private final DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper;
 
-    public LearningMaterialKafkaListener(LearningMaterialMessageListener learningMaterialMessageListener,
-                                         LoadTargetMessagingDataMapper loadTargetMessagingDataMapper) {
+    public DataMigrationRequestKafkaListener(LearningMaterialMessageListener learningMaterialMessageListener,
+                                             DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper) {
         this.learningMaterialMessageListener = learningMaterialMessageListener;
-        this.loadTargetMessagingDataMapper = loadTargetMessagingDataMapper;
+        this.dataMagrationMessagingDataMapper = dataMagrationMessagingDataMapper;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class LearningMaterialKafkaListener implements KafkaConsumer<DataMigratio
 
             learningMaterialMessageListener.migration(
                     dataMigrationInfoId,
-                    loadTargetMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
+                    dataMagrationMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
             );
         });
 

@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.transfer.service.valueobject;
+package com.brunosong.transfer.system.domain.valueobject;
 
 public enum TransferStatus {
     PENDING("Pending"),           // 초기 상태 (전송 전)

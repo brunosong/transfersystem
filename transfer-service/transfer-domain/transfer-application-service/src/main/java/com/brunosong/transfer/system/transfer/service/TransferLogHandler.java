@@ -1,14 +1,8 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferExecutionResult;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransferStatus;
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

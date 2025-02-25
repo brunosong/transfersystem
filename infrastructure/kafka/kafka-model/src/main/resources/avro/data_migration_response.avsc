@@ -1,0 +1,22 @@
+{
+  "namespace": "com.brunosong.transfer.system.kafka.datamigration.avro.model",
+  "type": "record",
+  "name": "DataMigrationResponseAvroModel",
+  "fields": [
+    {
+      "name": "transferId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "transferStatus",
+      "type": {
+        "type": "enum",
+        "name": "TransferStatus",
+        "symbols": ["PENDING", "SENT", "PROCESSED", "SUCCESS", "FAILED"]
+      }
+    }
+  ]
+}

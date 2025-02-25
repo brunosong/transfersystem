@@ -5,7 +5,7 @@ import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransferStatus;
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
