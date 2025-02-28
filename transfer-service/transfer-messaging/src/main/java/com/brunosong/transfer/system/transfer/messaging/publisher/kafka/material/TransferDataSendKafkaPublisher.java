@@ -3,28 +3,27 @@ package com.brunosong.transfer.system.transfer.messaging.publisher.kafka.materia
 import com.brunosong.transfer.system.kafka.producer.KafkaMessageHelper;
 import com.brunosong.transfer.system.kafka.producer.service.KafkaProducer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.LearningMaterialRequestPublisher;
+import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class MaterialSendingPublisher implements LearningMaterialRequestPublisher {
+public class TransferDataSendKafkaPublisher implements TransferDataSendPublisher {
 
+    private final TransferServiceConfigData transferServiceConfigData;
     private final TransferMessagingDataMapper transferMessagingDataMapper;
     private final KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer;
-    private final TransferServiceConfigData transferServiceConfigData;
     private final KafkaMessageHelper kafkaMessageHelper;
 
-    public MaterialSendingPublisher(TransferMessagingDataMapper transferMessagingDataMapper,
-                                    KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
-                                    TransferServiceConfigData transferServiceConfigData,
-                                    KafkaMessageHelper kafkaMessageHelper) {
+    public TransferDataSendKafkaPublisher(TransferMessagingDataMapper transferMessagingDataMapper,
+                                          KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
+                                          TransferServiceConfigData transferServiceConfigData,
+                                          KafkaMessageHelper kafkaMessageHelper) {
         this.transferMessagingDataMapper = transferMessagingDataMapper;
         this.kafkaProducer = kafkaProducer;
         this.transferServiceConfigData = transferServiceConfigData;

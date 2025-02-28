@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSender;
-import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.LearningMaterialRequestPublisher;
+import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendPublisher;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.LearningMaterialRepository;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import org.mockito.Mockito;
@@ -27,8 +27,8 @@ public class TransferTestConfiguration {
     }
 
     @Bean
-    public LearningMaterialRequestPublisher learningMaterialRequestPublisher() {
-        return Mockito.mock(LearningMaterialRequestPublisher.class);
+    public TransferDataSendPublisher learningMaterialRequestPublisher() {
+        return Mockito.mock(TransferDataSendPublisher.class);
     }
 
 }

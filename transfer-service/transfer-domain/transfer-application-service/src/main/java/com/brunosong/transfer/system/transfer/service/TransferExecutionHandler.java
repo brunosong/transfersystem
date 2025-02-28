@@ -23,31 +23,25 @@ public class TransferExecutionHandler {
     @Transactional
     public Transfer sendData(CreateTransferCommand createTransferCommand) {
 
-        LearningMaterial material =
-                learningMaterialCreateHelper.createMaterial(createTransferCommand);
-
         Transfer transfer =
                 transferDataMapper.createTransferCommandToTransfer(createTransferCommand);
 
         transfer.initializeTransfer();
 
+        LearningMaterial material =
+                learningMaterialCreateHelper.findMaterialData(createTransferCommand.getMaterialId());
+
         try {
-        if (createTransferCommand.getTransType() == TransType.API) {
-            transferApiSendHelper.transferAction(transfer, material);
-            transfer.markSent();
-
-            // API 응답 처리 완료 가정
-            transfer.markProcessed();
-            log.info("API transfer completed: {}", transfer.getId());
-        } else if (createTransferCommand.getTransType() == TransType.MESSAGING) {
-            messagingSendHelper.transferAction(transfer, material);
-            transfer.markSent();
-
-            log.info("Messaging transfer completed: {}", transfer.getId());
-        } else {
-            transfer.markFailed();
-            log.warn("Unknown transfer type for: {}", transfer.getId());
-        }
+            if (createTransferCommand.getTransType() == TransType.API) {
+                transferApiSendHelper.transferAction(transfer, material);
+                log.info("API transfer completed: {}", transfer.getId());
+            } else if (createTransferCommand.getTransType() == TransType.MESSAGING) {
+                messagingSendHelper.transferAction(transfer, material);
+                log.info("Messaging transfer completed: {}", transfer.getId());
+            } else {
+                transfer.markFailed();
+                log.warn("Unknown transfer type for: {}", transfer.getId());
+            }
         } catch (Exception e) {
             transfer.markFailed();
             log.error("Transfer failed: {}", transfer.getId(), e);

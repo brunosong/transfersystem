@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.listener.kafka;
 
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMagrationMessagingDataMapper;
-import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.LearningMaterialMessageListener;
+import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +17,12 @@ import java.util.List;
 @Component
 public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigrationRequestAvroModel> {
 
-    private final LearningMaterialMessageListener learningMaterialMessageListener;
+    private final DataMigrationMessageListener dataMigrationMessageListener;
     private final DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper;
 
-    public DataMigrationRequestKafkaListener(LearningMaterialMessageListener learningMaterialMessageListener,
+    public DataMigrationRequestKafkaListener(DataMigrationMessageListener dataMigrationMessageListener,
                                              DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper) {
-        this.learningMaterialMessageListener = learningMaterialMessageListener;
+        this.dataMigrationMessageListener = dataMigrationMessageListener;
         this.dataMagrationMessagingDataMapper = dataMagrationMessagingDataMapper;
     }
 
@@ -37,7 +37,7 @@ public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigr
         message.forEach(dataMigrationRequestAvroModel -> {
             String dataMigrationInfoId = dataMigrationRequestAvroModel.getDataMigrationInfoId();
 
-            learningMaterialMessageListener.migration(
+            dataMigrationMessageListener.migration(
                     dataMigrationInfoId,
                     dataMagrationMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
             );

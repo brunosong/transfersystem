@@ -15,6 +15,13 @@
       }
     },
     {
+      "name": "transferId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
       "name": "learningMaterial",
       "type": {
         "type": "record",

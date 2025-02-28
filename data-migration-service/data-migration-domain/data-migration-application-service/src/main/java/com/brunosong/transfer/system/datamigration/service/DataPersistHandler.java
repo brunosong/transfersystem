@@ -7,7 +7,7 @@ import com.brunosong.transfer.system.datamigration.service.ports.output.reposito
 import org.springframework.stereotype.Component;
 
 @Component
-public class LearningMaterialDataMigrationHandler {
+public class DataPersistHandler {
 
     private ChapterRepository chapterRepository;
     private CourseRepository courseRepository;

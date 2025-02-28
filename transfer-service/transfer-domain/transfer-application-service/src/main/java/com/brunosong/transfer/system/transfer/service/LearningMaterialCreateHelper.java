@@ -17,8 +17,8 @@ public class LearningMaterialCreateHelper {
 
     private final LearningMaterialRepository learningMaterialRepository;
 
-    public LearningMaterial createMaterial(CreateTransferCommand command) {
-        LearningMaterial learningMaterial = checkAndFindLearningMaterial(command.getMaterialId());
+    public LearningMaterial findMaterialData(String materialId) {
+        LearningMaterial learningMaterial = checkAndFindLearningMaterial(materialId);
         return learningMaterial;
     }
 

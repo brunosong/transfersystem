@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferR
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferExecutionResult;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
 import com.brunosong.transfer.system.transfer.service.ports.input.service.TransferApplicationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,9 @@ import org.springframework.validation.annotation.Validated;
 @RequiredArgsConstructor
 public class TransferApplicationServiceImpl implements TransferApplicationService {
 
-    private final TransferLogHandler transferLogHandler;
     private final TransferExecutionHandler transferExecutionHandler;
+    private final TransferLogHandler transferLogHandler;
+    private final TransferDataMapper transferDataMapper;
 
     @Override
     public CreateTransferResponse executeTransfer(CreateTransferCommand command) {
@@ -29,9 +31,6 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
         // 2. 로그 저장
         TransferLogResult transferLogResult = transferLogHandler.persistTransferLog(transfer);
 
-        return CreateTransferResponse.builder()
-                .transferLogId(transferLogResult.transferId())
-                .logMessage(transferLogResult.logMessage())
-                .build();
+        return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
     }
 }

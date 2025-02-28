@@ -20,11 +20,11 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringJUnitConfig(classes = { TestConfig.class, MaterialSendingPublisher.class})
-class MaterialSendingPublisherTest {
+@SpringJUnitConfig(classes = { TestConfig.class, TransferDataSendKafkaPublisher.class})
+class TransferDataSendKafkaPublisherTest {
 
     @Autowired
-    public MaterialSendingPublisher sut;
+    public TransferDataSendKafkaPublisher sut;
 
     @Autowired
     public KafkaProducer<String, LearningMaterialAvroModel> kafkaProducer;

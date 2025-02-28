@@ -2,8 +2,10 @@ package com.brunosong.transfer.system.transfer.service.mapper;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.springframework.stereotype.Component;
 
@@ -18,10 +20,10 @@ public class TransferDataMapper {
                 .build();
     }
 
-    public CreateTransferResponse transferLogToExcutionTransferResponse(Transfer transfer, String message) {
+    public CreateTransferResponse transferLogToExecutionTransferResponse(TransferLogResult transferLogResult) {
         return CreateTransferResponse.builder()
-                .transferLogId(transfer.getId().getValue().toString())
-                .message(message)
+                .transferLogId(transferLogResult.transferId())
+                .logMessage(transferLogResult.logMessage())
                 .build();
     }
 

@@ -18,6 +18,7 @@ public class TransferMessagingDataMapper {
     public DataMigrationRequestAvroModel toLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
         return DataMigrationRequestAvroModel.newBuilder()
                 .setId(UUID.randomUUID().toString())
+                .setTransferId(transfer.getId().getValue().toString())
                 .setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
                 .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .build();
