@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.ports.output.repository;
 
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface TransferLogRepository {
     Optional<Transfer> findById(UUID transferLogId);
 
     Optional<List<Transfer>> findAll();
+
+    void updateTransferStatus(UUID transferId, TransferStatus transferStatus);
 
 }

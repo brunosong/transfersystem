@@ -28,10 +28,10 @@ public class DataMigrationStatusResponsePublisher implements DataMigrationRespon
                 .toDataMigrationResponseAvroModel(outboxMessage);
 
         try {
-            kafkaProducer.send(dataMigrationServiceConfigData.getMaterialResponseTopicName(),
+            kafkaProducer.send(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
                     responseAvroModel.getTransferId(),
                     responseAvroModel,
-                    kafkaMessageHelper.getKafkaCallback(dataMigrationServiceConfigData.getMaterialResponseTopicName(),
+                    kafkaMessageHelper.getKafkaCallback(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
                             responseAvroModel,
                             responseAvroModel.getTransferId(),
                             "DataMigrationResponseAvroModel")

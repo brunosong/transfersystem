@@ -16,10 +16,10 @@ public class DataPersistHelper {
     public void convert(DataMigration dataMigration) {}
 
     public void save() {
-        Chapter build = Chapter.builder().build();
-        chapterRepository.save(build);
-
-        Course build1 = Course.builder().build();
-        courseRepository.save(build1);
+//        Chapter build = Chapter.builder().build();
+//        chapterRepository.save(build);
+//
+//        Course build1 = Course.builder().build();
+//        courseRepository.save(build1);
     }
 }

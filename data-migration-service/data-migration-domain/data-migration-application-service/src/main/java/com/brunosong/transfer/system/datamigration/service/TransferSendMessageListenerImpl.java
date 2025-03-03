@@ -40,8 +40,8 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
         dataPersistHelper.convert(dataMigrationInfo);
 
         try {
-            dataPersistHelper.save(); // 예외 발생 시 롤백
-            dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
+            // dataPersistHelper.save(); // 예외 발생 시 롤백
+            // dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
 
             // 성공 시 메시지
             DataMigrationStatusOutboxMessage outboxMessage = DataMigrationStatusOutboxMessage.builder()

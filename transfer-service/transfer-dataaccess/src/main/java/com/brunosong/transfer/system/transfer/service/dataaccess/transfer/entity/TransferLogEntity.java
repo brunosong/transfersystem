@@ -3,6 +3,7 @@ package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entit
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -22,11 +23,11 @@ import java.util.UUID;
 public class TransferLogEntity {
 
     @Id
-    private UUID id;
+    private String id;
 
     private String learningMaterialId;
 
-    private UUID dataMigrationInfoId;
+    private String dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
     private TransType transType;
@@ -41,5 +42,9 @@ public class TransferLogEntity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    public void updateTransferStatus(TransferStatus transferStatus) {
+        this.transferStatus = transferStatus;
+    }
 
 }

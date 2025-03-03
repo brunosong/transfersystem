@@ -8,6 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "data-migration-service")
 public class DataMigrationServiceConfigData {
-    private String materialRequestTopicName;
-    private String materialResponseTopicName;
+    private String dataMigrationRequestTopicName;
+    private String dataMigrationResponseTopicName;
 }

@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface TransferLogJpaRepository extends JpaRepository<TransferLogEntity, UUID> {
+public interface TransferLogJpaRepository extends JpaRepository<TransferLogEntity, String> {
 
 }

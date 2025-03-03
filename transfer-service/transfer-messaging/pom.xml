@@ -26,6 +26,10 @@
         </dependency>
         <dependency>
             <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>kafka-consumer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>kafka-config-data</artifactId>
         </dependency>
         <dependency>

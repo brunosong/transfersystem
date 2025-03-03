@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper.TransferLogDataAccessMapper;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.repository.TransferLogJpaRepository;
@@ -8,6 +9,7 @@ import com.brunosong.transfer.system.transfer.service.ports.output.repository.Tr
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +35,20 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     @Override
     public Optional<Transfer> findById(UUID transferLogId) {
-        return transferLogJpaRepository.findById(transferLogId).map(transferLogDataAccessMapper::transferLogEntityToTransferLog);
+        return transferLogJpaRepository.findById(transferLogId.toString())
+                .map(transferLogDataAccessMapper::transferLogEntityToTransferLog);
     }
 
     @Override
     public Optional<List<Transfer>> findAll() {
         return Optional.of(transferLogJpaRepository.findAll().stream().map(transferLogDataAccessMapper::transferLogEntityToTransferLog)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    @Transactional
+    public void updateTransferStatus(UUID transferId, TransferStatus transferStatus) {
+        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transferId.toString());
+        result.ifPresent(entity -> entity.updateTransferStatus(transferStatus));
     }
 }
