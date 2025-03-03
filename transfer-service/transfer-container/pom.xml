@@ -43,11 +43,13 @@
         </dependency>
         <dependency>
             <groupId>com.brunosong.transfer.system</groupId>
-            <artifactId>common-dataaccess</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>transfer-messaging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
         </dependency>
 
 <!--        <dependency>-->

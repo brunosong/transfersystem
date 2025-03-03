@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Component
 public class TransferMessagingDataMapper {
 
-    public DataMigrationRequestAvroModel toLearningMaterialAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
+    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
         return DataMigrationRequestAvroModel.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setTransferId(transfer.getId().getValue().toString())

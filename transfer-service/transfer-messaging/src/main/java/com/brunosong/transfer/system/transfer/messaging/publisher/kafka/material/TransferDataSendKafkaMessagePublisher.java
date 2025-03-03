@@ -7,23 +7,23 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendPublisher;
+import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TransferDataSendKafkaPublisher implements TransferDataSendPublisher {
+public class TransferDataSendKafkaMessagePublisher implements TransferDataSendMessagePublisher {
 
     private final TransferServiceConfigData transferServiceConfigData;
     private final TransferMessagingDataMapper transferMessagingDataMapper;
     private final KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer;
     private final KafkaMessageHelper kafkaMessageHelper;
 
-    public TransferDataSendKafkaPublisher(TransferMessagingDataMapper transferMessagingDataMapper,
-                                          KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
-                                          TransferServiceConfigData transferServiceConfigData,
-                                          KafkaMessageHelper kafkaMessageHelper) {
+    public TransferDataSendKafkaMessagePublisher(TransferMessagingDataMapper transferMessagingDataMapper,
+                                                 KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
+                                                 TransferServiceConfigData transferServiceConfigData,
+                                                 KafkaMessageHelper kafkaMessageHelper) {
         this.transferMessagingDataMapper = transferMessagingDataMapper;
         this.kafkaProducer = kafkaProducer;
         this.transferServiceConfigData = transferServiceConfigData;
@@ -34,16 +34,16 @@ public class TransferDataSendKafkaPublisher implements TransferDataSendPublisher
     public void publish(Transfer transfer, LearningMaterial learningMaterial) {
 
         DataMigrationRequestAvroModel dataMigrationRequestAvroModel =
-                transferMessagingDataMapper.toLearningMaterialAvroModel(transfer, learningMaterial);
+                transferMessagingDataMapper.toDataMigrationRequestAvroModel(transfer, learningMaterial);
 
-        String learningMaterialId = dataMigrationRequestAvroModel.getId();
+        String transferId = dataMigrationRequestAvroModel.getTransferId();
 
-        kafkaProducer.send(transferServiceConfigData.getMaterialRequestTopicName(),
-                            learningMaterialId,
+        kafkaProducer.send(transferServiceConfigData.getDataMigrationRequestTopicName(),
+                            transferId,
                             dataMigrationRequestAvroModel,
-                            kafkaMessageHelper.getKafkaCallback(transferServiceConfigData.getMaterialRequestTopicName(),
+                            kafkaMessageHelper.getKafkaCallback(transferServiceConfigData.getDataMigrationRequestTopicName(),
                                                                 dataMigrationRequestAvroModel,
-                                                                learningMaterialId,
+                                                                transferId,
                                                    "DataMigrationRequestAvroModel")
                             );
 

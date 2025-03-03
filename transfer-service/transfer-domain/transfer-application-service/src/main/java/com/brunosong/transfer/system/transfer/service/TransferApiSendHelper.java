@@ -2,7 +2,7 @@ package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.ports.output.api.LearningMaterialApiSender;
+import com.brunosong.transfer.system.transfer.service.ports.output.api.TransferDataApiSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransferApiSendHelper extends TransferSendHelper {
 
-    private final LearningMaterialApiSender learningMaterialApiSender;
+    private final TransferDataApiSender transferDataApiSender;
 
-    public TransferApiSendHelper(LearningMaterialApiSender learningMaterialApiSender) {
-        this.learningMaterialApiSender = learningMaterialApiSender;
+    public TransferApiSendHelper(TransferDataApiSender transferDataApiSender) {
+        this.transferDataApiSender = transferDataApiSender;
     }
 
     @Override
     protected void doTransfer(Transfer transfer, LearningMaterial material) {
-        learningMaterialApiSender.sendLearningMaterial(transfer, material);
+        transferDataApiSender.sendLearningMaterial(transfer, material);
     }
 }

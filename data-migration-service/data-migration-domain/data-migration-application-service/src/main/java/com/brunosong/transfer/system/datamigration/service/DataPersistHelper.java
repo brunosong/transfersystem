@@ -2,17 +2,18 @@ package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.Chapter;
 import com.brunosong.transfer.system.datamigration.service.domain.entity.Course;
+import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.ChapterRepository;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CourseRepository;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataPersistHandler {
+public class DataPersistHelper {
 
     private ChapterRepository chapterRepository;
     private CourseRepository courseRepository;
     
-    public void convert() {}
+    public void convert(DataMigration dataMigration) {}
 
     public void save() {
         Chapter build = Chapter.builder().build();

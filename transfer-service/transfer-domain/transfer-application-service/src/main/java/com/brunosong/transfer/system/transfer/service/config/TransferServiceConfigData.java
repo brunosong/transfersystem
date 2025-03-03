@@ -9,4 +9,5 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "transfer-service")
 public class TransferServiceConfigData {
     private String materialRequestTopicName;
+    private String dataMigrationRequestTopicName;
 }

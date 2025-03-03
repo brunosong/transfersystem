@@ -49,6 +49,7 @@ kafka-consumer-config:
   poll-timeout-ms: 150
 
 data-migration-service:
+  data-migration-request-topic-name: data-migration-request
   material-request-topic-name: material-request
   material-response-topic-name: material-response
 

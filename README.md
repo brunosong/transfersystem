@@ -75,5 +75,13 @@
 
 ## 사용법
 - **데이터 마이그레이션** : `data-migration-service`의 REST API를 호출하여 데이터 이동 시작.
+  ```
+  샘플데이터
+  {
+    "transType" : "MESSAGING",
+    "materialId" : "67430b2de9643e5d251265f8",
+    "adminId" : "27a09922-87b8-4e4f-80ed-2c16a5494701",
+    "dataMigrationInfoId" : "27a09922-87b8-4e4f-80ed-2c16a5494701"
+   }
 - **데이터 업로드**: `dataupload-service`를 통해 데이터 파일 업로드.
 - **전송 처리**: `transfer-service`의 API를 사용하여 데이터 전송 요청.

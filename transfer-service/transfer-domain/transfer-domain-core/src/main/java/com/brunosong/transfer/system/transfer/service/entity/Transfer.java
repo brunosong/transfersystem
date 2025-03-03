@@ -26,6 +26,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.updatedAt = builder.updatedAt;
         this.learningMaterialId = builder.learningMaterialId;
         this.dataMigrationInfoId = builder.dataMigrationInfoId;
+        this.transferStatus = builder.transferStatus;
+        this.transType = builder.transType;
     }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
@@ -89,6 +91,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         return transType;
     }
 
+
+
     public void initializeTransfer() {
         setId(new TransferId(UUID.randomUUID()));
         this.transferStatus = TransferStatus.PENDING;
@@ -124,6 +128,11 @@ public class Transfer extends AggregateRoot<TransferId> {
 
         public Builder dataMigrationInfoId(DataMigrationInfoId dataMigrationInfoId) {
             this.dataMigrationInfoId = dataMigrationInfoId;
+            return this;
+        }
+
+        public Builder learningMaterialId(LearningMaterialId learningMaterialId) {
+            this.learningMaterialId = learningMaterialId;
             return this;
         }
 

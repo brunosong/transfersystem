@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface TransferLogRepository {
 
     Transfer save(Transfer transfer);
+
     Optional<Transfer> findById(UUID transferLogId);
 
     Optional<List<Transfer>> findAll();

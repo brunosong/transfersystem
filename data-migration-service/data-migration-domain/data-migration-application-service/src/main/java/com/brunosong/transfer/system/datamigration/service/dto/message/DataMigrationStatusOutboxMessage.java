@@ -10,6 +10,6 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class DataMigrationStatusOutboxMessage {
-    private TransferId transferId;
+    private String transferId;
     private TransferStatus transferStatus;
 }

@@ -1,12 +1,12 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -21,6 +21,7 @@ public class TransferCreateHelper {
         this.transferDataMapper = transferDataMapper;
     }
 
+    @Transactional
     public Transfer persistTransferLog(Transfer transfer) {
         return saveTransferLog(transfer);
     }

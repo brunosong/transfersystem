@@ -1,6 +1,8 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.listener.kafka;
 
-import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMagrationMessagingDataMapper;
+import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
+import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
+import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMigrationMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
@@ -18,29 +20,28 @@ import java.util.List;
 public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigrationRequestAvroModel> {
 
     private final DataMigrationMessageListener dataMigrationMessageListener;
-    private final DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper;
+    private final DataMigrationMessagingDataMapper dataMigrationMessagingDataMapper;
 
     public DataMigrationRequestKafkaListener(DataMigrationMessageListener dataMigrationMessageListener,
-                                             DataMagrationMessagingDataMapper dataMagrationMessagingDataMapper) {
+                                             DataMigrationMessagingDataMapper dataMigrationMessagingDataMapper) {
         this.dataMigrationMessageListener = dataMigrationMessageListener;
-        this.dataMagrationMessagingDataMapper = dataMagrationMessagingDataMapper;
+        this.dataMigrationMessagingDataMapper = dataMigrationMessagingDataMapper;
     }
 
     @Override
     @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}",
-                topics = "${data-migration-service.material-request-topic-name}")
+                topics = "${data-migration-service.data-migration-request-topic-name}")
     public void receive(@Payload List<DataMigrationRequestAvroModel> message,
                         @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
         message.forEach(dataMigrationRequestAvroModel -> {
-            String dataMigrationInfoId = dataMigrationRequestAvroModel.getDataMigrationInfoId();
 
-            dataMigrationMessageListener.migration(
-                    dataMigrationInfoId,
-                    dataMagrationMessagingDataMapper.dataMigrationRequestAvroModelToLearningMaterial(dataMigrationRequestAvroModel)
-            );
+            DataMigrationRequest dataMigrationRequest =
+                    dataMigrationMessagingDataMapper.avroModelToDataMigrationRequest(dataMigrationRequestAvroModel);
+
+            dataMigrationMessageListener.migration(dataMigrationRequest);
         });
 
     }

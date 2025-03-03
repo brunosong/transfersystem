@@ -1,5 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity;
 
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -21,6 +23,16 @@ public class TransferLogEntity {
 
     @Id
     private UUID id;
+
+    private String learningMaterialId;
+
+    private UUID dataMigrationInfoId;
+
+    @Enumerated(EnumType.STRING)
+    private TransType transType;
+
+    @Enumerated(EnumType.STRING)
+    private TransferStatus transferStatus;
 
     private String createAdminId;
 

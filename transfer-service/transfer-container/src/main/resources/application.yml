@@ -2,8 +2,22 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:example@localhost:27017/exampledb?authSource=admin
+  datasource:
+    url: jdbc:mysql://localhost:3306/transfer?useSSL=false&serverTimezone=UTC
+    username: brunosong
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
 
 transfer-service:
+  data-migration-request-topic-name: data-migration-request
   material-request-topic-name: material-request
 
 feign:

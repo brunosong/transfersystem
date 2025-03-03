@@ -3,6 +3,6 @@ package com.brunosong.transfer.system.transfer.service.ports.output.message.publ
 import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 
-public interface TransferDataSendPublisher {
+public interface TransferDataSendMessagePublisher {
     void publish(Transfer transfer, LearningMaterial learningMaterial);
 }

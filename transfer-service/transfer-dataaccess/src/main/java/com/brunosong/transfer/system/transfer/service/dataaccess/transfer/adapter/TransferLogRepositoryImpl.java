@@ -24,7 +24,10 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     @Override
     public Transfer save(Transfer transfer) {
-        TransferLogEntity save = transferLogJpaRepository.save(transferLogDataAccessMapper.transferLogToTransferLogEntity(transfer));
+
+        TransferLogEntity transferLogEntity = transferLogDataAccessMapper.transferLogToTransferLogEntity(transfer);
+
+        TransferLogEntity save = transferLogJpaRepository.save(transferLogEntity);
         return transferLogDataAccessMapper.transferLogEntityToTransferLog(save);
     }
 

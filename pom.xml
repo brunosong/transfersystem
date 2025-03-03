@@ -7,7 +7,7 @@
         <module>data-migration-service</module>
         <module>transfer-service</module>
         <module>common</module>
-        <module>dataupload-service</module>
+<!--        <module>dataupload-service</module>-->
         <module>infrastructure</module>
         <module>metaupload-service</module>
     </modules>
