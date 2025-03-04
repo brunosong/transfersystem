@@ -30,7 +30,7 @@ class TransferLogJpaRepositoryTest {
     void test() {
         UUID uuid = UUID.randomUUID();
         TransferLogEntity brunoSong = TransferLogEntity.builder()
-                .id(uuid)
+                .id(uuid.toString())
                 .createAdminId("BrunoSong")
                 .build();
     }
