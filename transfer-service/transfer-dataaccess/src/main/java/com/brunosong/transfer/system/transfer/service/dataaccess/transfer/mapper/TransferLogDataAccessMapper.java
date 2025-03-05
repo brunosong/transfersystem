@@ -15,7 +15,7 @@ public class TransferLogDataAccessMapper {
     public TransferLogEntity transferLogToTransferLogEntity(Transfer transfer) {
         return TransferLogEntity.builder()
                 .id(transfer.getId().getValue().toString())
-                .learningMaterialId(transfer.getLearningMaterialId().getValue())
+                .sourceId(transfer.getLearningMaterialId().getValue())
                 .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
@@ -26,7 +26,7 @@ public class TransferLogDataAccessMapper {
     public Transfer transferLogEntityToTransferLog(TransferLogEntity entity) {
         return Transfer.builder()
                 .id(new TransferId(UUID.fromString(entity.getId())))
-                .learningMaterialId(new LearningMaterialId(entity.getLearningMaterialId()))
+                .learningMaterialId(new LearningMaterialId(entity.getSourceId()))
                 .dataMigrationInfoId(new DataMigrationInfoId(UUID.fromString(entity.getDataMigrationInfoId())))
                 .createAdminId(entity.getCreateAdminId())
                 .createdAt(entity.getCreatedAt())

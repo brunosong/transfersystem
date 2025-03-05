@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Transfer extends AggregateRoot<TransferId> {
+
     private LearningMaterialId learningMaterialId;
     private DataMigrationInfoId dataMigrationInfoId;
     private TransferStatus transferStatus;

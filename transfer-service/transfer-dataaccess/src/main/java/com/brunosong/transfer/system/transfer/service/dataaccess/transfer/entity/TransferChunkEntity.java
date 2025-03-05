@@ -11,8 +11,8 @@ import javax.persistence.*;
 @Table(name = "transfer_chunks")
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class TransferChunkEntity {
 
     @Id
@@ -20,10 +20,10 @@ public class TransferChunkEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "operation_id", nullable = false)
-    private TransferOperationEntity operation;
+    @JoinColumn(name = "log_id", nullable = false)
+    private TransferLogEntity log;
 
-    @Column(nullable = false)
+    @Column(name = "chunk_offset", nullable = false)
     private Long chunkOffset;
 
     @Column(nullable = false)
@@ -32,7 +32,8 @@ public class TransferChunkEntity {
     @Column(nullable = false)
     private String status;
 
-    public void setOperation(TransferOperationEntity operation) {
-        this.operation = operation;
+    public void setLog(TransferLogEntity log) {
+        this.log = log;
     }
+
 }

@@ -9,6 +9,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Builder
 @AllArgsConstructor
@@ -23,23 +26,49 @@ public class TransferLogEntity {
     @Id
     private String id;
 
-    private String learningMaterialId;
+    @Column(name = "source_id", nullable = false)
+    private String sourceId;
 
+    @Column(name = "source_type", nullable = false)
+    private String sourceType;
+
+    @Column(name = "data_migration_info_id", nullable = false)
     private String dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "trans_type", nullable = false)
     private TransType transType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "transfer_status", nullable = false)
     private TransferStatus transferStatus;
 
+    @Column(name = "create_admin_id", nullable = false)
     private String createAdminId;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "error_message")
+    private String errorMessage;
+
+    @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TransferChunkEntity> chunks = new ArrayList<>();
+
+    public void updateResult(TransferStatus status, String errorMessage) {
+        this.transferStatus = status;
+        this.errorMessage = errorMessage;
+    }
+
+    public void addChunk(TransferChunkEntity chunk) {
+        chunks.add(chunk);
+        chunk.setLog(this);
+    }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
