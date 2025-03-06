@@ -1,25 +1,17 @@
 package com.brunosong.transfer.system.transfer.messaging.publisher.kafka.material;
 
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.kafka.producer.KafkaMessageHelper;
 import com.brunosong.transfer.system.kafka.producer.service.KafkaProducer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.transfer.messaging.TestConfig;
 import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @SpringJUnitConfig(classes = { TestConfig.class, TransferDataSendKafkaMessagePublisher.class})
 class TransferDataSendKafkaPublisherTest {

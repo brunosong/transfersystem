@@ -1,12 +1,10 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,13 +27,13 @@ class TransferCreateHelperTest {
     @Autowired
     TransferCreateHelper transferCreateHelper;
 
-    CreateTransferCommand command;
+    TransferRequest command;
 
     Transfer transfer;
 
     @BeforeAll
     public void init() {
-        command = CreateTransferCommand.builder().build();
+        command = TransferRequest.builder().build();
         transfer = Transfer.builder()
                 .id(new TransferId(UUID.randomUUID()))
                 .materialId(new LearningMaterialId("abcd1"))

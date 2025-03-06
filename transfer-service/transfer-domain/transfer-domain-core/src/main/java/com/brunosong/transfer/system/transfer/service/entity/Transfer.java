@@ -2,30 +2,34 @@ package com.brunosong.transfer.system.transfer.service.entity;
 
 import com.brunosong.transfer.system.domain.entity.AggregateRoot;
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
+import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class Transfer extends AggregateRoot<TransferId> {
 
-    private LearningMaterialId learningMaterialId;
+    private SourceId sourceId;
+    private SourceType sourceType;
     private DataMigrationInfoId dataMigrationInfoId;
     private TransferStatus transferStatus;
     private TransType transType;
     private LocalDateTime createdAt;
-    private String createAdminId;
+
+    private String createUserId;
     private LocalDateTime updatedAt;
 
     private Transfer(Builder builder) {
         setId(builder.id);
-        this.createAdminId = builder.createAdminId;
+        this.sourceId = builder.sourceId;
+        this.sourceType = builder.sourceType;
+        this.createUserId = builder.createUserId;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-        this.learningMaterialId = builder.learningMaterialId;
         this.dataMigrationInfoId = builder.dataMigrationInfoId;
         this.transferStatus = builder.transferStatus;
         this.transType = builder.transType;
@@ -64,16 +68,26 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public LearningMaterialId getLearningMaterialId() {
-        return learningMaterialId;
+    public void initializeTransfer() {
+        setId(new TransferId(UUID.randomUUID()));
+        this.transferStatus = TransferStatus.PENDING;
+        this.createdAt = LocalDateTime.now();
     }
 
     public DataMigrationInfoId getDataMigrationInfoId() {
         return dataMigrationInfoId;
     }
 
-    public String getCreateAdminId() {
-        return createAdminId;
+    public SourceId getSourceId() {
+        return sourceId;
+    }
+
+    public SourceType getSourceType() {
+        return sourceType;
+    }
+
+    public String getCreateUserId() {
+        return createUserId;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -92,26 +106,19 @@ public class Transfer extends AggregateRoot<TransferId> {
         return transType;
     }
 
-
-
-    public void initializeTransfer() {
-        setId(new TransferId(UUID.randomUUID()));
-        this.transferStatus = TransferStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-    }
-
     public static Builder builder() {
         return new Builder();
     }
 
     public static final class Builder {
         private TransferId id;
-        private String createAdminId;
-        private LearningMaterialId learningMaterialId;
+        private SourceId sourceId;
+        private SourceType sourceType;
         private DataMigrationInfoId dataMigrationInfoId;
         private TransferStatus transferStatus;
         private TransType transType;
         private LocalDateTime createdAt;
+        private String createUserId;
         private LocalDateTime updatedAt;
 
         private Builder() {
@@ -122,8 +129,13 @@ public class Transfer extends AggregateRoot<TransferId> {
             return this;
         }
 
-        public Builder materialId(LearningMaterialId learningMaterialId) {
-            this.learningMaterialId = learningMaterialId;
+        public Builder sourceId(SourceId sourceId) {
+            this.sourceId = sourceId;
+            return this;
+        }
+
+        public Builder sourceType(SourceType sourceType) {
+            this.sourceType = sourceType;
             return this;
         }
 
@@ -132,13 +144,8 @@ public class Transfer extends AggregateRoot<TransferId> {
             return this;
         }
 
-        public Builder learningMaterialId(LearningMaterialId learningMaterialId) {
-            this.learningMaterialId = learningMaterialId;
-            return this;
-        }
-
-        public Builder createAdminId(String createAdminId) {
-            this.createAdminId = createAdminId;
+        public Builder createUserId(String createUserId) {
+            this.createUserId = createUserId;
             return this;
         }
 

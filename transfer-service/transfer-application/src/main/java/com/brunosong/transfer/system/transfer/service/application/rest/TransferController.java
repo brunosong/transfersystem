@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.application.rest;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
 import com.brunosong.transfer.system.transfer.service.ports.input.service.TransferApplicationService;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +22,10 @@ public class TransferController {
     private final TransferApplicationService transferApplicationService;
 
     @PostMapping("/doTran")
-    public ResponseEntity<CreateTransferResponse> doTran(@Valid @RequestBody CreateTransferCommand createTransferCommand,
+    public ResponseEntity<CreateTransferResponse> doTran(@Valid @RequestBody TransferRequest transferRequest,
                                                          BindingResult bindingResult) {
 
-        CreateTransferResponse createTransferResponse = transferApplicationService.executeTransfer(createTransferCommand);
+        CreateTransferResponse createTransferResponse = transferApplicationService.executeTransfer(transferRequest);
         return new ResponseEntity<>(createTransferResponse, HttpStatus.OK);
     }
 }

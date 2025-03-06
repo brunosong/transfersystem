@@ -1,12 +1,12 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 
 public abstract class TransferSendHelper {
-    public void transferAction(Transfer transfer, LearningMaterial material) {
+    public void transferAction(Transfer transfer, SourceContentData sourceContentData) {
         try {
-            doTransfer(transfer, material);
+            doTransfer(transfer, sourceContentData);
             transfer.markSent();
         } catch (Exception e) {
             transfer.markFailed();
@@ -14,5 +14,5 @@ public abstract class TransferSendHelper {
         }
     }
 
-    protected abstract void doTransfer(Transfer transfer, LearningMaterial material);
+    protected abstract void doTransfer(Transfer transfer, SourceContentData sourceContentData);
 }

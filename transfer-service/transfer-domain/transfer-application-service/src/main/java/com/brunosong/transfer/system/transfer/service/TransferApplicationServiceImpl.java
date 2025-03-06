@@ -1,8 +1,7 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferExecutionResult;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
@@ -23,7 +22,7 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
     private final TransferDataMapper transferDataMapper;
 
     @Override
-    public CreateTransferResponse executeTransfer(CreateTransferCommand command) {
+    public CreateTransferResponse executeTransfer(TransferRequest command) {
 
         // 1. 데이터 전송
         Transfer transfer = transferExecutionHandler.sendData(command);

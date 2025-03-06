@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;

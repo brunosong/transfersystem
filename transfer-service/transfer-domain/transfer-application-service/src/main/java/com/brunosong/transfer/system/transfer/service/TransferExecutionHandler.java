@@ -1,9 +1,10 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferCommand;
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,28 +16,28 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TransferExecutionHandler {
 
-    private final LearningMaterialCreateHelper learningMaterialCreateHelper;
+    private final SourceFindHelper sourceFindHelper;
     private final TransferApiSendHelper transferApiSendHelper;
     private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferDataMapper transferDataMapper;
 
     @Transactional
-    public Transfer sendData(CreateTransferCommand createTransferCommand) {
+    public Transfer sendData(TransferRequest transferRequest) {
 
         Transfer transfer =
-                transferDataMapper.createTransferCommandToTransfer(createTransferCommand);
+                transferDataMapper.transferRequestToTransfer(transferRequest);
 
         transfer.initializeTransfer();
 
-        LearningMaterial material =
-                learningMaterialCreateHelper.findMaterialData(createTransferCommand.getMaterialId());
+        SourceContentData sourceContentData =
+                sourceFindHelper.findData(transfer.getSourceType(), transfer.getSourceId());
 
         try {
-            if (createTransferCommand.getTransType() == TransType.API) {
-                transferApiSendHelper.transferAction(transfer, material);
+            if (transferRequest.getTransType() == TransType.API) {
+                transferApiSendHelper.transferAction(transfer, sourceContentData);
                 log.info("API transfer completed: {}", transfer.getId());
-            } else if (createTransferCommand.getTransType() == TransType.MESSAGING) {
-                messagingSendHelper.transferAction(transfer, material);
+            } else if (transferRequest.getTransType() == TransType.MESSAGING) {
+                messagingSendHelper.transferAction(transfer, sourceContentData);
                 log.info("Messaging transfer completed: {}", transfer.getId());
             } else {
                 transfer.markFailed();

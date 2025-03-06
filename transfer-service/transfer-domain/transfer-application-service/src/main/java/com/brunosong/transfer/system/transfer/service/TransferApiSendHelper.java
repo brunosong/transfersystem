@@ -1,8 +1,8 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.api.TransferDataApiSender;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ public class TransferApiSendHelper extends TransferSendHelper {
     }
 
     @Override
-    protected void doTransfer(Transfer transfer, LearningMaterial material) {
-        transferDataApiSender.sendLearningMaterial(transfer, material);
+    protected void doTransfer(Transfer transfer, SourceContentData sourceContentData) {
+        transferDataApiSender.sendLearningMaterial(transfer, sourceContentData);
     }
 }

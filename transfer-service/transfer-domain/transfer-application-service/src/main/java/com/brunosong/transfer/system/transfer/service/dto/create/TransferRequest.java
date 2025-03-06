@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dto.create;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
 
@@ -11,18 +12,18 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CreateTransferCommand {
+public class TransferRequest {
 
-    @NotNull(message = "adminId is null")
-    private UUID adminId;
+    @NotNull(message = "dataMigrationInfoId is null")
+    private UUID dataMigrationInfoId;
 
     @NotNull(message = "transType is null")
     private TransType transType;
 
-    @NotNull(message = "materialId is null")
-    private String materialId;
+    @NotNull(message = "sourceId is null")
+    private String sourceId;
 
-    @NotNull(message = "dataMigrationInfoId is null")
-    private UUID dataMigrationInfoId;
+    @NotNull(message = "sourceType is null")
+    private SourceType sourceType;
 
 }

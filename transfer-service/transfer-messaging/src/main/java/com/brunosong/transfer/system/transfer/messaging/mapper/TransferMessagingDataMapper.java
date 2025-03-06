@@ -6,9 +6,10 @@ import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequ
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialMetadataAvroModel;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterialMetadata;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialMetadata;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,21 +19,21 @@ import java.util.stream.Collectors;
 @Component
 public class TransferMessagingDataMapper {
 
-    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer, LearningMaterial learningMaterial) {
+    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer, SourceContentData sourceContentData) {
         return DataMigrationRequestAvroModel.newBuilder()
                 .setId(UUID.randomUUID().toString())
                 .setTransferId(transfer.getId().getValue().toString())
-                .setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
+                //.setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
                 .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .build();
     }
 
     public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(LearningMaterial learningMaterial) {
         return LearningMaterialAvroModel.newBuilder()
-                .setId(learningMaterial.getId().getValue())
-                .setTitle(learningMaterial.getTitle())
-                .setDescription(learningMaterial.getDescription())
-                .setMetadataList(learningMaterialMetadataToLearningMaterialMetadataAvro(learningMaterial.getMetadataList()))
+//                .setId(learningMaterial.getId().getValue())
+//                .setTitle(learningMaterial.getTitle())
+//                .setDescription(learningMaterial.getDescription())
+                //.setMetadataList(learningMaterialMetadataToLearningMaterialMetadataAvro(learningMaterial.getMetadataList()))
                 .build();
     }
 

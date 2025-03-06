@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.transfer.service.entity;
+package com.brunosong.transfer.system.transfer.service.valueobject;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

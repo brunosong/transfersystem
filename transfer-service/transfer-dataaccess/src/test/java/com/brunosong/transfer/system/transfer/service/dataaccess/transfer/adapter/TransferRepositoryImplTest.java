@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.dataaccess.TestJpaConfiguration;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @ContextConfiguration(classes = { TestJpaConfiguration.class,

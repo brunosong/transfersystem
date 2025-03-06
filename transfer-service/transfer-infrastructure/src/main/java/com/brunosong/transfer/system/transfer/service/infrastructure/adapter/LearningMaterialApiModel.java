@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.infrastructure.adapter;
 
-import com.brunosong.transfer.system.transfer.service.entity.LearningMaterial;
+import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterial;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
