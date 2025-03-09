@@ -1,10 +1,13 @@
-package com.brunosong.transfer.system.dataaccess;
+package com.brunosong.transfer.system.dataaccess.integration;
 
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-@EnableMongoRepositories(basePackages = "com.brunosong.transfer.system.dataaccess")
+
 @SpringBootConfiguration
+@EnableAutoConfiguration
+@EnableMongoRepositories(basePackages = "com.brunosong.transfer.system.dataaccess")
 public class TestDataAccessConfiguration {
 //
 //    private static final String IP = "localhost";

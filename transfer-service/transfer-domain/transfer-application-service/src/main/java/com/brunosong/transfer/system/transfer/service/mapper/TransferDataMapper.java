@@ -14,10 +14,10 @@ public class TransferDataMapper {
 
     public Transfer transferRequestToTransfer(TransferRequest request) {
         return Transfer.builder()
-                .sourceId(new SourceId(request.getSourceId()))
-                .sourceType(SourceType.valueOf(request.getSourceType()))
-                .dataMigrationInfoId(new DataMigrationInfoId(request.getDataMigrationInfoId()))
-                .transType(request.getTransType())
+//                .sourceId(new SourceId(request.getSourceId()))
+//                .sourceType(SourceType.valueOf(request.getSourceType()))
+//                .dataMigrationInfoId(new DataMigrationInfoId(request.getDataMigrationInfoId()))
+//                .transType(request.getTransType())
                 .build();
     }
 

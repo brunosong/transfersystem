@@ -26,13 +26,16 @@ public class SourceDataAccessMapper {
                             .build();
     }
 
-    public byte[] convertData(Object data) {
+    public byte[] convertData(Object entity) {
+        if (entity == null) {
+            throw new IllegalArgumentException("Entity cannot be null");
+        }
         try {
-            String jsonData = objectMapper.writeValueAsString(data);
+            String jsonData = objectMapper.writeValueAsString(entity);
             return jsonData.getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize data to JSON", e);
-            throw new RuntimeException("Data serialization failed");
+            log.error("Failed to convert entity to JSON", e);
+            throw new RuntimeException("Failed to convert entity to JSON", e);
         }
     }
 

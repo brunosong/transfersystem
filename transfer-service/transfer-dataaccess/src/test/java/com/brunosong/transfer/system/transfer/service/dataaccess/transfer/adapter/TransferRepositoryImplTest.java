@@ -1,7 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.dataaccess.TestJpaConfiguration;
@@ -32,10 +31,10 @@ class TransferRepositoryImplTest {
         Transfer transfer = Transfer.builder()
                 .id(new TransferId(UUID.randomUUID()))
                 .transferStatus(TransferStatus.PENDING)
-                .learningMaterialId(new LearningMaterialId(UUID.randomUUID().toString()))
+                //.learningMaterialId(new LearningMaterialId(UUID.randomUUID().toString()))
                 .dataMigrationInfoId(new DataMigrationInfoId(UUID.randomUUID()))
-                .createAdminId("brunosong")
-                .materialId(new LearningMaterialId("123456"))
+                //.createAdminId("brunosong")
+               // .materialId(new LearningMaterialId("123456"))
                 .build();
 
         Transfer result = transferLogRepository.save(transfer);

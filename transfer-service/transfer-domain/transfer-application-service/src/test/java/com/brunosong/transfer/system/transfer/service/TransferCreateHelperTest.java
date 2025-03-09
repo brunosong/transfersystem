@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
@@ -36,7 +35,7 @@ class TransferCreateHelperTest {
         command = TransferRequest.builder().build();
         transfer = Transfer.builder()
                 .id(new TransferId(UUID.randomUUID()))
-                .materialId(new LearningMaterialId("abcd1"))
+                //.materialId(new LearningMaterialId("abcd1"))
                 .build();
     }
 
