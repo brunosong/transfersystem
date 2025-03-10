@@ -20,13 +20,13 @@ public class SourceFindHelper {
 
     public SourceContentData findData(SourceType sourceType, SourceId sourceId) {
         if (sourceType == SourceType.LEARNING_MATERIAL) {
-            return checkAndFindLearningMaterial(sourceId);
+            return checkAndFindLearningMaterial(sourceType, sourceId);
         }
         throw new IllegalArgumentException("Unsupported source type: " + sourceType);
     }
 
-    private SourceContentData checkAndFindLearningMaterial(SourceId sourceId) {
-        Optional<SourceContentData> sourceContentData = sourceRepository.findData(String.valueOf(sourceId));
+    private SourceContentData checkAndFindLearningMaterial(SourceType sourceType, SourceId sourceId) {
+        Optional<SourceContentData> sourceContentData = sourceRepository.findData(String.valueOf(sourceId), sourceType);
 
         if(sourceContentData.isEmpty()) {
             log.warn("Not found sourceContentData id : {}", sourceId);

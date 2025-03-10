@@ -19,10 +19,10 @@ public class SourceDataAccessMapper {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public SourceContentData entityViewToSourceContentData(LearningMaterialViewEntity materialEntity) {
+    public SourceContentData mapToSourceContentData(Map<String, Object> data, String id) {
         return SourceContentData.builder()
-                            .sourceId(materialEntity.getId())
-                            .jsonData(convertData(materialEntity))
+                            .sourceId(id)
+                            .jsonData(convertData(data))
                             .build();
     }
 
