@@ -38,6 +38,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
         </dependency>
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>3.5.4</version> <!-- Spring Boot 2.x와 잘 맞는 버전 -->
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
