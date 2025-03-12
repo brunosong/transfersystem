@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

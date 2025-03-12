@@ -4,8 +4,11 @@
   "name": "DataMigrationRequestAvroModel",
   "fields": [
     {
-      "name": "id",
-      "type": "string"
+      "name": "sagaId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
     },
     {
       "name": "dataMigrationInfoId",
@@ -22,42 +25,18 @@
       }
     },
     {
-      "name": "learningMaterial",
+      "name": "SourceContentData",
       "type": {
         "type": "record",
-        "name": "LearningMaterialAvroModel",
+        "name": "SourceContentDataAvroModel",
         "fields": [
           {
-            "name": "id",
+            "name": "sourceId",
             "type": "string"
           },
           {
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "metadataList",
-            "type": {
-              "type": "array",
-              "items": {
-                "type": "record",
-                "name": "LearningMaterialMetadataAvroModel",
-                "fields": [
-                  {
-                    "name": "attributeName",
-                    "type": "string"
-                  },
-                  {
-                    "name": "attributeValue",
-                    "type": "string"
-                  }
-                ]
-              }
-            }
+            "name": "jsonData",
+            "type": "bytes"
           }
         ]
       }

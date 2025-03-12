@@ -4,6 +4,8 @@ import com.brunosong.transfer.system.domain.entity.AggregateRoot;
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceConfigId;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
@@ -18,8 +20,8 @@ public class Transfer extends AggregateRoot<TransferId> {
     private DataMigrationInfoId dataMigrationInfoId;
     private TransferStatus transferStatus;
     private TransType transType;
+    private SourceConfigId sourceConfigId;
     private LocalDateTime createdAt;
-
     private String createUserId;
     private LocalDateTime updatedAt;
 
@@ -33,6 +35,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.dataMigrationInfoId = builder.dataMigrationInfoId;
         this.transferStatus = builder.transferStatus;
         this.transType = builder.transType;
+        this.sourceConfigId = builder.sourceConfigId;
     }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
@@ -74,6 +77,34 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.createdAt = LocalDateTime.now();
     }
 
+    public void validateSourceId() {
+
+    }
+
+    public void validateSourceType() {
+
+    }
+
+    public void validateDataMigrationInfoId() {
+        if (dataMigrationInfoId != null || getDataMigrationInfoId() != null) {
+            throw new TransferDomainException("DataMigrationInfo ID must be null.");
+        }
+    }
+
+    public void validateTransferStatus() {
+
+    }
+
+    public void validateTransType() {
+
+    }
+
+    public void validateSourceConfigId() {
+        if (sourceConfigId != null || getSourceConfigId() != null) {
+            throw new TransferDomainException("Source configuration ID must be null.");
+        }
+    }
+
     public DataMigrationInfoId getDataMigrationInfoId() {
         return dataMigrationInfoId;
     }
@@ -106,6 +137,10 @@ public class Transfer extends AggregateRoot<TransferId> {
         return transType;
     }
 
+    public SourceConfigId getSourceConfigId() {
+        return sourceConfigId;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -117,6 +152,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         private DataMigrationInfoId dataMigrationInfoId;
         private TransferStatus transferStatus;
         private TransType transType;
+        private SourceConfigId sourceConfigId;
         private LocalDateTime createdAt;
         private String createUserId;
         private LocalDateTime updatedAt;
@@ -166,6 +202,11 @@ public class Transfer extends AggregateRoot<TransferId> {
 
         public Builder transType(TransType transType) {
             this.transType = transType;
+            return this;
+        }
+
+        public Builder sourceConfigId(SourceConfigId sourceConfigId) {
+            this.sourceConfigId = sourceConfigId;
             return this;
         }
 

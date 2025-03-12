@@ -1,10 +1,11 @@
-package com.brunosong.transfer.system.transfer.service;
+package com.brunosong.transfer.system.transfer.service.handler;
 
+import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferApiSendHelper;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.helper.source.SourceFindHelper;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,27 +17,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TransferExecutionHandler {
 
-    private final SourceFindHelper sourceFindHelper;
     private final TransferApiSendHelper transferApiSendHelper;
     private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferDataMapper transferDataMapper;
 
     @Transactional
-    public Transfer sendData(TransferRequest transferRequest) {
-
-        Transfer transfer =
-                transferDataMapper.transferRequestToTransfer(transferRequest);
+    public Transfer sendData(Transfer transfer) {
 
         transfer.initializeTransfer();
 
-        SourceContentData sourceContentData =
-                sourceFindHelper.findData(transfer.getSourceType(), transfer.getSourceId());
-
         try {
-            if (transferRequest.getTransType() == TransType.API) {
+            if (transfer.getTransType() == TransType.API) {
                 transferApiSendHelper.transferAction(transfer, sourceContentData);
                 log.info("API transfer completed: {}", transfer.getId());
-            } else if (transferRequest.getTransType() == TransType.MESSAGING) {
+            } else if (transfer.getTransType() == TransType.MESSAGING) {
                 messagingSendHelper.transferAction(transfer, sourceContentData);
                 log.info("Messaging transfer completed: {}", transfer.getId());
             } else {

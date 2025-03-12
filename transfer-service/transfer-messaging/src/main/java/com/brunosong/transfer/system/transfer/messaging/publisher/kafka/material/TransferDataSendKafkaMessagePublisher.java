@@ -36,10 +36,11 @@ public class TransferDataSendKafkaMessagePublisher implements TransferDataSendMe
         DataMigrationRequestAvroModel dataMigrationRequestAvroModel =
                 transferMessagingDataMapper.toDataMigrationRequestAvroModel(transfer, sourceContentData);
 
+        String sagaId = dataMigrationRequestAvroModel.getSagaId();
         String transferId = dataMigrationRequestAvroModel.getTransferId();
-
+        
         kafkaProducer.send(transferServiceConfigData.getDataMigrationRequestTopicName(),
-                            transferId,
+                            sagaId,
                             dataMigrationRequestAvroModel,
                             kafkaMessageHelper.getKafkaCallback(transferServiceConfigData.getDataMigrationRequestTopicName(),
                                                                 dataMigrationRequestAvroModel,

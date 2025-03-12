@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigratio
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialMetadataAvroModel;
+import com.brunosong.transfer.system.kafka.transfer.avro.model.SourceContentDataAvroModel;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterial;
@@ -12,6 +13,7 @@ import com.brunosong.transfer.system.transfer.service.valueobject.LearningMateri
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import org.springframework.stereotype.Component;
 
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -21,29 +23,18 @@ public class TransferMessagingDataMapper {
 
     public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer, SourceContentData sourceContentData) {
         return DataMigrationRequestAvroModel.newBuilder()
-                .setId(UUID.randomUUID().toString())
+                .setSagaId(UUID.randomUUID().toString())
                 .setTransferId(transfer.getId().getValue().toString())
-                //.setLearningMaterial(learningMaterialToLearningMaterialAvroModel(learningMaterial))
+                .setSourceContentData(toSourceContentDataAvroModel(sourceContentData))
                 .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .build();
     }
 
-    public LearningMaterialAvroModel learningMaterialToLearningMaterialAvroModel(LearningMaterial learningMaterial) {
-        return LearningMaterialAvroModel.newBuilder()
-//                .setId(learningMaterial.getId().getValue())
-//                .setTitle(learningMaterial.getTitle())
-//                .setDescription(learningMaterial.getDescription())
-                //.setMetadataList(learningMaterialMetadataToLearningMaterialMetadataAvro(learningMaterial.getMetadataList()))
+    public SourceContentDataAvroModel toSourceContentDataAvroModel(SourceContentData sourceContentData) {
+        return SourceContentDataAvroModel.newBuilder()
+                .setSourceId(sourceContentData.getSourceId())
+                .setJsonData(ByteBuffer.wrap(sourceContentData.getJsonData()))
                 .build();
-    }
-
-    public List<LearningMaterialMetadataAvroModel> learningMaterialMetadataToLearningMaterialMetadataAvro(List<LearningMaterialMetadata> metadata) {
-        return metadata.stream().map( meta ->
-                LearningMaterialMetadataAvroModel.newBuilder()
-                    .setAttributeName(meta.getAttributeName())
-                    .setAttributeValue(meta.getAttributeValue())
-                    .build()
-        ).collect(Collectors.toList());
     }
 
     public DataMigrationResponse toDataMigrationResponse(DataMigrationResponseAvroModel dataMigrationResponseAvroModel) {
