@@ -13,10 +13,12 @@ public class TransferLogDataAccessMapper {
     public TransferLogEntity transferLogToTransferLogEntity(Transfer transfer) {
         return TransferLogEntity.builder()
                 .id(transfer.getId().getValue())
-                //.sourceId(transfer.getLearningMaterialId().getValue())
+                .sourceId(transfer.getSourceId().getValue())
+                .sourceType(transfer.getSourceContentData().getSourceType())
                 .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue())
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
+                .dbType(transfer.getSourceContentData().getDbType())
                 //.createAdminId(transfer.getCreateAdminId())
                 .build();
     }

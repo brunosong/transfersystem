@@ -1,10 +1,9 @@
 package com.brunosong.transfer.system.transfer.service.dto.create;
 
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Getter

@@ -9,11 +9,12 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.persistence.*;
 
 @Builder
 @AllArgsConstructor
@@ -26,7 +27,6 @@ import java.util.UUID;
 public class TransferLogEntity {
 
     @Id
-    @Column(name = "transfer_id")
     private UUID id;
 
     @Column(name = "source_id", nullable = false)
@@ -42,6 +42,7 @@ public class TransferLogEntity {
     private UUID dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "db_type")
     private DbType dbType;
 
     @Enumerated(EnumType.STRING)

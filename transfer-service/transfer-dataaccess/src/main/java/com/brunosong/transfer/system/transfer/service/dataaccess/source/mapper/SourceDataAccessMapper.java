@@ -21,6 +21,7 @@ public class SourceDataAccessMapper {
         return SourceContentData.builder()
                             .sourceId(id)
                             .sourceType(sourceConfig.getSourceType())
+                            .dbType(sourceConfig.getDbType())
                             .jsonData(convertData(data))
                             .build();
     }

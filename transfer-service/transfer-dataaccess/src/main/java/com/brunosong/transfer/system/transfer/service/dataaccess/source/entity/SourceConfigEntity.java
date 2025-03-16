@@ -2,10 +2,11 @@ package com.brunosong.transfer.system.transfer.service.dataaccess.source.entity;
 
 import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
+import jakarta.persistence.Table;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Builder
@@ -27,6 +28,7 @@ public class SourceConfigEntity {
     private SourceType sourceType;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "db_type",  columnDefinition = "enum")
     private DbType dbType;
 
     private String host;

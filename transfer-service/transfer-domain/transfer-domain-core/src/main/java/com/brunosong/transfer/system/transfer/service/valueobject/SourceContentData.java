@@ -10,5 +10,6 @@ import java.util.Map;
 public class SourceContentData {
     private String sourceId;
     private SourceType sourceType;
+    private DbType dbType;
     private byte[] jsonData;
 }
