@@ -3,9 +3,9 @@ package com.brunosong.transfer.system.transfer.service.dataaccess.source.adapter
 import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.config.DynamicDataSourceConnector;
 import com.brunosong.transfer.system.transfer.service.dataaccess.source.mapper.SourceDataAccessMapper;
+import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.SourceRepository;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,11 +26,12 @@ public class SourceRepositoryImpl implements SourceRepository {
     }
 
     @Override
-    public Optional<SourceContentData> findData(String sourceId, SourceType sourceType) {
+    public Optional<SourceContentData> findData(String sourceId, SourceConfig sourceConfig) {
         if (sourceId == null) {
-            throw new IllegalArgumentException("materialId cannot be null");
+            throw new IllegalArgumentException("sourceId cannot be null");
         }
 
-        return dynamicConnector.query(sourceType, sourceId).map(r -> sourceDataAccessMapper.mapToSourceContentData(r, sourceId));
+        return dynamicConnector.query(sourceConfig, sourceId)
+                .map(r -> sourceDataAccessMapper.mapToSourceContentData(r, sourceId, sourceConfig));
     }
 }

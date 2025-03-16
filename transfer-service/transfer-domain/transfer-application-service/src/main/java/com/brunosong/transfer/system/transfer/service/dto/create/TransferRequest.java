@@ -23,9 +23,6 @@ public class TransferRequest {
     @NotNull(message = "sourceId is null")
     private String sourceId;
 
-    @NotNull(message = "sourceType is null")
-    private SourceType sourceType;
-
     @NotNull(message = "sourceConfigId is null")
     private Long sourceConfigId;
 }

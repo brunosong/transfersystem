@@ -35,7 +35,7 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     @Override
     public Optional<Transfer> findById(UUID transferLogId) {
-        return transferLogJpaRepository.findById(transferLogId.toString())
+        return transferLogJpaRepository.findById(transferLogId)
                 .map(transferLogDataAccessMapper::transferLogEntityToTransferLog);
     }
 
@@ -48,7 +48,7 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
     @Override
     @Transactional
     public void updateTransferStatus(UUID transferId, TransferStatus transferStatus) {
-        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transferId.toString());
+        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transferId);
         result.ifPresent(entity -> entity.updateTransferStatus(transferStatus));
     }
 }

@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
+import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import org.bson.Document;
@@ -34,15 +35,13 @@ import static org.mockito.Mockito.when;
 @SpringJUnitConfig(classes = DynamicDataSourceConnector.class)
 class DynamicDataSourceConnectorTest {
 
-    @MockBean
-    private DbConfigManager dbConfigManager;
-
     @Autowired
     private DynamicDataSourceConnector connector;
 
     @Autowired
     private MongoTemplate mongoTemplate; // 데이터 삽입용
 
+    SourceConfig config;
     @BeforeEach
     void setUp() {
         // 테스트 데이터 삽입
@@ -51,15 +50,15 @@ class DynamicDataSourceConnectorTest {
         mongoTemplate.insert(doc, "learningMaterialView");
 
         // DbConfig 모킹
-        DbConfig config = new DbConfig(DbType.MONGO, "localhost", 28888, "test", "root", "password", "learningMaterialView");
-        when(dbConfigManager.getDbConfig(SourceType.LEARNING_MATERIAL)).thenReturn(config);
+        config = new SourceConfig(SourceType.LEARNING_MATERIAL, DbType.MONGO, "localhost", 28888, "test",
+                "root", "password", "learningMaterialView");
     }
 
     @Test
     @DisplayName("query 메소드 동작 확인")
     void query() {
 
-        Optional<Map<String, Object>> result = connector.query(SourceType.LEARNING_MATERIAL, "67430b2de9643e5d251265f8");
+        Optional<Map<String, Object>> result = connector.query(config, "67430b2de9643e5d251265f8");
 
         assertThat(result).isPresent();
         assertThat(result.get().get("_id")).isEqualTo(new ObjectId("67430b2de9643e5d251265f8"));

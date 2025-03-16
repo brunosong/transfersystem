@@ -19,8 +19,9 @@ public class TransferDataApiSenderImpl implements TransferDataApiSender {
     private final LoadTargetServiceClient loadTargetServiceClient;
 
     @Override
-    public void sendLearningMaterial(Transfer transfer, SourceContentData sourceContentData) {
+    public void sendLearningMaterial(Transfer transfer) {
         log.info("Api send");
+        SourceContentData sourceContentData = transfer.getSourceContentData();
         String message = loadTargetServiceClient.sendMetadata(
                 transferApiDataMapper.toLearningMaterialApiModel(transfer, sourceContentData));
 

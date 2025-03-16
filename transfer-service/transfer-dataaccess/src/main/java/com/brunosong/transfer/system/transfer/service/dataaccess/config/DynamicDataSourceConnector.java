@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
+import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -23,51 +24,63 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class DynamicDataSourceConnector {
+//
+//    private final Map<SourceType, DataSource> mysqlCache = new ConcurrentHashMap<>();
+//    private final Map<SourceType, SourceConfig> lastConfig = new ConcurrentHashMap<>();
 
-    private final DbConfigManager dbConfigManager;
-    private final Map<SourceType, DataSource> mysqlCache = new ConcurrentHashMap<>();
-    private final Map<SourceType, DbConfig> lastConfig = new ConcurrentHashMap<>();
+    public Optional<Map<String, Object>> query(SourceConfig sourceConfig, String sourceId) {
 
-    public Optional<Map<String, Object>> query(SourceType sourceType, String id) {
-        DbConfig config = dbConfigManager.getDbConfig(sourceType);
-
-        return switch (config.getDbType()) {
-            case MONGO -> queryMongo(config, id);
-            case MYSQL -> queryMySql(config, id);
+        return switch (sourceConfig.getDbType()) {
+            case MONGO -> queryMongo(sourceConfig, sourceId);
+            case MYSQL -> queryMySql(sourceConfig, sourceId);
         };
     }
 
-    public  List<Document> queryList(SourceType sourceType) {
-        DbConfig config = dbConfigManager.getDbConfig(sourceType);
-
-        return queryMongoList(config);
+    public  List<Document> queryList(SourceConfig sourceConfig) {
+        return queryMongoList(sourceConfig);
     }
 
-    private List<Document> queryMongoList(DbConfig config) {
+    private List<Document> queryMongoList(SourceConfig sourceConfig) {
         try (MongoClient mongoClient = MongoClients.create(
-                "mongodb://" + config.getHost() + ":" + config.getPort())) {
-            MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, config.getDatabase());
+                "mongodb://" + sourceConfig.getHost() + ":" + sourceConfig.getPort())) {
+            MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, sourceConfig.getDatabase());
 
-            List<Document> all = mongoTemplate.findAll(Document.class, config.getTableOrCollection());
+            List<Document> all = mongoTemplate.findAll(Document.class, sourceConfig.getTableOrCollection());
             return all;
         }
     }
 
-    private Optional<Map<String, Object>> queryMongo(DbConfig config, String id) {
-        try (MongoClient mongoClient = MongoClients.create(
-                "mongodb://" + config.getHost() + ":" + config.getPort())) {
-            MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, config.getDatabase());
+    private Optional<Map<String, Object>> queryMongo(SourceConfig sourceConfig, String sourceId) {
+        String mongoUri = String.format(
+                "mongodb://%s:%s@%s:%d/%s?authSource=%s",
+                sourceConfig.getUsername(),
+                sourceConfig.getPassword(),
+                sourceConfig.getHost(),
+                sourceConfig.getPort(),
+                sourceConfig.getDatabase(),
+                sourceConfig.getDatabase() // authSource로 database 사용 (필요 시 'admin'으로 변경)
+        );
 
-            Query query = new Query(Criteria.where("_id").is(id));
-            Document doc = mongoTemplate.findOne(query, Document.class, config.getTableOrCollection());
+        System.out.println(mongoUri);
+
+        try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
+            MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, sourceConfig.getDatabase());
+
+            List<Document> all = mongoTemplate.findAll(Document.class, sourceConfig.getTableOrCollection());
+
+            Query query = new Query(Criteria.where("_id").is(sourceId));
+            Document doc = mongoTemplate.findOne(query, Document.class, sourceConfig.getTableOrCollection());
             return Optional.ofNullable(doc).map(d -> (Map<String, Object>) d);
+        } catch (Exception e) {
+            // 예외 처리 추가
+            throw new RuntimeException("Failed to query MongoDB: " + e.getMessage(), e);
         }
     }
 
-    private Optional<Map<String, Object>> queryMySql(DbConfig config, String id) {
-        DataSource dataSource = createDynamicDataSource(config);
+    private Optional<Map<String, Object>> queryMySql(SourceConfig sourceConfig, String id) {
+        DataSource dataSource = createDynamicDataSource(sourceConfig);
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        String sql = "SELECT * FROM " + config.getTableOrCollection() + " WHERE id = ?";
+        String sql = "SELECT * FROM " + sourceConfig.getTableOrCollection() + " WHERE id = ?";
         try {
             List<Map<String, Object>> results = jdbcTemplate.query(sql,(rs, rowNum) -> {
                 Map<String, Object> result = new HashMap<>();
@@ -88,24 +101,24 @@ public class DynamicDataSourceConnector {
         }
     }
 
-    private DataSource getOrCreateDataSource(SourceType sourceType, DbConfig newConfig) {
-        DbConfig oldConfig = lastConfig.get(sourceType);
-        if (oldConfig == null || !oldConfig.equals(newConfig)) {
-            DataSource oldDs = mysqlCache.remove(sourceType);
-            if (oldDs instanceof HikariDataSource) ((HikariDataSource) oldDs).close();
-            DataSource newDs = createDynamicDataSource(newConfig);
-            mysqlCache.put(sourceType, newDs);
-            lastConfig.put(sourceType, newConfig);
-            return newDs;
-        }
-        return mysqlCache.get(sourceType);
-    }
+//    private DataSource getOrCreateDataSource(SourceType sourceType, DbConfig newConfig) {
+//        DbConfig oldConfig = lastConfig.get(sourceType);
+//        if (oldConfig == null || !oldConfig.equals(newConfig)) {
+//            DataSource oldDs = mysqlCache.remove(sourceType);
+//            if (oldDs instanceof HikariDataSource) ((HikariDataSource) oldDs).close();
+//            DataSource newDs = createDynamicDataSource(newConfig);
+//            mysqlCache.put(sourceType, newDs);
+//            lastConfig.put(sourceType, newConfig);
+//            return newDs;
+//        }
+//        return mysqlCache.get(sourceType);
+//    }
 
-    private DataSource createDynamicDataSource(DbConfig config) {
+    private DataSource createDynamicDataSource(SourceConfig sourceConfig) {
         HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl("jdbc:mysql://" + config.getHost() + ":" + config.getPort() + "/" + config.getDatabase());
-        ds.setUsername("root"); // 실제로는 설정에서 동적으로
-        ds.setPassword("password");
+        ds.setJdbcUrl("jdbc:mysql://" + sourceConfig.getHost() + ":" + sourceConfig.getPort() + "/" + sourceConfig.getDatabase());
+        ds.setUsername(sourceConfig.getUsername()); // 실제로는 설정에서 동적으로
+        ds.setPassword(sourceConfig.getPassword());
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return ds;
     }

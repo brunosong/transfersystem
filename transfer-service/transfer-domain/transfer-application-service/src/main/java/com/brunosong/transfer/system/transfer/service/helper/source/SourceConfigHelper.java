@@ -21,13 +21,12 @@ import java.util.Optional;
 public class SourceConfigHelper {
 
     private final SourceConfigRepository sourceConfigRepository;
-    private final TransferDataMapper transferDataMapper;
 
     public SourceConfig findSourceConfigInfo(SourceConfigId sourceConfigId) {
-        return checkAndFindLearningMaterial(sourceConfigId);
+        return checkAndFindSourceConfigInfo(sourceConfigId);
     }
 
-    private SourceConfig checkAndFindLearningMaterial(SourceConfigId sourceConfigId) {
+    private SourceConfig checkAndFindSourceConfigInfo(SourceConfigId sourceConfigId) {
         Optional<SourceConfig> sourceConfigInfo = sourceConfigRepository.findSourceConfigInfo(sourceConfigId.getValue());
 
         if(sourceConfigInfo.isEmpty()) {

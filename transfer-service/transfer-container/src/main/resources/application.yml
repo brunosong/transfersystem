@@ -1,4 +1,8 @@
 spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init-schema.sql
   data:
     mongodb:
       uri: mongodb://root:example@localhost:27017/exampledb?authSource=admin
@@ -9,7 +13,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:

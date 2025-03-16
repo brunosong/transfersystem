@@ -17,7 +17,7 @@ public class TransferApiSendHelper extends TransferSendHelper {
     }
 
     @Override
-    protected void doTransfer(Transfer transfer, SourceContentData sourceContentData) {
-        transferDataApiSender.sendLearningMaterial(transfer, sourceContentData);
+    protected void doTransfer(Transfer transfer) {
+        transferDataApiSender.sendLearningMaterial(transfer);
     }
 }

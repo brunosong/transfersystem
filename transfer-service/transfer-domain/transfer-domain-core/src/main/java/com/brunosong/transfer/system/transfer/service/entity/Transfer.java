@@ -5,10 +5,7 @@ import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceConfigId;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
+import com.brunosong.transfer.system.transfer.service.valueobject.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +13,7 @@ import java.util.UUID;
 public class Transfer extends AggregateRoot<TransferId> {
 
     private SourceId sourceId;
-    private SourceType sourceType;
+    private SourceContentData sourceContentData;
     private DataMigrationInfoId dataMigrationInfoId;
     private TransferStatus transferStatus;
     private TransType transType;
@@ -28,7 +25,6 @@ public class Transfer extends AggregateRoot<TransferId> {
     private Transfer(Builder builder) {
         setId(builder.id);
         this.sourceId = builder.sourceId;
-        this.sourceType = builder.sourceType;
         this.createUserId = builder.createUserId;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
@@ -36,6 +32,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.transferStatus = builder.transferStatus;
         this.transType = builder.transType;
         this.sourceConfigId = builder.sourceConfigId;
+        this.sourceContentData = builder.sourceContentData;
     }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
@@ -71,37 +68,16 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void initializeTransfer() {
+    public void initializeTransfer(SourceContentData sourceContentData) {
         setId(new TransferId(UUID.randomUUID()));
         this.transferStatus = TransferStatus.PENDING;
         this.createdAt = LocalDateTime.now();
+        this.sourceContentData = sourceContentData;
     }
 
-    public void validateSourceId() {
-
-    }
-
-    public void validateSourceType() {
-
-    }
-
-    public void validateDataMigrationInfoId() {
-        if (dataMigrationInfoId != null || getDataMigrationInfoId() != null) {
-            throw new TransferDomainException("DataMigrationInfo ID must be null.");
-        }
-    }
-
-    public void validateTransferStatus() {
-
-    }
-
-    public void validateTransType() {
-
-    }
-
-    public void validateSourceConfigId() {
-        if (sourceConfigId != null || getSourceConfigId() != null) {
-            throw new TransferDomainException("Source configuration ID must be null.");
+    public void validateInitialTransfer() {
+        if (transferStatus != null || getCreatedAt() != null || getSourceContentData() != null) {
+            throw new TransferDomainException("Transfer is not in correct state for initialization!");
         }
     }
 
@@ -111,10 +87,6 @@ public class Transfer extends AggregateRoot<TransferId> {
 
     public SourceId getSourceId() {
         return sourceId;
-    }
-
-    public SourceType getSourceType() {
-        return sourceType;
     }
 
     public String getCreateUserId() {
@@ -141,6 +113,10 @@ public class Transfer extends AggregateRoot<TransferId> {
         return sourceConfigId;
     }
 
+    public SourceContentData getSourceContentData() {
+        return sourceContentData;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -148,7 +124,7 @@ public class Transfer extends AggregateRoot<TransferId> {
     public static final class Builder {
         private TransferId id;
         private SourceId sourceId;
-        private SourceType sourceType;
+        private SourceContentData sourceContentData;
         private DataMigrationInfoId dataMigrationInfoId;
         private TransferStatus transferStatus;
         private TransType transType;
@@ -170,8 +146,8 @@ public class Transfer extends AggregateRoot<TransferId> {
             return this;
         }
 
-        public Builder sourceType(SourceType sourceType) {
-            this.sourceType = sourceType;
+        public Builder sourceContentData(SourceContentData sourceContentData) {
+            this.sourceContentData = sourceContentData;
             return this;
         }
 

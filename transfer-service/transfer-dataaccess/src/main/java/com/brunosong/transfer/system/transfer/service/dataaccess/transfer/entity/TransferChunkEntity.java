@@ -20,7 +20,7 @@ public class TransferChunkEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "log_id", nullable = false)
+    @JoinColumn(name = "transfer_log_id", nullable = false)
     private TransferLogEntity log;
 
     @Column(name = "chunk_offset", nullable = false)

@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 @Component
 public class TransferMessagingDataMapper {
 
-    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer, SourceContentData sourceContentData) {
+    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer) {
         return DataMigrationRequestAvroModel.newBuilder()
                 .setSagaId(UUID.randomUUID().toString())
                 .setTransferId(transfer.getId().getValue().toString())
-                .setSourceContentData(toSourceContentDataAvroModel(sourceContentData))
+                .setSourceContentData(toSourceContentDataAvroModel(transfer.getSourceContentData()))
                 .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
                 .build();
     }

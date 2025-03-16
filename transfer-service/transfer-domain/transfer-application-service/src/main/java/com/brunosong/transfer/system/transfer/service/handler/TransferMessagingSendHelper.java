@@ -18,7 +18,7 @@ public class TransferMessagingSendHelper extends TransferSendHelper {
     }
 
     @Override
-    protected void doTransfer(Transfer transfer, SourceContentData sourceContentData) {
-        transferDataSendMessagePublisher.publish(transfer, sourceContentData);
+    protected void doTransfer(Transfer transfer) {
+        transferDataSendMessagePublisher.publish(transfer);
     }
 }

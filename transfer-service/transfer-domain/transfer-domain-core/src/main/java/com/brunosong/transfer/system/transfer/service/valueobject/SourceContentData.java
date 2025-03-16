@@ -9,5 +9,6 @@ import java.util.Map;
 @Getter
 public class SourceContentData {
     private String sourceId;
+    private SourceType sourceType;
     private byte[] jsonData;
 }

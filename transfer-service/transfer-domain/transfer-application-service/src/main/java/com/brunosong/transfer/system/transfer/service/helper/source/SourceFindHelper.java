@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.helper.source;
 
+import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.brunosong.transfer.system.transfer.service.exception.MaterialNotFoundException;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.SourceRepository;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
@@ -18,15 +19,8 @@ public class SourceFindHelper {
 
     private final SourceRepository sourceRepository;
 
-    public SourceContentData findData(SourceType sourceType, SourceId sourceId) {
-        if (sourceType == SourceType.LEARNING_MATERIAL) {
-            return checkAndFindLearningMaterial(sourceType, sourceId);
-        }
-        throw new IllegalArgumentException("Unsupported source type: " + sourceType);
-    }
-
-    private SourceContentData checkAndFindLearningMaterial(SourceType sourceType, SourceId sourceId) {
-        Optional<SourceContentData> sourceContentData = sourceRepository.findData(String.valueOf(sourceId), sourceType);
+    public SourceContentData findData(SourceId sourceId, SourceConfig sourceConfig) {
+        Optional<SourceContentData> sourceContentData = sourceRepository.findData(sourceId.getValue(), sourceConfig);
 
         if(sourceContentData.isEmpty()) {
             log.warn("Not found sourceContentData id : {}", sourceId);

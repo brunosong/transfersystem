@@ -12,3 +12,4 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - ./volumes/mongodb/:/data/db
+      - ./mongo-scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js

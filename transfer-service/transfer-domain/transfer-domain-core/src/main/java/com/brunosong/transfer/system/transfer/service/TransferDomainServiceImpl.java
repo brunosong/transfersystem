@@ -2,13 +2,15 @@ package com.brunosong.transfer.system.transfer.service;
 
 
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TransferDomainServiceImpl implements TransferDomainService {
     @Override
-    public void validateAndInitiateTransfer(Transfer transfer) {
-        transfer.initializeTransfer();
+    public void validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData) {
+        transfer.validateInitialTransfer();
+        transfer.initializeTransfer(sourceContentData);
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -31,14 +30,14 @@ public class TransferDataSendKafkaMessagePublisher implements TransferDataSendMe
     }
 
     @Override
-    public void publish(Transfer transfer, SourceContentData sourceContentData) {
+    public void publish(Transfer transfer) {
 
         DataMigrationRequestAvroModel dataMigrationRequestAvroModel =
-                transferMessagingDataMapper.toDataMigrationRequestAvroModel(transfer, sourceContentData);
+                transferMessagingDataMapper.toDataMigrationRequestAvroModel(transfer);
 
         String sagaId = dataMigrationRequestAvroModel.getSagaId();
         String transferId = dataMigrationRequestAvroModel.getTransferId();
-        
+
         kafkaProducer.send(transferServiceConfigData.getDataMigrationRequestTopicName(),
                             sagaId,
                             dataMigrationRequestAvroModel,

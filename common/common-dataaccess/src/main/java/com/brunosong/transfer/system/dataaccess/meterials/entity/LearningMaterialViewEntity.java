@@ -11,7 +11,7 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "learningMaterialView")
+@Document(collection = "learning_materials")
 public class LearningMaterialViewEntity {
 
     @Id

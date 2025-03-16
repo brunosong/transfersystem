@@ -18,11 +18,13 @@ public class SourceFindDataHandler {
     private final SourceFindHelper sourceFindHelper;
     private final SourceConfigHelper sourceConfigHelper;
 
-    public void ssss(Transfer transfer) {
+    public SourceContentData findSourceContentData(Transfer transfer) {
 
-        SourceConfig sourceConfigInfo = sourceConfigHelper.findSourceConfigInfo(transfer.getSourceConfigId());
+        SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(transfer.getSourceConfigId());
 
         SourceContentData sourceContentData =
-                sourceFindHelper.findData(transfer.getSourceType(), transfer.getSourceId());
+                sourceFindHelper.findData(transfer.getSourceId(), sourceConfig);
+
+        return sourceContentData;
     }
 }

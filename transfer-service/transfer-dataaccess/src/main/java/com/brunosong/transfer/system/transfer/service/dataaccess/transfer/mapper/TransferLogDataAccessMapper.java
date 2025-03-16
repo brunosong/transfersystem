@@ -6,16 +6,15 @@ import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.springframework.stereotype.Component;
 
-import java.util.UUID;
 
 @Component
 public class TransferLogDataAccessMapper {
 
     public TransferLogEntity transferLogToTransferLogEntity(Transfer transfer) {
         return TransferLogEntity.builder()
-                .id(transfer.getId().getValue().toString())
+                .id(transfer.getId().getValue())
                 //.sourceId(transfer.getLearningMaterialId().getValue())
-                .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
+                .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue())
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
                 //.createAdminId(transfer.getCreateAdminId())
@@ -24,9 +23,9 @@ public class TransferLogDataAccessMapper {
 
     public Transfer transferLogEntityToTransferLog(TransferLogEntity entity) {
         return Transfer.builder()
-                .id(new TransferId(UUID.fromString(entity.getId())))
+                .id(new TransferId(entity.getId()))
                 //.learningMaterialId(new LearningMaterialId(entity.getSourceId()))
-                .dataMigrationInfoId(new DataMigrationInfoId(UUID.fromString(entity.getDataMigrationInfoId())))
+                .dataMigrationInfoId(new DataMigrationInfoId(entity.getDataMigrationInfoId()))
                 //.createAdminId(entity.getCreateAdminId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

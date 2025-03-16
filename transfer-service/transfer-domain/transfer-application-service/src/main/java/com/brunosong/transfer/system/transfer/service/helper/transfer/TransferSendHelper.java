@@ -4,9 +4,9 @@ import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 
 public abstract class TransferSendHelper {
-    public void transferAction(Transfer transfer, SourceContentData sourceContentData) {
+    public void transferAction(Transfer transfer) {
         try {
-            doTransfer(transfer, sourceContentData);
+            doTransfer(transfer);
             transfer.markSent();
         } catch (Exception e) {
             transfer.markFailed();
@@ -14,5 +14,5 @@ public abstract class TransferSendHelper {
         }
     }
 
-    protected abstract void doTransfer(Transfer transfer, SourceContentData sourceContentData);
+    protected abstract void doTransfer(Transfer transfer);
 }

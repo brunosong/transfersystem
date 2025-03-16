@@ -1,6 +1,8 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity;
 
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,16 +26,23 @@ import java.util.UUID;
 public class TransferLogEntity {
 
     @Id
-    private String id;
+    @Column(name = "transfer_id")
+    private UUID id;
 
     @Column(name = "source_id", nullable = false)
     private String sourceId;
 
-    @Column(name = "source_type", nullable = false)
-    private String sourceType;
+    @Column(name = "sourceconfig_id", nullable = false)
+    private Long sourceconfigId;
+
+    @Enumerated(EnumType.STRING)
+    private SourceType sourceType;
 
     @Column(name = "data_migration_info_id", nullable = false)
-    private String dataMigrationInfoId;
+    private UUID dataMigrationInfoId;
+
+    @Enumerated(EnumType.STRING)
+    private DbType dbType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "trans_type", nullable = false)

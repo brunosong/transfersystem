@@ -16,7 +16,6 @@ public class TransferDataMapper {
     public Transfer transferRequestToTransfer(TransferRequest request) {
         return Transfer.builder()
                 .sourceId(new SourceId(request.getSourceId()))
-                .sourceType(request.getSourceType())
                 .sourceConfigId(new SourceConfigId(request.getSourceConfigId()))
                 .dataMigrationInfoId(new DataMigrationInfoId(request.getDataMigrationInfoId()))
                 .transType(request.getTransType())

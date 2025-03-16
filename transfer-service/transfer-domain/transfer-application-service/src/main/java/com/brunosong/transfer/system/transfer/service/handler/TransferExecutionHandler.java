@@ -24,14 +24,12 @@ public class TransferExecutionHandler {
     @Transactional
     public Transfer sendData(Transfer transfer) {
 
-        transfer.initializeTransfer();
-
         try {
             if (transfer.getTransType() == TransType.API) {
-                transferApiSendHelper.transferAction(transfer, sourceContentData);
+                transferApiSendHelper.transferAction(transfer);
                 log.info("API transfer completed: {}", transfer.getId());
             } else if (transfer.getTransType() == TransType.MESSAGING) {
-                messagingSendHelper.transferAction(transfer, sourceContentData);
+                messagingSendHelper.transferAction(transfer);
                 log.info("Messaging transfer completed: {}", transfer.getId());
             } else {
                 transfer.markFailed();
