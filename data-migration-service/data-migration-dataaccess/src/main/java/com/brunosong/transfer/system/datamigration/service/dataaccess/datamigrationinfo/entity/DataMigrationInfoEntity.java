@@ -4,12 +4,12 @@ import com.brunosong.transfer.system.dataaccess.common.entity.BaseTimeEntity;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbEnvironment;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationServiceStatus;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationMode;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.util.Objects;
 import java.util.UUID;
 

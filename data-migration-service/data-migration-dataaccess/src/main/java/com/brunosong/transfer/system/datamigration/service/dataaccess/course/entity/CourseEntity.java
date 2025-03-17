@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.course.entity;
 
 import com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.entity.ChapterEntity;
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

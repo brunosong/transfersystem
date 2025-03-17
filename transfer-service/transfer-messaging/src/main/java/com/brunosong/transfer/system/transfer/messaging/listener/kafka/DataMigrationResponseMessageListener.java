@@ -24,8 +24,8 @@ public class DataMigrationResponseMessageListener implements KafkaConsumer<DataM
     @KafkaListener(id = "${kafka-consumer-config.transfer-group-id}",
                    topics = "${transfer-service.data-migration-response-topic-name}")
     public void receive(@Payload List<DataMigrationResponseAvroModel> message,
-                        @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
-                        @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
+                        @Header(KafkaHeaders.RECEIVED_KEY) List<String> keys,
+                        @Header(KafkaHeaders.RECEIVED_PARTITION) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
         message.forEach( model -> {

@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.domain.entity;
 
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.LearningMaterialId;
 import com.brunosong.transfer.system.domain.entity.AggregateRoot;
-import com.brunosong.transfer.system.domain.valueobject.LearningMaterialId;
 
 import java.util.List;
 

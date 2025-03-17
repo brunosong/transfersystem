@@ -28,7 +28,7 @@ public class SourceConfigEntity {
     private SourceType sourceType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "db_type",  columnDefinition = "enum")
+    @Column(name = "db_type",  columnDefinition = "db_type")
     private DbType dbType;
 
     private String host;

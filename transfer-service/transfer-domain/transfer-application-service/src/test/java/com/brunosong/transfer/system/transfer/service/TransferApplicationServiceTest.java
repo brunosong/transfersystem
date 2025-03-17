@@ -17,45 +17,5 @@ import java.util.UUID;
 @SpringBootTest(classes = TransferTestConfiguration.class)
 public class TransferApplicationServiceTest {
 
-    @Autowired
-    SourceRepository sourceRepository;
 
-    @Autowired
-    TransferLogRepository transferLogRepository;
-
-    private TransferRequest command;
-
-    @BeforeAll
-    public void init() {
-
-//        LearningMaterial learningMaterial = LearningMaterial.builder()
-//                .id(new LearningMaterialId("ABCD"))
-//                .description("TEST")
-//                .title("코스1")
-//                .build();
-//        when(sourceRepository.findById(any())).thenReturn(Optional.of(learningMaterial));
-    }
-
-    @Autowired
-    TransferExecutionHandler transferExecutionHandler;
-
-    @Test
-    void test() {
-
-        UUID id = UUID.randomUUID();
-
-//        Transfer transfer = Transfer.builder()
-//                .id(new TransferId(id))
-//                .materialId(new LearningMaterialId("1111"))
-//                .build();
-//        when(transferLogRepository.save(any())).thenReturn(transfer);
-//
-//       command = TransferRequest.builder()
-//                .adminId(UUID.randomUUID())
-//                .transType(TransType.API)
-//                .materialId(id.toString())
-//                .build();
-//
-//       transferExecutionHandler.sendData(command);
-    }
 }

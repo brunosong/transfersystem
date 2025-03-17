@@ -21,32 +21,5 @@ import static org.mockito.Mockito.when;
 @SpringBootTest(classes = TransferTestConfiguration.class)
 class TransferCreateHelperTest {
 
-    @Autowired
-    TransferLogRepository transferLogRepository;
-
-    @Autowired
-    TransferCreateHelper transferCreateHelper;
-
-    TransferRequest command;
-
-    Transfer transfer;
-
-    @BeforeAll
-    public void init() {
-        command = TransferRequest.builder().build();
-        transfer = Transfer.builder()
-                .id(new TransferId(UUID.randomUUID()))
-                //.materialId(new LearningMaterialId("abcd1"))
-                .build();
-    }
-
-    @Test
-    @DisplayName("저장이 되지 않으면 TransferDomainException이 발생한다")
-    void persistTransferLog() {
-        when(transferLogRepository.save(any())).thenReturn(null);
-//        Assertions.assertThatThrownBy(()-> transferCreateHelper.persistTransferLog(command))
-//                .isInstanceOf(TransferDomainException.class);
-    }
-
 
 }

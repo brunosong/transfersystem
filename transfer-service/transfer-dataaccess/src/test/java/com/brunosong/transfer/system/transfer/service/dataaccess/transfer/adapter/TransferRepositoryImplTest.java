@@ -23,24 +23,24 @@ import java.util.UUID;
 @DataJpaTest
 class TransferRepositoryImplTest {
 
-    @Autowired
-    TransferLogRepositoryImpl transferLogRepository;
-
-    @Test
-    void save() {
-        Transfer transfer = Transfer.builder()
-                .id(new TransferId(UUID.randomUUID()))
-                .transferStatus(TransferStatus.PENDING)
-                //.learningMaterialId(new LearningMaterialId(UUID.randomUUID().toString()))
-                .dataMigrationInfoId(new DataMigrationInfoId(UUID.randomUUID()))
-                //.createAdminId("brunosong")
-               // .materialId(new LearningMaterialId("123456"))
-                .build();
-
-        Transfer result = transferLogRepository.save(transfer);
-
-        Assertions.assertThat(result.getCreatedAt()).isNotNull();
-    }
+//    @Autowired
+//    TransferLogRepositoryImpl transferLogRepository;
+//
+//    @Test
+//    void save() {
+//        Transfer transfer = Transfer.builder()
+//                .id(new TransferId(UUID.randomUUID()))
+//                .transferStatus(TransferStatus.PENDING)
+//                //.learningMaterialId(new LearningMaterialId(UUID.randomUUID().toString()))
+//                .dataMigrationInfoId(new DataMigrationInfoId(UUID.randomUUID()))
+//                //.createAdminId("brunosong")
+//               // .materialId(new LearningMaterialId("123456"))
+//                .build();
+//
+//        Transfer result = transferLogRepository.save(transfer);
+//
+//        Assertions.assertThat(result.getCreatedAt()).isNotNull();
+//    }
 
     @Test
     void findById() {

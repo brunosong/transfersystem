@@ -3,7 +3,7 @@ package com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.e
 import com.brunosong.transfer.system.datamigration.service.dataaccess.course.entity.CourseEntity;
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Getter
 @Entity

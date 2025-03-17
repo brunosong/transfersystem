@@ -15,11 +15,12 @@ public class TransferLogDataAccessMapper {
                 .id(transfer.getId().getValue())
                 .sourceId(transfer.getSourceId().getValue())
                 .sourceType(transfer.getSourceContentData().getSourceType())
+                .sourceconfigId(transfer.getSourceConfigId().getValue())
                 .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue())
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
                 .dbType(transfer.getSourceContentData().getDbType())
-                //.createAdminId(transfer.getCreateAdminId())
+                .createAdminId("BrunoSong")
                 .build();
     }
 

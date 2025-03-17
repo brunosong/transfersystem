@@ -2,6 +2,7 @@ package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.repos
 
 import com.brunosong.transfer.system.transfer.service.dataaccess.TestJpaConfiguration;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
+import jakarta.persistence.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -10,8 +11,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.Optional;
 import java.util.UUID;
 
 @TestPropertySource(properties = {"spring.jpa.show-sql=true"})
@@ -19,20 +18,6 @@ import java.util.UUID;
 @DataJpaTest
 class TransferLogJpaRepositoryTest {
 
-    @Autowired
-    TransferLogJpaRepository jpaRepository;
 
-    @Autowired
-    EntityManager entityManager;
-
-    @Transactional
-    @Test
-    void test() {
-        UUID uuid = UUID.randomUUID();
-        TransferLogEntity brunoSong = TransferLogEntity.builder()
-                .id(uuid.toString())
-                .createAdminId("BrunoSong")
-                .build();
-    }
 
 }

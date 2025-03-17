@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service.infrastructure.adapter;
 
-import com.brunosong.transfer.system.transfer.service.valueobject.LearningMaterial;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.infrastructure.feign.LoadTargetServiceClient;
 import com.brunosong.transfer.system.transfer.service.infrastructure.mapper.TransferApiDataMapper;

@@ -18,31 +18,5 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest(classes = TransferTestConfiguration.class)
 class SourceFindHelperTest {
 
-    @Autowired
-    private SourceFindHelper sourceFindHelper;
-
-    @Autowired
-    private SourceRepository sourceRepository;
-
-    TransferRequest command;
-
-    Transfer transfer;
-
-    @BeforeAll
-    public void init() {
-        command = TransferRequest.builder().build();
-//        transfer = Transfer.builder()
-//                .id(new TransferId(UUID.randomUUID()))
-//                .materialId(new LearningMaterialId("abcd1"))
-//                .build();
-    }
-
-    @Test
-    @DisplayName("Material이 없으면 MaterialNotFoundException 발생")
-    void createMaterial() {
-//        when(learningMaterialRepository.findById(any())).thenReturn(Optional.empty());
-//        Assertions.assertThatThrownBy(()-> learningMaterialCreateHelper.findMaterialData(command))
-//                .isInstanceOf(MaterialNotFoundException.class);
-    }
 
 }

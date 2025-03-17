@@ -5,6 +5,8 @@ import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -36,13 +38,15 @@ public class TransferLogEntity {
     private Long sourceconfigId;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SourceType sourceType;
 
     @Column(name = "data_migration_info_id", nullable = false)
     private UUID dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "db_type")
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "db_type", columnDefinition = "db_type")
     private DbType dbType;
 
     @Enumerated(EnumType.STRING)
