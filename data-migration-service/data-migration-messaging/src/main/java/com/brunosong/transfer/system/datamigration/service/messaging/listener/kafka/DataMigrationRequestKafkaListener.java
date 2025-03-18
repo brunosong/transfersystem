@@ -32,8 +32,8 @@ public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigr
     @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}",
                 topics = "${data-migration-service.data-migration-request-topic-name}")
     public void receive(@Payload List<DataMigrationRequestAvroModel> message,
-                        @Header(KafkaHeaders.RECEIVED_MESSAGE_KEY) List<String> keys,
-                        @Header(KafkaHeaders.RECEIVED_PARTITION_ID) List<Integer> partitions,
+                        @Header(KafkaHeaders.RECEIVED_KEY) List<String> keys,
+                        @Header(KafkaHeaders.RECEIVED_PARTITION) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
         message.forEach(dataMigrationRequestAvroModel -> {

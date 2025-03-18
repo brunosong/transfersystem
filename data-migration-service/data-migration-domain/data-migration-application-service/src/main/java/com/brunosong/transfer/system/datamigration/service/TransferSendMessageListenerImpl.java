@@ -1,18 +1,14 @@
 package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
-import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -40,6 +36,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
         dataPersistHelper.convert(dataMigrationInfo);
 
         try {
+            Thread.sleep(10000);
             // dataPersistHelper.save(); // 예외 발생 시 롤백
             // dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
 
@@ -56,7 +53,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
                     .transferStatus(TransferStatus.FAILED)
                     .build();
             dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
-            throw e; // 트랜잭션 롤백 유도
+            throw new RuntimeException(); // 트랜잭션 롤백 유도
         }
 
     }
