@@ -6,77 +6,116 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class MongoDBExamDataGenerator {
 
-    public static void main(String[] args) {
-        // MongoDB 연결 설정
-        String connectionString = "mongodb://root:example@localhost:27017/exampledb?authSource=admin";
-        try (MongoClient mongoClient = MongoClients.create(connectionString)) {
-            MongoDatabase database = mongoClient.getDatabase("exampledb");
-            MongoCollection<Document> collection = database.getCollection("StudentExamResult");
+    public static String connectionString = "mongodb://root:example@localhost:27017/exampledb?authSource=admin";
 
-            // 데이터 생성 및 삽입
-            generateAndInsertExamData(collection);
-            System.out.println("데이터 삽입 완료!");
+    public static void main(String[] args) {
+
+        try (MongoClient mongoClient = MongoClients.create(connectionString)) {
+            MongoDatabase database = mongoClient.getDatabase("examDB");
+            MongoCollection<Document> collection = database.getCollection("StudentDailyResults");
+
+            collection.drop();
+
+            // 인덱스 생성
+            collection.createIndex(new Document("studentId", 1).append("date", 1));
+
+            generateAndInsertDailyData(collection);
+            System.out.println("300명 학생, 2000문제 데이터 삽입 완료!");
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void generateAndInsertExamData(MongoCollection<Document> collection) {
-        int studentCount = 300;
-        int examPaperCount = 200; // 총 4000문제 / 20 = 200 시험지
+    private static void generateAndInsertDailyData(MongoCollection<Document> collection) {
+        int studentCount = 500; // 300명 학생
+        int days = 90; // 30일
+        int totalQuestions = 10000; // 학생당 2000문제
         int questionsPerPaper = 20; // 시험지당 20문제
+        int totalExams = totalQuestions / questionsPerPaper; // 100개 시험지
+        int minExamsPerDay = totalExams / days; // 하루 최소 3.33개 → 3~4개로 조정
         Random random = new Random();
-        List<Document> documents = new ArrayList<>();
+        List<Document> dailyDocs = new ArrayList<>();
 
-        String[] difficulties = {"Easy", "Medium", "Hard"};
-        String[] types = {"MultipleChoice", "ShortAnswer", "TrueFalse"};
+        LocalDate startDate = LocalDate.of(2025, 3, 1);
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
 
-        // 각 시험지의 문제별 점수를 미리 정의 (랜덤으로 1~10점)
-        int[] questionScores = new int[questionsPerPaper];
-        for (int i = 0; i < questionsPerPaper; i++) {
-            questionScores[i] = random.nextInt(10) + 1; // 1~10점
-        }
-
-        // 300명의 학생이 200개의 시험지를 풂
         for (int studentId = 1; studentId <= studentCount; studentId++) {
-            for (int examPaperId = 1; examPaperId <= examPaperCount; examPaperId++) {
-                for (int questionNumber = 1; questionNumber <= questionsPerPaper; questionNumber++) {
-                    boolean isCorrect = random.nextBoolean(); // 정답 여부
-                    int timeTaken = random.nextInt(300) + 10; // 소요 시간 (10~309초)
-                    int score = isCorrect ? questionScores[questionNumber - 1] : 0; // 정답이면 문제 점수, 오답이면 0
-                    String difficulty = difficulties[random.nextInt(difficulties.length)];
-                    String type = types[random.nextInt(types.length)];
+            String studentKey = "S" + String.format("%03d", studentId);
+            int remainingQuestions = totalQuestions; // 남은 문제 수 추적
 
-                    Document doc = new Document("studentId", "S" + String.format("%03d", studentId)) // S001 형식
-                            .append("examPaperId", "E" + String.format("%03d", examPaperId)) // E001 형식
-                            .append("questionNumber", questionNumber) // 1~20
-                            .append("isCorrect", isCorrect)
-                            .append("timeTaken", timeTaken)
-                            .append("score", score)
-                            .append("difficulty", difficulty)
-                            .append("type", type);
+            for (int day = 0; day < days; day++) {
+                String date = startDate.plusDays(day).format(formatter);
+                Document dailyDoc = new Document("studentId", studentKey)
+                        .append("date", date);
 
-                    documents.add(doc);
+                // 하루 시험지 수 (남은 문제를 고려해 분배)
+                int examsToday;
+                if (day == days - 1) {
+                    // 마지막 날: 남은 모든 문제를 소진
+                    examsToday = remainingQuestions / questionsPerPaper;
+                } else {
+                    // 최소 3개, 최대 4개 랜덤 분배
+                    examsToday = Math.min(minExamsPerDay + random.nextInt(2), remainingQuestions / questionsPerPaper);
+                }
+                if (examsToday <= 0) break; // 남은 문제가 없으면 종료
 
-                    // 1000개 단위로 삽입
-                    if (documents.size() >= 1000) {
-                        collection.insertMany(documents);
-                        documents.clear();
-                        System.out.println("Student " + studentId + " - ExamPaper " + examPaperId + " - Question " + questionNumber + " inserted");
+                List<Document> examResults = new ArrayList<>();
+                int dailyTotalScore = 0;
+
+                for (int examIdx = 0; examIdx < examsToday; examIdx++) {
+                    String examPaperId = "E" + String.format("%03d", random.nextInt(200) + 1);
+                    int examScore = 0;
+                    int correctCount = 0;
+                    String timestamp = Instant.now().minusSeconds((days - day) * 86400 - examIdx * 3600).toString();
+
+                    // 문제 데이터 생성
+                    List<Document> questions = new ArrayList<>();
+                    for (int q = 1; q <= questionsPerPaper; q++) {
+                        boolean isCorrect = random.nextBoolean();
+                        int timeTaken = random.nextInt(300) + 10; // 10~309초
+                        int score = isCorrect ? random.nextInt(10) + 1 : 0;
+
+                        Document questionDoc = new Document("questionNumber", q)
+                                .append("isCorrect", isCorrect)
+                                .append("timeTaken", timeTaken)
+                                .append("score", score);
+                        questions.add(questionDoc);
+
+                        examScore += score;
+                        if (isCorrect) correctCount++;
                     }
+
+                    Document examDoc = new Document("examPaperId", examPaperId)
+                            .append("totalScore", examScore)
+                            .append("correctCount", correctCount)
+                            .append("timestamp", timestamp)
+                            .append("questions", questions);
+                    examResults.add(examDoc);
+                    dailyTotalScore += examScore;
+                    remainingQuestions -= questionsPerPaper;
+                }
+
+                dailyDoc.append("examResults", examResults)
+                        .append("dailyTotalScore", dailyTotalScore)
+                        .append("lastUpdated", Instant.now().minusSeconds((days - day - 1) * 86400).toString());
+                dailyDocs.add(dailyDoc);
+
+                if (dailyDocs.size() >= 1000) {
+                    collection.insertMany(dailyDocs);
+                    dailyDocs.clear();
                 }
             }
         }
 
-        // 남은 데이터 삽입
-        if (!documents.isEmpty()) {
-            collection.insertMany(documents);
-        }
+        if (!dailyDocs.isEmpty()) collection.insertMany(dailyDocs);
     }
 }
