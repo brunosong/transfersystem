@@ -18,7 +18,7 @@ INSERT INTO sourceconfig (source_type, db_type, host, port, database, username, 
     ('LEARNING_MATERIAL', 'MONGO', 'localhost', 27017, 'exampledb', 'root', 'example', 'learning_materials'),
     ('USER_DATA', 'MYSQL', 'localhost', 3306, 'transfer', 'brunosong', '1234', 'users'),
     ('LEARNING_MATERIAL', 'MONGO', 'localhost', 27017, 'exampledb', 'learning_user', 'learning_pass123', 'learning_materials'),
-    ('EXAM_DATA', 'MONGO', 'localhost', 27017, 'exampledb', 'learning_user', 'learning_pass123', 'StudentDailyResults');
+    ('CURRICULUM', 'MONGO', 'localhost', 27017, 'learningDB', 'transfer_mongo_learning_user', 'asdf1234', 'CurriculumData');
 
 -- transfer 로그 테이블
 DROP TABLE IF EXISTS transfer_log CASCADE;

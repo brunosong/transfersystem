@@ -41,7 +41,7 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
         // 2. 데이터 전송
         transfer = transferExecutionHandler.sendData(transfer);
 
-        // 2. 데이터 전송 로그 저장
+        // 3. 데이터 전송 로그 저장
         TransferLogResult transferLogResult = transferLogHandler.persistTransferLog(transfer);
 
         return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);

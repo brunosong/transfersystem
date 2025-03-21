@@ -7,6 +7,7 @@ import com.mongodb.client.MongoClients;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -66,9 +67,9 @@ public class DynamicDataSourceConnector {
         try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
             MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, sourceConfig.getDatabase());
 
-            List<Document> all = mongoTemplate.findAll(Document.class, sourceConfig.getTableOrCollection());
+            // List<Document> all = mongoTemplate.findAll(Document.class, sourceConfig.getTableOrCollection());
 
-            Query query = new Query(Criteria.where("_id").is(sourceId));
+            Query query = new Query(Criteria.where("_id").is(new ObjectId(sourceId)));
             Document doc = mongoTemplate.findOne(query, Document.class, sourceConfig.getTableOrCollection());
             return Optional.ofNullable(doc).map(d -> (Map<String, Object>) d);
         } catch (Exception e) {

@@ -19,6 +19,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        generate_statistics: true
 
 transfer-service:
   data-migration-request-topic-name: data-migration-request
@@ -51,6 +52,7 @@ kafka-producer-config:
   linger-ms: 5
   request-timeout-ms: 60000
   retry-count: 5
+  request-max-size: 15000000
 
 kafka-consumer-config:
   key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -73,5 +75,5 @@ kafka-consumer-config:
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace

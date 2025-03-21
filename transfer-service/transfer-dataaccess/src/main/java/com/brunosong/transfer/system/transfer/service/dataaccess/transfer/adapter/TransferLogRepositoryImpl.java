@@ -26,10 +26,11 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     @Override
     public Transfer save(Transfer transfer) {
-
+        System.out.println("Transfer ID: " + transfer.getId()); // ID 출력
         TransferLogEntity transferLogEntity = transferLogDataAccessMapper.transferLogToTransferLogEntity(transfer);
-
+        System.out.println("Before save - Entity ID: " + transferLogEntity.getId());
         TransferLogEntity save = transferLogJpaRepository.save(transferLogEntity);
+        System.out.println("After save - Entity ID: " + save.getId());
         return transferLogDataAccessMapper.transferLogEntityToTransferLog(save);
     }
 

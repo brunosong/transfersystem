@@ -9,11 +9,13 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -26,7 +28,7 @@ import jakarta.persistence.*;
 @Entity
 @ToString
 @EntityListeners(AuditingEntityListener.class)
-public class TransferLogEntity {
+public class TransferLogEntity implements Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -86,6 +88,24 @@ public class TransferLogEntity {
 
     public void updateTransferStatus(TransferStatus transferStatus) {
         this.transferStatus = transferStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransferLogEntity that = (TransferLogEntity) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean isNew() {
+        return createdAt == null;
     }
 
 }
