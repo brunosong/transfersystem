@@ -22,7 +22,8 @@ import java.util.UUID;
 public class DataMigrationInfoEntity extends BaseTimeEntity {
 
     @Id
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     private DestinationServiceStatus destinationService;

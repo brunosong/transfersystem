@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.dto.message;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,5 +12,5 @@ import lombok.Getter;
 public class DataMigrationRequest {
     private String transferId;
     private String dataMigrationId;
-    private LearningMaterial learningMaterial;
+    private SourceContentData sourceContentData;
 }

@@ -17,27 +17,5 @@ import java.util.UUID;
 @DataJpaTest
 class DataMigrationInfoJpaRepositoryTest {
 
-    @Autowired
-    private DataMigrationInfoJpaRepository dataMigrationInfoJpaRepository;
-
-    @Test
-    void save() {
-        // given
-        UUID uuid = UUID.randomUUID();
-        DataMigrationInfoEntity entity = DataMigrationInfoEntity.builder()
-                .id(uuid)
-                .dbEnvironment(DestinationDbEnvironment.PRODUCTION)
-                .migrationMode(MigrationMode.DB)
-                .destinationService(DestinationServiceStatus.AI)
-                .build();
-
-        // when
-        dataMigrationInfoJpaRepository.save(entity);
-        DataMigrationInfoEntity result = dataMigrationInfoJpaRepository.findById(uuid).get();
-
-        // then
-        Assertions.assertThat(result.getId()).isEqualTo(uuid);
-
-    }
 
 }

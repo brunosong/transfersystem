@@ -1,37 +1,29 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.mapper;
 
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.LearningMaterialId;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
-
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.TransferStatus;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.LearningMaterial;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.LearningMaterialAvroModel;
+import com.brunosong.transfer.system.kafka.transfer.avro.model.SourceContentDataAvroModel;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataMigrationMessagingDataMapper {
-
-    public LearningMaterial dataMigrationRequestAvroModelToLearningMaterial(DataMigrationRequestAvroModel dataMigrationRequestAvroModel) {
-        return LearningMaterial.builder()
-                //.id(new LearningMaterialId(dataMigrationRequestAvroModel.getSourceContentData().getSourceId()))
-                .build();
-    }
-
+    
     public DataMigrationRequest avroModelToDataMigrationRequest(DataMigrationRequestAvroModel dataMigrationRequestAvroModel) {
         return DataMigrationRequest.builder()
                 .transferId(dataMigrationRequestAvroModel.getTransferId())
                 .dataMigrationId(dataMigrationRequestAvroModel.getDataMigrationInfoId())
-                //.learningMaterial(learningMaterialAvroModelToLearningMaterial(dataMigrationRequestAvroModel.getLearningMaterial()))
+                .sourceContentData(avroModelToSourceContentData(dataMigrationRequestAvroModel.getSourceContentData()))
                 .build();
     }
 
-    public LearningMaterial learningMaterialAvroModelToLearningMaterial(LearningMaterialAvroModel learningMaterialAvroModel) {
-        return LearningMaterial.builder()
-                //.id(new LearningMaterialId(learningMaterialAvroModel.getId()))
-                .description(learningMaterialAvroModel.getDescription())
+    public SourceContentData avroModelToSourceContentData(SourceContentDataAvroModel sourceContentDataAvroModel) {
+        return SourceContentData.builder()
+                .sourceId(sourceContentDataAvroModel.getSourceId())
+                .jsonData(sourceContentDataAvroModel.getJsonData())
                 .build();
     }
 

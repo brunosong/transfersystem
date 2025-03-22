@@ -1,14 +1,25 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo.adapter;
 
+import com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo.mapper.DataMigrationDataAccessMapper;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo.repository.DataMigrationInfoJpaRepository;
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigrationInfo;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.DataMigrationInfoRepository;
-import org.springframework.stereotype.Repository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
-@Repository
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
 public class DataMigrationInfoRepositoryImpl implements DataMigrationInfoRepository {
 
+    private final DataMigrationInfoJpaRepository dataMigrationInfoJpaRepository;
+    private final DataMigrationDataAccessMapper dataAccessMapper;
+
     @Override
-    public DataMigrationInfo save(DataMigrationInfo dataMigrationInfo) {
-        return null;
+    public Optional<DataMigrationInfo> findById(Long datamigrationId) {
+        return dataMigrationInfoJpaRepository.findById(datamigrationId).map( entity ->
+                dataAccessMapper.entityToDomain(entity)
+        );
     }
 }

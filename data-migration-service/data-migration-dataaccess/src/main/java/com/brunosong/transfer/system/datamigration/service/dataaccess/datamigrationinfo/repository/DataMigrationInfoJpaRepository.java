@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface DataMigrationInfoJpaRepository extends JpaRepository<DataMigrationInfoEntity,UUID> {
+public interface DataMigrationInfoJpaRepository extends JpaRepository<DataMigrationInfoEntity,Long> {
 }
