@@ -4,5 +4,5 @@ import com.brunosong.transfer.system.datamigration.service.dto.create.CreateData
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateDataMigrationInfoResponse;
 
 public interface DataMigrationApplicationService {
-      CreateDataMigrationInfoResponse createDataMigrationInfo(CreateDataMigrationInfoCommand createDataMigrationInfoCommand);
+//      CreateDataMigrationInfoResponse createDataMigrationInfo(CreateDataMigrationInfoCommand createDataMigrationInfoCommand);
 }

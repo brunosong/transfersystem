@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper;
 
-import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
+import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
@@ -28,7 +28,7 @@ public class TransferLogDataAccessMapper {
         return Transfer.builder()
                 .id(new TransferId(entity.getId()))
                 //.learningMaterialId(new LearningMaterialId(entity.getSourceId()))
-                .dataMigrationInfoId(new DataMigrationInfoId(entity.getDataMigrationInfoId()))
+                .dataMigrationInfoId(new DataMigrationId(entity.getDataMigrationInfoId()))
                 //.createAdminId(entity.getCreateAdminId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

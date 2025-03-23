@@ -1,20 +1,21 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo.entity;
 
 import com.brunosong.transfer.system.dataaccess.common.entity.BaseTimeEntity;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationDbEnvironment;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DestinationServiceStatus;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.MigrationMode;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystem;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.time.Instant;
 import java.util.Objects;
-import java.util.UUID;
 
 @Entity
-@Table(name = "data_migration_info")
+@Table(name = "datamigrations")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -22,21 +23,16 @@ import java.util.UUID;
 public class DataMigrationInfoEntity extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "datamigration_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private DestinationServiceStatus destinationService;
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private TargetSystem targetSystem;
 
     @Enumerated(EnumType.STRING)
-    private DestinationDbEnvironment dbEnvironment;
-
-    @Enumerated(EnumType.STRING)
-    private MigrationMode migrationMode;
-
-    private String dbUrl;
-    private String userName;
-    private String password;
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    private TargetSystemEnvironment targetSystemEnvironment;
 
     @Override
     public boolean equals(Object o) {

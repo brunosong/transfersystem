@@ -1,9 +1,9 @@
 package com.brunosong.transfer.system.datamigration.service.ports.output.repository;
 
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigrationInfo;
+import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
 
 import java.util.Optional;
 
 public interface DataMigrationInfoRepository {
-    Optional<DataMigrationInfo> findById(Long datamigrationId);
+    Optional<DataMigration> findById(Long datamigrationId);
 }

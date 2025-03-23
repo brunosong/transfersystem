@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.entity;
 
 import com.brunosong.transfer.system.domain.entity.AggregateRoot;
-import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
+import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
@@ -14,7 +14,7 @@ public class Transfer extends AggregateRoot<TransferId> {
 
     private SourceId sourceId;
     private SourceContentData sourceContentData;
-    private DataMigrationInfoId dataMigrationInfoId;
+    private DataMigrationId dataMigrationId;
     private TransferStatus transferStatus;
     private TransType transType;
     private SourceConfigId sourceConfigId;
@@ -28,7 +28,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.createUserId = builder.createUserId;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-        this.dataMigrationInfoId = builder.dataMigrationInfoId;
+        this.dataMigrationId = builder.dataMigrationId;
         this.transferStatus = builder.transferStatus;
         this.transType = builder.transType;
         this.sourceConfigId = builder.sourceConfigId;
@@ -81,8 +81,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         }
     }
 
-    public DataMigrationInfoId getDataMigrationInfoId() {
-        return dataMigrationInfoId;
+    public DataMigrationId getDataMigrationInfoId() {
+        return dataMigrationId;
     }
 
     public SourceId getSourceId() {
@@ -125,7 +125,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         private TransferId id;
         private SourceId sourceId;
         private SourceContentData sourceContentData;
-        private DataMigrationInfoId dataMigrationInfoId;
+        private DataMigrationId dataMigrationId;
         private TransferStatus transferStatus;
         private TransType transType;
         private SourceConfigId sourceConfigId;
@@ -151,8 +151,8 @@ public class Transfer extends AggregateRoot<TransferId> {
             return this;
         }
 
-        public Builder dataMigrationInfoId(DataMigrationInfoId dataMigrationInfoId) {
-            this.dataMigrationInfoId = dataMigrationInfoId;
+        public Builder dataMigrationInfoId(DataMigrationId dataMigrationId) {
+            this.dataMigrationId = dataMigrationId;
             return this;
         }
 

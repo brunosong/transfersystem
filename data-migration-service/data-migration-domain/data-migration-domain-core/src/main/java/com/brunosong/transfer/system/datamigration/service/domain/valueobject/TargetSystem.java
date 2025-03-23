@@ -1,5 +1,5 @@
 package com.brunosong.transfer.system.datamigration.service.domain.valueobject;
 
-public enum DestinationServiceStatus {
-    AI, TARGET_A, TARGET_B
+public enum TargetSystem {
+    BRUNOSONG_ONLINE_CAMPUS, BRUNOSONG_BOOTCAMP
 }

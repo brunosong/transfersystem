@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class DataMigrationApplicationServiceImpl implements DataMigrationApplicationService {
-
-    private final DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler;
-
-    public DataMigrationApplicationServiceImpl(DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler) {
-        this.dataMigrationInfoCreateHandler = dataMigrationInfoCreateHandler;
-    }
-
-    @Override
-    public CreateDataMigrationInfoResponse createDataMigrationInfo(CreateDataMigrationInfoCommand createDataMigrationInfoCommand) {
-        return dataMigrationInfoCreateHandler.persistMigrationInfo(createDataMigrationInfoCommand);
-    }
+//
+//    private final DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler;
+//
+//    public DataMigrationApplicationServiceImpl(DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler) {
+//        this.dataMigrationInfoCreateHandler = dataMigrationInfoCreateHandler;
+//    }
+//
+//    @Override
+//    public CreateDataMigrationInfoResponse createDataMigrationInfo(CreateDataMigrationInfoCommand createDataMigrationInfoCommand) {
+//        return dataMigrationInfoCreateHandler.persistMigrationInfo(createDataMigrationInfoCommand);
+//    }
 
 }

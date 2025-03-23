@@ -1,6 +1,23 @@
 package com.brunosong.transfer.system.datamigration.service.domain.entity;
 
-/* 핵심 도메인 */
-public class DataMigration {
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystem;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
+import com.brunosong.transfer.system.domain.entity.AggregateRoot;
+import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Builder
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class DataMigration extends AggregateRoot<DataMigrationId> {
+
+    private TargetSystem targetSystem;
+    private TargetSystemEnvironment targetSystemEnvironment;
+    private SourceContentData sourceContentData;
 
 }

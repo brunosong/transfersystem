@@ -1,19 +1,11 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
-import com.brunosong.transfer.system.domain.valueobject.DataMigrationInfoId;
-import com.brunosong.transfer.system.domain.valueobject.TransferId;
-import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.transfer.service.dataaccess.TestJpaConfiguration;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper.TransferLogDataAccessMapper;
-import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import java.util.UUID;
 
 @ContextConfiguration(classes = { TestJpaConfiguration.class,
                             TransferLogRepositoryImpl.class,
