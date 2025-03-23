@@ -1,10 +1,10 @@
-package com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.mapper;
+package com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.mapper;
 
-import com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.entity.ChapterEntity;
 import com.brunosong.transfer.system.datamigration.service.domain.entity.Chapter;
 import org.springframework.stereotype.Component;
 
-import static com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.entity.ChapterEntity.*;
+import static com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.entity.ChapterEntity.*;
 
 @Component
 public class ChapterDataAccessMapper {

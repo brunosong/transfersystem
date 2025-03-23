@@ -4,10 +4,33 @@ spring:
       mode: always
       schema-locations: classpath:init-schema.sql
   datasource:
-    url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-    username: datamigrationuser
-    password: 1234
-    driver-class-name: org.postgresql.Driver
+    primary:
+      url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+      username: datamigrationuser
+      password: 1234
+      driver-class-name: org.postgresql.Driver
+    brunosong_online_campus:
+      prod:
+        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+        username: datamigrationuser
+        password: 1234
+        driver-class-name: org.postgresql.Driver
+      dev:
+        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+        username: datamigrationuser
+        password: 1234
+        driver-class-name: org.postgresql.Driver
+    brunosong_bootcamp:
+      prod:
+        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+        username: datamigrationuser
+        password: 1234
+        driver-class-name: org.postgresql.Driver
+      dev:
+        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+        username: datamigrationuser
+        password: 1234
+        driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none

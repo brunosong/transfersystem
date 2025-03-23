@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.entity;
+package com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.entity;
 
-import com.brunosong.transfer.system.datamigration.service.dataaccess.course.entity.CourseEntity;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.CourseEntity;
 import lombok.*;
 
 import jakarta.persistence.*;

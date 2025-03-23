@@ -1,7 +1,7 @@
-package com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.adapter;
+package com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.adapter;
 
-import com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.mapper.ChapterDataAccessMapper;
-import com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.repository.ChapterJpaRepository;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.mapper.ChapterDataAccessMapper;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.repository.ChapterJpaRepository;
 import com.brunosong.transfer.system.datamigration.service.domain.entity.Chapter;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.ChapterRepository;
 import org.springframework.stereotype.Component;

@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.repository;
+package com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.repository;
 
-import com.brunosong.transfer.system.datamigration.service.dataaccess.chapter.entity.ChapterEntity;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp.entity.ChapterEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

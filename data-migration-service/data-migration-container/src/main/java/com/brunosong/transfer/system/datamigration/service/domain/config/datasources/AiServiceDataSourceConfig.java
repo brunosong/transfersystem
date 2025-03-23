@@ -13,39 +13,31 @@ import java.util.Map;
 @Configuration
 public class AiServiceDataSourceConfig {
 
-//    @Bean("aiServiceRealDataSource")
-//    @ConfigurationProperties(prefix = "spring.datasource.aiservice-real")
-//    public DataSource aiServiceRealDataSource() throws IllegalArgumentException {
-//        return DataSourceBuilder.create().build();
-//    }
-//
-//    @Bean("aiServiceDevDataSource")
-//    @ConfigurationProperties(prefix = "spring.datasource.aiservice-dev")
-//    public DataSource aiServiceDevDataSource() throws IllegalArgumentException {
-//        return DataSourceBuilder.create().build();
-//    }
-//
-//    @DependsOn({"aiServiceRealDataSource", "aiServiceDevDataSource"})
-//    @Bean(name = "aiServiceDynamicDataSource")
-//    public DataSource aiServiceDynamicDataSource(@Qualifier("aiServiceRealDataSource") DataSource aiServiceRealDataSource,
-//                                                 @Qualifier("aiServiceDevDataSource") DataSource aiServiceDevDataSource) {
-//
-//        RoutingDataSource routingDataSource = new RoutingDataSource();
-//
-//        Map<Object, Object> dataSourceMap = new HashMap<>();
-//        dataSourceMap.put(DataSourceType.AISERVICE_REAL, aiServiceRealDataSource);
-//        dataSourceMap.put(DataSourceType.AISERVICE_DEV, aiServiceDevDataSource);
-//
-//        routingDataSource.setTargetDataSources(dataSourceMap);
-//        routingDataSource.setDefaultTargetDataSource(aiServiceDevDataSource);
-//
-//        return routingDataSource;
-//    }
-//
-//    @DependsOn({"aiServiceDynamicDataSource"})
-//    @Bean("aiLazyDataSource")
-//    public LazyConnectionDataSourceProxy aiLazyDataSource(@Qualifier("aiServiceDynamicDataSource") DataSource aiServiceDynamicDataSource) {
-//        return new LazyConnectionDataSourceProxy(aiServiceDynamicDataSource);
-//    }
+    @DependsOn({"bootcampDevDataSource", "bootcampProdDataSource","onlineCampusDevDataSource", "onlineCampusProdDataSource"})
+    @Bean(name = "dataMigrationDynamicDataSource")
+    public DataSource dataMigrationDynamicDataSource(@Qualifier("bootcampDevDataSource") DataSource bootcampDevDataSource,
+                                                     @Qualifier("bootcampProdDataSource") DataSource bootcampProdDataSource,
+                                                     @Qualifier("onlineCampusDevDataSource") DataSource onlineCampusDevDataSource,
+                                                     @Qualifier("onlineCampusProdDataSource") DataSource onlineCampusProdDataSource) {
+
+        RoutingDataSource routingDataSource = new RoutingDataSource();
+
+        Map<Object, Object> dataSourceMap = new HashMap<>();
+        dataSourceMap.put(DataSourceType.BRUNOSONG_ONLINE_CAMPUS_PROD, onlineCampusProdDataSource);
+        dataSourceMap.put(DataSourceType.BRUNOSONG_ONLINE_CAMPUS_DEV, onlineCampusDevDataSource);
+        dataSourceMap.put(DataSourceType.BRUNOSONG_BOOTCAMP_PROD, bootcampProdDataSource);
+        dataSourceMap.put(DataSourceType.BRUNOSONG_BOOTCAMP_DEV, bootcampDevDataSource);
+
+        routingDataSource.setTargetDataSources(dataSourceMap);
+        routingDataSource.setDefaultTargetDataSource(bootcampDevDataSource);
+
+        return routingDataSource;
+    }
+
+    @DependsOn({"dataMigrationDynamicDataSource"})
+    @Bean("dataMigrationDataSource")
+    public LazyConnectionDataSourceProxy dataMigrationDataSource(@Qualifier("dataMigrationDynamicDataSource") DataSource dataMigrationDynamicDataSource) {
+        return new LazyConnectionDataSourceProxy(dataMigrationDynamicDataSource);
+    }
 
 }
