@@ -14,7 +14,7 @@ import java.util.UUID;
 public class TransferRequest {
 
     @NotNull(message = "dataMigrationInfoId is null")
-    private UUID dataMigrationInfoId;
+    private Long dataMigrationInfoId;
 
     @NotNull(message = "transType is null")
     private TransType transType;

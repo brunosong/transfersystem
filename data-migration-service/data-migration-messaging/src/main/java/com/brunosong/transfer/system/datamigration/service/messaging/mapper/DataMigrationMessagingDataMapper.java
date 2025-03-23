@@ -11,11 +11,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DataMigrationMessagingDataMapper {
-    
+
     public DataMigrationRequest avroModelToDataMigrationRequest(DataMigrationRequestAvroModel dataMigrationRequestAvroModel) {
         return DataMigrationRequest.builder()
                 .transferId(dataMigrationRequestAvroModel.getTransferId())
-                .dataMigrationId(dataMigrationRequestAvroModel.getDataMigrationInfoId())
+                .dataMigrationId(dataMigrationRequestAvroModel.getDataMigrationId())
                 .sourceContentData(avroModelToSourceContentData(dataMigrationRequestAvroModel.getSourceContentData()))
                 .build();
     }

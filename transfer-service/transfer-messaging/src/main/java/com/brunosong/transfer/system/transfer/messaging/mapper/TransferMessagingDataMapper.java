@@ -26,7 +26,7 @@ public class TransferMessagingDataMapper {
                 .setSagaId(UUID.randomUUID().toString())
                 .setTransferId(transfer.getId().getValue().toString())
                 .setSourceContentData(toSourceContentDataAvroModel(transfer.getSourceContentData()))
-                .setDataMigrationInfoId(transfer.getDataMigrationInfoId().getValue().toString())
+                .setDataMigrationId(transfer.getDataMigrationId().getValue())
                 .build();
     }
 

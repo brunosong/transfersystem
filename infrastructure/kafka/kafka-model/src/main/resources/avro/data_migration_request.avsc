@@ -11,11 +11,8 @@
       }
     },
     {
-      "name": "dataMigrationInfoId",
-      "type": {
-        "type": "string",
-        "logicalType": "uuid"
-      }
+      "name": "dataMigrationId",
+      "type": "long"
     },
     {
       "name": "transferId",

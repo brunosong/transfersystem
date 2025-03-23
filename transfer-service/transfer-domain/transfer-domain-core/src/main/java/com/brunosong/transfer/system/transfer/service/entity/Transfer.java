@@ -81,7 +81,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         }
     }
 
-    public DataMigrationId getDataMigrationInfoId() {
+    public DataMigrationId getDataMigrationId() {
         return dataMigrationId;
     }
 

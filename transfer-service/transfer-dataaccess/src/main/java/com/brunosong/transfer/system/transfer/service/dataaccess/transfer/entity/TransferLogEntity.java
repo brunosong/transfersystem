@@ -43,8 +43,8 @@ public class TransferLogEntity implements Persistable<UUID> {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SourceType sourceType;
 
-    @Column(name = "data_migration_info_id", nullable = false)
-    private UUID dataMigrationInfoId;
+    @Column(name = "datamigration_id", nullable = false)
+    private Long dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

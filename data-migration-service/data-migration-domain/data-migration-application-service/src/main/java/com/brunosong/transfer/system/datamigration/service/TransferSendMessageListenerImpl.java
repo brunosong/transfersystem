@@ -6,26 +6,19 @@ import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigra
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class TransferSendMessageListenerImpl implements DataMigrationMessageListener {
 
     private final DataPersistHelper dataPersistHelper;
     private final DataMigrationResponsePublisher dataMigrationResponsePublisher;
-    private final DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler;
     private final DataMigrationInfoHandler dataMigrationInfoHandler;
-
-    public TransferSendMessageListenerImpl(DataPersistHelper dataPersistHelper,
-                                           DataMigrationResponsePublisher dataMigrationResponsePublisher, DataMigrationInfoCreateHandler dataMigrationInfoCreateHandler, DataMigrationInfoHandler dataMigrationInfoHandler) {
-        this.dataPersistHelper = dataPersistHelper;
-        this.dataMigrationResponsePublisher = dataMigrationResponsePublisher;
-        this.dataMigrationInfoCreateHandler = dataMigrationInfoCreateHandler;
-        this.dataMigrationInfoHandler = dataMigrationInfoHandler;
-    }
 
     @Override
     @Transactional
