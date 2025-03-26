@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TransferSendMessageListenerImpl implements DataMigrationMessageListener {
 
-    private final DataPersistHelper dataPersistHelper;
     private final DataMigrationResponsePublisher dataMigrationResponsePublisher;
     private final DataMigrationInfoHandler dataMigrationInfoHandler;
 
@@ -25,8 +24,6 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
     public void migration(DataMigrationRequest dataMigrationRequest) {
 
         DataMigration dataMigrationInfo = dataMigrationInfoHandler.findDataMigrationInfo(dataMigrationRequest.getDataMigrationId());
-
-        dataPersistHelper.convert(dataMigrationInfo);
 
         try {
             Thread.sleep(10000);

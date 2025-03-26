@@ -38,6 +38,11 @@
             <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>data-migration-messaging</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

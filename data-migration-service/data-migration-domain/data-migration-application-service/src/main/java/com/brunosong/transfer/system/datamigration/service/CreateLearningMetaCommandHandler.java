@@ -3,7 +3,7 @@ package com.brunosong.transfer.system.datamigration.service;
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLearningMetaCommand;
 import com.brunosong.transfer.system.datamigration.service.dto.create.CreateLearningMetaResponse;
 import com.brunosong.transfer.system.datamigration.service.mapper.CreateLearningMetaDataMapper;
-import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CourseRepository;
+import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CurriculumRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 public class CreateLearningMetaCommandHandler {
-    private final CourseRepository courseRepository;
+    private final CurriculumRepository curriculumRepository;
     private final CreateLearningMetaDataMapper aiCreateLearningMetaDataMapper;
 
-    public CreateLearningMetaCommandHandler(CourseRepository courseRepository,
+    public CreateLearningMetaCommandHandler(CurriculumRepository curriculumRepository,
                                             CreateLearningMetaDataMapper aiCreateLearningMetaDataMapper) {
-        this.courseRepository = courseRepository;
+        this.curriculumRepository = curriculumRepository;
         this.aiCreateLearningMetaDataMapper = aiCreateLearningMetaDataMapper;
     }
 

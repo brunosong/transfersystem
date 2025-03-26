@@ -5,32 +5,32 @@ spring:
       schema-locations: classpath:init-schema.sql
   datasource:
     primary:
-      url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+      jdbcUrl: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
       username: datamigrationuser
       password: 1234
       driver-class-name: org.postgresql.Driver
-    brunosong_online_campus:
+    brunosong-online-campus:
       prod:
-        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-        username: datamigrationuser
-        password: 1234
-        driver-class-name: org.postgresql.Driver
+        jdbcUrl: jdbc:h2:mem:online_campus_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
       dev:
-        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-        username: datamigrationuser
-        password: 1234
-        driver-class-name: org.postgresql.Driver
-    brunosong_bootcamp:
+        jdbcUrl: jdbc:h2:mem:online_campus_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+    brunosong-bootcamp:
       prod:
-        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-        username: datamigrationuser
-        password: 1234
-        driver-class-name: org.postgresql.Driver
+        jdbcUrl: jdbc:h2:mem:bootcamp_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
       dev:
-        url: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-        username: datamigrationuser
-        password: 1234
-        driver-class-name: org.postgresql.Driver
+        jdbcUrl: jdbc:h2:mem:bootcamp_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
   jpa:
     hibernate:
       ddl-auto: none

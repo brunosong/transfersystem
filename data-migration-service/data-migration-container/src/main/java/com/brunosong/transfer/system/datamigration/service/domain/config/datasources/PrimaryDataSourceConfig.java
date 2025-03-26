@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableJpaRepositories(
         basePackages = {"com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo",
-                "com.brunosong.transfer.system.dataaccess" },
+                         "com.brunosong.transfer.system.dataaccess" },
         entityManagerFactoryRef = "primaryEntityManagerFactory",
         transactionManagerRef = "primaryTransactionManager"
 )
