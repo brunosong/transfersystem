@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
@@ -18,6 +19,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
 
     private final DataMigrationResponsePublisher dataMigrationResponsePublisher;
     private final DataMigrationInfoHandler dataMigrationInfoHandler;
+    private final DataPersistHelper dataPersistHelper;
 
     @Override
     @Transactional
@@ -29,12 +31,14 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
             Thread.sleep(10000);
             // dataPersistHelper.save(); // 예외 발생 시 롤백
             // dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
+            dataPersistHelper.persist(dataMigrationRequest.getSourceContentData());
 
             // 성공 시 메시지
             DataMigrationStatusOutboxMessage outboxMessage = DataMigrationStatusOutboxMessage.builder()
                     .transferId(dataMigrationRequest.getTransferId())
                     .transferStatus(TransferStatus.SUCCESS)
                     .build();
+
             dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
         } catch (Exception e) {
             // 실패 시 메시지

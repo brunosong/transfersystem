@@ -27,7 +27,7 @@ CREATE TABLE transfer_log (
     source_id VARCHAR(100) NOT NULL,
     sourceconfig_id BIGSERIAL NOT NULL,
     source_type source_type NOT NULL,
-    datamigration_id UUID NOT NULL,
+    datamigration_id BIGSERIAL NOT NULL,
     db_type db_type NOT NULL,
     trans_type VARCHAR(50) NOT NULL,
     transfer_status VARCHAR(50) NOT NULL,

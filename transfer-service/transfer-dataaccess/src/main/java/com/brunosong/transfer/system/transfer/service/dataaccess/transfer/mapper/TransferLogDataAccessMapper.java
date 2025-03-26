@@ -16,7 +16,7 @@ public class TransferLogDataAccessMapper {
                 .sourceId(transfer.getSourceId().getValue())
                 .sourceType(transfer.getSourceContentData().getSourceType())
                 .sourceconfigId(transfer.getSourceConfigId().getValue())
-                .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue())
+                .dataMigrationInfoId(transfer.getDataMigrationId().getValue())
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
                 .dbType(transfer.getSourceContentData().getDbType())

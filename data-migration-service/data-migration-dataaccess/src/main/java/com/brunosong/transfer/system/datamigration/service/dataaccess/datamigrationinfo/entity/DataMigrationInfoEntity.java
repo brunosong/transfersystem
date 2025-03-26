@@ -15,7 +15,7 @@ import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "datamigrations")
+@Table(name = "datamigrations", schema = "datamigration")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -28,10 +28,12 @@ public class DataMigrationInfoEntity extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "target_system")
     private TargetSystem targetSystem;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "target_system_environment")
     private TargetSystemEnvironment targetSystemEnvironment;
 
     @Override

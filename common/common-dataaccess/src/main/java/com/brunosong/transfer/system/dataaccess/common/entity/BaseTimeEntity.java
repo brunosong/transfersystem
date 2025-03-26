@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.dataaccess.common.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -15,9 +16,11 @@ import java.time.Instant;
 public class BaseTimeEntity {
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
 }

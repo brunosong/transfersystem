@@ -1,10 +1,8 @@
 package com.brunosong.transfer.system.datamigration.service.ports.output.repository;
 
-import com.brunosong.transfer.system.datamigration.service.domain.entity.Course;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 
-import java.util.Optional;
 
 public interface CurriculumRepository {
-    Optional<Course> findById(Long courseSeq);
-    Course save(Course course);
+    void save(SourceContentData sourceContentData);
 }

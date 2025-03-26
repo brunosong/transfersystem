@@ -12,7 +12,7 @@ public class TransferApiDataMapper {
     public LearningMaterialApiModel toLearningMaterialApiModel(Transfer transfer, SourceContentData sourceContentData) {
         return LearningMaterialApiModel.builder()
                 //.learningMaterial(learningMaterial)
-                .dataMigrationInfoId(transfer.getDataMigrationInfoId().getValue())
+                //.dataMigrationInfoId(transfer.getDataMigrationId().getValue())
                 .build();
 
     }
