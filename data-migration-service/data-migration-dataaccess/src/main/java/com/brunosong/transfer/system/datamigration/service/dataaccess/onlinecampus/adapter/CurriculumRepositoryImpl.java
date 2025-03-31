@@ -11,6 +11,7 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.DocumentCodec;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,8 +25,7 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
     @Override
     public void save(SourceContentData sourceContentData) {
 
-        DocumentCodec codec = new DocumentCodec();
-        Document document = codec.decode(new org.bson.BsonBinaryReader(sourceContentData.getJsonData()), DecoderContext.builder().build());
+        Document document = Document.parse(StandardCharsets.UTF_8.decode(sourceContentData.getJsonData()).toString());
 
         Curriculum curriculum = convertToCurriculum(document);
 

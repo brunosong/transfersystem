@@ -6,7 +6,7 @@
 ## 프로젝트 목적
 - **데이터 전송**: 데이터를 효율적으로 처리하고 전송하는 시스템 구축.
 - **데이터 마이그레이션**: 기존 데이터를 새로운 시스템으로 옮기는 서비스 제공.
-- **데이터 업로드**: 사용자 데이터를 안전하게 업로드하고 관리.
+- **데이터 업로드**: 데이터 업로드 서비스 제공. (현재 개발 X)
 - **모듈화**: 공통 로직을 재사용 가능한 모듈로 분리하여 개발 효율성 증대.
 
 ## 기술 스택
@@ -14,7 +14,7 @@
 - **빌드 도구**: Maven
 - **프레임워크**: Spring Boot
 - **메시징**: Kafka
-- **데이터베이스**: MongoDB, Mariadb
+- **데이터베이스**: MongoDB, Mariadb, PostgreSQL
 - **컨테이너**: Docker (Docker Compose 사용)
 - **기타**: Feign 클라이언트, Avro 데이터 직렬화
 
@@ -54,13 +54,13 @@
 
 ## 설치 및 실행 방법
 1. **필수 소프트웨어 설치**
-  - Java 17 이상
+  - Java 21 이상
   - Maven
   - Docker 및 Docker Compose
 
 2. **프로젝트 클론**
    ```bash
-   git clone <repository-url>
+   git clone https://bitbucket.org/songbrunosong/transfersystem.git
    cd transfer-system
    
 3. **의존성 설치**
@@ -77,10 +77,3 @@
    # 카푸카 init
    docker-compose -f init-kafka up -d
    
-
-
-
-## 사용법
-- **데이터 마이그레이션** : `data-migration-service`의 REST API를 호출하여 데이터 이동 시작.
-  **데이터 업로드**: `dataupload-service`를 통해 데이터 파일 업로드.
-- **전송 처리**: `transfer-service`의 API를 사용하여 데이터 전송 요청.

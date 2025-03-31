@@ -13,5 +13,5 @@ import java.nio.ByteBuffer;
 @AllArgsConstructor
 public class SourceContentData {
    private String sourceId;
-   ByteBuffer jsonData;
+   private ByteBuffer jsonData;
 }

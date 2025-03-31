@@ -2,6 +2,7 @@ package com.brunosong.transfer.system.kafka.consumer.config;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
 import com.brunosong.transfer.system.kafka.config.data.KafkaConsumerConfigData;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.springframework.context.annotation.Bean;
@@ -10,13 +11,18 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@Slf4j
 public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecordBase> {
 
     private final KafkaConfigData kafkaConfigData;
@@ -61,8 +67,17 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
         factory.setConcurrency(kafkaConsumerConfigData.getConcurrencyLevel());
         factory.setAutoStartup(kafkaConsumerConfigData.getAutoStartup());
         factory.getContainerProperties().setPollTimeout(kafkaConsumerConfigData.getPollTimeoutMs());
+        factory.setCommonErrorHandler(errorHandler());
         return factory;
     }
 
+    @Bean
+    public CommonErrorHandler errorHandler() {
+        return new DefaultErrorHandler(((consumerRecord, e) -> {
+            log.error("[Error] topic = {}, key = {}, value = {}, error message = {}",
+                    consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), e.getMessage());
+
+        }) , new FixedBackOff(3000L, 2));
+    }
 
 }

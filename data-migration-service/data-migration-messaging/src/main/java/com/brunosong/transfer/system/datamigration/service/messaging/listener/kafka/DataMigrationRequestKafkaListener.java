@@ -7,9 +7,13 @@ import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.util.backoff.FixedBackOff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Component;
 
 
@@ -30,7 +34,7 @@ public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigr
 
     @Override
     @KafkaListener(id = "${kafka-consumer-config.data-migration-group-id}",
-                topics = "${data-migration-service.data-migration-request-topic-name}")
+                   topics = "${data-migration-service.data-migration-request-topic-name}")
     public void receive(@Payload List<DataMigrationRequestAvroModel> message,
                         @Header(KafkaHeaders.RECEIVED_KEY) List<String> keys,
                         @Header(KafkaHeaders.RECEIVED_PARTITION) List<Integer> partitions,

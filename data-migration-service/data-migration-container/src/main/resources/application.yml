@@ -46,7 +46,7 @@ kafka-config:
   bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
   schema-registry-url-key: schema.registry.url
   schema-registry-url: http://localhost:8081
-  num-of-partitions: 3
+  num-of-partitions: 1
   replication-factor: 3
 
 kafka-producer-config:
@@ -75,9 +75,10 @@ kafka-consumer-config:
   heartbeat-interval-ms: 3000
   max-poll-interval-ms: 300000
   max-poll-records: 500
-  max-partition-fetch-bytes-default: 1048576
+  max-partition-fetch-bytes-default: 10485760
   max-partition-fetch-bytes-boost-factor: 1
   poll-timeout-ms: 150
+
 
 data-migration-service:
   data-migration-request-topic-name: data-migration-request

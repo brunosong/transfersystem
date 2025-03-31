@@ -28,7 +28,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
         DataMigration dataMigrationInfo = dataMigrationInfoHandler.findDataMigrationInfo(dataMigrationRequest.getDataMigrationId());
 
         try {
-            Thread.sleep(10000);
+            //Thread.sleep(10000);
             // dataPersistHelper.save(); // 예외 발생 시 롤백
             // dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
             dataPersistHelper.persist(dataMigrationRequest.getSourceContentData());
