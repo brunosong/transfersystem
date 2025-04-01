@@ -21,6 +21,7 @@ public class Transfer extends AggregateRoot<TransferId> {
     private LocalDateTime createdAt;
     private String createUserId;
     private LocalDateTime updatedAt;
+    private String resultMessage;
 
     private Transfer(Builder builder) {
         setId(builder.id);
@@ -33,6 +34,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.transType = builder.transType;
         this.sourceConfigId = builder.sourceConfigId;
         this.sourceContentData = builder.sourceContentData;
+        this.resultMessage = builder.resultMessage;
     }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
@@ -117,6 +119,10 @@ public class Transfer extends AggregateRoot<TransferId> {
         return sourceContentData;
     }
 
+    public String getResultMessage() {
+        return resultMessage;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -132,6 +138,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         private LocalDateTime createdAt;
         private String createUserId;
         private LocalDateTime updatedAt;
+
+        private String resultMessage;
 
         private Builder() {
         }
@@ -183,6 +191,11 @@ public class Transfer extends AggregateRoot<TransferId> {
 
         public Builder sourceConfigId(SourceConfigId sourceConfigId) {
             this.sourceConfigId = sourceConfigId;
+            return this;
+        }
+
+        public Builder resultMessage(String resultMessage) {
+            this.resultMessage = resultMessage;
             return this;
         }
 

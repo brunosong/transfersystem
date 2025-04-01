@@ -6,16 +6,15 @@ import com.brunosong.transfer.system.datamigration.service.ports.input.message.l
 import com.brunosong.transfer.system.kafka.consumer.KafkaConsumer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.util.backoff.FixedBackOff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.stereotype.Component;
-
+import org.springframework.util.backoff.FixedBackOff;
 
 import java.util.List;
 
@@ -47,8 +46,5 @@ public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigr
 
             dataMigrationMessageListener.migration(dataMigrationRequest);
         });
-
     }
-
-
 }

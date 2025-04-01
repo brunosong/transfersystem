@@ -4,5 +4,5 @@ import com.brunosong.transfer.system.datamigration.service.domain.valueobject.So
 
 
 public interface CurriculumRepository {
-    void save(SourceContentData sourceContentData);
+    long save(SourceContentData sourceContentData);
 }

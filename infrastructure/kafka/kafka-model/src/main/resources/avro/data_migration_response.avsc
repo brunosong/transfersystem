@@ -17,6 +17,10 @@
         "name": "TransferStatus",
         "symbols": ["PENDING", "SENT", "PROCESSED", "SUCCESS", "FAILED"]
       }
+    },
+    {
+      "name": "message",
+      "type": "string"
     }
   ]
 }

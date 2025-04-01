@@ -1,9 +1,8 @@
 package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
+import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationResponseMessage;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
@@ -24,30 +23,38 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
     @Override
     @Transactional
     public void migration(DataMigrationRequest dataMigrationRequest) {
-
+        
+        // 아직 구현 안됨
         DataMigration dataMigrationInfo = dataMigrationInfoHandler.findDataMigrationInfo(dataMigrationRequest.getDataMigrationId());
 
         try {
-            //Thread.sleep(10000);
-            // dataPersistHelper.save(); // 예외 발생 시 롤백
-            // dataMigrationInfoCreateHandler.persistMigrationInfo(null); // 마이그레이션 정보 저장
+
             dataPersistHelper.persist(dataMigrationRequest.getSourceContentData());
 
             // 성공 시 메시지
-            DataMigrationStatusOutboxMessage outboxMessage = DataMigrationStatusOutboxMessage.builder()
+            DataMigrationResponseMessage outboxMessage = DataMigrationResponseMessage.builder()
                     .transferId(dataMigrationRequest.getTransferId())
+                    .message("SUCCESS")
                     .transferStatus(TransferStatus.SUCCESS)
                     .build();
 
             dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
+
+            log.info("migration success !! transferId is {}, dataMigrationId : {}",
+                    dataMigrationRequest.getTransferId(), dataMigrationRequest.getDataMigrationId());
+
         } catch (Exception e) {
-            // 실패 시 메시지
-            DataMigrationStatusOutboxMessage outboxMessage = DataMigrationStatusOutboxMessage.builder()
+
+            log.error("migration exception! transferId is {}, dataMigrationId : {}",
+                    dataMigrationRequest.getTransferId(), dataMigrationRequest.getDataMigrationId());
+
+            // DLT 대신 처리 실패 메시지 전송
+            DataMigrationResponseMessage outboxMessage = DataMigrationResponseMessage.builder()
                     .transferId(dataMigrationRequest.getTransferId())
+                    .message(e.getMessage())
                     .transferStatus(TransferStatus.FAILED)
                     .build();
             dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
-            throw new RuntimeException(); // 트랜잭션 롤백 유도
         }
 
     }

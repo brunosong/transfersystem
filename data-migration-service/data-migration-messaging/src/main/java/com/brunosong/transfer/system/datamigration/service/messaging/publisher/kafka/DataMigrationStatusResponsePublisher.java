@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.publisher.kafka;
 
 import com.brunosong.transfer.system.datamigration.service.config.DataMigrationServiceConfigData;
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
+import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationResponseMessage;
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMigrationMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
@@ -22,17 +22,17 @@ public class DataMigrationStatusResponsePublisher implements DataMigrationRespon
     private final KafkaMessageHelper kafkaMessageHelper;
 
     @Override
-    public void dataMigrationStatusPublish(DataMigrationStatusOutboxMessage outboxMessage) {
+    public void dataMigrationStatusPublish(DataMigrationResponseMessage responseMessage) {
 
         DataMigrationResponseAvroModel responseAvroModel = dataMigrationMessagingDataMapper
-                .toDataMigrationResponseAvroModel(outboxMessage);
+                .toDataMigrationResponseAvroModel(responseMessage);
 
         try {
 
             kafkaProducer.send(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
-                                responseAvroModel.getTransferId(),
-                                responseAvroModel,
-                                kafkaMessageHelper.getKafkaCallback(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
+                                        responseAvroModel.getTransferId(),
+                                        responseAvroModel,
+                                        kafkaMessageHelper.getKafkaCallback(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
                                                                     responseAvroModel,
                                                                     responseAvroModel.getTransferId(),
                                                         "DataMigrationResponseAvroModel")

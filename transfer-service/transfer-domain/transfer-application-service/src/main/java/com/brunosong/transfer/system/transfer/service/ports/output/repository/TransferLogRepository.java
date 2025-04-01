@@ -15,6 +15,6 @@ public interface TransferLogRepository {
 
     Optional<List<Transfer>> findAll();
 
-    void updateTransferStatus(UUID transferId, TransferStatus transferStatus);
+    void updateTransferStatus(Transfer transfer);
 
 }

@@ -2,19 +2,15 @@ package com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecam
 
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.*;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.CurriculumJpaRepository;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.Course;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CurriculumRepository;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
-import org.bson.codecs.DecoderContext;
-import org.bson.codecs.DocumentCodec;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -23,13 +19,12 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
     private final CurriculumJpaRepository curriculumJpaRepository;
 
     @Override
-    public void save(SourceContentData sourceContentData) {
+    public long save(SourceContentData sourceContentData) {
 
         Document document = Document.parse(StandardCharsets.UTF_8.decode(sourceContentData.getJsonData()).toString());
-
         Curriculum curriculum = convertToCurriculum(document);
 
-        curriculumJpaRepository.save(curriculum);
+        return curriculumJpaRepository.save(curriculum).getId();
     }
 
     private Curriculum convertToCurriculum(Document document) {

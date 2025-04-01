@@ -48,8 +48,8 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     @Override
     @Transactional
-    public void updateTransferStatus(UUID transferId, TransferStatus transferStatus) {
-        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transferId);
-        result.ifPresent(entity -> entity.updateTransferStatus(transferStatus));
+    public void updateTransferStatus(Transfer transfer) {
+        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transfer.getId().getValue());
+        result.ifPresent(entity -> entity.updateResult(transfer.getTransferStatus(), transfer.getResultMessage()));
     }
 }

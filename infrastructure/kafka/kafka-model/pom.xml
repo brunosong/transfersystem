@@ -53,7 +53,8 @@
                 <configuration>
                     <schemaRegistryUrls>http://localhost:8081</schemaRegistryUrls>
                     <subjects>
-                        <material-request-value>src/main/resources/avro/data_migration_request.avsc</material-request-value>
+                        <data-migration-request-value>src/main/resources/avro/data_migration_request.avsc</data-migration-request-value>
+                        <data-migration-response-value>src/main/resources/avro/data_migration_response.avsc</data-migration-response-value>
                     </subjects>
                     <outputDirectory/>
                 </configuration>

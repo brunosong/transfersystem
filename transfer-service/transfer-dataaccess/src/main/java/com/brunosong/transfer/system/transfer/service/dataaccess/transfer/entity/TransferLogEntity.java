@@ -70,15 +70,15 @@ public class TransferLogEntity implements Persistable<UUID> {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(name = "error_message")
-    private String errorMessage;
+    @Column(name = "result_message")
+    private String resultMessage;
 
     @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransferChunkEntity> chunks = new ArrayList<>();
 
-    public void updateResult(TransferStatus status, String errorMessage) {
+    public void updateResult(TransferStatus status, String resultMessage) {
         this.transferStatus = status;
-        this.errorMessage = errorMessage;
+        this.resultMessage = resultMessage;
     }
 
     public void addChunk(TransferChunkEntity chunk) {

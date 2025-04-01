@@ -2,6 +2,7 @@ package com.brunosong.transfer.system.transfer.service.mapper;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
+import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
@@ -32,4 +33,11 @@ public class TransferDataMapper {
         return new SourceConfigId(request.getSourceConfigId());
     }
 
+    public Transfer dataMigrationResponseToTransfer(DataMigrationResponse dataMigrationResponse) {
+        return Transfer.builder()
+                .id(dataMigrationResponse.getTransferId())
+                .transferStatus(dataMigrationResponse.getTransferStatus())
+                .resultMessage(dataMigrationResponse.getMessage())
+                .build();
+    }
 }

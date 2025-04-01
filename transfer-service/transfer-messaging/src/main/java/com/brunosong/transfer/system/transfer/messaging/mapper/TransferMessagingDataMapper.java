@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.messaging.mapper;
 
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
@@ -40,7 +41,8 @@ public class TransferMessagingDataMapper {
     public DataMigrationResponse toDataMigrationResponse(DataMigrationResponseAvroModel dataMigrationResponseAvroModel) {
         return DataMigrationResponse.builder()
                 .transferStatus(TransferStatus.valueOf(dataMigrationResponseAvroModel.getTransferStatus().name()))
-                .transferId(UUID.fromString(dataMigrationResponseAvroModel.getTransferId()))
+                .transferId(new TransferId(UUID.fromString(dataMigrationResponseAvroModel.getTransferId())))
+                .message(dataMigrationResponseAvroModel.getMessage())
                 .build();
     }
 

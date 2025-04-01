@@ -24,7 +24,6 @@ spring:
 transfer-service:
   data-migration-request-topic-name: data-migration-request
   data-migration-response-topic-name: data-migration-response
-  material-request-topic-name: material-request
 
 feign:
   client:

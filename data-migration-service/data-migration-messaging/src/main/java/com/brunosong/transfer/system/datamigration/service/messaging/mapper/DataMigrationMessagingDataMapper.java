@@ -2,7 +2,7 @@ package com.brunosong.transfer.system.datamigration.service.messaging.mapper;
 
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationStatusOutboxMessage;
+import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationResponseMessage;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.TransferStatus;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
@@ -27,10 +27,11 @@ public class DataMigrationMessagingDataMapper {
                 .build();
     }
 
-    public DataMigrationResponseAvroModel toDataMigrationResponseAvroModel(DataMigrationStatusOutboxMessage outboxMessage) {
+    public DataMigrationResponseAvroModel toDataMigrationResponseAvroModel(DataMigrationResponseMessage responseMessage) {
         return DataMigrationResponseAvroModel.newBuilder()
-                .setTransferId(outboxMessage.getTransferId())
-                .setTransferStatus(TransferStatus.valueOf(outboxMessage.getTransferStatus().name()))
+                .setTransferId(responseMessage.getTransferId())
+                .setMessage(responseMessage.getMessage())
+                .setTransferStatus(TransferStatus.valueOf(responseMessage.getTransferStatus().name()))
                 .build();
     }
 }

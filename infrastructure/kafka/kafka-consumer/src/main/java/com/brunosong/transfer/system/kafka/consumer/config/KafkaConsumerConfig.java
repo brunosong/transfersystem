@@ -2,6 +2,8 @@ package com.brunosong.transfer.system.kafka.consumer.config;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
 import com.brunosong.transfer.system.kafka.config.data.KafkaConsumerConfigData;
+import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
+import com.brunosong.transfer.system.kafka.datamigration.avro.model.TransferStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -11,7 +13,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
@@ -71,6 +73,8 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
         return factory;
     }
 
+
+    // DLT 처리 방향 고민중
     @Bean
     public CommonErrorHandler errorHandler() {
         return new DefaultErrorHandler(((consumerRecord, e) -> {
@@ -79,5 +83,7 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
 
         }) , new FixedBackOff(3000L, 2));
     }
+
+
 
 }

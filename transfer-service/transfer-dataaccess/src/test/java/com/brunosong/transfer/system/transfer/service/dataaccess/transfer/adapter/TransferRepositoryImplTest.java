@@ -7,12 +7,12 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-@ContextConfiguration(classes = { TestJpaConfiguration.class,
-                            TransferLogRepositoryImpl.class,
-                            TransferLogDataAccessMapper.class
-})
-@TestPropertySource(properties = {"spring.jpa.show-sql=true"})
-@DataJpaTest
+//@ContextConfiguration(classes = { TestJpaConfiguration.class,
+//                            TransferLogRepositoryImpl.class,
+//                            TransferLogDataAccessMapper.class
+//})
+//@TestPropertySource(properties = {"spring.jpa.show-sql=true"})
+//@DataJpaTest
 class TransferRepositoryImplTest {
 
 //    @Autowired
