@@ -17,6 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.listener.KafkaListenerErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
 import java.io.Serializable;
@@ -69,21 +70,9 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
         factory.setConcurrency(kafkaConsumerConfigData.getConcurrencyLevel());
         factory.setAutoStartup(kafkaConsumerConfigData.getAutoStartup());
         factory.getContainerProperties().setPollTimeout(kafkaConsumerConfigData.getPollTimeoutMs());
-        factory.setCommonErrorHandler(commonErrorHandler());
+        //factory.setCommonErrorHandler(commonErrorHandler());
         return factory;
     }
-
-
-    // DLT 처리 방향 고민중
-    @Bean
-    public CommonErrorHandler commonErrorHandler() {
-        return new DefaultErrorHandler(((consumerRecord, e) -> {
-            log.error("[Error] topic = {}, key = {},  error message = {}",
-                    consumerRecord.topic(), consumerRecord.key(), e.getMessage());
-
-        }) , new FixedBackOff(3000L, 2));
-    }
-
 
 
 }
