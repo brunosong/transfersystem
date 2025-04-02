@@ -69,17 +69,17 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
         factory.setConcurrency(kafkaConsumerConfigData.getConcurrencyLevel());
         factory.setAutoStartup(kafkaConsumerConfigData.getAutoStartup());
         factory.getContainerProperties().setPollTimeout(kafkaConsumerConfigData.getPollTimeoutMs());
-        factory.setCommonErrorHandler(errorHandler());
+        factory.setCommonErrorHandler(commonErrorHandler());
         return factory;
     }
 
 
     // DLT 처리 방향 고민중
     @Bean
-    public CommonErrorHandler errorHandler() {
+    public CommonErrorHandler commonErrorHandler() {
         return new DefaultErrorHandler(((consumerRecord, e) -> {
-            log.error("[Error] topic = {}, key = {}, value = {}, error message = {}",
-                    consumerRecord.topic(), consumerRecord.key(), consumerRecord.value(), e.getMessage());
+            log.error("[Error] topic = {}, key = {},  error message = {}",
+                    consumerRecord.topic(), consumerRecord.key(), e.getMessage());
 
         }) , new FixedBackOff(3000L, 2));
     }

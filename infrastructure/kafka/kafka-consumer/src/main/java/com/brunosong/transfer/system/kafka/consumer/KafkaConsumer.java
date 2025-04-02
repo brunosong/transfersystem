@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.kafka.consumer;
 
 import org.apache.avro.specific.SpecificRecordBase;
+import org.springframework.kafka.support.Acknowledgment;
 
 import java.util.List;
 

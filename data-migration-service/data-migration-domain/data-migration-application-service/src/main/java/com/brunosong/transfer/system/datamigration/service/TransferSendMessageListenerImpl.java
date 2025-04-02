@@ -51,11 +51,13 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
             // DLT 대신 처리 실패 메시지 전송
             DataMigrationResponseMessage outboxMessage = DataMigrationResponseMessage.builder()
                     .transferId(dataMigrationRequest.getTransferId())
-                    .message(e.getMessage())
+                    .message("ErrorMessage is " + e.getMessage())
                     .transferStatus(TransferStatus.FAILED)
                     .build();
+
             dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
         }
+
 
     }
 

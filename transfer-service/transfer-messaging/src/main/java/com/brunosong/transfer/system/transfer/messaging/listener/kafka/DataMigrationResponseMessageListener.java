@@ -6,6 +6,7 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.ports.input.message.listener.DataMigrationMessageListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
