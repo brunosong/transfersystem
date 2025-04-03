@@ -1,0 +1,13 @@
+server:
+  port: 8888  # 기본 포트는 8888
+
+spring:
+  profiles:
+    active: native
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    config:
+      server:
+        native:
+          search-locations: file:///C:\\DEV_PRO\\configserver\\  # 로컬 디렉토리 경로
