@@ -2,12 +2,25 @@ server:
   port: 8888  # 기본 포트는 8888
 
 spring:
-  profiles:
-    active: native
   cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
     compatibility-verifier:
       enabled: false
     config:
       server:
-        native:
-          search-locations: file:///C:\\DEV_PRO\\configserver\\  # 로컬 디렉토리 경로
+        git:
+          uri: https://bitbucket.org/songbrunosong/brunosong-config/src/main/
+          username: "{cipher}eeabf3e4d53876876011c7e7a91431edafc693cc583dffc43b44aaef2d743dbd"
+          password: "{cipher}708513746cd0ec7c711c152147cf3521bf5a37c652f2152f76c074ad5da778de9cc6c475a68f2f8309f9e047d3068675c8cbb2f7254264ce09a6e410f4b9315c"
+  kafka:
+    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh

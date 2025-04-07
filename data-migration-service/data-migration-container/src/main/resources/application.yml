@@ -1,36 +1,22 @@
 spring:
+  application:
+    name: data-migration-service
+  config:
+    import: "optional:configserver:http://localhost:8888/"
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
+    compatibility-verifier:
+      enabled: false
+    config:
+      profile: default
   sql:
     init:
       mode: always
-      schema-locations: classpath:init-schema.sql
-  datasource:
-    primary:
-      jdbcUrl: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-      username: datamigrationuser
-      password: 1234
-      driver-class-name: org.postgresql.Driver
-    brunosong-online-campus:
-      prod:
-        jdbcUrl: jdbc:h2:mem:online_campus_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
-      dev:
-        jdbcUrl: jdbc:h2:mem:online_campus_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
-    brunosong-bootcamp:
-      prod:
-        jdbcUrl: jdbc:h2:mem:bootcamp_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
-      dev:
-        jdbcUrl: jdbc:h2:mem:bootcamp_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
+      schema-locations: classpath:sql/init-schema.sql
   jpa:
     hibernate:
       ddl-auto: none
@@ -40,51 +26,8 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         generate_statistics: true
-
-
-kafka-config:
-  bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
-  schema-registry-url-key: schema.registry.url
-  schema-registry-url: http://localhost:8081
-  num-of-partitions: 1
-  replication-factor: 3
-
-kafka-producer-config:
-  key-serializer-class: org.apache.kafka.common.serialization.StringSerializer
-  value-serializer-class: io.confluent.kafka.serializers.KafkaAvroSerializer
-  compression-type: none
-  acks: all
-  batch-size: 16384
-  batch-size-boost-factor: 100
-  linger-ms: 5
-  request-timeout-ms: 60000
-  retry-count: 5
-
-
-kafka-consumer-config:
-  key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-  data-migration-group-id: datamigration-topic-consumer
-  auto-offset-reset: earliest
-  specific-avro-reader-key: specific.avro.reader
-  specific-avro-reader: true
-  batch-listener: true
-  auto-startup: true
-  concurrency-level: 3
-  session-timeout-ms: 10000
-  heartbeat-interval-ms: 3000
-  max-poll-interval-ms: 300000
-  max-poll-records: 500
-  max-partition-fetch-bytes-default: 10485760
-  max-partition-fetch-bytes-boost-factor: 1
-  poll-timeout-ms: 150
-
-
-data-migration-service:
-  data-migration-request-topic-name: data-migration-request
-  data-migration-response-topic-name: data-migration-response
-  material-request-topic-name: material-request
-  material-response-topic-name: material-response
+  kafka:
+    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
 
 server:
   port: 8001
