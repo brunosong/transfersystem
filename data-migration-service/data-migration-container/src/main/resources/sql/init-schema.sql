@@ -2,16 +2,13 @@ DROP SCHEMA IF EXISTS datamigration CASCADE;
 
 CREATE SCHEMA datamigration;
 
-DROP TYPE IF EXISTS target_system;
-CREATE TYPE target_system AS ENUM ('BRUNOSONG_ONLINE_CAMPUS', 'BRUNOSONG_BOOTCAMP');
-
 DROP TYPE IF EXISTS target_system_environment;
 CREATE TYPE target_system_environment AS ENUM ('PROD', 'DEV');
 
 DROP TABLE IF EXISTS "datamigration".datamigrations CASCADE;
 CREATE TABLE "datamigration".datamigrations (
     datamigration_id BIGSERIAL PRIMARY KEY,
-    target_system target_system NOT NULL,
+    target_system VARCHAR(100) NOT NULL,
     target_system_environment target_system_environment NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL

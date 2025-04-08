@@ -1,7 +1,6 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.datamigrationinfo.entity;
 
 import com.brunosong.transfer.system.dataaccess.common.entity.BaseTimeEntity;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystem;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -26,10 +24,8 @@ public class DataMigrationInfoEntity extends BaseTimeEntity {
     @Column(name = "datamigration_id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "target_system")
-    private TargetSystem targetSystem;
+    private String targetSystem;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
