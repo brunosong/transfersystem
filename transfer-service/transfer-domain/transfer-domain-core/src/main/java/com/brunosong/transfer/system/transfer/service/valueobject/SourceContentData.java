@@ -12,4 +12,8 @@ public class SourceContentData {
     private SourceType sourceType;
     private DbType dbType;
     private byte[] jsonData;
+
+    public void updateJsonData(byte[] jsonData) {
+        this.jsonData = jsonData;
+    }
 }

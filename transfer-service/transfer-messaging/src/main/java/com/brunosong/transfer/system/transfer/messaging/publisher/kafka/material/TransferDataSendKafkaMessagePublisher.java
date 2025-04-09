@@ -7,8 +7,12 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -22,7 +26,7 @@ public class TransferDataSendKafkaMessagePublisher implements TransferDataSendMe
     public TransferDataSendKafkaMessagePublisher(TransferMessagingDataMapper transferMessagingDataMapper,
                                                  KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer,
                                                  TransferServiceConfigData transferServiceConfigData,
-                                                 KafkaMessageHelper kafkaMessageHelper) {
+                                                 KafkaMessageHelper kafkaMessageHelper, ObjectMapper objectMapper) {
         this.transferMessagingDataMapper = transferMessagingDataMapper;
         this.kafkaProducer = kafkaProducer;
         this.transferServiceConfigData = transferServiceConfigData;
