@@ -7,12 +7,9 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Slf4j
 @Component

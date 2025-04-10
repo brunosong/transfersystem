@@ -1,52 +1,43 @@
-package com.brunosong.transfer.system.transfer.service.handler;
+package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferSendHelper;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
-public class TransferMessagingSendHelper extends TransferSendHelper {
+@RequiredArgsConstructor
+public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
     private final TransferDataSendMessagePublisher transferDataSendMessagePublisher;
 
-    public TransferMessagingSendHelper(TransferDataSendMessagePublisher transferDataSendMessagePublisher) {
-        this.transferDataSendMessagePublisher = transferDataSendMessagePublisher;
-    }
-
     @Override
-    protected void doTransfer(Transfer transfer) {
+    public void typePublisher(Transfer transfer) {
 
-        // 추후 관리기능 추가
-        if (transfer.getSourceContentData().getSourceType() == SourceType.CURRICULUM) {
-            byte[] jsonData = transfer.getSourceContentData().getJsonData();
+        byte[] jsonData = transfer.getSourceContentData().getJsonData();
 
-            ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper();
 
-            try {
-                // 원본 JSON 파싱
-                JsonNode rootNode = objectMapper.readTree(jsonData);
-                JsonNode curriculumNode = rootNode.path("curriculum");
-                String curriculumId = curriculumNode.path("curriculumId").asText();
+        try {
+            // 원본 JSON 파싱
+            JsonNode rootNode = objectMapper.readTree(jsonData);
+            JsonNode curriculumNode = rootNode.path("curriculum");
+            String curriculumId = curriculumNode.path("curriculumId").asText();
 
-                // 상위 데이터 전송 grades & semester
-                byte[] upperData = createUpperData(curriculumId, curriculumNode);
-                transfer.getSourceContentData().updateJsonData(upperData);
-                transferDataSendMessagePublisher.publish(transfer);
+            // 상위 데이터 전송 grades & semester
+            byte[] upperData = createUpperData(curriculumId, curriculumNode);
+            transfer.getSourceContentData().updateJsonData(upperData);
 
+            transferDataSendMessagePublisher.publish(transfer);
 
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+
     }
 
     // Grade와 Semester를 하나의 메시지로 묶음
