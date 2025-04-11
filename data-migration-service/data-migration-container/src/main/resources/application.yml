@@ -29,5 +29,17 @@ spring:
   kafka:
     bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
 server:
   port: 8001
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+

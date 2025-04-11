@@ -2,6 +2,8 @@ package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
+import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
+    private final ObjectMapper objectMapper;
     private final TransferDataSendMessagePublisher transferDataSendMessagePublisher;
 
     @Override
@@ -20,19 +23,16 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
         byte[] jsonData = transfer.getSourceContentData().getJsonData();
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
             // 원본 JSON 파싱
             JsonNode rootNode = objectMapper.readTree(jsonData);
-            JsonNode curriculumNode = rootNode.path("curriculum");
-            String curriculumId = curriculumNode.path("curriculumId").asText();
+            JsonNode curriculumNode = rootNode.path(CurriculumBaseKey.CURRICULUM.getKey());
 
             // 상위 데이터 전송 grades & semester
-            byte[] upperData = createUpperData(curriculumId, curriculumNode);
-            transfer.getSourceContentData().updateJsonData(upperData);
+            createUpperDataAndPublish(transfer, curriculumNode);
 
-            transferDataSendMessagePublisher.publish(transfer);
+            // 하위 데이터 전송
+            extractAndPublishSubjects(transfer,curriculumNode);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -41,37 +41,95 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
     }
 
     // Grade와 Semester를 하나의 메시지로 묶음
-    private byte[] createUpperData(String curriculumId, JsonNode curriculumNode) throws Exception {
+    private void createUpperDataAndPublish(Transfer transfer, JsonNode curriculumNode) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        // 1. Grade와 Semester만 포함하는 상위 데이터 생성
-        ObjectNode upperNode = objectMapper.createObjectNode();
-        upperNode.put("curriculumId", curriculumId);
+        // 1. 최상위 ObjectNode 생성
+        ObjectNode rootNode = objectMapper.createObjectNode();
+        ObjectNode newCurriculumNode = objectMapper.createObjectNode();
+        rootNode.set(CurriculumBaseKey.CURRICULUM.getKey(), newCurriculumNode);
 
+        // 2. curriculum 필드 추가
+        copyTextNode(curriculumNode, newCurriculumNode);
+
+        // 3. grades 배열 생성
         ArrayNode gradesArray = objectMapper.createArrayNode();
-        JsonNode grades = curriculumNode.path("grade");
+        JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
         for (JsonNode grade : grades) {
             ObjectNode gradeNode = objectMapper.createObjectNode();
-            gradeNode.put("id", grade.path("id").asText());
-            gradeNode.put("title", grade.path("title").asText());
-            gradeNode.put("description", grade.path("description").asText());
+            copyTextNode(grade, gradeNode);
 
+            // 4. semester 배열 생성
             ArrayNode semestersArray = objectMapper.createArrayNode();
-            JsonNode semesters = grade.path("semester");
+            JsonNode semesters = grade.path(CurriculumBaseKey.LEVEL2.getKey());
             for (JsonNode semester : semesters) {
                 ObjectNode semesterNode = objectMapper.createObjectNode();
-                semesterNode.put("id", semester.path("id").asText());
-                semesterNode.put("title", semester.path("title").asText());
-                semesterNode.put("description", semester.path("description").asText());
+                copyTextNode(semester, semesterNode);
                 semestersArray.add(semesterNode); // subject 제외
             }
-            gradeNode.set("semester", semestersArray);
+            gradeNode.set(CurriculumBaseKey.LEVEL2.getKey(), semestersArray);
             gradesArray.add(gradeNode);
         }
-        upperNode.set("grades", gradesArray);
+        newCurriculumNode.set(CurriculumBaseKey.LEVEL1.getKey(), gradesArray);
 
-        return objectMapper.writeValueAsBytes(upperNode);
+        byte[] upperData = objectMapper.writeValueAsBytes(rootNode);
 
+        transfer.getSourceContentData().updateJsonData(upperData);
+        transferDataSendMessagePublisher.publish(transfer);
+
+    }
+
+    private void extractAndPublishSubjects(Transfer transfer, JsonNode curriculumNode) throws Exception {
+        JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
+        String curriculumId = curriculumNode.path("curriculumId").asText();
+        for (JsonNode grade : grades) {
+            String gradeId = grade.path("id").asText();
+            JsonNode semesters = grade.path(CurriculumBaseKey.LEVEL2.getKey());
+
+            for (JsonNode semester : semesters) {
+                String semesterId = semester.path("id").asText();
+                JsonNode subjects = semester.path(CurriculumBaseKey.LEVEL3.getKey());
+                if (subjects.isArray()) {
+                    for (JsonNode subject : subjects) {
+                        // subject 단위로 새 JSON 생성
+                        ObjectNode subjectNode = createSubjectNode(curriculumId, gradeId, semesterId, subject);
+
+                        // Transfer 객체 업데이트 및 전송
+                        byte[] subjectData = objectMapper.writeValueAsBytes(subjectNode);
+                        SourceContentData newContentData = SourceContentData.builder()
+                                .sourceType(transfer.getSourceContentData().getSourceType())
+                                .jsonData(subjectData)
+                                .build();
+                        Transfer subjectTransfer = Transfer.builder()
+                                .sourceContentData(newContentData)
+                                .build();
+                        transferDataSendMessagePublisher.publish(subjectTransfer);
+                    }
+                }
+            }
+        }
+    }
+
+    private ObjectNode createSubjectNode(String curriculumId, String gradeId, String semesterId, JsonNode subject) {
+        ObjectNode subjectNode = objectMapper.createObjectNode();
+        subjectNode.put("curriculumId", curriculumId);
+        subjectNode.put("gradeId", gradeId);
+        subjectNode.put("semesterId", semesterId);
+        subjectNode.set("subject", subject);
+
+        return subjectNode;
+    }
+
+    public void copyTextNode(JsonNode objectNode, ObjectNode newObjectNode) {
+        objectNode.fields().forEachRemaining(entry -> {
+            String fieldName = entry.getKey();
+            JsonNode valueNode = entry.getValue();
+
+            // 텍스트 값만 추가
+            if (valueNode.isTextual()) {
+                newObjectNode.put(fieldName, valueNode.asText());
+            }
+        });
     }
 
 }
