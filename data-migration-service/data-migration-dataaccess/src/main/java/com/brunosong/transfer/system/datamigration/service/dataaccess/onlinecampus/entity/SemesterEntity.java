@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "grade")
+@Table(name = "semester")
 @Getter
 @Setter
-public class Grade {
+public class SemesterEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "grade_id", nullable = false, unique = true)
-    private String gradeId;
+    @Column(name = "semester_id", nullable = false, unique = true)
+    private String semesterId;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -27,9 +27,9 @@ public class Grade {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curriculum_id", nullable = false)
-    private Curriculum curriculum;
+    @JoinColumn(name = "grade_id", nullable = false)
+    private GradeEntity gradeEntity;
 
-    @OneToMany(mappedBy = "grade", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Semester> semesters = new ArrayList<>();
+    @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubjectEntity> subjectEntities = new ArrayList<>();
 }

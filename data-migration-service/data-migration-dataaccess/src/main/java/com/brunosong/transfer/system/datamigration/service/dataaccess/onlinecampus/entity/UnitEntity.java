@@ -11,7 +11,7 @@ import java.util.List;
 @Table(name = "unit")
 @Getter
 @Setter
-public class Unit {
+public class UnitEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +28,8 @@ public class Unit {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subject_id", nullable = false)
-    private Subject subject;
+    private SubjectEntity subjectEntity;
 
     @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Lesson> lessons = new ArrayList<>();
+    private List<LessonEntity> lessonEntities = new ArrayList<>();
 }

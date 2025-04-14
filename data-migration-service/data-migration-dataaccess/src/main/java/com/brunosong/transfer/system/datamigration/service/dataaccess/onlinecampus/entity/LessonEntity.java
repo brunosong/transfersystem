@@ -8,7 +8,7 @@ import lombok.Setter;
 @Table(name = "lesson")
 @Getter
 @Setter
-public class Lesson {
+public class LessonEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +31,5 @@ public class Lesson {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "unit_id", nullable = false)
-    private Unit unit;
+    private UnitEntity unitEntity;
 }

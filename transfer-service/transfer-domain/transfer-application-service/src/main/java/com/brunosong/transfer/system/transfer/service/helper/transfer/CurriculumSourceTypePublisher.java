@@ -31,6 +31,7 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
             // 상위 데이터 전송 grades & semester
             createUpperDataAndPublish(transfer, curriculumNode);
 
+            Thread.sleep(1000);
             // 하위 데이터 전송
             extractAndPublishSubjects(transfer,curriculumNode);
 
@@ -96,14 +97,8 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
                         // Transfer 객체 업데이트 및 전송
                         byte[] subjectData = objectMapper.writeValueAsBytes(subjectNode);
-                        SourceContentData newContentData = SourceContentData.builder()
-                                .sourceType(transfer.getSourceContentData().getSourceType())
-                                .jsonData(subjectData)
-                                .build();
-                        Transfer subjectTransfer = Transfer.builder()
-                                .sourceContentData(newContentData)
-                                .build();
-                        transferDataSendMessagePublisher.publish(subjectTransfer);
+                        transfer.getSourceContentData().updateJsonData(subjectData);
+                        transferDataSendMessagePublisher.publish(transfer);
                     }
                 }
             }

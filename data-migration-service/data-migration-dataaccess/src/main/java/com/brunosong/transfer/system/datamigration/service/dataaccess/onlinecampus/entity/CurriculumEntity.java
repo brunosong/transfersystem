@@ -11,7 +11,7 @@ import java.util.List;
 @Table(name = "curriculum")
 @Getter
 @Setter
-public class Curriculum {
+public class CurriculumEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +27,6 @@ public class Curriculum {
     private String description;
 
     @OneToMany(mappedBy = "curriculum", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Grade> grades = new ArrayList<>();
+    private List<GradeEntity> gradeEntities = new ArrayList<>();
 
 }

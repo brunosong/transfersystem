@@ -38,25 +38,25 @@ class CurriculumSourceTypePublisherTest {
         // Given
         String jsonDataStr = """
                 {
-                    "curriculum": {
+                    "curriculumEntity": {
                         "curriculumId": "CUR001",
-                        "grade": [
+                        "gradeEntity": [
                             {
                                 "id": "G0101",
                                 "title": "중등 1학년",
                                 "description": "중등 1학년 과정",
-                                "semester" : [
+                                "semesterEntity" : [
                                      {
                                          "id" : "S01201",
                                          "title" : "1학기",
                                          "description" : "중등 2학년 1학기",
-                                         "subject": []
+                                         "subjectEntity": []
                                      },
                                      {
                                          "id" : "S01202",
                                          "title" : "2학기",
                                          "description" : "중등 2학년 2학기",
-                                         "subject": []
+                                         "subjectEntity": []
                                      }
                                 ]
                             }
@@ -89,12 +89,12 @@ class CurriculumSourceTypePublisherTest {
         assertEquals("CUR001", updatedNode.path("curriculumId").asText());
         JsonNode grades = updatedNode.path("grades");
         assertEquals(1, grades.size());
-        JsonNode grade = grades.get(0);
-        assertEquals("G0101", grade.path("id").asText());
-        JsonNode semesters = grade.path("semester");
+        JsonNode gradeEntity = grades.get(0);
+        assertEquals("G0101", gradeEntity.path("id").asText());
+        JsonNode semesters = gradeEntity.path("semesterEntity");
         assertEquals(2, semesters.size());
-        JsonNode semester = semesters.get(0);
-        assertEquals("S01201", semester.path("id").asText());
-        assertFalse(semester.has("subject")); // subject가 제외되었는지 확인
+        JsonNode semesterEntity = semesters.get(0);
+        assertEquals("S01201", semesterEntity.path("id").asText());
+        assertFalse(semesterEntity.has("subjectEntity")); // subject가 제외되었는지 확인
     }
 }

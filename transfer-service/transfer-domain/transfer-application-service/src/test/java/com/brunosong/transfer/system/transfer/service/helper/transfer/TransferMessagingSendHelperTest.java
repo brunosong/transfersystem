@@ -41,25 +41,25 @@ class TransferMessagingSendHelperTest {
         // Given
         String jsonDataStr = """
                 {
-                    "curriculum": {
+                    "curriculumEntity": {
                         "curriculumId": "CUR001",
-                        "grade": [
+                        "gradeEntity": [
                             {
                                 "id": "G0101",
                                 "title": "중등 1학년",
                                 "description": "중등 1학년 과정",
-                                "semester" : [
+                                "semesterEntity" : [
                                      {
                                          "id" : "S01201",
                                          "title" : "1학기",
                                          "description" : "중등 2학년 1학기",
-                                         "subject": []
+                                         "subjectEntity": []
                                      },
                                      {
                                          "id" : "S01202",
                                          "title" : "2학기",
                                          "description" : "중등 2학년 2학기",
-                                         "subject": []
+                                         "subjectEntity": []
                                      }
                                 ]
                             }

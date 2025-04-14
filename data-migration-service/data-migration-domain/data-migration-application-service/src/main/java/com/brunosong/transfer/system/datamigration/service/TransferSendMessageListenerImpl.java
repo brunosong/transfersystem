@@ -4,6 +4,7 @@ import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMig
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
 import com.brunosong.transfer.system.datamigration.service.helper.MessageResponseHelper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
+import com.brunosong.transfer.system.datamigration.service.ports.output.cache.CurriculumCachePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
     private final DataMigrationInfoHandler dataMigrationInfoHandler;
     private final DataPersistHelper dataPersistHelper;
     private final MessageResponseHelper messageResponseHelper;
+
 
     @Override
     @Transactional
