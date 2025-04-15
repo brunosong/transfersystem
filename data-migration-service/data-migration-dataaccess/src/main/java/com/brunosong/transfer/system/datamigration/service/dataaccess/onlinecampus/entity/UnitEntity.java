@@ -30,6 +30,6 @@ public class UnitEntity {
     @JoinColumn(name = "subject_id", nullable = false)
     private SubjectEntity subjectEntity;
 
-    @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "unitEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LessonEntity> lessonEntities = new ArrayList<>();
 }

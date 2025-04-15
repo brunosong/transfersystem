@@ -1,16 +1,17 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "semester")
+@Builder
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SemesterEntity {
 
     @Id
@@ -30,6 +31,10 @@ public class SemesterEntity {
     @JoinColumn(name = "grade_id", nullable = false)
     private GradeEntity gradeEntity;
 
-    @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "semesterEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubjectEntity> subjectEntities = new ArrayList<>();
+
+    public void setSubjectEntities(List<SubjectEntity> subjectEntities) {
+        this.subjectEntities = subjectEntities;
+    }
 }

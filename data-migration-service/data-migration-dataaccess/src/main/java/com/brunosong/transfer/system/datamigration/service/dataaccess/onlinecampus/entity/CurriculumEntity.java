@@ -26,7 +26,7 @@ public class CurriculumEntity {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "curriculum", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "curriculumEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GradeEntity> gradeEntities = new ArrayList<>();
 
 }

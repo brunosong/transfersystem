@@ -83,6 +83,11 @@
                 <artifactId>data-migration-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>data-migration-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>

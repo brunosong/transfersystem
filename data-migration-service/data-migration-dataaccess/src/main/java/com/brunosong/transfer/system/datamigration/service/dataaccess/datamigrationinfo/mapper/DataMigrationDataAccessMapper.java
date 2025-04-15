@@ -5,7 +5,8 @@ import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMig
 import org.springframework.stereotype.Component;
 
 @Component
-public class DataMigrationDataAccessMapper {
+public class
+DataMigrationDataAccessMapper {
 
     public DataMigration entityToDomain(DataMigrationInfoEntity entity) {
         return DataMigration.builder()

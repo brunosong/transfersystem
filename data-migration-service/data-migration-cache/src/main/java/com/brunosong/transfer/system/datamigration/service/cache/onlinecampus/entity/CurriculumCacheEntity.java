@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
 
-@RedisHash("curriculum")
+@RedisHash(value = "curriculum", timeToLive = 3600)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

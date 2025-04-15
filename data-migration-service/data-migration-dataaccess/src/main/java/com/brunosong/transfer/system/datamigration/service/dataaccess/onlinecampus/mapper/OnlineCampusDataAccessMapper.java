@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class DataMigrationDataAccessMapper {
+public class OnlineCampusDataAccessMapper {
 
     public DataMigrationDto toDataMigrationDto(CurriculumEntity saveEntity) {
         return DataMigrationDto.builder()
@@ -22,12 +22,9 @@ public class DataMigrationDataAccessMapper {
                 .build();
     }
 
-
     public CurriculumEntity convertToCurriculum(Document document) {
+
         Document curriculumDoc = document.get(CurriculumKey.CURRICULUM.getKey(), Document.class);
-        if (curriculumDoc == null) {
-            throw new IllegalArgumentException("Invalid curriculum document: 'curriculum' field is missing");
-        }
 
         CurriculumEntity curriculumEntity = new CurriculumEntity();
         curriculumEntity.setCurriculumId(curriculumDoc.getString("curriculumId"));
@@ -64,11 +61,12 @@ public class DataMigrationDataAccessMapper {
     }
 
     private SemesterEntity convertToSemester(Document semesterDoc, GradeEntity gradeEntity) {
-        SemesterEntity semesterEntity = new SemesterEntity();
-        semesterEntity.setSemesterId(semesterDoc.getString("id"));
-        semesterEntity.setTitle(semesterDoc.getString("title"));
-        semesterEntity.setDescription(semesterDoc.getString("description"));
-        semesterEntity.setGradeEntity(gradeEntity);
+        SemesterEntity semesterEntity = SemesterEntity.builder()
+                .semesterId(semesterDoc.getString("id"))
+                .title(semesterDoc.getString("title"))
+                .description(semesterDoc.getString("description"))
+                .gradeEntity(gradeEntity)
+                .build();
 
         List<Document> subjectDocs = semesterDoc.getList(CurriculumKey.SUBJECT.getKey(), Document.class, Collections.emptyList());
         List<SubjectEntity> subjectEntities = new ArrayList<>();
@@ -81,7 +79,7 @@ public class DataMigrationDataAccessMapper {
         return semesterEntity;
     }
 
-    private SubjectEntity convertToSubject(Document subjectDoc, SemesterEntity semesterEntity) {
+    public SubjectEntity convertToSubject(Document subjectDoc, SemesterEntity semesterEntity) {
         SubjectEntity subjectEntity = new SubjectEntity();
         subjectEntity.setSubjectId(subjectDoc.getString("id"));
         subjectEntity.setTitle(subjectDoc.getString("title"));

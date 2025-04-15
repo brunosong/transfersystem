@@ -30,6 +30,6 @@ public class GradeEntity {
     @JoinColumn(name = "curriculum_id", nullable = false)
     private CurriculumEntity curriculumEntity;
 
-    @OneToMany(mappedBy = "grade", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "gradeEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SemesterEntity> semesterEntities = new ArrayList<>();
 }
