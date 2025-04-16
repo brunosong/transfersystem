@@ -12,6 +12,7 @@ import com.brunosong.transfer.system.datamigration.service.ports.output.reposito
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -26,6 +27,7 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
     private final OnlineCampusDataAccessMapper dataAccessMapper;
 
     @Override
+    @Transactional
     public DataMigrationDto save(SourceContentData sourceContentData) {
 
         Document document = Document.parse(StandardCharsets.UTF_8.decode(sourceContentData.getJsonData()).toString());
@@ -65,38 +67,31 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
 
         // SubjectEntity 저장
         Document subjectDocument = document.get(CurriculumKey.SUBJECT.getKey(), Document.class);
-        Optional<SubjectEntity> existingSubject = subjectJpaRepository.findBySubjectId(subjectDocument.getString("subjectId"));
-        SubjectEntity savedSubject;
-//        if (existingSubject.isPresent()) {
-//            savedSubject = existingSubject.get();
-//            savedSubject.setTitle(subjectEntity.getTitle());
-//            savedSubject.setDescription(subjectEntity.getDescription());
-//            savedSubject.setSemesterEntity(semesterEntity);
-//            // UnitEntities 업데이트
-//            savedSubject.getUnitEntities().clear();
-//            for (UnitEntity unit : subjectEntity.getUnitEntities()) {
-//                unit.setSubjectEntity(savedSubject);
-//                for (LessonEntity lesson : unit.getLessonEntities()) {
-//                    lesson.setUnitEntity(unit);
-//                }
-//                savedSubject.getUnitEntities().add(unit);
-//            }
-//        } else {
-//            subjectEntity.setSemesterEntity(semesterEntity);
-//            for (UnitEntity unit : subjectEntity.getUnitEntities()) {
-//                unit.setSubjectEntity(subjectEntity);
-//                for (LessonEntity lesson : unit.getLessonEntities()) {
-//                    lesson.setUnitEntity(unit);
-//                }
-//            }
-//            savedSubject = subjectEntity;
-//        }
-//
-//        // JPA 저장
-//        savedSubject = subjectJpaRepository.save(savedSubject);
-//        return savedSubject.getSubjectId();
+        SubjectEntity subjectEntity = dataAccessMapper.convertToSubject(subjectDocument, semesterEntity);
 
-        return null;
+        Optional<SubjectEntity> existingSubject = subjectJpaRepository.findBySubjectId(subjectDocument.getString("id"));
+        SubjectEntity savedSubject;
+        if (existingSubject.isPresent()) {
+            savedSubject = existingSubject.get();
+            savedSubject.setTitle(subjectEntity.getTitle());
+            savedSubject.setDescription(subjectEntity.getDescription());
+            savedSubject.setSemesterEntity(semesterEntity);
+            // UnitEntities 업데이트
+            savedSubject.getUnitEntities().clear();
+            for (UnitEntity unit : subjectEntity.getUnitEntities()) {
+                unit.setSubjectEntity(savedSubject);
+                for (LessonEntity lesson : unit.getLessonEntities()) {
+                    lesson.setUnitEntity(unit);
+                }
+                savedSubject.getUnitEntities().add(unit);
+            }
+        } else {
+            savedSubject = subjectEntity;
+        }
+
+        // JPA 저장
+        savedSubject = subjectJpaRepository.save(savedSubject);
+        return dataAccessMapper.toDataMigrationDto(savedSubject);
     }
 
 

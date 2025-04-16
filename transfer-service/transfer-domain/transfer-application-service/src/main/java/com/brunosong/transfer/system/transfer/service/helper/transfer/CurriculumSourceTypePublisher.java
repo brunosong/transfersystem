@@ -3,7 +3,6 @@ package com.brunosong.transfer.system.transfer.service.helper.transfer;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
 import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -74,7 +73,9 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
         newCurriculumNode.set(CurriculumBaseKey.LEVEL1.getKey(), gradesArray);
 
         byte[] upperData = objectMapper.writeValueAsBytes(rootNode);
-
+        
+        // 시작 청크는 0
+        transfer.getSourceContentData().resetChunkOffset();
         transfer.getSourceContentData().updateJsonData(upperData);
         transferDataSendMessagePublisher.publish(transfer);
 
@@ -97,6 +98,9 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
                         // Transfer 객체 업데이트 및 전송
                         byte[] subjectData = objectMapper.writeValueAsBytes(subjectNode);
+
+                        // 데이터 카운트 추가
+                        transfer.getSourceContentData().plusChunkOffset();
                         transfer.getSourceContentData().updateJsonData(subjectData);
                         transferDataSendMessagePublisher.publish(transfer);
                     }

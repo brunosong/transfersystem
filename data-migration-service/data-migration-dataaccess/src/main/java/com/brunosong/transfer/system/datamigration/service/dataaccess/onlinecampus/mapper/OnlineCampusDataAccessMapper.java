@@ -22,6 +22,13 @@ public class OnlineCampusDataAccessMapper {
                 .build();
     }
 
+    public DataMigrationDto toDataMigrationDto(SubjectEntity saveEntity) {
+        return DataMigrationDto.builder()
+                .id(saveEntity.getId())
+                .curriculumId(saveEntity.getSubjectId())
+                .build();
+    }
+
     public CurriculumEntity convertToCurriculum(Document document) {
 
         Document curriculumDoc = document.get(CurriculumKey.CURRICULUM.getKey(), Document.class);
