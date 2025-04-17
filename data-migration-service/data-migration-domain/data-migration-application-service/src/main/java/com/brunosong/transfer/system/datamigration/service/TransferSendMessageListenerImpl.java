@@ -31,6 +31,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
             dataPersistHelper.persist(dataMigrationRequest.getSourceContentData());
             messageResponseHelper.successResponseMessage(dataMigrationRequest);
         } catch (Exception e) {
+            e.printStackTrace();
             messageResponseHelper.failsResponseMessage(dataMigrationRequest, e);
         }
     }

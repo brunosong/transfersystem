@@ -6,7 +6,6 @@ import com.brunosong.transfer.system.datamigration.service.ports.output.cache.Cu
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CurriculumRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +17,7 @@ public class DataPersistHelper {
     private final CurriculumCachePort curriculumCachePort;
 
     public long persist(SourceContentData sourceContentData) {
-        DataMigrationDto dataMigrationDto = curriculumRepository.save(sourceContentData);
+        DataMigrationDto dataMigrationDto = curriculumRepository.saveAndUpdate(sourceContentData);
 
         curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
         log.info("Successfully saved content with id: {}", dataMigrationDto.id());

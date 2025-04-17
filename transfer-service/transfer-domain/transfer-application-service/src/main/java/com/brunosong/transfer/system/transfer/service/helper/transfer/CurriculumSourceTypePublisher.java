@@ -102,7 +102,7 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
                         // 데이터 카운트 추가
                         transfer.getSourceContentData().plusChunkOffset();
                         transfer.getSourceContentData().updateJsonData(subjectData);
-                        transferDataSendMessagePublisher.publish(transfer);
+                        //transferDataSendMessagePublisher.publish(transfer);
                     }
                 }
             }

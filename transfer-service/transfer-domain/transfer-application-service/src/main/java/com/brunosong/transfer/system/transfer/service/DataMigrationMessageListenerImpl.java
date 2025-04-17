@@ -8,6 +8,7 @@ import com.brunosong.transfer.system.transfer.service.ports.output.repository.Tr
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -18,8 +19,10 @@ public class DataMigrationMessageListenerImpl implements DataMigrationMessageLis
     private final TransferDataMapper transferDataMapper;
 
     @Override
+    @Transactional
     public void transferStatusUpdate(DataMigrationResponse dataMigrationResponse) {
+        System.out.println(dataMigrationResponse);
         Transfer transfer = transferDataMapper.dataMigrationResponseToTransfer(dataMigrationResponse);
-        transferLogRepository.updateTransferStatus(transfer);
+//        transferLogRepository.updateTransferStatus(transfer);
     }
 }

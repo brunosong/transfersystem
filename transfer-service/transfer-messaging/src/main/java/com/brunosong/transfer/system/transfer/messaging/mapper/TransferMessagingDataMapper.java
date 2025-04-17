@@ -27,6 +27,7 @@ public class TransferMessagingDataMapper {
 
     public SourceContentDataAvroModel toSourceContentDataAvroModel(SourceContentData sourceContentData) {
         return SourceContentDataAvroModel.newBuilder()
+                .setChunkOffset(sourceContentData.getChunkOffset())
                 .setSourceId(sourceContentData.getSourceId())
                 .setJsonData(ByteBuffer.wrap(sourceContentData.getJsonData()))
                 .build();

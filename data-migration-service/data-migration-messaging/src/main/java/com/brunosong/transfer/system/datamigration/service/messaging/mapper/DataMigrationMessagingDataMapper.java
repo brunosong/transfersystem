@@ -22,6 +22,7 @@ public class DataMigrationMessagingDataMapper {
 
     public SourceContentData avroModelToSourceContentData(SourceContentDataAvroModel sourceContentDataAvroModel) {
         return SourceContentData.builder()
+                .chunkOffset(sourceContentDataAvroModel.getChunkOffset())
                 .sourceId(sourceContentDataAvroModel.getSourceId())
                 .jsonData(sourceContentDataAvroModel.getJsonData())
                 .build();
@@ -32,6 +33,7 @@ public class DataMigrationMessagingDataMapper {
                 .setTransferId(responseMessage.getTransferId())
                 .setMessage(responseMessage.getMessage())
                 .setTransferStatus(TransferStatus.valueOf(responseMessage.getTransferStatus().name()))
+                .setChunkOffset(responseMessage.getChunkOffset())
                 .build();
     }
 }

@@ -28,6 +28,10 @@
         "name": "SourceContentDataAvroModel",
         "fields": [
           {
+            "name": "chunkOffset",
+            "type": "int"
+          },
+          {
             "name": "sourceId",
             "type": "string"
           },

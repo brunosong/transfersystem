@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class DataMigrationResponseMessage {
+    private int chunkOffset;
     private String transferId;
     private String message;
     private TransferStatus transferStatus;

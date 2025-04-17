@@ -25,6 +25,7 @@ public class MessageResponseHelper {
                 .transferId(dataMigrationRequest.getTransferId())
                 .message("ErrorMessage is " + e.getMessage())
                 .transferStatus(TransferStatus.FAILED)
+                .chunkOffset(dataMigrationRequest.getSourceContentData().getChunkOffset())
                 .build();
 
         dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
@@ -37,13 +38,14 @@ public class MessageResponseHelper {
                 dataMigrationRequest.getTransferId(), dataMigrationRequest.getDataMigrationId());
 
         // 성공 시 메시지
-        DataMigrationResponseMessage outboxMessage = DataMigrationResponseMessage.builder()
+        DataMigrationResponseMessage responseMessage = DataMigrationResponseMessage.builder()
                 .transferId(dataMigrationRequest.getTransferId())
                 .message("SUCCESS")
                 .transferStatus(TransferStatus.SUCCESS)
+                .chunkOffset(dataMigrationRequest.getSourceContentData().getChunkOffset())
                 .build();
 
-        dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
+        dataMigrationResponsePublisher.dataMigrationStatusPublish(responseMessage);
     }
 
 }

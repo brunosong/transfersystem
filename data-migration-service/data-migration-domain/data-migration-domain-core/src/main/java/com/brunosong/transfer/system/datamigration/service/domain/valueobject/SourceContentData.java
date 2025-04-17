@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SourceContentData {
+   private int chunkOffset;
    private String sourceId;
    private ByteBuffer jsonData;
 }

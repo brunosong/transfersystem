@@ -21,6 +21,10 @@
     {
       "name": "message",
       "type": "string"
+    },
+    {
+      "name": "chunkOffset",
+      "type": "int"
     }
   ]
 }

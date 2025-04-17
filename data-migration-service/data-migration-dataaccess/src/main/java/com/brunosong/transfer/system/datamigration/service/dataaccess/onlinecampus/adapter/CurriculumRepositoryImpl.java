@@ -25,10 +25,11 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
     private final SubjectJpaRepository subjectJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final OnlineCampusDataAccessMapper dataAccessMapper;
+    private final CurriculumUpdateMergeHelper curriculumUpdateMergeHelper;
 
     @Override
     @Transactional
-    public DataMigrationDto save(SourceContentData sourceContentData) {
+    public DataMigrationDto saveAndUpdate(SourceContentData sourceContentData) {
 
         Document document = Document.parse(StandardCharsets.UTF_8.decode(sourceContentData.getJsonData()).toString());
         Document curriculumDoc = document.get(CurriculumKey.CURRICULUM.getKey(), Document.class);
@@ -45,15 +46,9 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
         Optional<CurriculumEntity> existing = curriculumJpaRepository.findByCurriculumId(curriculumEntity.getCurriculumId());
 
         if (existing.isPresent()) {
-            CurriculumEntity existingCurriculumEntity = existing.get();
-            existingCurriculumEntity.setDescription(curriculumEntity.getDescription());
-            existingCurriculumEntity.setTitle(curriculumEntity.getTitle());
-            existingCurriculumEntity.setGradeEntities(curriculumEntity.getGradeEntities());
-
-            CurriculumEntity saveEntity = curriculumJpaRepository.save(existingCurriculumEntity);
+            CurriculumEntity saveEntity = curriculumUpdateMergeHelper.curriculumUpdate(existing.get(), curriculumEntity);
             return dataAccessMapper.toDataMigrationDto(saveEntity);
         } else {
-            curriculumEntity.getGradeEntities().forEach(grade -> grade.setCurriculumEntity(curriculumEntity));
             CurriculumEntity saveEntity = curriculumJpaRepository.save(curriculumEntity);
             return dataAccessMapper.toDataMigrationDto(saveEntity);
         }

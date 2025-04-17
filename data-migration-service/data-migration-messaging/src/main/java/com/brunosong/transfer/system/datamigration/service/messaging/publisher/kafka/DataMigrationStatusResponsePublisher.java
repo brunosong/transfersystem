@@ -40,6 +40,7 @@ public class DataMigrationStatusResponsePublisher implements DataMigrationRespon
 
             log.info("DataMigrationResponseAvroModel sent to kafka for transferId id: {}", responseAvroModel.getTransferId());
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Error while sending DataMigrationResponseAvroModel message" +
                             " to kafka with transferId id: {} and error: {}",
                     responseAvroModel.getTransferId(), e.getMessage());
