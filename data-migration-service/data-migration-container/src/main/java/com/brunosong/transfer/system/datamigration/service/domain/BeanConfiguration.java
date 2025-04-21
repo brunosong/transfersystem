@@ -8,7 +8,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Configuration
 @Slf4j
@@ -25,19 +28,19 @@ public class BeanConfiguration {
         factory.setConcurrency(kafkaConsumerConfigData.getConcurrencyLevel());
         factory.setAutoStartup(kafkaConsumerConfigData.getAutoStartup());
         factory.getContainerProperties().setPollTimeout(kafkaConsumerConfigData.getPollTimeoutMs());
-        //factory.setCommonErrorHandler(customErrorHandler());
+        factory.setCommonErrorHandler(customErrorHandler());
         return factory;
     }
 
     // DLT 처리 방향 고민중
-//    @Bean
-//    public CommonErrorHandler customErrorHandler() {
-//        return new DefaultErrorHandler(((consumerRecord, e) -> {
-//            log.error("[Error] topic = {}, key = {},  error message = {}",
-//                    consumerRecord.topic(), consumerRecord.key(), e.getMessage());
-//
-//        }) , new FixedBackOff(3000L, 2));
-//    }
+    @Bean
+    public CommonErrorHandler customErrorHandler() {
+        return new DefaultErrorHandler(((consumerRecord, e) -> {
+            log.error("[Error] topic = {}, key = {},  error message = {}",
+                    consumerRecord.topic(), consumerRecord.key(), e.getMessage());
+
+        }) , new FixedBackOff(3000L, 3));
+    }
 
 
 

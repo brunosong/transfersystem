@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.datamigration.service.cache.onlinecampus.re
 import com.brunosong.transfer.system.datamigration.service.ports.output.cache.CurriculumCachePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor

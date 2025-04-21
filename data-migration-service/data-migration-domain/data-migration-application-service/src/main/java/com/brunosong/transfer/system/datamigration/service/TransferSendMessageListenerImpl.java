@@ -21,7 +21,6 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
 
 
     @Override
-    @Transactional
     public void migration(DataMigrationRequest dataMigrationRequest) {
         
         // 아직 구현 안됨
