@@ -47,7 +47,7 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
 
         if (existing.isPresent()) {
             CurriculumEntity saveEntity = curriculumUpdateMergeHelper.curriculumUpdate(existing.get(), curriculumEntity);
-            return dataAccessMapper.toDataMigrationDto(saveEntity);
+            return dataAccessMapper.toDataMigrationDto(curriculumJpaRepository.save(saveEntity));
         } else {
             CurriculumEntity saveEntity = curriculumJpaRepository.save(curriculumEntity);
             return dataAccessMapper.toDataMigrationDto(saveEntity);

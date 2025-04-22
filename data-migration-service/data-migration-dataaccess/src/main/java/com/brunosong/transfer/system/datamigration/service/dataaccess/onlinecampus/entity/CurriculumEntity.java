@@ -29,4 +29,9 @@ public class CurriculumEntity {
     @OneToMany(mappedBy = "curriculumEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GradeEntity> gradeEntities = new ArrayList<>();
 
+    public void addGrade(GradeEntity gradeEntity) {
+        gradeEntity.setCurriculumEntity(this);
+        this.gradeEntities.add(gradeEntity);
+    }
+
 }
