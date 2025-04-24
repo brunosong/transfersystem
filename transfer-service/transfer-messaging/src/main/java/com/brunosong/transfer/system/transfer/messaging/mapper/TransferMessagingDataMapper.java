@@ -35,6 +35,7 @@ public class TransferMessagingDataMapper {
 
     public DataMigrationResponse toDataMigrationResponse(DataMigrationResponseAvroModel dataMigrationResponseAvroModel) {
         return DataMigrationResponse.builder()
+                .chunkOffset(dataMigrationResponseAvroModel.getChunkOffset())
                 .transferStatus(TransferStatus.valueOf(dataMigrationResponseAvroModel.getTransferStatus().name()))
                 .transferId(new TransferId(UUID.fromString(dataMigrationResponseAvroModel.getTransferId())))
                 .message(dataMigrationResponseAvroModel.getMessage())

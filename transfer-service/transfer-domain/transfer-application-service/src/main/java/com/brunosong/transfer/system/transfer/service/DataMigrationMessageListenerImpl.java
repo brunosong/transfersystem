@@ -21,8 +21,12 @@ public class DataMigrationMessageListenerImpl implements DataMigrationMessageLis
     @Override
     @Transactional
     public void transferStatusUpdate(DataMigrationResponse dataMigrationResponse) {
-        System.out.println(dataMigrationResponse);
         Transfer transfer = transferDataMapper.dataMigrationResponseToTransfer(dataMigrationResponse);
-//        transferLogRepository.updateTransferStatus(transfer);
+
+        if (dataMigrationResponse.getChunkOffset() >= 1) {
+            transferLogRepository.updateTransferStatus(transfer);
+        } else {
+
+        }
     }
 }

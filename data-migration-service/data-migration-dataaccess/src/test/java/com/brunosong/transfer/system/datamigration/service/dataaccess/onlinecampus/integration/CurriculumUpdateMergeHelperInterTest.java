@@ -5,6 +5,8 @@ import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecamp
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.GradeEntity;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.SemesterEntity;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.CurriculumJpaRepository;
+import jakarta.persistence.EntityManager;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ import java.util.Optional;
 @EnableJpaRepositories(basePackages = "com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository")
 @Import(CurriculumUpdateMergeHelper.class)
 public class CurriculumUpdateMergeHelperInterTest {
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Autowired
     CurriculumUpdateMergeHelper curriculumUpdateMergeHelper;
@@ -58,7 +63,10 @@ public class CurriculumUpdateMergeHelperInterTest {
 
         grade1.setSemesterEntities(new ArrayList<>(List.of(semester1)));
         existingCurriculum.setGradeEntities(new ArrayList<>(List.of(grade1)));
-        curriculumJpaRepository.save(existingCurriculum);
+        curriculumJpaRepository.saveAndFlush(existingCurriculum);
+        entityManager.flush();
+        entityManager.clear();
+
 
         // 새 CurriculumEntity 설정
         newCurriculum = new CurriculumEntity();
@@ -99,22 +107,16 @@ public class CurriculumUpdateMergeHelperInterTest {
 
         // 실행
         CurriculumEntity updatedCurriculum = curriculumUpdateMergeHelper.curriculumUpdate(curriculumEntity, newCurriculum);
-//
-//        Optional<CurriculumEntity> byCurriculumId =
-//                curriculumJpaRepository.findByCurriculumId(curriculumId);
-//
-//        CurriculumEntity curriculumEntity = byCurriculumId.get();
-//        curriculumEntity.setDescription("테스트");
-//        curriculumEntity.setTitle("테스트2");
-//
-//        GradeEntity gradeEntity = new GradeEntity();
-//        gradeEntity.setGradeId("GRD001");
-//        gradeEntity.setDescription("DDDDDD");
-//        gradeEntity.setTitle("Title");
-//
-//        curriculumEntity.addGrade(gradeEntity);
-
 
         curriculumJpaRepository.save(updatedCurriculum);
+        entityManager.flush();
+        entityManager.clear();
+
+        CurriculumEntity updateResult = curriculumJpaRepository.findByCurriculumId(curriculumId).get();
+
+        Assertions.assertThat(updateResult.getCurriculumId()).isEqualTo(curriculumId);
+        Assertions.assertThat(updateResult.getTitle()).isEqualTo("New Title");
+        Assertions.assertThat(updateResult.getGradeEntities().get(0).getTitle()).isEqualTo("Updated Grade 1");
+
     }
 }

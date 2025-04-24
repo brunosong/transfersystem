@@ -34,7 +34,8 @@ CREATE TABLE transfer_log (
     create_admin_id VARCHAR(100) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    result_message VARCHAR(1000)
+    result_message VARCHAR(1000),
+    total_chunk_size BIGSERIAL
 );
 
 

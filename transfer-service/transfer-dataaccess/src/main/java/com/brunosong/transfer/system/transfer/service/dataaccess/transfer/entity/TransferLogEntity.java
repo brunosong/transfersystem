@@ -73,6 +73,9 @@ public class TransferLogEntity implements Persistable<UUID> {
     @Column(name = "result_message")
     private String resultMessage;
 
+    @Column(name = "total_chunk_size")
+    private int totalChunkSize;
+
     @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TransferChunkEntity> chunks = new ArrayList<>();
 

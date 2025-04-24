@@ -16,13 +16,16 @@ public class TransferLogHandler {
 
     @Transactional
     public TransferLogResult persistTransferLog(Transfer transfer) {
+
         Transfer savedTransfer = transferCreateHelper.persistTransferLog(transfer);
+
         if (savedTransfer.getTransferStatus() == TransferStatus.PROCESSED) {
             savedTransfer.markSuccess();
         }
+
         String logMessage = String.format("Transfer log created with type: %s, status: %s",
-                savedTransfer.getTransType().getDescription(),
-                savedTransfer.getTransferStatus().getDescription());
+                                        savedTransfer.getTransType().getDescription(),
+                                        savedTransfer.getTransferStatus().getDescription());
         return new TransferLogResult(savedTransfer.getId(), logMessage);
     }
 

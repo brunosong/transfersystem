@@ -14,5 +14,6 @@ import lombok.NoArgsConstructor;
 public class DataMigrationResponse {
     private TransferId transferId;
     private TransferStatus transferStatus;
+    private int chunkOffset;
     private String message;
 }

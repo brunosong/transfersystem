@@ -62,8 +62,6 @@ public class DynamicDataSourceConnector {
                 sourceConfig.getDatabase() // authSource로 database 사용 (필요 시 'admin'으로 변경)
         );
 
-        System.out.println(mongoUri);
-
         try (MongoClient mongoClient = MongoClients.create(mongoUri)) {
             MongoTemplate mongoTemplate = new MongoTemplate(mongoClient, sourceConfig.getDatabase());
 

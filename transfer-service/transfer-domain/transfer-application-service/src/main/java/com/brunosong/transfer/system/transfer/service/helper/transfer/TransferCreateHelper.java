@@ -27,7 +27,9 @@ public class TransferCreateHelper {
     }
 
     private Transfer saveTransferLog(Transfer transfer) {
+
         Transfer transferResult = transferLogRepository.save(transfer);
+
         if (transferResult == null) {
             log.error("Could not save transferLog!");
             throw new TransferDomainException("Could not save transferLog!");

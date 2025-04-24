@@ -20,6 +20,7 @@ public class TransferLogDataAccessMapper {
                 .transType(transfer.getTransType())
                 .transferStatus(transfer.getTransferStatus())
                 .dbType(transfer.getSourceContentData().getDbType())
+                .totalChunkSize(transfer.getSourceContentData().getChunkOffset())
                 .createAdminId("BrunoSong")
                 .build();
     }
@@ -27,7 +28,6 @@ public class TransferLogDataAccessMapper {
     public Transfer transferLogEntityToTransferLog(TransferLogEntity entity) {
         return Transfer.builder()
                 .id(new TransferId(entity.getId()))
-                //.learningMaterialId(new LearningMaterialId(entity.getSourceId()))
                 .dataMigrationInfoId(new DataMigrationId(entity.getDataMigrationInfoId()))
                 //.createAdminId(entity.getCreateAdminId())
                 .createdAt(entity.getCreatedAt())

@@ -30,7 +30,7 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
             // 상위 데이터 전송 grades & semester
             createUpperDataAndPublish(transfer, curriculumNode);
 
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             // 하위 데이터 전송
             extractAndPublishSubjects(transfer,curriculumNode);
 
@@ -82,7 +82,9 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
     }
 
     private void extractAndPublishSubjects(Transfer transfer, JsonNode curriculumNode) throws Exception {
+
         JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
+
         String curriculumId = curriculumNode.path("curriculumId").asText();
         for (JsonNode grade : grades) {
             String gradeId = grade.path("id").asText();
@@ -102,7 +104,7 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
                         // 데이터 카운트 추가
                         transfer.getSourceContentData().plusChunkOffset();
                         transfer.getSourceContentData().updateJsonData(subjectData);
-                        //transferDataSendMessagePublisher.publish(transfer);
+                        transferDataSendMessagePublisher.publish(transfer);
                     }
                 }
             }
