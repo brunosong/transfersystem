@@ -29,7 +29,7 @@ public class SemesterEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "grade_id", nullable = false)
+    @JoinColumn(name = "grade_id")
     private GradeEntity gradeEntity;
 
     @OneToMany(mappedBy = "semesterEntity", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -37,5 +37,10 @@ public class SemesterEntity {
 
     public void setSubjectEntities(List<SubjectEntity> subjectEntities) {
         this.subjectEntities = subjectEntities;
+    }
+
+    public void addSubjectEntity(SubjectEntity subjectEntity) {
+        subjectEntity.setSemesterEntity(this);
+        subjectEntities.add(subjectEntity);
     }
 }

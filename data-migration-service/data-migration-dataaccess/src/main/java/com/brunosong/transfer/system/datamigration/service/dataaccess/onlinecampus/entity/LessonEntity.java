@@ -30,6 +30,6 @@ public class LessonEntity {
     private int learningLevel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "unit_id", nullable = false)
+    @JoinColumn(name = "unit_id")
     private UnitEntity unitEntity;
 }

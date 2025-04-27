@@ -27,7 +27,7 @@ public class UnitEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id", nullable = false)
+    @JoinColumn(name = "subject_id")
     private SubjectEntity subjectEntity;
 
     @OneToMany(mappedBy = "unitEntity", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -1,23 +1,21 @@
 package com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.adapter;
 
 
-import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.CurriculumEntity;
-import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.GradeEntity;
-import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.SemesterEntity;
+import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.entity.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class CurriculumUpdateMergeHelperTest {
+class CurriculumUpdateMergeHelperTest extends CurriculumDummy {
 
     @InjectMocks
     private CurriculumUpdateMergeHelper curriculumUpdateMergeHelper;
@@ -27,59 +25,12 @@ class CurriculumUpdateMergeHelperTest {
 
     @BeforeEach
     void setUp() {
-        // 기존 CurriculumEntity 설정
-        existingCurriculum = new CurriculumEntity();
-        existingCurriculum.setCurriculumId("CUR001");
-        existingCurriculum.setTitle("Old Title");
-        existingCurriculum.setDescription("Old Description");
-
-        GradeEntity grade1 = new GradeEntity();
-        grade1.setGradeId("GRADE001");
-        grade1.setTitle("Old Grade 1");
-        grade1.setDescription("Old Grade 1 Desc");
-        grade1.setCurriculumEntity(existingCurriculum);
-
-        SemesterEntity semester1 = new SemesterEntity();
-        semester1.setSemesterId("SEM001");
-        semester1.setTitle("Old Semester 1");
-        semester1.setDescription("Old Semester 1 Desc");
-        semester1.setGradeEntity(grade1);
-
-        grade1.setSemesterEntities(new ArrayList<>(List.of(semester1)));
-        existingCurriculum.setGradeEntities(new ArrayList<>(List.of(grade1)));
-
-        // 새 CurriculumEntity 설정
-        newCurriculum = new CurriculumEntity();
-        newCurriculum.setCurriculumId("CUR001");
-        newCurriculum.setTitle("New Title");
-        newCurriculum.setDescription("New Description");
-
-        GradeEntity newGrade1 = new GradeEntity();
-        newGrade1.setGradeId("GRADE001");
-        newGrade1.setTitle("Updated Grade 1");
-        newGrade1.setDescription("Updated Grade 1 Desc");
-
-        GradeEntity newGrade2 = new GradeEntity();
-        newGrade2.setGradeId("GRADE002");
-        newGrade2.setTitle("New Grade 2");
-        newGrade2.setDescription("New Grade 2 Desc");
-
-        SemesterEntity newSemester1 = new SemesterEntity();
-        newSemester1.setSemesterId("SEM001");
-        newSemester1.setTitle("Updated Semester 1");
-        newSemester1.setDescription("Updated Semester 1 Desc");
-
-        SemesterEntity newSemester2 = new SemesterEntity();
-        newSemester2.setSemesterId("SEM002");
-        newSemester2.setTitle("New Semester 2");
-        newSemester2.setDescription("New Semester 2 Desc");
-
-        newGrade1.setSemesterEntities(new ArrayList<>(Arrays.asList(newSemester1, newSemester2)));
-        newGrade2.setSemesterEntities(new ArrayList<>());
-        newCurriculum.setGradeEntities(new ArrayList<>(Arrays.asList(newGrade1, newGrade2)));
+        existingCurriculum = createCurriculum();
+        newCurriculum = createNewCurriculum();
     }
 
     @Test
+    @DisplayName("Curriculum, Grade, Semester 업데이트 성공")
     void testCurriculumUpdate_UpdateExistingGradeAndSemester() {
         // 실행
         CurriculumEntity updatedCurriculum = curriculumUpdateMergeHelper.curriculumUpdate(existingCurriculum, newCurriculum);
@@ -145,57 +96,41 @@ class CurriculumUpdateMergeHelperTest {
     }
 
     @Test
-    void testMergeSemester_UpdateAndAddSemester() {
-        // 기존 GradeEntity와 새 GradeEntity 준비
-        GradeEntity existingGrade = new GradeEntity();
-        existingGrade.setGradeId("GRADE001");
-        existingGrade.setTitle("Old Grade");
-        existingGrade.setDescription("Old Desc");
+    void mergeSubject() {
 
-        SemesterEntity semester1 = new SemesterEntity();
-        semester1.setSemesterId("SEM001");
-        semester1.setTitle("Old Semester");
-        semester1.setDescription("Old Desc");
-        semester1.setGradeEntity(existingGrade);
-        existingGrade.setSemesterEntities(new ArrayList<>(List.of(semester1)));
-
-        GradeEntity newGrade = new GradeEntity();
-        newGrade.setGradeId("GRADE001");
-        newGrade.setTitle("New Grade");
-        newGrade.setDescription("New Desc");
-
-        SemesterEntity newSemester1 = new SemesterEntity();
-        newSemester1.setSemesterId("SEM001");
-        newSemester1.setTitle("Updated Semester");
-        newSemester1.setDescription("Updated Desc");
-
-        SemesterEntity newSemester2 = new SemesterEntity();
-        newSemester2.setSemesterId("SEM002");
-        newSemester2.setTitle("New Semester");
-        newSemester2.setDescription("New Desc");
-
-        newGrade.setSemesterEntities(new ArrayList<>(Arrays.asList(newSemester1, newSemester2)));
+        SemesterEntity existingSemester = createSemester();
+        SemesterEntity newSemester = createNewSemester();
 
         // 실행
-        GradeEntity updatedGrade = curriculumUpdateMergeHelper.mergeSemester(existingGrade, newGrade);
+        SemesterEntity updateResult = curriculumUpdateMergeHelper.mergeSubject(existingSemester, newSemester);
 
         // 검증
-        assertEquals("GRADE001", updatedGrade.getGradeId());
-        assertEquals("Old Grade", updatedGrade.getTitle()); // mergeSemester는 title 업데이트 안 함
-        assertEquals(2, updatedGrade.getSemesterEntities().size());
+        SubjectEntity subjectUpdate = updateResult.getSubjectEntities().get(0);
+        assertEquals("SUB001", subjectUpdate.getSubjectId());
+        assertEquals("New Subject", subjectUpdate.getTitle());
+        assertEquals("New Description", subjectUpdate.getDescription());
 
-        SemesterEntity updatedSemester1 = updatedGrade.getSemesterEntities().stream()
-                .filter(s -> s.getSemesterId().equals("SEM001"))
-                .findFirst()
-                .orElseThrow();
-        assertEquals("Updated Semester", updatedSemester1.getTitle());
-        assertEquals("Updated Desc", updatedSemester1.getDescription());
-        assertEquals(existingGrade, updatedSemester1.getGradeEntity());
+        UnitEntity unitEntity = subjectUpdate.getUnitEntities().get(0);
+        assertEquals("UNIT001", unitEntity.getUnitId());
+        assertEquals("New Unit", unitEntity.getTitle());
+        assertEquals("New Unit Desc", unitEntity.getDescription());
 
+        List<LessonEntity> lessonEntities = unitEntity.getLessonEntities();
+        assertEquals(2, lessonEntities.size());
 
-        assertEquals("New Semester", newSemester2.getTitle());
-        assertEquals("New Desc", newSemester2.getDescription());
-        assertEquals(existingGrade, newSemester2.getGradeEntity());
+        LessonEntity newLesson2 = new LessonEntity();
+        newLesson2.setLessonId("LESS002");
+        newLesson2.setTitle("New Lesson2");
+
+        LessonEntity lessonEntity1 = lessonEntities.get(0);
+        assertEquals("LESSON001", lessonEntity1.getLessonId());
+        assertEquals("New Lesson1", lessonEntity1.getTitle());
+        assertEquals(unitEntity, lessonEntity1.getUnitEntity());
+
+        LessonEntity lessonEntity2 = lessonEntities.get(1);
+        assertEquals("LESSON002", lessonEntity2.getLessonId());
+        assertEquals("New Lesson2", lessonEntity2.getTitle());
+        assertEquals(unitEntity, lessonEntity2.getUnitEntity());
     }
 
     @Test

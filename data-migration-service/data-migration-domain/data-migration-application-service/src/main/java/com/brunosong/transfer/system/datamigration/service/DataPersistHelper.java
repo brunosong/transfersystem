@@ -17,7 +17,7 @@ public class DataPersistHelper {
     private final CurriculumCachePort curriculumCachePort;
 
     public long persist(SourceContentData sourceContentData) {
-        DataMigrationDto dataMigrationDto = curriculumRepository.saveAndUpdate(sourceContentData);
+        DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(sourceContentData);
 
         curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
         log.info("Successfully saved content with id: {}", dataMigrationDto.id());

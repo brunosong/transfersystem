@@ -27,7 +27,7 @@ public class GradeEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "curriculum_id", nullable = false)
+    @JoinColumn(name = "curriculum_id")
     private CurriculumEntity curriculumEntity;
 
     @OneToMany(mappedBy = "gradeEntity", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -5,5 +5,5 @@ import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigra
 
 
 public interface CurriculumRepository {
-    DataMigrationDto saveAndUpdate(SourceContentData sourceContentData);
+    DataMigrationDto saveOrUpdate(SourceContentData sourceContentData);
 }

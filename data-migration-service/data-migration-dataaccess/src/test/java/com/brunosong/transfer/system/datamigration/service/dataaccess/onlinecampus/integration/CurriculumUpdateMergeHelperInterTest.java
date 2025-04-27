@@ -97,6 +97,28 @@ public class CurriculumUpdateMergeHelperInterTest {
         newGrade1.setSemesterEntities(new ArrayList<>(Arrays.asList(newSemester1, newSemester2)));
         newGrade2.setSemesterEntities(new ArrayList<>());
         newCurriculum.setGradeEntities(new ArrayList<>(Arrays.asList(newGrade1, newGrade2)));
+
+    }
+
+    @Test
+    void givenExistingCurriculum_whenMergeSemester_thenUpdateSuccess() {
+
+        Optional<CurriculumEntity> byCurriculumId = curriculumJpaRepository.findByCurriculumId(curriculumId);
+        CurriculumEntity curriculumEntity = byCurriculumId.get();
+
+        // 실행
+        CurriculumEntity updatedCurriculum = curriculumUpdateMergeHelper.curriculumUpdate(curriculumEntity, newCurriculum);
+
+        curriculumJpaRepository.save(updatedCurriculum);
+        entityManager.flush();
+        entityManager.clear();
+
+        CurriculumEntity updateResult = curriculumJpaRepository.findByCurriculumId(curriculumId).get();
+
+        Assertions.assertThat(updateResult.getCurriculumId()).isEqualTo(curriculumId);
+        Assertions.assertThat(updateResult.getTitle()).isEqualTo("New Title");
+        Assertions.assertThat(updateResult.getGradeEntities().get(0).getTitle()).isEqualTo("Updated Grade 1");
+
     }
 
     @Test

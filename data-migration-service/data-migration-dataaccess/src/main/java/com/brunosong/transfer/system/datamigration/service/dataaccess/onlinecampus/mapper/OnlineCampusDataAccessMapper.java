@@ -29,7 +29,7 @@ public class OnlineCampusDataAccessMapper {
                 .build();
     }
 
-    public CurriculumEntity convertToCurriculum(Document document) {
+    public CurriculumEntity documentToCurriculum(Document document) {
 
         Document curriculumDoc = document.get(CurriculumKey.CURRICULUM.getKey(), Document.class);
 
@@ -122,7 +122,7 @@ public class OnlineCampusDataAccessMapper {
         return unitEntity;
     }
 
-    private LessonEntity convertToLesson(Document lessonDoc, UnitEntity unitEntity) {
+    public LessonEntity convertToLesson(Document lessonDoc, UnitEntity unitEntity) {
         LessonEntity lessonEntity = new LessonEntity();
         lessonEntity.setLessonId(lessonDoc.getString("id"));
         lessonEntity.setTitle(lessonDoc.getString("title"));
@@ -132,5 +132,37 @@ public class OnlineCampusDataAccessMapper {
         lessonEntity.setUnitEntity(unitEntity);
 
         return lessonEntity;
+    }
+
+    public void updateSubjectEntityMapping(SubjectEntity savedSubject, SubjectEntity newSubject) {
+        savedSubject.setTitle(newSubject.getTitle());
+        savedSubject.setDescription(newSubject.getDescription());
+        savedSubject.setSemesterEntity(newSubject.getSemesterEntity());
+        // UnitEntities 업데이트
+        savedSubject.getUnitEntities().clear();
+//        for (UnitEntity unit : savedSubject.getUnitEntities()) {
+//            updateUnitEntityMapping(unit,);
+//
+//            savedSubject.getUnitEntities().add(unit);
+//        }
+    }
+
+    public void updateUnitEntityMapping(UnitEntity savedUnit, UnitEntity newUnit) {
+        savedUnit.setDescription(newUnit.getDescription());
+        savedUnit.setTitle(newUnit.getTitle());
+        savedUnit.setSubjectEntity(newUnit.getSubjectEntity());
+
+//
+//        for (LessonEntity lesson : unit.getLessonEntities()) {
+//            lesson.setUnitEntity(unit);
+//        }
+    }
+
+    public void updateLessonEntityMapping(LessonEntity lesson, LessonEntity newLesson) {
+        lesson.setTitle(newLesson.getTitle());
+        lesson.setDescription(newLesson.getDescription());
+        lesson.setLessonNumber(newLesson.getLessonNumber());
+        lesson.setLearningLevel(newLesson.getLearningLevel());
+        lesson.setUnitEntity(newLesson.getUnitEntity());
     }
 }

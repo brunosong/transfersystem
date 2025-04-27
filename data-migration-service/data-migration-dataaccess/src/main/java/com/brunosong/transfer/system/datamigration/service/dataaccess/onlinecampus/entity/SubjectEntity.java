@@ -27,7 +27,7 @@ public class SubjectEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "semester_id", nullable = false)
+    @JoinColumn(name = "semester_id")
     private SemesterEntity semesterEntity;
 
     @OneToMany(mappedBy = "subjectEntity", cascade = CascadeType.ALL, orphanRemoval = true)
