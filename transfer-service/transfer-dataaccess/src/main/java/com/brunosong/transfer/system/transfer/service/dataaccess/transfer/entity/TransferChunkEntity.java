@@ -19,11 +19,11 @@ public class TransferChunkEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transfer_log_id", nullable = false)
+    @JoinColumn(name = "transfer_log_id")
     private TransferLogEntity log;
 
     @Column(name = "chunk_offset", nullable = false)
-    private Long chunkOffset;
+    private int chunkOffset;
 
     @Column(nullable = false)
     private Integer size;
@@ -35,4 +35,7 @@ public class TransferChunkEntity {
         this.log = log;
     }
 
+    public void setSize(Integer size) {
+        this.size = size;
+    }
 }

@@ -38,11 +38,14 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
 
         transferDomainService.validateAndInitiateTransfer(transfer, sourceContentData);
 
-        // 2. 데이터 전송
-        transfer = transferExecutionHandler.sendData(transfer);
-
-        // 3. 데이터 전송 로그 저장
+        // 2. 데이터 전송 로그 저장
         TransferLogResult transferLogResult = transferLogHandler.persistTransferLog(transfer);
+
+        // 3. 데이터 전송
+        transferExecutionHandler.sendData(transfer);
+        
+        // 4. 데이터 전송 결과 업데이트
+        transferLogHandler.updateTransferSendResult(transfer);
 
         return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
     }

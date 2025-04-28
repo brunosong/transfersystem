@@ -52,19 +52,16 @@ public class CurriculumPersistHandler {
             subject.getSubjectId().equals(newSubject.getSubjectId())
         ).findFirst();
 
-        SubjectEntity savedSubject;
-
         if (existingSubject.isPresent()) {
-            savedSubject = existingSubject.get();
-            curriculumUpdateMergeHelper.mergeSubject(savedSubject, newSubject);
+            curriculumUpdateMergeHelper.mergeSubject(existingSubject.get(), newSubject);
         } else {
             semesterEntity.addSubjectEntity(newSubject);
-            savedSubject = newSubject;
         }
 
         // JPA 저장
-        semesterJpaRepository.save(semesterEntity);
-        return dataAccessMapper.toDataMigrationDto(savedSubject);
+        semesterJpaRepository.saveAndFlush(semesterEntity);
+        return dataAccessMapper.toDataMigrationDto(semesterEntity.getSubjectEntities().stream()
+                .filter(subject -> subject.getSubjectId().equals(newSubject.getSubjectId())).findFirst().get());
     }
 
 }

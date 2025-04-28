@@ -17,7 +17,6 @@ public class TransferExecutionHandler {
 
     private final TransferApiSendHelper transferApiSendHelper;
     private final TransferMessagingSendHelper messagingSendHelper;
-    private final TransferDataMapper transferDataMapper;
 
     @Transactional
     public Transfer sendData(Transfer transfer) {

@@ -30,8 +30,7 @@ public class DataMigrationResponseMessageListener implements KafkaConsumer<DataM
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
         message.forEach( model -> {
-            System.out.println(model.getChunkOffset());
-            //dataMigrationMessageListener.transferStatusUpdate(transferMessagingDataMapper.toDataMigrationResponse(model));
+            dataMigrationMessageListener.transferStatusUpdate(transferMessagingDataMapper.toDataMigrationResponse(model));
         });
 
     }

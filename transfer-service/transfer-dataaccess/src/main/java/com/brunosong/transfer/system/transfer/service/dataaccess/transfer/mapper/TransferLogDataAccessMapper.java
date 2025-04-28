@@ -2,7 +2,9 @@ package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mappe
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferChunkEntity;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
+import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import org.springframework.stereotype.Component;
 
@@ -34,6 +36,13 @@ public class TransferLogDataAccessMapper {
                 .updatedAt(entity.getUpdatedAt())
                 .transType(entity.getTransType())
                 .transferStatus(entity.getTransferStatus())
+                .build();
+    }
+
+    public TransferChunkEntity dataMigrationResponseToChunkEntity(DataMigrationResponse dataMigrationResponse) {
+        return TransferChunkEntity.builder()
+                .status(dataMigrationResponse.getTransferStatus().getDescription())
+                .chunkOffset(dataMigrationResponse.getChunkOffset())
                 .build();
     }
 }

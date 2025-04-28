@@ -23,10 +23,10 @@ public class DataMigrationMessageListenerImpl implements DataMigrationMessageLis
     public void transferStatusUpdate(DataMigrationResponse dataMigrationResponse) {
         Transfer transfer = transferDataMapper.dataMigrationResponseToTransfer(dataMigrationResponse);
 
-        if (dataMigrationResponse.getChunkOffset() >= 1) {
+        if (dataMigrationResponse.getChunkOffset() == 0) {
             transferLogRepository.updateTransferStatus(transfer);
         } else {
-
+            transferLogRepository.saveChunk(dataMigrationResponse);
         }
     }
 }

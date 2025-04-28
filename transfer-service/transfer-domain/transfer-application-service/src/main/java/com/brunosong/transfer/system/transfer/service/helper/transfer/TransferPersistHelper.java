@@ -10,13 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
-public class TransferCreateHelper {
+public class TransferPersistHelper {
 
     private final TransferLogRepository transferLogRepository;
     private final TransferDataMapper transferDataMapper;
 
-    public TransferCreateHelper(TransferLogRepository transferLogRepository,
-                                TransferDataMapper transferDataMapper) {
+    public TransferPersistHelper(TransferLogRepository transferLogRepository,
+                                 TransferDataMapper transferDataMapper) {
         this.transferLogRepository = transferLogRepository;
         this.transferDataMapper = transferDataMapper;
     }
@@ -24,6 +24,12 @@ public class TransferCreateHelper {
     @Transactional
     public Transfer persistTransferLog(Transfer transfer) {
         return saveTransferLog(transfer);
+    }
+
+    @Transactional
+    public void updateTransferSendResult(Transfer transfer) {
+        transferLogRepository.updateTransferSendResult(transfer);
+        log.info("UpdateTransferSendResult transferId is {}", transfer.getId());
     }
 
     private Transfer saveTransferLog(Transfer transfer) {

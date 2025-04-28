@@ -84,6 +84,11 @@ public class TransferLogEntity implements Persistable<UUID> {
         this.resultMessage = resultMessage;
     }
 
+    public void updateSendResult(TransferStatus status, int totalChunkSize) {
+        this.transferStatus = status;
+        this.totalChunkSize = totalChunkSize;
+    }
+
     public void addChunk(TransferChunkEntity chunk) {
         chunks.add(chunk);
         chunk.setLog(this);

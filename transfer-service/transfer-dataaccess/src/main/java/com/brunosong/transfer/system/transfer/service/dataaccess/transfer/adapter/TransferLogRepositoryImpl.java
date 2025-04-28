@@ -1,9 +1,12 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.adapter;
 
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferChunkEntity;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity.TransferLogEntity;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.mapper.TransferLogDataAccessMapper;
+import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.repository.TransferChunksJpaRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.transfer.repository.TransferLogJpaRepository;
+import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.TransferLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class TransferLogRepositoryImpl implements TransferLogRepository {
 
     private final TransferLogJpaRepository transferLogJpaRepository;
+    private final TransferChunksJpaRepository transferChunksJpaRepository;
     private final TransferLogDataAccessMapper transferLogDataAccessMapper;
 
     @Override
@@ -33,6 +37,21 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
         TransferLogEntity save = transferLogJpaRepository.save(transferLogEntity);
 
         return transferLogDataAccessMapper.transferLogEntityToTransferLog(save);
+    }
+
+    @Override
+    public void saveChunk(DataMigrationResponse dataMigrationResponse) {
+
+        TransferLogEntity transferLogEntity =
+                transferLogJpaRepository.findById(dataMigrationResponse.getTransferId().getValue()).orElseThrow();
+
+        TransferChunkEntity transferChunkEntity =
+                transferLogDataAccessMapper.dataMigrationResponseToChunkEntity(dataMigrationResponse);
+
+        transferChunkEntity.setSize(transferLogEntity.getTotalChunkSize());
+        transferChunkEntity.setLog(transferLogEntity);
+
+        transferChunksJpaRepository.save(transferChunkEntity);
     }
 
     @Override
@@ -50,6 +69,14 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
     @Override
     public void updateTransferStatus(Transfer transfer) {
         Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transfer.getId().getValue());
-        result.ifPresent(entity -> entity.updateResult(transfer.getTransferStatus(), transfer.getResultMessage()));
+        result.ifPresent(entity -> entity.updateResult( transfer.getTransferStatus(),
+                                                        transfer.getResultMessage() ));
+    }
+
+    @Override
+    public void updateTransferSendResult(Transfer transfer) {
+        Optional<TransferLogEntity> result = transferLogJpaRepository.findById(transfer.getId().getValue());
+        result.ifPresent(entity -> entity.updateSendResult( transfer.getTransferStatus(),
+                                                            transfer.getSourceContentData().getChunkOffset() ));
     }
 }

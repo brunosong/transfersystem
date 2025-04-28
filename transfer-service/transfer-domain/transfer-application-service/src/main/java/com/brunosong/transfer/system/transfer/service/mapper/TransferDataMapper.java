@@ -37,6 +37,7 @@ public class TransferDataMapper {
         return Transfer.builder()
                 .id(dataMigrationResponse.getTransferId())
                 .transferStatus(dataMigrationResponse.getTransferStatus())
+
                 .resultMessage(dataMigrationResponse.getMessage())
                 .build();
     }
