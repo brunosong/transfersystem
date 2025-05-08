@@ -7,6 +7,7 @@ import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResu
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceConfigId;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
 import org.springframework.stereotype.Component;
 
@@ -37,8 +38,8 @@ public class TransferDataMapper {
         return Transfer.builder()
                 .id(dataMigrationResponse.getTransferId())
                 .transferStatus(dataMigrationResponse.getTransferStatus())
-
                 .resultMessage(dataMigrationResponse.getMessage())
+                .sourceContentData(SourceContentData.builder().chunkOffset(dataMigrationResponse.getChunkOffset()).build())
                 .build();
     }
 }

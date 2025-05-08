@@ -1,10 +1,14 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.transfer.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "transfer_chunks")
@@ -12,6 +16,7 @@ import jakarta.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class TransferChunkEntity {
 
     @Id
@@ -30,6 +35,10 @@ public class TransferChunkEntity {
 
     @Column(nullable = false)
     private String status;
+
+    @CreatedDate
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
 
     public void setLog(TransferLogEntity log) {
         this.log = log;

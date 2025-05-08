@@ -22,6 +22,7 @@ public class Transfer extends AggregateRoot<TransferId> {
     private String createUserId;
     private LocalDateTime updatedAt;
     private String resultMessage;
+    private int totalChunkSize;
 
     private Transfer(Builder builder) {
         setId(builder.id);
@@ -35,6 +36,7 @@ public class Transfer extends AggregateRoot<TransferId> {
         this.sourceConfigId = builder.sourceConfigId;
         this.sourceContentData = builder.sourceContentData;
         this.resultMessage = builder.resultMessage;
+        this.totalChunkSize = builder.totalChunkSize;
     }
 
     public void updateTransferStatus(TransferStatus transferStatus) {
@@ -123,6 +125,10 @@ public class Transfer extends AggregateRoot<TransferId> {
         return resultMessage;
     }
 
+    public int getTotalChunkSize() {
+        return totalChunkSize;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -138,8 +144,8 @@ public class Transfer extends AggregateRoot<TransferId> {
         private LocalDateTime createdAt;
         private String createUserId;
         private LocalDateTime updatedAt;
-
         private String resultMessage;
+        private int totalChunkSize;
 
         private Builder() {
         }
@@ -196,6 +202,11 @@ public class Transfer extends AggregateRoot<TransferId> {
 
         public Builder resultMessage(String resultMessage) {
             this.resultMessage = resultMessage;
+            return this;
+        }
+
+        public Builder totalChunkSize(int totalChunkSize) {
+            this.totalChunkSize = totalChunkSize;
             return this;
         }
 

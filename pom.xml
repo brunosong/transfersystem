@@ -126,6 +126,11 @@
             </dependency>
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>transfer-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>common-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -137,26 +142,6 @@
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>common-application</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>metaupload-domain-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>metaupload-cache</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>metaupload-application-service</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>metaupload-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

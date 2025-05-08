@@ -21,6 +21,7 @@ public class DataPersistHelper {
 
         curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
         log.info("Successfully saved content with id: {}", dataMigrationDto.id());
+
         return dataMigrationDto.id();
     }
 

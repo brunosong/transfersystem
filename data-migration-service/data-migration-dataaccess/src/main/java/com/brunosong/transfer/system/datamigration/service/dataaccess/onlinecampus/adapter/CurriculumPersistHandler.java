@@ -59,8 +59,8 @@ public class CurriculumPersistHandler {
         }
 
         // JPA 저장
-        semesterJpaRepository.saveAndFlush(semesterEntity);
-        return dataAccessMapper.toDataMigrationDto(semesterEntity.getSubjectEntities().stream()
+        SemesterEntity result = semesterJpaRepository.saveAndFlush(semesterEntity);
+        return dataAccessMapper.toDataMigrationDto(result.getSubjectEntities().stream()
                 .filter(subject -> subject.getSubjectId().equals(newSubject.getSubjectId())).findFirst().get());
     }
 

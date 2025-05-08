@@ -31,18 +31,20 @@ public class TransferLogDataAccessMapper {
         return Transfer.builder()
                 .id(new TransferId(entity.getId()))
                 .dataMigrationInfoId(new DataMigrationId(entity.getDataMigrationInfoId()))
-                //.createAdminId(entity.getCreateAdminId())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .transType(entity.getTransType())
                 .transferStatus(entity.getTransferStatus())
+                .totalChunkSize(entity.getTotalChunkSize())
                 .build();
     }
 
-    public TransferChunkEntity dataMigrationResponseToChunkEntity(DataMigrationResponse dataMigrationResponse) {
+    public TransferChunkEntity dataMigrationResponseToChunkEntity(DataMigrationResponse dataMigrationResponse, TransferLogEntity transferLogEntity) {
         return TransferChunkEntity.builder()
                 .status(dataMigrationResponse.getTransferStatus().getDescription())
                 .chunkOffset(dataMigrationResponse.getChunkOffset())
+                .size(dataMigrationResponse.getTotalChunkSize())
+                .log(transferLogEntity)
                 .build();
     }
 }

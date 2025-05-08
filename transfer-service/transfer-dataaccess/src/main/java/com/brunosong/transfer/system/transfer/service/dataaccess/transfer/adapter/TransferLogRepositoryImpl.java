@@ -42,14 +42,12 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
     @Override
     public void saveChunk(DataMigrationResponse dataMigrationResponse) {
 
-        TransferLogEntity transferLogEntity =
-                transferLogJpaRepository.findById(dataMigrationResponse.getTransferId().getValue()).orElseThrow();
+        TransferLogEntity transferLogEntity = TransferLogEntity.builder()
+                .id(dataMigrationResponse.getTransferId().getValue())
+                .build();
 
         TransferChunkEntity transferChunkEntity =
-                transferLogDataAccessMapper.dataMigrationResponseToChunkEntity(dataMigrationResponse);
-
-        transferChunkEntity.setSize(transferLogEntity.getTotalChunkSize());
-        transferChunkEntity.setLog(transferLogEntity);
+                transferLogDataAccessMapper.dataMigrationResponseToChunkEntity(dataMigrationResponse, transferLogEntity);
 
         transferChunksJpaRepository.save(transferChunkEntity);
     }

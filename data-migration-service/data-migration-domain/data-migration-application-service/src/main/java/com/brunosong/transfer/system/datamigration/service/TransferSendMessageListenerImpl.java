@@ -32,6 +32,12 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
         } catch (Exception e) {
             e.printStackTrace();
             messageResponseHelper.failsResponseMessage(dataMigrationRequest, e);
+        } finally {
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

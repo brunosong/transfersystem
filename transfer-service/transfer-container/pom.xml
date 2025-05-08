@@ -67,6 +67,11 @@
             <artifactId>spring-cloud-starter-bus-kafka</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>transfer-cache</artifactId>
+        </dependency>
+
 <!--        <dependency>-->
 <!--            <groupId>com.h2database</groupId>-->
 <!--            <artifactId>h2</artifactId>-->

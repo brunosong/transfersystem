@@ -47,6 +47,7 @@ CREATE TABLE transfer_chunks (
     chunk_offset BIGINT NOT NULL,
     size INTEGER NOT NULL,
     status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_transfer_log
         FOREIGN KEY (transfer_log_id)
         REFERENCES transfer_log(id)
