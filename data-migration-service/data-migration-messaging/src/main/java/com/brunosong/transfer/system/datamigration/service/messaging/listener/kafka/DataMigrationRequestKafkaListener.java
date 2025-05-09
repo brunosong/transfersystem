@@ -36,9 +36,6 @@ public class DataMigrationRequestKafkaListener implements KafkaConsumer<DataMigr
                         @Header(KafkaHeaders.RECEIVED_PARTITION) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
-        System.out.println("==================================");
-
-
         message.forEach(dataMigrationRequestAvroModel -> {
 
             DataMigrationRequest dataMigrationRequest =

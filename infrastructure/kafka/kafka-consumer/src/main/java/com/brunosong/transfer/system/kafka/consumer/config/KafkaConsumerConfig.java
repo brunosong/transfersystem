@@ -2,8 +2,6 @@ package com.brunosong.transfer.system.kafka.consumer.config;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
 import com.brunosong.transfer.system.kafka.config.data.KafkaConsumerConfigData;
-import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
-import com.brunosong.transfer.system.kafka.datamigration.avro.model.TransferStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -13,12 +11,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.DefaultErrorHandler;
-import org.springframework.kafka.listener.KafkaListenerErrorHandler;
-import org.springframework.util.backoff.FixedBackOff;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -51,8 +44,12 @@ public class KafkaConsumerConfig<K extends Serializable, V extends SpecificRecor
                 kafkaConsumerConfigData.getMaxPartitionFetchBytesDefault() * kafkaConsumerConfigData.getMaxPartitionFetchBytesBoostFactor());
         props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, kafkaConsumerConfigData.getMaxPollRecords());
 
+        props.put(ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, kafkaConsumerConfigData.getFetchMaxWaitMs());
+        props.put(ConsumerConfig.FETCH_MIN_BYTES_CONFIG, kafkaConsumerConfigData.getFetchMinBytes());
+
         props.put(kafkaConfigData.getSchemaRegistryUrlKey(), kafkaConfigData.getSchemaRegistryUrl());
         props.put(kafkaConsumerConfigData.getSpecificAvroReaderKey(), kafkaConsumerConfigData.getSpecificAvroReader());
+
 
         return props;
     }

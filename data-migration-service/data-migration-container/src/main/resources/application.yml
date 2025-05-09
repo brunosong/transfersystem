@@ -38,10 +38,12 @@ management:
 server:
   port: 8001
 
+
 logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
+    #org.apache.kafka.clients.consumer: DEBUG
 #    org.springframework.transaction: debug
 #    org.springframework.kafka: debug
 

@@ -23,4 +23,6 @@ public class KafkaConsumerConfigData {
     private Integer maxPollRecords;
     private Integer maxPartitionFetchBytesDefault;
     private Integer maxPartitionFetchBytesBoostFactor;
+    private Integer fetchMaxWaitMs;
+    private Integer fetchMinBytes;
 }
