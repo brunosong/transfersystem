@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service;
+package com.brunosong.transfer.system.datamigration.service.helper;
 
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationDto;
@@ -8,15 +8,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
-public class DataPersistHelper {
+public class OnlineCampusDataPersistHelper {
 
     private final CurriculumRepository curriculumRepository;
     private final CurriculumCachePort curriculumCachePort;
 
-    public long persist(SourceContentData sourceContentData) {
+    public long onlineCampusPersist(SourceContentData sourceContentData) {
         DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(sourceContentData);
 
         curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());

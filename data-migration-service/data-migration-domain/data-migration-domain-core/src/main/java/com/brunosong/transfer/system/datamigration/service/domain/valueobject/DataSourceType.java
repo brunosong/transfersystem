@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
+package com.brunosong.transfer.system.datamigration.service.domain.valueobject;
 
 public enum DataSourceType {
     BRUNOSONG_ONLINE_CAMPUS_PROD,

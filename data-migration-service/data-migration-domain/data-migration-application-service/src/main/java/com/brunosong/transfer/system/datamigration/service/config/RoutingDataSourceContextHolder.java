@@ -1,5 +1,6 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
+package com.brunosong.transfer.system.datamigration.service.config;
 
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 

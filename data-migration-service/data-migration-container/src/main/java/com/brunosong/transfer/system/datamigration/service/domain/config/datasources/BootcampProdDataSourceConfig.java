@@ -1,5 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
 
+import com.brunosong.transfer.system.datamigration.service.config.RoutingDataSourceContextHolder;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -44,13 +46,13 @@ public class BootcampProdDataSourceConfig {
         AbstractRoutingDataSource bootcampRoutingDataSource = new AbstractRoutingDataSource() {
             @Override
             protected Object determineCurrentLookupKey() {
-                return DataSourceContextHolder.getDataSourceKey();
+                return RoutingDataSourceContextHolder.getDataSourceType();
             }
         };
 
         Map<Object, Object> targetDataSources = new HashMap<>();
-        targetDataSources.put("bootcampProd", bootcampProdDataSource);
-        targetDataSources.put("bootcampDev", bootcampDevDataSource);
+        targetDataSources.put(DataSourceType.BRUNOSONG_BOOTCAMP_PROD, bootcampProdDataSource);
+        targetDataSources.put(DataSourceType.BRUNOSONG_BOOTCAMP_DEV, bootcampDevDataSource);
 
         bootcampRoutingDataSource.setTargetDataSources(targetDataSources);
         bootcampRoutingDataSource.setDefaultTargetDataSource(bootcampDevDataSource);

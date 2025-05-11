@@ -10,6 +10,8 @@ DataMigrationDataAccessMapper {
 
     public DataMigration entityToDomain(DataMigrationInfoEntity entity) {
         return DataMigration.builder()
+                .targetSystem(entity.getTargetSystem())
+                .targetSystemEnvironment(entity.getTargetSystemEnvironment())
                 .build();
     }
 }

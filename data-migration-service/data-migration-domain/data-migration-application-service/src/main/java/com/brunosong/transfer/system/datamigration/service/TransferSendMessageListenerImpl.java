@@ -2,13 +2,13 @@ package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
+import com.brunosong.transfer.system.datamigration.service.helper.DataMigrationInfoHandler;
+import com.brunosong.transfer.system.datamigration.service.helper.DataPersistHandler;
 import com.brunosong.transfer.system.datamigration.service.helper.MessageResponseHelper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
-import com.brunosong.transfer.system.datamigration.service.ports.output.cache.CurriculumCachePort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -16,22 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransferSendMessageListenerImpl implements DataMigrationMessageListener {
 
     private final DataMigrationInfoHandler dataMigrationInfoHandler;
-    private final DataPersistHelper dataPersistHelper;
+    private final DataPersistHandler dataPersistHandler;
     private final MessageResponseHelper messageResponseHelper;
-
 
     @Override
     public void migration(DataMigrationRequest dataMigrationRequest) {
         
-        // 아직 구현 안됨
+        // DataSource 선택
         DataMigration dataMigrationInfo = dataMigrationInfoHandler.findDataMigrationInfo(dataMigrationRequest.getDataMigrationId());
 
         try {
-            dataPersistHelper.persist(dataMigrationRequest.getSourceContentData());
+            dataPersistHandler.persist(dataMigrationInfo, dataMigrationRequest.getSourceContentData());
             messageResponseHelper.successResponseMessage(dataMigrationRequest);
         } catch (Exception e) {
-            e.printStackTrace();
             messageResponseHelper.failsResponseMessage(dataMigrationRequest, e);
+            e.printStackTrace();
         } finally {
             try {
                 Thread.sleep(1000L);
@@ -40,5 +39,6 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
             }
         }
     }
+
 
 }
