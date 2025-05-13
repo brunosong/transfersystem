@@ -79,7 +79,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.4.3</version> <!-- 최신 버전 확인 -->
+                <version>3.3.2</version>
                 <configuration>
                     <from>
                         <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->

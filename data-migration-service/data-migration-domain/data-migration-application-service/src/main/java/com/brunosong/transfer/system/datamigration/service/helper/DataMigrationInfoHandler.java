@@ -5,6 +5,7 @@ import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMig
 import com.brunosong.transfer.system.datamigration.service.domain.exception.DataMigrationNotFoundException;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
+import com.brunosong.transfer.system.datamigration.service.ports.output.cache.DataMigrationCachePort;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.DataMigrationInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,16 @@ import java.util.UUID;
 public class DataMigrationInfoHandler {
 
     private final DataMigrationInfoRepository dataMigrationInfoRepository;
+    private final DataMigrationCachePort dataMigrationCachePort;
+
     public DataMigration findDataMigrationInfo(Long migrationInfoId) {
 
-        Optional<DataMigration> result = dataMigrationInfoRepository.findById(migrationInfoId);
+        Optional<DataMigration> result = dataMigrationCachePort.findById(migrationInfoId);
+
+        if (!result.isPresent()) {
+            result = dataMigrationInfoRepository.findById(migrationInfoId);
+            dataMigrationCachePort.save(result.get());
+        }
 
         if (result.isEmpty()) {
             log.error("Not found DataMigration id : {}", migrationInfoId);

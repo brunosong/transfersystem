@@ -19,7 +19,6 @@
         <module>data-migration-application</module>
         <module>data-migration-messaging</module>
         <module>data-migration-cache</module>
-
     </modules>
 
 </project>
