@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: transfer-service
+  config:
+    import: "optional:configserver:http://localhost:8888/"
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
+    compatibility-verifier:
+      enabled: false
+    config:
+      profile: default
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init-schema.sql
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGO_PORT}/exampledb?authSource=admin
+  datasource:
+    url: jdbc:postgresql://${POSTGRE_HOST}:${POSTGRE_PORT}/transfer
+    username: ${POSTGRE_USERNAME}
+    password: ${POSTGRE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        generate_statistics: true
+  kafka:
+    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+#    org.springframework.cloud: DEBUG
+#    org.springframework.kafka: DEBUG
+#    org.springframework.cloud.bus: TRACE
