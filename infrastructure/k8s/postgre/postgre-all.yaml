@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  namespace: transfer
+data:
+  init.sql: |
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+    -- Enum 타입 생성
+    CREATE TYPE source_type AS ENUM ('LEARNING_MATERIAL', 'USER_DATA');
+    CREATE TYPE db_type AS ENUM ('MONGO', 'MYSQL');
+    CREATE TYPE transfer_status AS ENUM ('PENDING', 'SENT', 'PROCESSED', 'SUCCESS', 'FAILED');
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: transfer
+type: Opaque
+data:
+  POSTGRES_SECRET_USERNAME: YnJ1bm9zb25n
+  POSTGRES_SECRET_PASSWORD: MTIzNA==
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: transfer
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: transfer
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 30032
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: transfer-postgres
+  namespace: transfer
+spec:
+  serviceName: postgres-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_SECRET_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_SECRET_PASSWORD
+            - name: POSTGRES_DB
+              value: "transfer"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: init-script
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-script
+          configMap:
+            name: postgres-init-script
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 1Gi
