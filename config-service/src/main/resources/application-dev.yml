@@ -7,19 +7,28 @@ spring:
       enabled: true
       refresh:
         enabled: true
-      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
+      id: ${spring.application.name}:${spring.profiles.active:dev}:${random.uuid}
     compatibility-verifier:
       enabled: false
     config:
       server:
         git:
           uri: https://bitbucket.org/songbrunosong/brunosong-config/src/main/
-
+          username: ${GIT_USERNAME}
+          password: ${GIT_PASSWORD}
   kafka:
-    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
 
 management:
   endpoints:
     web:
       exposure:
         include: refresh, busrefresh
+
+encrypt:
+  key: ${SECRET_KEY}
+
+logging:
+  level:
+    root: info

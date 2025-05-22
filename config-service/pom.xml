@@ -28,4 +28,32 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <from>
+                        <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
+                    </from>
+                    <to>
+                        <image>airtrack1234/config-service:${project.version}</image>
+                    </to>
+                    <container>
+                        <mainClass>com.brunosong.transfer.system.ConfigServerApplication</mainClass>
+                        <jvmFlags>
+                            <jvmFlag>-Xms256m</jvmFlag>
+                            <jvmFlag>-Xmx1024m</jvmFlag>
+                        </jvmFlags>
+                        <ports>
+                            <port>8888</port>
+                        </ports>
+                    </container>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
