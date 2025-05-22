@@ -22,10 +22,16 @@ spec:
             - containerPort: 9092
               name: plaintext
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: KAFKA_ZOOKEEPER_CONNECT
               value: "zookeeper:2181"
             - name: KAFKA_ADVERTISED_LISTENERS
-              value: "PLAINTEXT://kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092"
+              value: "PLAINTEXT://$(POD_NAME).kafka-broker.kafka.svc.cluster.local:9092"
+            - name: KAFKA_LISTENERS
+              value: "PLAINTEXT://0.0.0.0:9092"
             - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
               value: "PLAINTEXT:PLAINTEXT,LISTENER_LOCAL:PLAINTEXT"
             - name: KAFKA_INTER_BROKER_LISTENER_NAME
@@ -54,12 +60,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka-broker
+  name: kafka-broker-nodeport
   namespace: kafka
 spec:
   ports:
     - port: 9092
       targetPort: 9092
+      nodePort: 30092
       name: plaintext
   selector:
     app: kafka-broker
@@ -69,7 +76,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: kafka-broker-service
+  name: kafka-broker
   namespace: kafka
 spec:
   clusterIP: None

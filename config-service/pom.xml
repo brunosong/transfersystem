@@ -39,7 +39,7 @@
                         <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
                     </from>
                     <to>
-                        <image>airtrack1234/config-service:${project.version}</image>
+                        <image>airtrack1234/config-service:2.1</image>
                     </to>
                     <container>
                         <mainClass>com.brunosong.transfer.system.ConfigServerApplication</mainClass>
