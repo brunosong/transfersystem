@@ -2,7 +2,7 @@ spring:
   application:
     name: transfer-service
   config:
-    import: "optional:configserver:http://localhost:8888/"
+    import: "optional:configserver:http://config-service.transfer.svc.cluster.local:8888/"
   cloud:
     bus:
       enabled: true
@@ -33,9 +33,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-        generate_statistics: true
+        generate_statistics: false
   kafka:
-    bootstrap-servers: ${BOOTSTRAP_SERVERS}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
 
 management:

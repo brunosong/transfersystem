@@ -70,7 +70,7 @@ metadata:
   name: mongodb
   namespace: transfer
 spec:
-  serviceName: mongodb-service
+  serviceName: mongodb-headless
   replicas: 1
   selector:
     matchLabels:
