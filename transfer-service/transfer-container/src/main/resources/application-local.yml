@@ -51,6 +51,8 @@ logging:
 transfer-service:
   data-migration-request-topic-name: data-migration-request
   data-migration-response-topic-name: data-migration-response
+  data-migration-schema-subjects:
+    - avro/DataMigrationRequestAvroModel.avsc
 
 feign:
   client:
@@ -60,12 +62,13 @@ feign:
         read-timeout: 5000
         logger-level: full
 
+
 kafka-config:
-  bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+  bootstrap-servers: kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
   schema-registry-url-key: schema.registry.url
-  schema-registry-url: http://localhost:8081
-  num-of-partitions: 3
-  replication-factor: 3
+  schema-registry-url: http://schema-registry-0.schema-registry-service.kafka.svc.cluster.local:8081
+  num-of-partitions: 1
+  replication-factor: 1
 
 kafka-producer-config:
   key-serializer-class: org.apache.kafka.common.serialization.StringSerializer
@@ -101,3 +104,4 @@ kafka-consumer-config:
 
 brunosong:
   servers: BRUNOSONG_ONLINE_CAMPUS, BRUNOSONG_BOOTCAMP
+
