@@ -1,0 +1,23 @@
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+#    org.springframework.cloud: DEBUG
+#    org.springframework.kafka: DEBUG
+#    org.springframework.cloud.bus: TRACE
+
+kafka-config:
+  bootstrap-servers: kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
+  schema-registry-url-key: schema.registry.url
+  schema-registry-url: http://schema-registry-0.schema-registry-service.kafka.svc.cluster.local:8081
+  num-of-partitions: 1
+  replication-factor: 1
+
+transfer-service:
+  data-migration-request-topic-name: data-migration-request
+  data-migration-response-topic-name: data-migration-response
+  data-migration-schema-subjects:
+    - avro/data_migration_request.avsc
+
+

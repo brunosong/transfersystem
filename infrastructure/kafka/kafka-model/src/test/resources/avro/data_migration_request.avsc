@@ -1,0 +1,46 @@
+{
+  "namespace": "com.brunosong.transfer.system.kafka.transfer.avro.model",
+  "type": "record",
+  "name": "DataMigrationRequestAvroModel",
+  "fields": [
+    {
+      "name": "sagaId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "dataMigrationId",
+      "type": "long"
+    },
+    {
+      "name": "transferId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      }
+    },
+    {
+      "name": "SourceContentData",
+      "type": {
+        "type": "record",
+        "name": "SourceContentDataAvroModel",
+        "fields": [
+          {
+            "name": "chunkOffset",
+            "type": "int"
+          },
+          {
+            "name": "sourceId",
+            "type": "string"
+          },
+          {
+            "name": "jsonData",
+            "type": "bytes"
+          }
+        ]
+      }
+    }
+  ]
+}
