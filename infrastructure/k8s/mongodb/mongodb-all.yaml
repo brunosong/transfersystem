@@ -6,7 +6,9 @@ metadata:
   namespace: transfer
 data:
   mongo-init.js: |
+    // 1. exampledb 설정
     db = db.getSiblingDB('exampledb');
+    
     db.createRole({
       role: "learningMaterialsRole",
       privileges: [
@@ -14,11 +16,13 @@ data:
       ],
       roles: []
     });
+    
     db.createUser({
       user: "learning_user",
       pwd: "learning_pass123",
       roles: [{ role: "learningMaterialsRole", db: "exampledb" }]
     });
+    
     db.learning_materials.insertMany([
         {
           "title": "Introduction to Java",
@@ -48,6 +52,25 @@ data:
           ]
         }
     ]);
+    
+    // 2. learningDB 설정
+    db = db.getSiblingDB('learningDB');
+      
+    // learningDB: 역할 생성
+    db.createRole({
+      role: "curriculumDataRoles",
+      privileges: [
+        { resource: { db: "learningDB", collection: "CurriculumData" }, actions: ["find", "insert", "update", "remove"] }
+      ],
+      roles: []
+    });
+    
+    // learningDB: 사용자 생성
+    db.createUser({
+      user: "transfer_mongo_learning_user",
+      pwd: "asdf1234",
+      roles: [{ role: "curriculumDataRoles", db: "learningDB" }]
+    });
 
 ---
 # Secret for MongoDB credentials

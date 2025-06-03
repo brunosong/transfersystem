@@ -1,0 +1,58 @@
+# schema-registry ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: schema-registry-configmap
+  namespace: kafka
+data:
+  SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
+  SCHEMA_REGISTRY_HOST_NAME: schema-registry
+  SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
+  SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+  SCHEMA_REGISTRY_DEBUG: 'true'
+---
+# schema-registry StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: schema-registry
+  namespace: kafka
+spec:
+  serviceName: schema-registry-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: schema-registry
+  template:
+    metadata:
+      labels:
+        app: schema-registry
+    spec:
+      containers:
+        - name: schema-registry
+          image: confluentinc/cp-schema-registry:7.4.0
+          ports:
+            - containerPort: 8081
+              name: client
+          envFrom:
+            - configMapRef:
+                name: schema-registry-configmap
+
+---
+# schema-registry Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: schema-registry-service
+  namespace: kafka
+spec:
+  clusterIP: None
+  selector:
+    app: schema-registry
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      name: client
+
+---

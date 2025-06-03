@@ -16,7 +16,7 @@ spring:
   sql:
     init:
       mode: always
-      schema-locations: classpath:init-schema.sql
+      schema-locations: classpath:init-schema-dev.sql
   data:
     mongodb:
       uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGO_PORT}/exampledb?authSource=admin
@@ -48,6 +48,7 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type.descriptor.sql: trace
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: ERROR
 #    org.springframework.cloud: DEBUG
 #    org.springframework.kafka: DEBUG
 #    org.springframework.cloud.bus: TRACE

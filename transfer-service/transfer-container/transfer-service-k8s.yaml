@@ -5,6 +5,7 @@ metadata:
   namespace: transfer
 data:
   KAFKA_BOOTSTRAP_SERVERS: kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
+  SCHEMA_REGISTRY_SERVER: schema-registry-0.schema-registry-service.kafka.svc.cluster.local:8081
   MONGODB_USERNAME: root
   MONGODB_PASSWORD: example
   MONGODB_HOST: mongodb-0.mongodb-headless.transfer.svc.cluster.local
@@ -20,7 +21,7 @@ metadata:
   name: transfer-server
   namespace: transfer
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
   selector:
@@ -33,7 +34,7 @@ spec:
     spec:
       containers:
         - name: transfer-container
-          image: airtrack1234/transfer.service:1.0.2
+          image: airtrack1234/transfer.service:1.0.3
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: dev
