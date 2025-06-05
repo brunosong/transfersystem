@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: transfer-mysql-dev
+  namespace: transfer
+spec:
+  serviceName: mysql-dev-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-mysql-dev
+  template:
+    metadata:
+      labels:
+        app: transfer-mysql-dev
+    spec:
+      # 없어도 되지만 사용해봄
+      initContainers:
+        - name: init-mysql
+          image: mysql:8.0
+          command:
+            - bash
+            - "-c"
+            - |
+              echo "Checking /initdb directory"
+              ls -ld /initdb
+              echo "Listing contents of /initdb"
+              ls -l /initdb
+              if [ -f /initdb/init.sql ]; then
+                echo "Copying init.sql to /docker-entrypoint-initdb.d/"
+                mkdir -p /docker-entrypoint-initdb.d
+                cp /initdb/init.sql /docker-entrypoint-initdb.d/
+                ls -l /docker-entrypoint-initdb.d/
+                echo "Copy successful"
+              else
+                echo "Error: /initdb/init.sql not found"
+                exit 1
+              fi
+          volumeMounts:
+            - name: mysql-dev-initdb
+              mountPath: /initdb
+            - name: initdb-shared
+              mountPath: /docker-entrypoint-initdb.d
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "asdf1234"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-dev-config
+              mountPath: /etc/mysql/conf.d
+            - name: initdb-shared
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-dev-config
+          configMap:
+            name: mysql-dev-config
+        - name: mysql-dev-initdb
+          configMap:
+            name: mysql-dev-initdb
+        - name: initdb-shared
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 10Gi

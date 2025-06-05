@@ -52,11 +52,13 @@
                 <version>7.0.1</version>  <!-- Confluent 버전에 맞게 조정 -->
                 <configuration>
                     <schemaRegistryUrls>http://localhost:8081</schemaRegistryUrls>
-                    <subjectEntities>
-                        <data-migration-request-value>src/main/resources/avro/data_migration_request.avsc</data-migration-request-value>
-                        <data-migration-response-value>src/main/resources/avro/data_migration_response.avsc</data-migration-response-value>
-                    </subjectEntities>
                     <outputDirectory/>
+                    <subjects>
+                        <subjectEntities>
+                            <data-migration-request-value>src/main/resources/avro/data_migration_request.avsc</data-migration-request-value>
+                            <data-migration-response-value>src/main/resources/avro/data_migration_response.avsc</data-migration-response-value>
+                        </subjectEntities>
+                    </subjects>
                 </configuration>
             </plugin>
         </plugins>

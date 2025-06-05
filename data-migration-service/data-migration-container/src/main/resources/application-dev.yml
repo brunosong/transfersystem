@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: data-migration-service
+  config:
+    import: "optional:configserver:http://config-service.transfer.svc.cluster.local:8888/"
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:dev}:${random.uuid}
+    compatibility-verifier:
+      enabled: false
+    config:
+      profile: dev
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/init-schema.sql
+
+  datasource:
+    primary:
+      jdbcUrl: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
+      username: datamigrationuser
+      password: 1234
+      driver-class-name: org.postgresql.Driver
+    brunosong-online-campus:
+      prod:
+        jdbcUrl: jdbc:h2:mem:online_campus_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+      dev:
+        jdbcUrl: jdbc:h2:mem:online_campus_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+    brunosong-bootcamp:
+      prod:
+        jdbcUrl: jdbc:h2:mem:bootcamp_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+      dev:
+        jdbcUrl: jdbc:h2:mem:bootcamp_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
+        username: sa
+        password:
+        driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        generate_statistics: true
+  kafka:
+    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
+server:
+  port: 8001
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+    #org.apache.kafka.clients.consumer: DEBUG
+#    org.springframework.transaction: debug
+#    org.springframework.kafka: debug
+

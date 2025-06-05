@@ -1,0 +1,93 @@
+
+spring:
+  application:
+    name: data-migration-service
+  cloud:
+    config:
+      enabled: false
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:sql/init-schema.sql
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        generate_statistics: true
+
+  kafka:
+    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
+server:
+  port: 8001
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+    #org.apache.kafka.clients.consumer: DEBUG
+#    org.springframework.transaction: debug
+#    org.springframework.kafka: debug
+
+
+kafka-config:
+  bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+  schema-registry-url-key: schema.registry.url
+  schema-registry-url: http://localhost:8081
+  num-of-partitions: 1
+  replication-factor: 3
+
+kafka-producer-config:
+  key-serializer-class: org.apache.kafka.common.serialization.StringSerializer
+  value-serializer-class: io.confluent.kafka.serializers.KafkaAvroSerializer
+  compression-type: none
+  acks: all
+  batch-size: 16384
+  batch-size-boost-factor: 100
+  linger-ms: 5
+  request-timeout-ms: 60000
+  retry-count: 5
+
+
+kafka-consumer-config:
+  key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+  data-migration-group-id: datamigration-topic-consumer
+  auto-offset-reset: earliest
+  specific-avro-reader-key: specific.avro.reader
+  specific-avro-reader: true
+  batch-listener: true
+  auto-startup: true
+  concurrency-level: 3
+  session-timeout-ms: 60000
+  heartbeat-interval-ms: 15000
+  max-poll-interval-ms: 1800000
+  max-poll-records: 1
+  max-partition-fetch-bytes-default: 2097152
+  max-partition-fetch-bytes-boost-factor: 1
+  poll-timeout-ms: 2000
+  fetch-min-bytes: 2097152
+  fetch-max-wait-ms: 5000
+
+data-migration-service:
+  data-migration-request-topic-name: data-migration-request
+  data-migration-response-topic-name: data-migration-response
+  target-servers:
+    - BRUNOSONG_ONLINE_CAMPUS
+    - BRUNOSONG_BOOTCAMP
+
+brunosong:
+  servers:
+    - BRUNOSONG_ONLINE_CAMPUS
+    - BRUNOSONG_BOOTCAMP
