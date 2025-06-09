@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.cache;
+package com.brunosong.transfer.system.datamigration.service.config.cache;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

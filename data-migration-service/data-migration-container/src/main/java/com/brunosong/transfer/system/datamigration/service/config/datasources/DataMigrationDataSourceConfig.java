@@ -1,12 +1,6 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
+package com.brunosong.transfer.system.datamigration.service.config.datasources;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.*;
-import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 public class DataMigrationDataSourceConfig {

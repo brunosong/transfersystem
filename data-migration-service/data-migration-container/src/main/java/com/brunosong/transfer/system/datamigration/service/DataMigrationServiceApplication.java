@@ -1,10 +1,8 @@
-package com.brunosong.transfer.system.datamigration.service.domain;
+package com.brunosong.transfer.system.datamigration.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
-import org.springframework.kafka.annotation.EnableKafkaRetryTopic;
 
 @EnableJpaAuditing
 @SpringBootApplication(scanBasePackages = "com.brunosong.transfer.system")

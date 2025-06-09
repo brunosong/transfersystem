@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.annotation;
+package com.brunosong.transfer.system.datamigration.service.config.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

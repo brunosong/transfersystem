@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
+package com.brunosong.transfer.system.datamigration.service.config.datasources;
 
 import com.brunosong.transfer.system.datamigration.service.config.RoutingDataSourceContextHolder;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
@@ -8,7 +8,6 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;

@@ -20,32 +20,32 @@ spring:
 
   datasource:
     primary:
-      jdbcUrl: jdbc:postgresql://localhost:5432/datamigration?currentSchema=datamigration
-      username: datamigrationuser
-      password: 1234
+      jdbcUrl: jdbc:postgresql://${POSTGRE_HOST}:${POSTGRE_PORT}/?currentSchema=datamigration
+      username: ${POSTGRE_USERNAME}
+      password: ${POSTGRE_PASSWORD}
       driver-class-name: org.postgresql.Driver
     brunosong-online-campus:
       prod:
-        jdbcUrl: jdbc:h2:mem:online_campus_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
+        jdbcUrl: jdbc:mysql://transfer-mysql-prod-0.transfer-mysql-prod.transfer.svc.cluster.local/onlinecampus
+        username: ${MYSQL_PROD_USERNAME}
+        password: ${MYSQL_PROD_PASSWORD}
+        driver-class-name: com.mysql.cj.jdbc.Driver
       dev:
-        jdbcUrl: jdbc:h2:mem:online_campus_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
+        jdbcUrl: jdbc:mysql://transfer-mysql-dev-0.transfer-mysql-dev.transfer-dev.svc.cluster.local/onlinecampus
+        username: ${MYSQL_DEV_USERNAME}
+        password: ${MYSQL_DEV_PASSWORD}
+        driver-class-name: com.mysql.cj.jdbc.Driver
     brunosong-bootcamp:
       prod:
-        jdbcUrl: jdbc:h2:mem:bootcamp_prod;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
+        jdbcUrl: jdbc:mysql://transfer-mysql-prod-0.transfer-mysql-prod.transfer.svc.cluster.local/bootcamp
+        username: ${MYSQL_PROD_USERNAME}
+        password: ${MYSQL_PROD_PASSWORD}
+        driver-class-name: com.mysql.cj.jdbc.Driver
       dev:
-        jdbcUrl: jdbc:h2:mem:bootcamp_dev;DB_CLOSE_DELAY=-1;MODE=MySQL
-        username: sa
-        password:
-        driver-class-name: org.h2.Driver
+        jdbcUrl: jdbc:mysql://transfer-mysql-dev-0.transfer-mysql-dev.transfer-dev.svc.cluster.local/bootcamp
+        username: ${MYSQL_DEV_USERNAME}
+        password: ${MYSQL_DEV_PASSWORD}
+        driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: none

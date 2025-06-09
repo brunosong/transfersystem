@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: transfer-mysql-dev
-  namespace: transfer
+  namespace: transfer-dev
 spec:
   serviceName: mysql-dev-service
   replicas: 1
@@ -45,6 +45,10 @@ spec:
         - name: mysql
           image: mysql:8.0
           env:
+            - name: MYSQL_USER
+              value: brunosong
+            - name: MYSQL_PASSWORD
+              value: "asdf1234"
             - name: MYSQL_ROOT_PASSWORD
               value: "asdf1234"
           ports:

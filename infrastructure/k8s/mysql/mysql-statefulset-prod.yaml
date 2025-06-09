@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: transfer-mysql-prod
+  namespace: transfer
+spec:
+  serviceName: mysql-prod-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-mysql-prod
+  template:
+    metadata:
+      labels:
+        app: transfer-mysql-prod
+    spec:
+     containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_USER
+              value: brunosong
+            - name: MYSQL_PASSWORD
+              value: "asdf1234"
+            - name: MYSQL_ROOT_PASSWORD
+              value: "asdf1234"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: mysql-persistent-storage
+              mountPath: /var/lib/mysql
+            - name: mysql-config
+              mountPath: /etc/mysql/conf.d
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+     volumes:
+       - name: mysql-config
+         configMap:
+           name: mysql-config
+       - name: mysql-initdb
+         configMap:
+           name: mysql-initdb
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-persistent-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 10Gi

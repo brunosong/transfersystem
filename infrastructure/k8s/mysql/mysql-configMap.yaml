@@ -2,6 +2,34 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: mysql-dev-config
+  namespace: transfer-dev
+data:
+  my.cnf: |
+    [mysqld]
+    user=mysql
+    bind-address=0.0.0.0
+    default_authentication_plugin=mysql_native_password
+    secure_file_priv=/var/lib/mysql
+    max_connections=100
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-dev-initdb
+  namespace: transfer-dev
+data:
+  init.sql: |
+    GRANT ALL PRIVILEGES ON *.* TO 'brunosong'@'%' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+    CREATE DATABASE IF NOT EXISTS onlinecampus;
+    CREATE DATABASE IF NOT EXISTS bootcamp;
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
   namespace: transfer
 data:
   my.cnf: |
@@ -12,10 +40,11 @@ data:
     secure_file_priv=/var/lib/mysql
     max_connections=100
 ---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mysql-dev-initdb
+  name: mysql-initdb
   namespace: transfer
 data:
   init.sql: |

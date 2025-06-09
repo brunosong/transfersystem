@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.aspect;
+package com.brunosong.transfer.system.datamigration.service.config.aspect;
 
 import org.springframework.stereotype.Component;
 

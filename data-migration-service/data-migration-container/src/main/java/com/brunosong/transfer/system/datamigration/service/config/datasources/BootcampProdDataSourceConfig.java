@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain.config.datasources;
+package com.brunosong.transfer.system.datamigration.service.config.datasources;
 
 import com.brunosong.transfer.system.datamigration.service.config.RoutingDataSourceContextHolder;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;

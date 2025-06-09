@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.datamigration.service.domain;
+package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConsumerConfigData;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
