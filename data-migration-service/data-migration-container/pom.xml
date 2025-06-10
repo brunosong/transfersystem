@@ -74,7 +74,7 @@
                         <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
                     </from>
                     <to>
-                        <image>airtrack1234/data-migration.service:1.0.0</image> <!-- 푸시할 이미지 이름 -->
+                        <image>airtrack1234/data-migration.service:1.0.1</image> <!-- 푸시할 이미지 이름 -->
                     </to>
                     <container>
                         <mainClass>com.brunosong.transfer.system.datamigration.service.DataMigrationServiceApplication</mainClass> <!-- Spring Boot 메인 클래스 -->

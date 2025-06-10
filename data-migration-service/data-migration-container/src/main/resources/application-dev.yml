@@ -20,7 +20,7 @@ spring:
 
   datasource:
     primary:
-      jdbcUrl: jdbc:postgresql://${POSTGRE_HOST}:${POSTGRE_PORT}/?currentSchema=datamigration
+      jdbcUrl: jdbc:postgresql://${POSTGRE_HOST}:${POSTGRE_PORT}/datamigration?currentSchema=datamigration
       username: ${POSTGRE_USERNAME}
       password: ${POSTGRE_PASSWORD}
       driver-class-name: org.postgresql.Driver
@@ -56,7 +56,7 @@ spring:
         format_sql: true
         generate_statistics: true
   kafka:
-    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+    bootstrap-servers: kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
 
 management:
   endpoints:
