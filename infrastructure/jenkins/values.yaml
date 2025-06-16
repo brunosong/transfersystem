@@ -1,0 +1,41 @@
+controller:
+  componentName: "jenkins-controller"
+  image:
+    registry: docker.io
+    repository: jenkins/jenkins
+    tag: lts-jdk17
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "2000m"
+      memory: "2048Mi"
+  admin:
+    password: "admin" # 초기 관리자 비밀번호 (변경 권장)
+  serviceType: NodePort # 또는 ClusterIP, NodePort
+  installPlugins:
+    - kubernetes:1.31.2
+    - workflow-aggregator:2.6
+    - git:5.2.2
+    #- pipeline-stage-view:2.19
+agent:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: jenkins/inbound-agent
+    tag: latest
+    pullPolicy: IfNotPresent
+persistence:
+  enabled: true
+  storageClass: "local-path"
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  nameOverride: jenkins-data
+  annotations: {}
+  extraVolumes: []
+  extraVolumeMounts:
+    - name: jenkins-data
+      mountPath: /var/jenkins_home
+      readOnly: false
