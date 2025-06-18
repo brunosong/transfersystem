@@ -43,16 +43,16 @@ pipeline {
                         set -e
                         echo "Starting build process..."
                         cat > /root/.m2/settings.xml <<EOF
-<settings>
-  <servers>
-    <server>
-      <id>registry-1.docker.io</id>
-      <username>\${DOCKERHUB_CREDENTIALS_USR}</username>
-      <password>\${DOCKERHUB_CREDENTIALS_PSW}</password>
-    </server>
-  </servers>
-</settings>
-EOF
+                        <settings>
+                          <servers>
+                            <server>
+                              <id>registry-1.docker.io</id>
+                              <username>\${DOCKERHUB_CREDENTIALS_USR}</username>
+                              <password>\${DOCKERHUB_CREDENTIALS_PSW}</password>
+                            </server>
+                          </servers>
+                        </settings>
+                        EOF
                         echo "Created settings.xml"
                         cat /root/.m2/settings.xml
                         if [ ! -d "config-service" ]; then
