@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: config-service=docker.io/airtrack1234/config-service:latest
+    argocd-image-updater.argoproj.io/config-service.update-strategy: latest
+    argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd-image-updater.argoproj.io/config-service.file-path: k8s/config-service-deployment.yaml
+spec:
+  project: default
+  source:
+    repoURL: https://bitbucket.org/songbrunosong/brunosong-config/src/main/
+    path: k8s
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: transfer
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
