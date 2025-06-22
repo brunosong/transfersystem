@@ -6,7 +6,10 @@ metadata:
 data:
   registries.conf: |
     registries:
-    - name: Docker Hub
-      api_url: https://index.docker.io/v2/
-      prefix: docker.io
-      ping: yes
+      - name: Docker Hub
+        prefix: docker.io
+        api_url: https://registry-1.docker.io
+        credentials: pullsecret:argocd/dockerhub-secret
+  config.yaml: |
+    update_strategy:
+      interval: 10m

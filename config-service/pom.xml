@@ -39,7 +39,11 @@
                         <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
                     </from>
                     <to>
-                        <image>airtrack1234/config-service:2.2</image>
+                        <image>docker.io/airtrack1234/config-service</image>
+                        <tags>
+                            <tag>latest</tag>
+                            <tag>1.1</tag>
+                        </tags>
                     </to>
                     <container>
                         <mainClass>com.brunosong.transfer.system.ConfigServerApplication</mainClass>
