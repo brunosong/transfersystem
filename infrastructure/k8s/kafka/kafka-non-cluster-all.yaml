@@ -43,8 +43,11 @@ spec:
             - name: KAFKA_MESSAGE_MAX_BYTES
               value: "15728640"
           volumeMounts:
-            - name: kafka-data
+            - name: empty-dir
               mountPath: /var/lib/kafka/data
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: kafka-data

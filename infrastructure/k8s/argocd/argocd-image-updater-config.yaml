@@ -4,6 +4,7 @@ metadata:
   name: argocd-image-updater-config
   namespace: argocd
 data:
+  log.level: debug
   registries.conf: |
     registries:
       - name: Docker Hub
@@ -12,4 +13,4 @@ data:
         credentials: pullsecret:argocd/dockerhub-secret
   config.yaml: |
     update_strategy:
-      interval: 10m
+      interval: 5m

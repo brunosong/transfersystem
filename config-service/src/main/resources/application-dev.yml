@@ -13,9 +13,10 @@ spring:
     config:
       server:
         git:
-          uri: https://bitbucket.org/songbrunosong/brunosong-config/src/main/
+          uri: https://bitbucket.org/songbrunosong/brunosong-config.git
           username: ${GIT_USERNAME}
           password: ${GIT_PASSWORD}
+        bootstrap: true
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
 
