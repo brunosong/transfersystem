@@ -46,21 +46,21 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>io.confluent</groupId>
-                <artifactId>kafka-schema-registry-maven-plugin</artifactId>
-                <version>7.0.1</version>  <!-- Confluent 버전에 맞게 조정 -->
-                <configuration>
-                    <schemaRegistryUrls>http://localhost:8081</schemaRegistryUrls>
-                    <outputDirectory/>
-                    <subjects>
-                        <subjectEntities>
-                            <data-migration-request-value>src/main/resources/avro/data_migration_request.avsc</data-migration-request-value>
-                            <data-migration-response-value>src/main/resources/avro/data_migration_response.avsc</data-migration-response-value>
-                        </subjectEntities>
-                    </subjects>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>io.confluent</groupId>-->
+<!--                <artifactId>kafka-schema-registry-maven-plugin</artifactId>-->
+<!--                <version>7.0.1</version>  &lt;!&ndash; Confluent 버전에 맞게 조정 &ndash;&gt;-->
+<!--                <configuration>-->
+<!--                    <schemaRegistryUrls>http://localhost:8081</schemaRegistryUrls>-->
+<!--                    <outputDirectory/>-->
+<!--                    <subjects>-->
+<!--                        <subjectEntities>-->
+<!--                            <data-migration-request-value>src/main/resources/avro/data_migration_request.avsc</data-migration-request-value>-->
+<!--                            <data-migration-response-value>src/main/resources/avro/data_migration_response.avsc</data-migration-response-value>-->
+<!--                        </subjectEntities>-->
+<!--                    </subjects>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
         </plugins>
 
     </build>
