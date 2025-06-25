@@ -42,12 +42,13 @@ spec:
               value: "producer"
             - name: KAFKA_MESSAGE_MAX_BYTES
               value: "15728640"
+            - name: KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS
+              value: "300000"
+            - name: KAFKA_LOG_CLEANER_ENABLE
+              value: "true"
           volumeMounts:
-            - name: empty-dir
+            - name: kafka-data
               mountPath: /var/lib/kafka/data
-      volumes:
-        - name: empty-dir
-          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: kafka-data

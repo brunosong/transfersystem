@@ -27,14 +27,8 @@ spec:
             - name: ZOOKEEPER_TICK_TIME
               value: "2000"
           volumeMounts:
-            - name: empty-dir
+            - name: zookeeper-data
               mountPath: /var/lib/zookeeper/data
-#          volumeMounts:
-#            - name: zookeeper-data
-#              mountPath: /var/lib/zookeeper/data
-      volumes:
-        - name: empty-dir
-          emptyDir: {}
   volumeClaimTemplates:
     - metadata:
         name: zookeeper-data
