@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.main;
 
 import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
+import com.brunosong.transfer.system.main.config.TransferServiceProperties;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import jakarta.annotation.PostConstruct;
@@ -29,17 +30,14 @@ public class SchemaRegistryInitializer {
 
     private final ResourceLoader resourceLoader;
     private final KafkaConfigData kafkaConfigData;
-
-    @Value("${transfer-service.data-migration-schema-subjects}")
-    private List<String> schemaSubjects;
-
+    private final TransferServiceProperties transferServiceProperties;
 
     @PostConstruct
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 2000))
     public void registerSchema() throws Exception {
         CachedSchemaRegistryClient client = new CachedSchemaRegistryClient(kafkaConfigData.getSchemaRegistryUrl(), 100);
 
-        for (String schemaPath : schemaSubjects) {
+        for (String schemaPath : transferServiceProperties.getDataMigrationSchemaSubjects()) {
             String resourcePath = "classpath:" + schemaPath;
 
             Resource resource = resourceLoader.getResource(resourcePath);
