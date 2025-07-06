@@ -1,25 +1,2 @@
 server:
   port: 8888  # 기본 포트는 8888
-
-spring:
-  cloud:
-    bus:
-      enabled: true
-      refresh:
-        enabled: true
-      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
-    compatibility-verifier:
-      enabled: false
-    config:
-      server:
-        git:
-          uri: https://bitbucket.org/songbrunosong/brunosong-config/src/main/
-
-  kafka:
-    bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh, busrefresh

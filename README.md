@@ -77,3 +77,8 @@
    # 카푸카 init
    docker-compose -f init-kafka up -d
    
+5. **Kubernetes 설정**
+   - Kubernetes 클러스터에 배포하려면 `k8s` 디렉토리의 설정 파일을 사용합니다.
+   - `kubectl apply -f k8s/` 명령어로 배포합니다.
+
+   
