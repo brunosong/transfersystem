@@ -10,6 +10,7 @@
 <!--        <module>dataupload-service</module>-->
         <module>infrastructure</module>
         <module>config-service</module>
+        <module>study-api</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
