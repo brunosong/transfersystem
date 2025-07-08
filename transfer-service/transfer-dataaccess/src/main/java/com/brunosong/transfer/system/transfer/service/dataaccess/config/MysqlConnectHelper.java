@@ -12,14 +12,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 // MySQL 연결을 위한 헬퍼 클래스
 @Component
 @RequiredArgsConstructor
 public class MysqlConnectHelper {
 
+    private final Map<String, DataSource> mysqlCache = new ConcurrentHashMap<>();
+
     public Optional<Map<String, Object>> queryMySql(SourceConfig sourceConfig, String id) {
-        DataSource dataSource = createDynamicDataSource(sourceConfig);
+
+        String cacheKey = generateCacheKey(sourceConfig);
+        DataSource dataSource = Optional.ofNullable(mysqlCache.get(cacheKey))
+                .orElseGet(() -> {
+                    DataSource newDataSource = createDynamicDataSource(sourceConfig);
+                    mysqlCache.put(cacheKey,newDataSource);
+                    return newDataSource;
+                });
+
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         String sql = "SELECT * FROM " + sourceConfig.getTableOrCollection() + " WHERE id = ?";
         try {
@@ -50,4 +61,10 @@ public class MysqlConnectHelper {
         ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
         return ds;
     }
+
+    private String generateCacheKey(SourceConfig sourceConfig) {
+        return "datasource:" + sourceConfig.getDbType() + ":" + sourceConfig.getHost() + ":" +
+                sourceConfig.getPort() + ":" + sourceConfig.getDatabase();
+    }
+
 }

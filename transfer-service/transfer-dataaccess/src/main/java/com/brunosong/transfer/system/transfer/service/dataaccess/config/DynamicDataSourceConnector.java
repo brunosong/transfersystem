@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
 import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
@@ -19,10 +21,12 @@ public class DynamicDataSourceConnector {
 
     private final MongoConnectHelper mongoConnectHelper;
     private final MysqlConnectHelper mysqlConnectHelper;
-//
-//    private final Map<SourceType, DataSource> mysqlCache = new ConcurrentHashMap<>();
-//    private final Map<SourceType, SourceConfig> lastConfig = new ConcurrentHashMap<>();
 
+    /**
+     * 동적 데이터 소스 생성
+     * @param sourceConfig 데이터 소스 설정 정보
+     * @return 생성된 DataSource 객체
+     */
     public Optional<Map<String, Object>> query(SourceConfig sourceConfig, String sourceId) {
 
         return switch (sourceConfig.getDbType()) {
@@ -33,21 +37,5 @@ public class DynamicDataSourceConnector {
             case H2 -> null;
         };
     }
-
-
-//    private DataSource getOrCreateDataSource(SourceType sourceType, DbConfig newConfig) {
-//        DbConfig oldConfig = lastConfig.get(sourceType);
-//        if (oldConfig == null || !oldConfig.equals(newConfig)) {
-//            DataSource oldDs = mysqlCache.remove(sourceType);
-//            if (oldDs instanceof HikariDataSource) ((HikariDataSource) oldDs).close();
-//            DataSource newDs = createDynamicDataSource(newConfig);
-//            mysqlCache.put(sourceType, newDs);
-//            lastConfig.put(sourceType, newConfig);
-//            return newDs;
-//        }
-//        return mysqlCache.get(sourceType);
-//    }
-
-
 
 }
