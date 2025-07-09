@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
 import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
+import com.brunosong.transfer.system.transfer.service.valueobject.DbType;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class MysqlConnectHelperTest {
@@ -77,6 +79,32 @@ class MysqlConnectHelperTest {
         assertTrue(result.isPresent());
         assertEquals("John Doe", result.get().get("NAME"));
         assertEquals(1L, result.get().get("ID"));
+
+    }
+
+    @Test
+    void queryMySqlCacheHit() {
+        SourceConfig sourceConfig = SourceConfig.builder()
+                .dbType(DbType.H2)
+                .host("localhost")
+                .port(8088)
+                .database("testdb")
+                .tableOrCollection("users")
+                .build();
+
+        // createDynamicDataSource 모킹
+        Mockito.doReturn(dataSource).when(mysqlConnectHelper).createDynamicDataSource(Mockito.any(SourceConfig.class));
+
+        // When: queryMySql 호출
+        Optional<Map<String, Object>> result = mysqlConnectHelper.queryMySql(sourceConfig, "1");
+
+        // Then: 결과 검증
+        assertTrue(result.isPresent());
+        assertEquals("John Doe", result.get().get("NAME"));
+        assertEquals(1L, result.get().get("ID"));
+
+        // 딱 한번만 호출됨
+        Mockito.verify(mysqlConnectHelper, Mockito.times(1)).createDynamicDataSource(any(SourceConfig.class));
 
     }
 

@@ -5,7 +5,6 @@ import com.brunosong.transfer.system.transfer.service.exception.MaterialNotFound
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.SourceRepository;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -19,10 +18,11 @@ public class SourceFindHelper {
 
     private final SourceRepository sourceRepository;
 
-    public SourceContentData findData(SourceId sourceId, SourceConfig sourceConfig) {
+    // 전송할 데이터를 찾는 메서드
+    public SourceContentData findSourceContentData(SourceId sourceId, SourceConfig sourceConfig) {
         Optional<SourceContentData> sourceContentData = sourceRepository.findData(sourceId.getValue(), sourceConfig);
 
-        if(sourceContentData.isEmpty()) {
+        if (sourceContentData.isEmpty()) {
             log.warn("Not found sourceContentData id : {}", sourceId);
             throw new MaterialNotFoundException("Not found sourceContentData id : " + sourceId);
         }

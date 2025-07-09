@@ -1,8 +1,10 @@
 package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
+import com.brunosong.transfer.system.transfer.service.config.annotation.SourceTypeSelector;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
 import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@SourceTypeSelector(
+        sourceType = { SourceType.CURRICULUM }
+)
 public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
     private final ObjectMapper objectMapper;

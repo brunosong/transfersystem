@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
+import com.brunosong.transfer.system.transfer.service.config.annotation.SourceTypeSelector;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class TransferMessagingSendHelper extends TransferSendHelper {
     protected void doTransfer(Transfer transfer) {
 
         SourceType sourceType = transfer.getSourceContentData().getSourceType();
+
         SourceTypePublisher selector = sourceTypePublishers.stream()
                 .filter(ts -> isMatchingSelector(ts, sourceType))
                 .findFirst()
@@ -27,13 +29,19 @@ public class TransferMessagingSendHelper extends TransferSendHelper {
         selector.typePublisher(transfer);
     }
 
-    private boolean isMatchingSelector(SourceTypePublisher selector, SourceType sourceType) {
-        if (selector instanceof CurriculumSourceTypePublisher && sourceType == SourceType.CURRICULUM) {
-            return true;
-        } else if (selector instanceof ExamResultDataSourceTypePublisher && sourceType == SourceType.EXAM_RESULT_DATA) {
-            return true;
+    private boolean isMatchingSelector(SourceTypePublisher typePublisher, SourceType sourceType) {
+
+        SourceTypeSelector annotation = typePublisher.getClass().getAnnotation(SourceTypeSelector.class);
+        if (annotation == null) {
+            return false; // 어노테이션이 없는 경우 매칭하지 않음
         }
-        // 다른 타입 추가 시 여기에 조건 추가
+        SourceType[] types = annotation.sourceType();
+        for (SourceType type : types) {
+            if (type == sourceType) {
+                return true; // 어노테이션에 정의된 타입과 일치하는 경우 매칭
+            }
+        }
+        // 어노테이션에 정의된 타입과 일치하지 않는 경우 매칭하지 않음
         return false;
     }
 

@@ -26,6 +26,7 @@ public class SourceConfigHelper {
         return checkAndFindSourceConfigInfo(sourceConfigId);
     }
 
+    // 전송할 데이터 설정 정보를 찾는 메서드
     private SourceConfig checkAndFindSourceConfigInfo(SourceConfigId sourceConfigId) {
         Optional<SourceConfig> sourceConfigInfo = sourceConfigRepository.findSourceConfigInfo(sourceConfigId.getValue());
 
