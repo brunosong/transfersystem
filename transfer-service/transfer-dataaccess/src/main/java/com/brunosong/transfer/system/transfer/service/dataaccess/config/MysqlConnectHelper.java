@@ -1,8 +1,11 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.config;
 
+import com.brunosong.transfer.system.transfer.service.dto.event.DataSourceCacheEvent;
 import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +18,20 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 // MySQL 연결을 위한 헬퍼 클래스
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MysqlConnectHelper {
 
-    private final Map<String, DataSource> mysqlCache = new ConcurrentHashMap<>();
+    private Map<String, DataSource> mysqlCache = new ConcurrentHashMap<>();
+
+    @EventListener
+    public void handleDataDeletedEvent(DataSourceCacheEvent event) {
+        if (event.getEventType() == DataSourceCacheEvent.EventType.DATA_SOURCE_CACHE_DELETE) {
+            mysqlCache = new ConcurrentHashMap<>();
+            log.info("MySQL DataSource cache cleared due to event: {}", event.getEventType());
+        }
+    }
 
     public Optional<Map<String, Object>> queryMySql(SourceConfig sourceConfig, String id) {
 

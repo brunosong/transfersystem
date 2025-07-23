@@ -2,8 +2,10 @@ package com.brunosong.transfer.system.main;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+@EnableCaching
 @SpringBootApplication(scanBasePackages = "com.brunosong.transfer.system")
 @EnableFeignClients(basePackages = "com.brunosong.transfer.system")
 public class TransferSystemApplication {
