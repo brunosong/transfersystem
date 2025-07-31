@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.datamigration.service.config.datasources;
 
-import com.brunosong.transfer.system.datamigration.service.config.RoutingDataSourceContextHolder;
+import com.brunosong.transfer.system.datamigration.service.config.BootcampRoutingDataSourceContextHolder;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,7 +24,7 @@ import java.util.Map;
         entityManagerFactoryRef = "bootcampEntityManagerFactory",
         transactionManagerRef = "bootcampTransactionManager"
 )
-public class BootcampProdDataSourceConfig {
+public class BootcampDataSourceConfig {
 
     @Bean(name = "bootcampProdDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.brunosong-bootcamp.prod")
@@ -46,7 +46,7 @@ public class BootcampProdDataSourceConfig {
         AbstractRoutingDataSource bootcampRoutingDataSource = new AbstractRoutingDataSource() {
             @Override
             protected Object determineCurrentLookupKey() {
-                return RoutingDataSourceContextHolder.getDataSourceType();
+                return BootcampRoutingDataSourceContextHolder.getDataSourceType();
             }
         };
 
@@ -62,7 +62,7 @@ public class BootcampProdDataSourceConfig {
     @Bean(name = "bootcampEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean bootcampEntityManagerFactory(
             EntityManagerFactoryBuilder builder,
-            @Qualifier("bootcampProdDataSource") DataSource dataSource) {
+            @Qualifier("bootcampRoutingDataSource") DataSource dataSource) {
         return builder
                 .dataSource(dataSource)
                 .packages("com.brunosong.transfer.system.datamigration.service.dataaccess.bootcamp")

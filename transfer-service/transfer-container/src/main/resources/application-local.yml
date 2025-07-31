@@ -53,6 +53,8 @@ transfer-service:
   data-migration-response-topic-name: data-migration-response
   data-migration-schema-subjects:
     - avro/DataMigrationRequestAvroModel.avsc
+  outbox-scheduler-initial-delay: 10000
+  outbox-scheduler-fixed-delay: 10000
 
 feign:
   client:

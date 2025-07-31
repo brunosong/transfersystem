@@ -1,9 +1,12 @@
 package com.brunosong.transfer.system.datamigration.service.helper;
 
 import com.brunosong.transfer.system.datamigration.service.DataPersistService;
-import com.brunosong.transfer.system.datamigration.service.annotation.TargetType;
+import com.brunosong.transfer.system.datamigration.service.annotation.ServiceTypeSelector;
+import com.brunosong.transfer.system.datamigration.service.config.OnlineCampusRoutingDataSourceContextHolder;
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationDto;
 import com.brunosong.transfer.system.datamigration.service.ports.output.cache.CurriculumCachePort;
 import com.brunosong.transfer.system.datamigration.service.ports.output.repository.CurriculumRepository;
@@ -16,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@TargetType(
+@ServiceTypeSelector(
         type = BrunoSongServiceType.BRUNOSONG_ONLINE_CAMPUS
 )
 public class OnlineCampusDataPersistHelper implements DataPersistService {
@@ -24,18 +27,33 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
     private final CurriculumRepository curriculumRepository;
     private final CurriculumCachePort curriculumCachePort;
 
-    @Transactional
-    public long onlineCampusPersist(SourceContentData sourceContentData) {
-        DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(sourceContentData);
+    @Override
+    public long dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData) {
 
-        curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
-        log.info("Successfully saved content with id: {}", dataMigrationDto.id());
+        TargetSystemEnvironment targetSystemEnvironment = dataMigrationInfo.getTargetSystemEnvironment();
+        try {
+            if (targetSystemEnvironment == TargetSystemEnvironment.PROD) {
+                log.info("Persisting data for Online Campus in PROD environment");
+                OnlineCampusRoutingDataSourceContextHolder.setDataSourceType(DataSourceType.BRUNOSONG_ONLINE_CAMPUS_PROD);
+            } else {
+                OnlineCampusRoutingDataSourceContextHolder.setDataSourceType(DataSourceType.BRUNOSONG_ONLINE_CAMPUS_DEV);
+                log.info("Persisting data for Online Campus in DEV environment");
+            }
+            return onlineCampusDataMigration(sourceContentData);
 
-        return dataMigrationDto.id();
+        } finally {
+            OnlineCampusRoutingDataSourceContextHolder.clearDataSourceType();
+        }
     }
 
-    @Override
-    public void dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData) {
+    @Transactional
+    public long onlineCampusDataMigration(SourceContentData sourceContentData) {
+        DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(sourceContentData);
+        log.info("Successfully saved content with id: {}", dataMigrationDto.id());
 
+        curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
+        log.info("Successfully cached content with id: {}", dataMigrationDto.id());
+
+        return dataMigrationDto.id();
     }
 }

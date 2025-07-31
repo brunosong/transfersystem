@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.datamigration.service.config.datasources;
 
-import com.brunosong.transfer.system.datamigration.service.config.RoutingDataSourceContextHolder;
+import com.brunosong.transfer.system.datamigration.service.config.OnlineCampusRoutingDataSourceContextHolder;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -46,7 +46,7 @@ public class OnlineCampusDataSourceConfig {
         AbstractRoutingDataSource onlineCampusRoutingDataSources = new AbstractRoutingDataSource() {
             @Override
             protected Object determineCurrentLookupKey() {
-                return RoutingDataSourceContextHolder.getDataSourceType();
+                return OnlineCampusRoutingDataSourceContextHolder.getDataSourceType();
             }
         };
 

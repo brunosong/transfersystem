@@ -171,6 +171,12 @@
 
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>outbox</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>kafka-consumer</artifactId>
                 <version>${project.version}</version>
             </dependency>

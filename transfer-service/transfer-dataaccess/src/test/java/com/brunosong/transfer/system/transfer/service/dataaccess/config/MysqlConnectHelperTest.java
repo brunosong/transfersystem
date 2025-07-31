@@ -44,7 +44,7 @@ class MysqlConnectHelperTest {
         // 테이블 및 데이터 초기화
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(
-                     "CREATE TABLE IF NOT EXISTS users (id BIGINT PRIMARY KEY, name VARCHAR(255))")) {
+                     "CREATE TABLE IF NOT EXISTS users (id BIGINT, name VARCHAR(255))")) {
             stmt.execute();
         }
         try (Connection conn = dataSource.getConnection();

@@ -2,8 +2,8 @@ package com.brunosong.transfer.system.datamigration.service;
 
 import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
-import com.brunosong.transfer.system.datamigration.service.helper.DataMigrationInfoHandler;
-import com.brunosong.transfer.system.datamigration.service.helper.DataPersistHandler;
+import com.brunosong.transfer.system.datamigration.service.handler.DataMigrationInfoHandler;
+import com.brunosong.transfer.system.datamigration.service.handler.DataPersistHandler;
 import com.brunosong.transfer.system.datamigration.service.helper.MessageResponseHelper;
 import com.brunosong.transfer.system.datamigration.service.ports.input.message.listener.DataMigrationMessageListener;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class TransferSendMessageListenerImpl implements DataMigrationMessageList
         DataMigration dataMigrationInfo = dataMigrationInfoHandler.findDataMigrationInfo(dataMigrationRequest.getDataMigrationId());
 
         try {
-            dataPersistHandler.persist(dataMigrationInfo, dataMigrationRequest.getSourceContentData());
+            long result = dataPersistHandler.persist(dataMigrationInfo, dataMigrationRequest.getSourceContentData());
             messageResponseHelper.successResponseMessage(dataMigrationRequest);
         } catch (Exception e) {
             messageResponseHelper.failsResponseMessage(dataMigrationRequest, e);

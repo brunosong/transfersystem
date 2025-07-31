@@ -13,7 +13,7 @@ public class DataMigrationCacheAdapter implements DataMigrationCachePort {
 
     @Override
     public void save(DataMigration dataMigration) {
-
+        // 캐쉬 TTL은 10분으로 준다.
     }
 
     @Override

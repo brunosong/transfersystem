@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface TargetType {
+public @interface ServiceTypeSelector {
     BrunoSongServiceType type();
 }

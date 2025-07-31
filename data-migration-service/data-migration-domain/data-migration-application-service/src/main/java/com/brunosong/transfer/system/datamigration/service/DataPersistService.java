@@ -5,5 +5,5 @@ import com.brunosong.transfer.system.datamigration.service.domain.valueobject.So
 
 public interface DataPersistService {
 
-    void dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData);
+    long dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData);
 }

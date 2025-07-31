@@ -53,3 +53,28 @@ CREATE TABLE transfer_chunks (
         REFERENCES transfer_log(id)
         ON DELETE CASCADE
 );
+
+
+DROP IF EXISTS saga_status;
+CREATE TYPE saga_status AS ENUM ('STARTED', 'FAILED', 'SUCCEEDED', 'PROCESSING', 'COMPENSATING', 'COMPENSATED');
+
+DROP IF EXISTS outbox_status;
+CREATE TYPE outbox_status AS ENUM ('STARTED','FAILED','COMPLETED');
+
+-- outbox 테이블
+DROP TABLE IF EXISTS datamigration_outbox CASCADE;
+CREATE TABLE datamigration_outbox (
+    id UUID NOT NULL,
+    saga_id UUID NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    type character varying COLLATE pg_catalog."default" NOT NULL,
+    payload jsonb NOT NULL,
+    saga_status saga_status NOT NULL,
+    outbox_status outbox_status NOT NULL,
+    version integer NOT NULL,
+    CONSTRAINT datamigration_outbox_pkey PRIMARY KEY (id)
+);
+
+CREATE INDEX IF NOT EXISTS datamigration_outbox_saga_status ON datamigration_outbox (type, outbox_status, saga_status);
+CREATE INDEX IF NOT EXISTS datamigration_outbox_saga_id ON datamigration_outbox (type, saga_id, saga_status);
