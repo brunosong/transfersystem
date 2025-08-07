@@ -1,10 +1,7 @@
-package com.brunosong.transfer.system.transfer.service.helper.transfer;
+package com.brunosong.transfer.system.transfer.service.helper.transfer.curriculum;
 
-import com.brunosong.transfer.system.transfer.service.config.annotation.SourceTypeSelector;
-import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
+
 import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -12,41 +9,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
-@SourceTypeSelector(
-        sourceType = { SourceType.CURRICULUM }
-)
-public class CurriculumSourceTypePublisher implements SourceTypePublisher {
+public class CurriculumSourceConverter {
 
     private final ObjectMapper objectMapper;
-    private final TransferDataSendMessagePublisher transferDataSendMessagePublisher;
-
-    @Override
-    public void typePublisher(Transfer transfer) {
-
-        byte[] jsonData = transfer.getSourceContentData().getJsonData();
-
-        try {
-            // 원본 JSON 파싱
-            JsonNode rootNode = objectMapper.readTree(jsonData);
-            JsonNode curriculumNode = rootNode.path(CurriculumBaseKey.CURRICULUM.getKey());
-
-            // 상위 데이터 전송 grades & semester
-            createUpperDataAndPublish(transfer, curriculumNode);
-
-            Thread.sleep(2000);
-            // 하위 데이터 전송
-            extractAndPublishSubjects(transfer,curriculumNode);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     // Grade와 Semester를 하나의 메시지로 묶음
-    private void createUpperDataAndPublish(Transfer transfer, JsonNode curriculumNode) throws Exception {
+    public byte[] buildCurriculumWithGradesAndSemesters(JsonNode curriculumNode) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
 
         // 1. 최상위 ObjectNode 생성
@@ -77,16 +50,12 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
         }
         newCurriculumNode.set(CurriculumBaseKey.LEVEL1.getKey(), gradesArray);
 
-        byte[] upperData = objectMapper.writeValueAsBytes(rootNode);
-        
-        // 시작 청크는 0
-        transfer.getSourceContentData().resetChunkOffset();
-        transfer.getSourceContentData().updateJsonData(upperData);
-        transferDataSendMessagePublisher.publish(transfer);
-
+        return objectMapper.writeValueAsBytes(rootNode);
     }
 
-    private void extractAndPublishSubjects(Transfer transfer, JsonNode curriculumNode) throws Exception {
+    public List<byte[]> buildCurriculumWithSubject(JsonNode curriculumNode) throws Exception {
+
+        List<byte[]> subjectDataList = new ArrayList<>();
 
         JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
 
@@ -105,15 +74,13 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
 
                         // Transfer 객체 업데이트 및 전송
                         byte[] subjectData = objectMapper.writeValueAsBytes(subjectNode);
-
-                        // 데이터 카운트 추가
-                        transfer.getSourceContentData().plusChunkOffset();
-                        transfer.getSourceContentData().updateJsonData(subjectData);
-                        transferDataSendMessagePublisher.publish(transfer);
+                        subjectDataList.add(subjectData);
                     }
                 }
             }
         }
+
+        return subjectDataList;
     }
 
     private ObjectNode createSubjectNode(String curriculumId, String gradeId, String semesterId, JsonNode subject) {
@@ -137,5 +104,4 @@ public class CurriculumSourceTypePublisher implements SourceTypePublisher {
             }
         });
     }
-
 }

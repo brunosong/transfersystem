@@ -34,19 +34,14 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
                 transferDataMapper.transferRequestToTransfer(transferRequest);
 
         // 1. 데이터 전송을 위한 소스 데이터 조회
-        SourceContentData sourceContentData = sourceFindDataHandler.findSourceContentData(transfer);
+        SourceContentData sourceContentData = sourceFindDataHandler.findSourceContentData(transfer.getSourceConfigId(), transfer.getSourceId());
 
-        // 1-1. 소스 데이터 유효성 검사 및 전송 시작
+        // 2. 소스 데이터 유효성 검사 및 전송 시작
         transferDomainService.validateAndInitiateTransfer(transfer, sourceContentData);
-
-        // 2. 데이터 전송 전 로그 저장
-        TransferLogResult transferLogResult = transferLogHandler.persistTransferLog(transfer);
 
         // 3. 데이터 전송
         transferExecutionHandler.sendData(transfer);
-        
-        // 4. 데이터 전송 결과 업데이트
-        transferLogHandler.updateTransferSendResult(transfer);
+
 
         return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
     }

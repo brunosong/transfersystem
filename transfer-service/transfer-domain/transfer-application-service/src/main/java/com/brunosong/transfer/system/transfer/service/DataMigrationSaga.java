@@ -3,12 +3,15 @@ package com.brunosong.transfer.system.transfer.service;
 import com.brunosong.transfer.system.domain.event.EmptyEvent;
 import com.brunosong.transfer.system.saga.SagaStep;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
+import com.brunosong.transfer.system.transfer.service.ports.output.repository.DataTransferOutboxRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DataMigrationSaga implements SagaStep<DataMigrationResponse, EmptyEvent , EmptyEvent> {
 
     @Override

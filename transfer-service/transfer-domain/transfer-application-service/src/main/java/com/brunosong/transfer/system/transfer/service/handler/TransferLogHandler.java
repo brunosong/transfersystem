@@ -10,20 +10,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TransferLogHandler {
 
-    private final TransferPersistHelper transferPersistHelper;
 
-    public TransferLogResult persistTransferLog(Transfer transfer) {
-
-        Transfer savedTransfer = transferPersistHelper.persistTransferLog(transfer);
-
-        String logMessage = String.format("Transfer log created with type: %s, status: %s",
-                                        savedTransfer.getTransType().getDescription(),
-                                        savedTransfer.getTransferStatus().getDescription());
-        return new TransferLogResult(savedTransfer.getId(), logMessage);
-    }
-
-    public void updateTransferSendResult(Transfer transfer) {
-        transferPersistHelper.updateTransferSendResult(transfer);
-    }
 
 }

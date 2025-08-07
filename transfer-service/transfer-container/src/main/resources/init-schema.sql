@@ -62,8 +62,8 @@ DROP IF EXISTS outbox_status;
 CREATE TYPE outbox_status AS ENUM ('STARTED','FAILED','COMPLETED');
 
 -- outbox 테이블
-DROP TABLE IF EXISTS datamigration_outbox CASCADE;
-CREATE TABLE datamigration_outbox (
+DROP TABLE IF EXISTS transfer_outbox CASCADE;
+CREATE TABLE transfer_outbox (
     id UUID NOT NULL,
     saga_id UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE datamigration_outbox (
     saga_status saga_status NOT NULL,
     outbox_status outbox_status NOT NULL,
     version integer NOT NULL,
-    CONSTRAINT datamigration_outbox_pkey PRIMARY KEY (id)
+    CONSTRAINT transfer_outbox_pkey PRIMARY KEY (id)
 );
 
 CREATE INDEX IF NOT EXISTS datamigration_outbox_saga_status ON datamigration_outbox (type, outbox_status, saga_status);

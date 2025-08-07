@@ -1,12 +1,13 @@
 package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.helper.transfer.curriculum.CurriculumSourceTypePublisher;
+import com.brunosong.transfer.system.transfer.service.helper.transfer.exam.ExamResultDataSourceTypePublisher;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.TransferDataSendMessagePublisher;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
