@@ -1,16 +1,25 @@
 package com.brunosong.transfer.system.transfer.service;
 
 
+import com.brunosong.transfer.system.domain.DomainConstants;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
+import com.brunosong.transfer.system.transfer.service.event.TransferEvent;
+import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
 @Slf4j
 public class TransferDomainServiceImpl implements TransferDomainService {
+
     @Override
-    public void validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData) {
+    public TransferRequestEvent validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData) {
         transfer.validateInitialTransfer();
         transfer.initializeTransfer(sourceContentData);
+
+        return new TransferRequestEvent(transfer, sourceContentData, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
     }
 
     @Override

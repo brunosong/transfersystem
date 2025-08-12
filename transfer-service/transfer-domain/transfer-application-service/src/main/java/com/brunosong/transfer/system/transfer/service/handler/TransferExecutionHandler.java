@@ -1,13 +1,14 @@
 package com.brunosong.transfer.system.transfer.service.handler;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
+import com.brunosong.transfer.system.transfer.service.TransferDomainService;
+import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent;
+import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferApiSendHelper;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferMessagingSendHelper;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferPersistHelper;
-import com.brunosong.transfer.system.transfer.service.helper.transfer.curriculum.CurriculumSourceConverter;
-import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
+import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,17 +19,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TransferExecutionHandler {
 
-    private final TransferApiSendHelper transferApiSendHelper;
-    private final TransferMessagingSendHelper messagingSendHelper;
+//    private final TransferApiSendHelper transferApiSendHelper;
+//    private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferPersistHelper transferPersistHelper;
+    private final TransferDomainService transferDomainService;
 
 
     @Transactional
-    public Transfer sendData(Transfer transfer) {
+    public Transfer sendData(Transfer transfer, SourceContentData sourceContentData) {
 
-        // 1. 데이터 전송 전 로그 저장
-        // 상태를 저장하고 이벤트를 객체를 만들어야 한다.
-        TransferLogResult transferLogResult = persistTransferLog(transfer);
+
+        // 1. 소스 데이터 유효성 검사
+        TransferRequestEvent transferRequestEvent = transferDomainService.validateAndInitiateTransfer(transfer, sourceContentData);
+
+        // 2. 데이터 전송 전 로그 저장
+        TransferId transferId = persistTransferLog(transfer);
+        transferRequestEvent.setTransferId(transferId);
 //
 //
 //
@@ -50,14 +56,20 @@ public class TransferExecutionHandler {
         return transfer;
     }
 
-    public TransferLogResult persistTransferLog(Transfer transfer) {
+    public TransferId persistTransferLog(Transfer transfer) {
 
-        Transfer savedTransfer = transferPersistHelper.persistTransferLog(transfer);
+        Transfer transferResult = transferPersistHelper.persistTransferLog(transfer);
 
-        String logMessage = String.format("Transfer log created with type: %s, status: %s",
-                savedTransfer.getTransType().getDescription(),
-                savedTransfer.getTransferStatus().getDescription());
-        return new TransferLogResult(savedTransfer.getId(), logMessage);
+        if (transferResult == null) {
+            log.error("Could not save transferLog!");
+            throw new TransferDomainException("Could not save transferLog!");
+        }
+
+        log.info("Transfer log created with type: {}, status: {}",
+                transferResult.getTransType().getDescription(),
+                transferResult.getTransferStatus().getDescription());
+
+        return transferResult.getId();
     }
 
     public void updateTransferSendResult(Transfer transfer) {

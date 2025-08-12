@@ -1,12 +1,10 @@
 package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
+import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.handler.SourceFindDataHandler;
 import com.brunosong.transfer.system.transfer.service.handler.TransferExecutionHandler;
-import com.brunosong.transfer.system.transfer.service.handler.TransferLogHandler;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
 import com.brunosong.transfer.system.transfer.service.ports.input.service.TransferApplicationService;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
@@ -22,9 +20,7 @@ import org.springframework.validation.annotation.Validated;
 public class TransferApplicationServiceImpl implements TransferApplicationService {
 
     private final TransferExecutionHandler transferExecutionHandler;
-    private final TransferLogHandler transferLogHandler;
     private final TransferDataMapper transferDataMapper;
-    private final TransferDomainService transferDomainService;
     private final SourceFindDataHandler sourceFindDataHandler;
 
     @Override
@@ -36,13 +32,10 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
         // 1. 데이터 전송을 위한 소스 데이터 조회
         SourceContentData sourceContentData = sourceFindDataHandler.findSourceContentData(transfer.getSourceConfigId(), transfer.getSourceId());
 
-        // 2. 소스 데이터 유효성 검사 및 전송 시작
-        transferDomainService.validateAndInitiateTransfer(transfer, sourceContentData);
+        // 2. 데이터 전송
+        transferExecutionHandler.sendData(transfer, sourceContentData);
 
-        // 3. 데이터 전송
-        transferExecutionHandler.sendData(transfer);
-
-
-        return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
+        // return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
+        return null;
     }
 }

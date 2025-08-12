@@ -3,6 +3,7 @@ package com.brunosong.transfer.system.transfer.service.outbox.scheduler;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.saga.SagaStatus;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
+import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferApiSendHelper;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferOutboxMessage;
 import com.brunosong.transfer.system.transfer.service.ports.output.message.publisher.DataTransferRequestMessagePublisher;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.DataTransferOutboxRepository;
@@ -25,20 +26,18 @@ import static com.brunosong.transfer.system.saga.transfer.SagaConstants.TRANSFER
 public class DataTransferOutboxPublisherHelper {
 
     private final DataTransferRequestMessagePublisher dataTransferRequestMessagePublisher;
+    private final TransferApiSendHelper transferApiSendHelper;
 
     public void publish(DataTransferOutboxMessage outboxMessage, BiConsumer<DataTransferOutboxMessage, OutboxStatus> outboxCallback) {
 
-//        // 2. 전송할 데이터 설정 정보 찾기
-//        if (transfer.getTransType() == TransType.API) {
-//            transferApiSendHelper.transferAction(transfer);
-//            log.info("API transfer completed: {}", transfer.getId());
-//        } else if (transfer.getTransType() == TransType.MESSAGING) {
-//            messagingSendHelper.transferAction(transfer);
-//            log.info("Messaging transfer completed: {}", transfer.getId());
-//        } else {
-//            transfer.markFailed();
-//            log.warn("Unknown transfer type for: {}", transfer.getId());
-//        }
+        // 1. 전송할 데이터 설정 정보 찾기
+        if (outboxMessage.getTransType() == TransType.API) {
+            transferApiSendHelper.transferAction(null);
+            log.info("API transfer completed: {}", "");
+        } else if (outboxMessage.getTransType() == TransType.MESSAGING) {
+            dataTransferRequestMessagePublisher.publish(outboxMessage, outboxCallback);
+            log.info("Messaging transfer completed: {}", "");
+        }
 
     }
 
