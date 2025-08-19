@@ -8,11 +8,17 @@ import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferAp
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferMessagingSendHelper;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferPersistHelper;
+import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
+import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
+import com.brunosong.transfer.system.transfer.service.outbox.scheduler.DataTransferOutboxHelper;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -23,6 +29,8 @@ public class TransferExecutionHandler {
 //    private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferPersistHelper transferPersistHelper;
     private final TransferDomainService transferDomainService;
+    private final DataTransferOutboxHelper dataTransferOutboxHelper;
+    private final TransferDataMapper transferDataMapper;
 
 
     @Transactional
@@ -35,6 +43,20 @@ public class TransferExecutionHandler {
         // 2. 데이터 전송 전 로그 저장
         TransferId transferId = persistTransferLog(transfer);
         transferRequestEvent.setTransferId(transferId);
+
+        // 3. 데이터 전송 요청 이벤트 발행
+        List<byte[]> chunkDataList = sourceContentData.getChunkDataList();
+        for (int i = 0; i < chunkDataList.size(); i++) {
+
+            // 데이터 전송 이벤트 페이로드 생성
+            DataTransferEventPayload dataTransferEventPayload =
+                    transferDataMapper.transferRequestEventToDataTransferEventPayload(transferRequestEvent, chunkDataList.get(i), i);
+
+            // 데이터 전송 아웃박스 메시지 저장
+            dataTransferOutboxHelper.saveDataTransferOutboxMessage(dataTransferEventPayload,
+                                                                    transferRequestEvent.getTransType(),
+                                                                    UUID.randomUUID());
+        }
 //
 //
 //

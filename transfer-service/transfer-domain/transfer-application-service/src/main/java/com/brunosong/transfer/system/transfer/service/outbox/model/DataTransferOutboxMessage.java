@@ -27,9 +27,9 @@ public class DataTransferOutboxMessage {
     @Setter
     private SagaStatus sagaStatus;
     private TransType transType;
-
-    @Setter
-    private TransferStatus transferStatus;
+//
+//    @Setter
+//    private TransferStatus transferStatus;
 
     @Setter
     private OutboxStatus outboxStatus;

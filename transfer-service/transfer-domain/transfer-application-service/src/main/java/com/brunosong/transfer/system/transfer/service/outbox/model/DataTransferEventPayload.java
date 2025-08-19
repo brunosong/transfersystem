@@ -1,15 +1,14 @@
 package com.brunosong.transfer.system.transfer.service.outbox.model;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
-import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceConfigId;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
+import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.time.ZonedDateTime;
 
 @Getter
 @Builder
@@ -17,24 +16,21 @@ import lombok.Getter;
 public class DataTransferEventPayload {
 
     @JsonProperty
-    private SourceId sourceId;
+    private TransferId transferId;
 
     @JsonProperty
-    private SourceContentData sourceContentData;
+    private byte[] data;
 
     @JsonProperty
     private DataMigrationId dataMigrationId;
 
     @JsonProperty
-    private TransferStatus transferStatus;
-
-    @JsonProperty
     private TransType transType;
 
     @JsonProperty
-    private SourceConfigId sourceConfigId;
+    private int chunkOffset;
 
     @JsonProperty
-    private int totalChunkSize;
+    private ZonedDateTime createdAt;
 
 }
