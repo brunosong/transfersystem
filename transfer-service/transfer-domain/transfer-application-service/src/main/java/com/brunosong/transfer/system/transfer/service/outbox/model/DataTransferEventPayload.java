@@ -19,13 +19,13 @@ public class DataTransferEventPayload {
     private TransferId transferId;
 
     @JsonProperty
-    private byte[] data;
-
-    @JsonProperty
     private DataMigrationId dataMigrationId;
 
     @JsonProperty
     private TransType transType;
+
+    @JsonProperty
+    private byte[] chunkData;
 
     @JsonProperty
     private int chunkOffset;

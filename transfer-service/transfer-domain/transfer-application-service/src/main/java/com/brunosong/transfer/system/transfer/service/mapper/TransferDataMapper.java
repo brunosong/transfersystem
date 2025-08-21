@@ -13,8 +13,6 @@ import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentD
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceId;
 import org.springframework.stereotype.Component;
 
-import java.time.ZonedDateTime;
-
 @Component
 public class TransferDataMapper {
 
@@ -47,12 +45,12 @@ public class TransferDataMapper {
                 .build();
     }
 
-    public DataTransferEventPayload transferRequestEventToDataTransferEventPayload(TransferRequestEvent transferRequestEvent, byte[] data, int chunkOffset) {
+    public DataTransferEventPayload transferRequestEventToDataTransferEventPayload(TransferRequestEvent transferRequestEvent) {
         return DataTransferEventPayload.builder()
-                .transferId(transferRequestEvent.getTransferId())
+                .transferId(transferRequestEvent.getTransfer().getId())
                 .dataMigrationId(transferRequestEvent.getTransfer().getDataMigrationId())
-                .data(data)
-                .chunkOffset(chunkOffset)
+                .chunkData(transferRequestEvent.getChunkData())
+                .chunkOffset(transferRequestEvent.getChunkOffset())
                 .createdAt(transferRequestEvent.getCreatedAt())
                 .build();
     }

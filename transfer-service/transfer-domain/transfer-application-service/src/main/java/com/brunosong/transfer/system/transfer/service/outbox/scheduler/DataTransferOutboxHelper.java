@@ -55,11 +55,10 @@ public class DataTransferOutboxHelper {
     }
 
     @Transactional
-    public void saveDataTransferOutboxMessage(DataTransferEventPayload dataTransferEventPayload,
-                                              TransType transType, UUID sagaId) {
+    public void saveDataTransferOutboxMessage(DataTransferEventPayload dataTransferEventPayload, UUID sagaId) {
         save(DataTransferOutboxMessage.builder()
                 .id(UUID.randomUUID())
-                .transType(transType)
+                .transType(dataTransferEventPayload.getTransType())
                 .sagaId(sagaId)
                 .payload(createPayload(dataTransferEventPayload))
                 .createdAt(dataTransferEventPayload.getCreatedAt())

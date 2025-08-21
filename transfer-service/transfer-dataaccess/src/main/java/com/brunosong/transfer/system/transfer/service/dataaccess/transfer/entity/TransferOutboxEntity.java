@@ -10,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
@@ -28,11 +29,11 @@ public class TransferOutboxEntity {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private ZonedDateTime createdAt;
 
     @CreatedDate
     @Column(name = "processed_at", nullable = false)
-    private LocalDateTime processedAt;
+    private ZonedDateTime processedAt;
 
     @Column(name = "type", nullable = false)
     private String type;
@@ -42,17 +43,17 @@ public class TransferOutboxEntity {
     private String payload;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "saga_status", nullable = false)
     private SagaStatus sagaStatus;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "transfer_status", nullable = false)
     private TransferStatus transferStatus;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "outbox_status", nullable = false)
     private OutboxStatus outboxStatus;
 

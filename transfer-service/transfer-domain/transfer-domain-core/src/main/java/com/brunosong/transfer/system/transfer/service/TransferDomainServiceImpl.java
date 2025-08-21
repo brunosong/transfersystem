@@ -10,16 +10,27 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 public class TransferDomainServiceImpl implements TransferDomainService {
 
     @Override
-    public TransferRequestEvent validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData) {
+    public List<TransferRequestEvent> validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData) {
         transfer.validateInitialTransfer();
         transfer.initializeTransfer(sourceContentData);
 
-        return new TransferRequestEvent(transfer, sourceContentData, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
+        // 도메인 객채는 같고 데이터와 청크 순서만 다른 TransferRequestEvent 객체를 생성하여 반환
+        List<TransferRequestEvent> transferRequestEventList = new ArrayList<>();
+        List<byte[]> chunkDataList = sourceContentData.getChunkDataList();
+        for (int chunkOffset = 0; chunkOffset < chunkDataList.size(); chunkOffset++) {
+            // 청크 데이터 유효성 검사
+            transferRequestEventList.add(
+                new TransferRequestEvent(transfer, ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)), chunkOffset, chunkDataList.get(chunkOffset))
+            );
+        }
+        return transferRequestEventList;
     }
 
     @Override

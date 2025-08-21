@@ -6,10 +6,11 @@ import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface TransferDomainService {
 
-    TransferRequestEvent validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData);
+    List<TransferRequestEvent> validateAndInitiateTransfer(Transfer transfer, SourceContentData sourceContentData);
 
     void markSent(Transfer transfer);
 

@@ -1,33 +1,24 @@
 package com.brunosong.transfer.system.transfer.service.event;
 
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 
 import java.time.ZonedDateTime;
 
 public abstract class TransferEvent {
-    private final TransType transType;
-    private final SourceContentData sourceContentData;
+
+    private final Transfer transfer;
     private final ZonedDateTime createdAt;
 
-    public TransferEvent(TransType transType, SourceContentData sourceContentData, ZonedDateTime createdAt) {
-        this.transType = transType;
-        this.sourceContentData = sourceContentData;
+    public TransferEvent(Transfer transfer, ZonedDateTime createdAt) {
+        this.transfer = transfer;
         this.createdAt = createdAt;
     }
 
-    public TransType getTransType() {
-        return transType;
-    }
-
-    public SourceContentData getSourceContentData() {
-        return sourceContentData;
+    public Transfer getTransfer() {
+        return transfer;
     }
 
     public ZonedDateTime getCreatedAt() {
         return createdAt;
     }
-
-
 }

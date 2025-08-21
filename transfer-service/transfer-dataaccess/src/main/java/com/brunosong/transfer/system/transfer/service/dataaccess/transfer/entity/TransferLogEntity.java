@@ -40,14 +40,14 @@ public class TransferLogEntity implements Persistable<UUID> {
     private Long sourceconfigId;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SourceType sourceType;
 
     @Column(name = "datamigration_id", nullable = false)
     private Long dataMigrationInfoId;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "db_type", columnDefinition = "db_type")
     private DbType dbType;
 

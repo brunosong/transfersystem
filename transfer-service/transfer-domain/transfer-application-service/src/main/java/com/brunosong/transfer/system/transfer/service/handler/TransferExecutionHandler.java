@@ -1,12 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.handler;
 
-import com.brunosong.transfer.system.domain.valueobject.TransferId;
-import com.brunosong.transfer.system.transfer.service.TransferDomainService;
-import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent;
-import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
-import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferApiSendHelper;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
-import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferMessagingSendHelper;
+import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent;
 import com.brunosong.transfer.system.transfer.service.helper.transfer.TransferPersistHelper;
 import com.brunosong.transfer.system.transfer.service.mapper.TransferDataMapper;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
@@ -28,7 +23,6 @@ public class TransferExecutionHandler {
 //    private final TransferApiSendHelper transferApiSendHelper;
 //    private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferPersistHelper transferPersistHelper;
-    private final TransferDomainService transferDomainService;
     private final DataTransferOutboxHelper dataTransferOutboxHelper;
     private final TransferDataMapper transferDataMapper;
 
@@ -37,26 +31,21 @@ public class TransferExecutionHandler {
     public Transfer sendData(Transfer transfer, SourceContentData sourceContentData) {
 
 
-        // 1. 소스 데이터 유효성 검사
-        TransferRequestEvent transferRequestEvent = transferDomainService.validateAndInitiateTransfer(transfer, sourceContentData);
+        // 1. 데이터 전송 전 로그 저장
+        List<TransferRequestEvent> transferRequestEvents = transferPersistHelper.persistTransferLog(transfer,sourceContentData);
 
-        // 2. 데이터 전송 전 로그 저장
-        TransferId transferId = persistTransferLog(transfer);
-        transferRequestEvent.setTransferId(transferId);
-
-        // 3. 데이터 전송 요청 이벤트 발행
-        List<byte[]> chunkDataList = sourceContentData.getChunkDataList();
-        for (int i = 0; i < chunkDataList.size(); i++) {
+        for (TransferRequestEvent transferRequestEvent : transferRequestEvents) {
 
             // 데이터 전송 이벤트 페이로드 생성
             DataTransferEventPayload dataTransferEventPayload =
-                    transferDataMapper.transferRequestEventToDataTransferEventPayload(transferRequestEvent, chunkDataList.get(i), i);
+                    transferDataMapper.transferRequestEventToDataTransferEventPayload(transferRequestEvent);
 
             // 데이터 전송 아웃박스 메시지 저장
             dataTransferOutboxHelper.saveDataTransferOutboxMessage(dataTransferEventPayload,
-                                                                    transferRequestEvent.getTransType(),
-                                                                    UUID.randomUUID());
+                    UUID.randomUUID());
+
         }
+
 //
 //
 //
@@ -78,21 +67,6 @@ public class TransferExecutionHandler {
         return transfer;
     }
 
-    public TransferId persistTransferLog(Transfer transfer) {
-
-        Transfer transferResult = transferPersistHelper.persistTransferLog(transfer);
-
-        if (transferResult == null) {
-            log.error("Could not save transferLog!");
-            throw new TransferDomainException("Could not save transferLog!");
-        }
-
-        log.info("Transfer log created with type: {}, status: {}",
-                transferResult.getTransType().getDescription(),
-                transferResult.getTransferStatus().getDescription());
-
-        return transferResult.getId();
-    }
 
     public void updateTransferSendResult(Transfer transfer) {
         transferPersistHelper.updateTransferSendResult(transfer);

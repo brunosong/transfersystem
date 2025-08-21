@@ -15,13 +15,6 @@ public class SourceContentData {
     private byte[] jsonData;    // The original JSON data
     private List<byte[]> chunkDataList;  // List of byte arrays representing chunks of the JSON data
 
-    public void resetChunkOffset() {
-        this.chunkOffset = 0;
-    }
-    public void plusChunkOffset() {
-        this.chunkOffset++;
-    }
-
     public void updateChunkDataList(List<byte[]> chunkDataList) {
         this.chunkDataList = chunkDataList;
     }
