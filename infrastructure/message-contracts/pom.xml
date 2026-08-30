@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>infrastructure</artifactId>
+        <groupId>com.brunosong.transfer.system</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>message-contracts</artifactId>
+
+    <!--
+        서비스 사이의 메시지 계약을 담는 모듈이다.
+
+        packaging 이 pom 인 것은 의도한 것이다. jar 를 만들지 않으므로 다른 모듈이
+        이것을 의존할 수 없다. 스키마에서 만든 클래스를 공유하면 배포 단위만 나뉘고
+        빌드가 다시 묶이기 때문이다. 각 서비스의 messaging 모듈이 이 폴더의 .avsc 를
+        읽어 자기 클래스를 각자 만든다.
+
+        이 모듈이 하는 일은 둘이다. 스키마 원본을 한 곳에 두는 것과, 레지스트리에
+        호환성을 검사하고 등록하는 것이다.
+
+        검사와 등록은 빌드 수명주기에 걸지 않았다. 걸어 두면 레지스트리가 떠 있어야
+        빌드가 되고, 레지스트리가 죽으면 CI 가 멈춘다. 필요할 때 명시적으로 부른다.
+
+            mvn -pl infrastructure/message-contracts \
+                io.confluent:kafka-schema-registry-maven-plugin:test-compatibility
+            mvn -pl infrastructure/message-contracts \
+                io.confluent:kafka-schema-registry-maven-plugin:register
+
+        PR 에서 test-compatibility 를 돌려 소비자를 깨뜨리는 변경을 막고,
+        머지된 뒤에 register 로 새 버전을 올린다.
+    -->
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-maven-plugin</artifactId>
+                <version>${confluent.version}</version>
+                <configuration>
+                    <schemaRegistryUrls>
+                        <param>${schema.registry.url}</param>
+                    </schemaRegistryUrls>
+                    <!-- subject 이름은 토픽명 뒤에 -value 를 붙이는 기본 규칙을 따른다 -->
+                    <subjects>
+                        <data-migration-request-value>
+                            src/main/avro/data_migration_request.avsc
+                        </data-migration-request-value>
+                        <data-migration-response-value>
+                            src/main/avro/data_migration_response.avsc
+                        </data-migration-response-value>
+                    </subjects>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

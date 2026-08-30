@@ -13,7 +13,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>kafka-producer</module>
-        <module>kafka-model</module>
         <module>kafka-consumer</module>
         <module>kafka-config-data</module>
     </modules>

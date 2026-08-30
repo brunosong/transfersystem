@@ -87,6 +87,37 @@
 
     <build>
         <plugins>
+            <!--
+                SchemaRegistryInitializer 가 dev 프로파일에서 classpath:avro/*.avsc 를 읽는다.
+                전에는 kafka-model jar 안에 그 리소스가 있었는데, 계약을 message-contracts 로
+                빼면서 jar 의존을 끊었으므로 여기서 직접 복사해 넣는다.
+                등록의 정식 경로는 CI 에서 도는 kafka-schema-registry-maven-plugin 이고
+                이쪽은 로컬에서 띄울 때 쓰는 편의 장치다.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-message-contracts</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.outputDirectory}/avro</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${message.contracts.dir}</directory>
+                                    <includes>
+                                        <include>*.avsc</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>

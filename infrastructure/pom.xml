@@ -12,6 +12,7 @@
     <artifactId>infrastructure</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>message-contracts</module>
         <module>kafka</module>
         <module>saga</module>
         <module>outbox</module>
