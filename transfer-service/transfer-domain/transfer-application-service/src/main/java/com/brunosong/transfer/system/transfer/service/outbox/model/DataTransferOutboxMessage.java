@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.service.outbox.model;
 
-import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.saga.SagaStatus;
 import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
@@ -27,9 +26,6 @@ public class DataTransferOutboxMessage {
     @Setter
     private SagaStatus sagaStatus;
     private TransType transType;
-//
-//    @Setter
-//    private TransferStatus transferStatus;
 
     @Setter
     private OutboxStatus outboxStatus;

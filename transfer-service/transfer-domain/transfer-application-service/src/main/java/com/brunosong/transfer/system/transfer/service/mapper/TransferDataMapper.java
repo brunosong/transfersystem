@@ -47,8 +47,10 @@ public class TransferDataMapper {
 
     public DataTransferEventPayload transferRequestEventToDataTransferEventPayload(TransferRequestEvent transferRequestEvent) {
         return DataTransferEventPayload.builder()
-                .transferId(transferRequestEvent.getTransfer().getId())
-                .dataMigrationId(transferRequestEvent.getTransfer().getDataMigrationId())
+                .transferId(transferRequestEvent.getTransfer().getId().getValue())
+                .dataMigrationId(transferRequestEvent.getTransfer().getDataMigrationId().getValue())
+                .transType(transferRequestEvent.getTransfer().getTransType())
+                .sourceId(transferRequestEvent.getTransfer().getSourceId().getValue())
                 .chunkData(transferRequestEvent.getChunkData())
                 .chunkOffset(transferRequestEvent.getChunkOffset())
                 .createdAt(transferRequestEvent.getCreatedAt())

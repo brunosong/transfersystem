@@ -8,7 +8,6 @@ import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferE
 import com.brunosong.transfer.system.transfer.service.outbox.scheduler.DataTransferOutboxHelper;
 import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +16,8 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class TransferExecutionHandler {
 
-//    private final TransferApiSendHelper transferApiSendHelper;
-//    private final TransferMessagingSendHelper messagingSendHelper;
     private final TransferPersistHelper transferPersistHelper;
     private final DataTransferOutboxHelper dataTransferOutboxHelper;
     private final TransferDataMapper transferDataMapper;
@@ -46,22 +42,7 @@ public class TransferExecutionHandler {
 
         }
 
-//
-//
-//
-//        // 2. 전송할 데이터 설정 정보 찾기
-//        if (transfer.getTransType() == TransType.API) {
-//            transferApiSendHelper.transferAction(transfer);
-//            log.info("API transfer completed: {}", transfer.getId());
-//        } else if (transfer.getTransType() == TransType.MESSAGING) {
-//            messagingSendHelper.transferAction(transfer);
-//            log.info("Messaging transfer completed: {}", transfer.getId());
-//        } else {
-//            transfer.markFailed();
-//            log.warn("Unknown transfer type for: {}", transfer.getId());
-//        }
-
-        // 4. 데이터 전송 결과 업데이트
+        // 2. 데이터 전송 결과 업데이트
         updateTransferSendResult(transfer);
 
         return transfer;

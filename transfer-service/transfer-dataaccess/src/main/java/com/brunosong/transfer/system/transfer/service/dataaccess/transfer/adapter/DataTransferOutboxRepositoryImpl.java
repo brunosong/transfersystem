@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,21 +35,25 @@ public class DataTransferOutboxRepositoryImpl implements DataTransferOutboxRepos
     public Optional<List<DataTransferOutboxMessage>> findByTypeAndOutboxStatusAndSagaStatus(String type,
                                                                                             OutboxStatus outboxStatus,
                                                                                             SagaStatus... sagaStatus) {
-        // Implementation logic to find messages by type, outbox status, and saga status
-        return Optional.empty(); // Replace with actual implementation
+        return transferOutboxJpaRepository
+                .findByTypeAndOutboxStatusAndSagaStatusIn(type, outboxStatus, Arrays.asList(sagaStatus))
+                .map(entities -> entities.stream()
+                        .map(transferDataAccessMapper::toDataTransferOutboxMessage)
+                        .toList());
     }
 
     @Override
     public Optional<DataTransferOutboxMessage> findByTypeSagaIdAndSagaStatus(String type, UUID sagaId,
                                                                              SagaStatus... sagaStatus) {
-        // Implementation logic to find a message by type, saga ID, and saga status
-        return Optional.empty(); // Replace with actual implementation
+        return transferOutboxJpaRepository
+                .findByTypeAndSagaIdAndSagaStatusIn(type, sagaId, Arrays.asList(sagaStatus))
+                .map(transferDataAccessMapper::toDataTransferOutboxMessage);
     }
 
     @Override
     public void deleteByTypeAndOutboxStatusAndSagaStatus(String type,
                                                          OutboxStatus outboxStatus,
                                                          SagaStatus... sagaStatus) {
-        // Implementation logic to delete messages by type, outbox status, and saga status
+        transferOutboxJpaRepository.deleteByTypeAndOutboxStatusAndSagaStatusIn(type, outboxStatus, Arrays.asList(sagaStatus));
     }
 }

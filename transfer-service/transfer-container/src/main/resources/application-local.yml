@@ -53,8 +53,9 @@ transfer-service:
   data-migration-response-topic-name: data-migration-response
   data-migration-schema-subjects:
     - avro/DataMigrationRequestAvroModel.avsc
-  outbox-scheduler-initial-delay: 10000
-  outbox-scheduler-fixed-delay: 10000
+  outbox-scheduler:
+    initial-delay: 10000
+    fixed-delay: 10000
 
 feign:
   client:
@@ -69,7 +70,7 @@ kafka-config:
   bootstrap-servers: kafka-broker-0.kafka-broker.kafka.svc.cluster.local:9092
   schema-registry-url-key: schema.registry.url
   schema-registry-url: http://schema-registry-0.schema-registry-service.kafka.svc.cluster.local:8081
-  num-of-partitions: 1
+  num-of-partitions: 3
   replication-factor: 1
 
 kafka-producer-config:
@@ -93,6 +94,8 @@ kafka-consumer-config:
   specific-avro-reader: true
   batch-listener: true
   auto-startup: true
+  # 파티션 수가 상한이다. 이 값을 파티션보다 크게 주면 남는 스레드는 논다.
+  # init-kafka 가 토픽을 3파티션으로 만든다
   concurrency-level: 3
   session-timeout-ms: 10000
   heartbeat-interval-ms: 3000
@@ -101,7 +104,9 @@ kafka-consumer-config:
   max-partition-fetch-bytes-default: 1048576
   max-partition-fetch-bytes-boost-factor: 1
   poll-timeout-ms: 150
-  fetch-min-bytes: 1048576
+  # 1MB 가 쌓이거나 fetch-max-wait-ms 가 지나야 가져온다. 참조 예제의 대량 스트림 값이라
+  # 요청이 띄엄띄엄 오는 이 시스템에서는 지연만 늘었다
+  fetch-min-bytes: 1
   fetch-max-wait-ms: 2000
 
 brunosong:

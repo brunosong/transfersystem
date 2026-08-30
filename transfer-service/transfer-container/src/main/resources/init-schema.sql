@@ -51,15 +51,14 @@ CREATE TABLE transfer_chunks (
     CONSTRAINT fk_transfer_log
         FOREIGN KEY (transfer_log_id)
         REFERENCES transfer_log(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    -- 메시지는 최소 한 번 전달되므로 같은 청크가 두 번 올 수 있다.
+    -- 마지막 방어선을 DB 에 둔다
+    CONSTRAINT uk_transfer_chunk UNIQUE (transfer_log_id, chunk_offset)
 );
 
 
-DROP IF EXISTS saga_status;
-CREATE TYPE saga_status AS ENUM ('STARTED', 'FAILED', 'SUCCEEDED', 'PROCESSING', 'COMPENSATING', 'COMPENSATED');
 
-DROP IF EXISTS outbox_status;
-CREATE TYPE outbox_status AS ENUM ('STARTED','FAILED','COMPLETED');
 
 -- outbox 테이블
 DROP TABLE IF EXISTS transfer_outbox CASCADE;
@@ -69,12 +68,13 @@ CREATE TABLE transfer_outbox (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     processed_at TIMESTAMP WITH TIME ZONE,
     type character varying COLLATE pg_catalog."default" NOT NULL,
+    trans_type VARCHAR(50) NOT NULL,
     payload jsonb NOT NULL,
-    saga_status saga_status NOT NULL,
-    outbox_status outbox_status NOT NULL,
+    saga_status VARCHAR(20) NOT NULL,
+    outbox_status VARCHAR(20) NOT NULL,
     version integer NOT NULL,
     CONSTRAINT transfer_outbox_pkey PRIMARY KEY (id)
 );
 
-CREATE INDEX IF NOT EXISTS datamigration_outbox_saga_status ON datamigration_outbox (type, outbox_status, saga_status);
-CREATE INDEX IF NOT EXISTS datamigration_outbox_saga_id ON datamigration_outbox (type, saga_id, saga_status);
+CREATE INDEX IF NOT EXISTS transfer_outbox_saga_status ON transfer_outbox (type, outbox_status, saga_status);
+CREATE INDEX IF NOT EXISTS transfer_outbox_saga_id ON transfer_outbox (type, saga_id, saga_status);

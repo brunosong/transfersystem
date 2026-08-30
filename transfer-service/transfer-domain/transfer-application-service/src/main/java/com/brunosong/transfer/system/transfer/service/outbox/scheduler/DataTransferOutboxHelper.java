@@ -1,13 +1,11 @@
 package com.brunosong.transfer.system.transfer.service.outbox.scheduler;
 
-import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.saga.SagaStatus;
 import com.brunosong.transfer.system.transfer.service.exception.TransferDomainException;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferOutboxMessage;
 import com.brunosong.transfer.system.transfer.service.ports.output.repository.DataTransferOutboxRepository;
-import com.brunosong.transfer.system.transfer.service.valueobject.TransType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -58,10 +56,13 @@ public class DataTransferOutboxHelper {
     public void saveDataTransferOutboxMessage(DataTransferEventPayload dataTransferEventPayload, UUID sagaId) {
         save(DataTransferOutboxMessage.builder()
                 .id(UUID.randomUUID())
+                .type(TRANSFER_SAGA_NAME)
                 .transType(dataTransferEventPayload.getTransType())
                 .sagaId(sagaId)
                 .payload(createPayload(dataTransferEventPayload))
                 .createdAt(dataTransferEventPayload.getCreatedAt())
+                .sagaStatus(SagaStatus.STARTED)
+                .outboxStatus(OutboxStatus.STARTED)
                 .build());
     }
 

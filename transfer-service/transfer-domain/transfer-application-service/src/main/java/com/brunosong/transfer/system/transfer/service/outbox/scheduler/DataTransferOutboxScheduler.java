@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.outbox.scheduler;
 
+import com.brunosong.transfer.system.domain.DomainConstants;
 import com.brunosong.transfer.system.outbox.OutboxScheduler;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.saga.SagaStatus;
@@ -11,6 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,6 +48,8 @@ public class DataTransferOutboxScheduler implements OutboxScheduler {
 
     private void updateOutboxStatus(DataTransferOutboxMessage dataTransferOutboxMessage, OutboxStatus outboxStatus) {
         dataTransferOutboxMessage.setOutboxStatus(outboxStatus);
+        // 언제 나갔는지가 없으면 밀린 건과 방금 나간 건을 구별할 수 없다
+        dataTransferOutboxMessage.setProcessedAt(ZonedDateTime.now(ZoneId.of(DomainConstants.UTC)));
         dataTransferOutboxHelper.save(dataTransferOutboxMessage);
         log.info("Updated DataTransferOutboxMessage with ID: {} to status: {}", dataTransferOutboxMessage.getId(), outboxStatus);
 
