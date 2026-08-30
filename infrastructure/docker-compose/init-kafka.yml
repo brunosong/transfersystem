@@ -9,11 +9,13 @@ services:
       # block until kafka is reachable
       kafka-topics --bootstrap-server kafka-broker-1:9092 --list
 
-      echo -e 'Deleting kafka topics'
-      kafka-topics --bootstrap-server kafka-broker-1:9092 --topic material-request --delete --if-exists
-
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka-broker-1:9092 --create --if-not-exists --topic material-request --replication-factor 3 --partitions 3
+      kafka-topics --bootstrap-server kafka-broker-1:9092 --create --if-not-exists --topic data-migration-request --replication-factor 3 --partitions 3
+      kafka-topics --bootstrap-server kafka-broker-1:9092 --create --if-not-exists --topic data-migration-response --replication-factor 3 --partitions 3
+
+      echo -e 'Creating dead letter topics'
+      kafka-topics --bootstrap-server kafka-broker-1:9092 --create --if-not-exists --topic data-migration-request.DLT --replication-factor 3 --partitions 1
+      kafka-topics --bootstrap-server kafka-broker-1:9092 --create --if-not-exists --topic data-migration-response.DLT --replication-factor 3 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka-broker-1:9092 --list

@@ -11,7 +11,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.Instant;
 
 @Entity
-@Table(name = "transfer_chunks")
+@Table(name = "transfer_chunks",
+       uniqueConstraints = @UniqueConstraint(name = "uk_transfer_chunk",
+                                             columnNames = {"transfer_log_id", "chunk_offset"}))
 @Getter
 @Builder
 @AllArgsConstructor

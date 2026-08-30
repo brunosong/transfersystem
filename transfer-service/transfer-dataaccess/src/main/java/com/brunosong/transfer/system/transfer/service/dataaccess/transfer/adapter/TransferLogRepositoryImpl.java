@@ -42,8 +42,18 @@ public class TransferLogRepositoryImpl implements TransferLogRepository {
     @Override
     public void saveChunk(DataMigrationResponse dataMigrationResponse) {
 
+        UUID transferLogId = dataMigrationResponse.getTransferId().getValue();
+        int chunkOffset = dataMigrationResponse.getChunkOffset();
+
+        // 메시지는 최소 한 번 전달된다. 아웃박스가 보내고 상태를 닫기 전에 죽으면
+        // 다음 주기가 같은 것을 다시 보낸다. 중복은 사고가 아니라 정상 경로다
+        if (transferChunksJpaRepository.existsByLog_IdAndChunkOffset(transferLogId, chunkOffset)) {
+            log.info("이미 저장된 청크라 건너뜁니다. transferId={} chunkOffset={}", transferLogId, chunkOffset);
+            return;
+        }
+
         TransferLogEntity transferLogEntity = TransferLogEntity.builder()
-                .id(dataMigrationResponse.getTransferId().getValue())
+                .id(transferLogId)
                 .build();
 
         TransferChunkEntity transferChunkEntity =

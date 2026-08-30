@@ -6,7 +6,7 @@ import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessaging
 import com.brunosong.transfer.system.transfer.service.ports.input.message.listener.DataMigrationMessageListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.kafka.listener.BatchListenerFailedException;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,9 +29,18 @@ public class DataMigrationResponseMessageListener implements KafkaConsumer<DataM
                         @Header(KafkaHeaders.RECEIVED_PARTITION) List<Integer> partitions,
                         @Header(KafkaHeaders.OFFSET) List<Long> offsets) {
 
-        message.forEach( model -> {
-            dataMigrationMessageListener.transferStatusUpdate(transferMessagingDataMapper.toDataMigrationResponse(model));
-        });
+        // 실패한 위치를 알려 줘야 그 앞은 커밋되고 이 건부터 다시 시도된다.
+        // 그냥 던지면 배치 전체가 재시도되고, 소진 후에는 배치 전체가 건너뛰어진다
+        for (int index = 0; index < message.size(); index++) {
+            DataMigrationResponseAvroModel avroModel = message.get(index);
+            try {
+                dataMigrationMessageListener.transferStatusUpdate(
+                        transferMessagingDataMapper.toDataMigrationResponse(avroModel));
+            } catch (RuntimeException e) {
+                throw new BatchListenerFailedException(
+                        "이관 응답 처리에 실패했습니다. transferId=" + avroModel.getTransferId(), e, index);
+            }
+        }
 
     }
 }

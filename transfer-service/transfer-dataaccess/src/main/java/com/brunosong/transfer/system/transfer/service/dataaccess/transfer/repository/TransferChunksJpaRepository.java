@@ -10,4 +10,5 @@ import java.util.UUID;
 @Repository
 public interface TransferChunksJpaRepository extends JpaRepository<TransferChunkEntity, Long> {
 
+    boolean existsByLog_IdAndChunkOffset(UUID transferLogId, int chunkOffset);
 }
