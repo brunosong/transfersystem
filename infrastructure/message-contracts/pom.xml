@@ -14,13 +14,17 @@
     <!--
         서비스 사이의 메시지 계약을 담는 모듈이다.
 
-        packaging 이 pom 인 것은 의도한 것이다. jar 를 만들지 않으므로 다른 모듈이
-        이것을 의존할 수 없다. 스키마에서 만든 클래스를 공유하면 배포 단위만 나뉘고
-        빌드가 다시 묶이기 때문이다. 각 서비스의 messaging 모듈이 이 폴더의 .avsc 를
-        읽어 자기 클래스를 각자 만든다.
+        이 jar 안에는 .avsc 만 들어간다. 자바 클래스는 한 개도 없다.
+        전에 있던 kafka-model 은 스키마에서 만든 클래스까지 담아 두 서비스가 그것을
+        그대로 썼다. 그러면 양쪽이 같은 클래스를 쓰는 것이고 곧 같은 스키마 버전에
+        묶인다는 뜻이라, 생산자가 버전을 올리면 소비자도 따라 올려야 했다.
 
-        이 모듈이 하는 일은 둘이다. 스키마 원본을 한 곳에 두는 것과, 레지스트리에
-        호환성을 검사하고 등록하는 것이다.
+        지금은 스키마만 나눠 가지고 클래스는 각 messaging 모듈이 자기 빌드에서 만든다.
+        그래서 두 서비스가 서로 다른 계약 버전에 있어도 된다. 메시지에 쓴 쪽 스키마 ID 가
+        실려 오고 읽는 쪽은 자기 스키마로 맞춰 읽기 때문이다.
+
+        이 모듈을 다른 저장소로 떼어 낼 때 바뀌는 것은 groupId 와 버전 체계뿐이다.
+        받는 쪽 pom 은 그대로 둔다.
 
         검사와 등록은 빌드 수명주기에 걸지 않았다. 걸어 두면 레지스트리가 떠 있어야
         빌드가 되고, 레지스트리가 죽으면 CI 가 멈춘다. 필요할 때 명시적으로 부른다.
@@ -33,7 +37,6 @@
         PR 에서 test-compatibility 를 돌려 소비자를 깨뜨리는 변경을 막고,
         머지된 뒤에 register 로 새 버전을 올린다.
     -->
-    <packaging>pom</packaging>
 
     <build>
         <plugins>
@@ -48,10 +51,10 @@
                     <!-- subject 이름은 토픽명 뒤에 -value 를 붙이는 기본 규칙을 따른다 -->
                     <subjects>
                         <data-migration-request-value>
-                            src/main/avro/data_migration_request.avsc
+                            src/main/resources/avro/data_migration_request.avsc
                         </data-migration-request-value>
                         <data-migration-response-value>
-                            src/main/avro/data_migration_response.avsc
+                            src/main/resources/avro/data_migration_response.avsc
                         </data-migration-response-value>
                     </subjects>
                 </configuration>

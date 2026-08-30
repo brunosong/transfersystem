@@ -52,12 +52,22 @@
             자기 Avro 클래스를 만든다. jar 로 주고받지 않으므로 경로로 가리킨다.
             두 messaging 모듈이 모두 루트에서 두 단계 아래에 있어 상대 경로가 같다.
         -->
-        <message.contracts.dir>${project.basedir}/../../infrastructure/message-contracts/src/main/avro</message.contracts.dir>
+        <message.contracts.dir>${project.basedir}/../../infrastructure/message-contracts/src/main/resources/avro</message.contracts.dir>
         <schema.registry.url>http://localhost:8081</schema.registry.url>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!--
+                계약 아티팩트. 지금은 같은 저장소의 모듈이라 ${project.version} 을 쓰지만,
+                다른 저장소로 떼면 groupId 와 버전만 바꾸면 된다. 받는 쪽 pom 은 그대로다.
+                이 jar 안에는 .avsc 만 있고 클래스는 없다.
+            -->
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>message-contracts</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- messaging 모듈이 계약에서 클래스를 직접 만들면서 avro 를 직접 쓴다.
                  전에는 kafka 하위 모듈만 쓰던 것이라 그쪽에서만 관리했다 -->
             <dependency>
