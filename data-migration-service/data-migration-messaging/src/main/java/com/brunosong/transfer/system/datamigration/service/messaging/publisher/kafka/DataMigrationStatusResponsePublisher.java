@@ -5,10 +5,9 @@ import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigra
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMigrationMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
-import com.brunosong.transfer.system.kafka.producer.KafkaMessageHelper;
-import com.brunosong.transfer.system.kafka.producer.service.KafkaProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -16,10 +15,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DataMigrationStatusResponsePublisher implements DataMigrationResponsePublisher {
 
-    private final KafkaProducer<String, DataMigrationResponseAvroModel> kafkaProducer;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final DataMigrationMessagingDataMapper dataMigrationMessagingDataMapper;
     private final DataMigrationServiceConfigData dataMigrationServiceConfigData;
-    private final KafkaMessageHelper kafkaMessageHelper;
 
     @Override
     public void dataMigrationStatusPublish(DataMigrationResponseMessage responseMessage) {
@@ -27,23 +25,17 @@ public class DataMigrationStatusResponsePublisher implements DataMigrationRespon
         DataMigrationResponseAvroModel responseAvroModel = dataMigrationMessagingDataMapper
                 .toDataMigrationResponseAvroModel(responseMessage);
 
-        try {
+        String topicName = dataMigrationServiceConfigData.getDataMigrationResponseTopicName();
 
-            kafkaProducer.send(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
-                                        responseAvroModel.getTransferId(),
-                                        responseAvroModel,
-                                        kafkaMessageHelper.getKafkaCallback(dataMigrationServiceConfigData.getDataMigrationResponseTopicName(),
-                                                                    responseAvroModel,
-                                                                    responseAvroModel.getTransferId(),
-                                                        "DataMigrationResponseAvroModel")
-            );
-
-            log.info("DataMigrationResponseAvroModel sent to kafka for transferId id: {}", responseAvroModel.getTransferId());
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error("Error while sending DataMigrationResponseAvroModel message" +
-                            " to kafka with transferId id: {} and error: {}",
-                    responseAvroModel.getTransferId(), e.getMessage());
-        }
+        kafkaTemplate.send(topicName, responseAvroModel.getTransferId(), responseAvroModel)
+                .whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("DataMigrationResponseAvroModel 발행 실패. transferId={}",
+                                responseAvroModel.getTransferId(), ex);
+                    } else {
+                        log.info("DataMigrationResponseAvroModel sent to kafka for transferId id: {}",
+                                responseAvroModel.getTransferId());
+                    }
+                });
     }
 }

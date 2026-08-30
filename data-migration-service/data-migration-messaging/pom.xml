@@ -12,9 +12,18 @@
     <artifactId>data-migration-messaging</artifactId>
 
     <dependencies>
+        <!-- 리스너와 템플릿을 직접 쓴다. 라이브러리라 두 모듈이 각자 선언한다 -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.confluent</groupId>
+            <artifactId>kafka-avro-serializer</artifactId>
         </dependency>
         <!--
             계약 아티팩트. 이 jar 안에는 .avsc 만 있고 클래스는 없다.
@@ -23,14 +32,6 @@
         <dependency>
             <groupId>com.brunosong.transfer.system</groupId>
             <artifactId>message-contracts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.brunosong.transfer.system</groupId>
-            <artifactId>kafka-consumer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.brunosong.transfer.system</groupId>
-            <artifactId>kafka-producer</artifactId>
         </dependency>
         <dependency>
             <groupId>com.brunosong.transfer.system</groupId>

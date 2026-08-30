@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.transfer.messaging.publisher.kafka.outbox;
 
-import com.brunosong.transfer.system.kafka.producer.service.KafkaProducer;
 import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,10 @@ public class DataTransferRequestKafkaMessagePublisher implements DataTransferReq
 
     private final TransferServiceConfigData transferServiceConfigData;
     private final TransferMessagingDataMapper transferMessagingDataMapper;
-    private final KafkaProducer<String, DataMigrationRequestAvroModel> kafkaProducer;
+    // 부트 자동 설정이 만들어 준 템플릿을 그대로 쓴다.
+    // 전에는 이것을 감싼 KafkaProducer 인터페이스와 구현이 따로 있었는데,
+    // send 한 줄을 감싸는 것뿐이라 걷어냈다
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -56,15 +59,12 @@ public class DataTransferRequestKafkaMessagePublisher implements DataTransferReq
                     transferMessagingDataMapper.toDataMigrationRequestAvroModel(payload,
                             dataTransferOutboxMessage.getSagaId());
 
-            kafkaProducer.send(topicName,
-                                sagaId,
-                                dataMigrationRequestAvroModel,
-                                getKafkaCallback(topicName,
-                                                 dataMigrationRequestAvroModel,
-                                                 dataTransferOutboxMessage,
-                                                 outboxCallback,
-                                    "DataMigrationRequestAvroModel")
-            );
+            kafkaTemplate.send(topicName, sagaId, dataMigrationRequestAvroModel)
+                    .whenComplete(getKafkaCallback(topicName,
+                                                   dataMigrationRequestAvroModel,
+                                                   dataTransferOutboxMessage,
+                                                   outboxCallback,
+                                      "DataMigrationRequestAvroModel"));
 
             log.info("DataMigrationRequestAvroModel sent to kafka for saga id: {}", sagaId);
         } catch (Exception e) {
@@ -88,10 +88,9 @@ public class DataTransferRequestKafkaMessagePublisher implements DataTransferReq
     /**
      * 전송 결과를 아웃박스 상태로 옮기는 콜백.
      *
-     * KafkaMessageHelper 를 쓰지 않는 이유는 그쪽 콜백이 로그만 남기기 때문이다.
-     * 여기는 결과에 따라 아웃박스 행까지 바꿔야 해서 따로 만든다.
+     * 결과에 따라 아웃박스 행까지 바꿔야 해서 콜백을 직접 만든다.
      */
-    private BiConsumer<SendResult<String, DataMigrationRequestAvroModel>, Throwable> getKafkaCallback(
+    private BiConsumer<SendResult<String, Object>, Throwable> getKafkaCallback(
             String responseTopicName,
             DataMigrationRequestAvroModel avroModel,
             DataTransferOutboxMessage dataTransferOutboxMessage,

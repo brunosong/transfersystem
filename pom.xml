@@ -56,6 +56,31 @@
         <schema.registry.url>http://localhost:8081</schema.registry.url>
     </properties>
 
+    <!--
+        컨플루언트 아티팩트(kafka-avro-serializer, 스키마 레지스트리 플러그인)는
+        메이븐 센트럴에 없다. 전에는 infrastructure/kafka 에만 선언돼 있었는데,
+        messaging 모듈이 직렬화기를 직접 쓰게 되면서 루트로 올린다.
+    -->
+    <repositories>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <!--
@@ -68,8 +93,46 @@
                 <artifactId>message-contracts</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- messaging 모듈이 계약에서 클래스를 직접 만들면서 avro 를 직접 쓴다.
+            <dependency>
+                <groupId>com.brunosong.transfer.system</groupId>
+                <artifactId>kafka-support</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- messaging 모듈이 계약에서 클래스를 직접 만들고 직렬화기를 직접 지정한다.
                  전에는 kafka 하위 모듈만 쓰던 것이라 그쪽에서만 관리했다 -->
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-avro-serializer</artifactId>
+                <version>${kafka-avro-serializer.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-annotations</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>io.swagger</groupId>
+                        <artifactId>swagger-core</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.confluent</groupId>
+                <artifactId>kafka-schema-registry-client</artifactId>
+                <version>${confluent.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.avro</groupId>
                 <artifactId>avro</artifactId>
@@ -174,18 +237,6 @@
 
             <dependency>
                 <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>kafka-producer</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>kafka-config-data</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
                 <artifactId>saga</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -207,12 +258,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-mapstruct-binding</artifactId>
                 <version>0.2.0</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>kafka-consumer</artifactId>
-                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>

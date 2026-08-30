@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>kafka</artifactId>
+        <groupId>com.brunosong.transfer.system</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>kafka-support</artifactId>
+
+    <!--
+        카프카 배선은 스프링 부트 자동 설정이 한다. 이 모듈은 그 위에 조직 공통 정책
+        하나만 얹는다. 실패한 레코드를 어떻게 할 것인가다.
+
+        전에는 kafka-config-data, kafka-consumer, kafka-producer 세 모듈이
+        ConsumerFactory 와 ProducerFactory 와 컨테이너 팩토리를 직접 만들었다.
+        부트가 이미 하는 일이라 걷어냈다. 값은 spring.kafka.* 로 준다.
+    -->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>

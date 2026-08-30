@@ -1,6 +1,5 @@
 package com.brunosong.transfer.system.main;
 
-import com.brunosong.transfer.system.kafka.config.data.KafkaConfigData;
 import com.brunosong.transfer.system.main.config.TransferServiceProperties;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
@@ -29,13 +28,16 @@ import java.util.Objects;
 public class SchemaRegistryInitializer {
 
     private final ResourceLoader resourceLoader;
-    private final KafkaConfigData kafkaConfigData;
     private final TransferServiceProperties transferServiceProperties;
+
+    // 부트가 읽는 자리에서 그대로 가져온다. 전용 프로퍼티 클래스를 따로 두지 않는다
+    @Value("${spring.kafka.properties.schema.registry.url}")
+    private String schemaRegistryUrl;
 
     @PostConstruct
     @Retryable(maxAttempts = 5, backoff = @Backoff(delay = 2000))
     public void registerSchema() throws Exception {
-        CachedSchemaRegistryClient client = new CachedSchemaRegistryClient(kafkaConfigData.getSchemaRegistryUrl(), 100);
+        CachedSchemaRegistryClient client = new CachedSchemaRegistryClient(schemaRegistryUrl, 100);
 
         for (String schemaPath : transferServiceProperties.getDataMigrationSchemaSubjects()) {
             String resourcePath = "classpath:" + schemaPath;

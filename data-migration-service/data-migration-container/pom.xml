@@ -12,6 +12,11 @@
     <artifactId>data-migration-container</artifactId>
 
     <dependencies>
+        <!-- 카프카 실패 처리 정책. 자동 설정이라 클래스패스에 있으면 붙는다 -->
+        <dependency>
+            <groupId>com.brunosong.transfer.system</groupId>
+            <artifactId>kafka-support</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

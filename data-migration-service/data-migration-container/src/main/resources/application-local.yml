@@ -49,6 +49,40 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
+    properties:
+      schema.registry.url: http://localhost:8081
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      acks: all
+      retries: 5
+      batch-size: 1638400
+      properties:
+        linger.ms: 5
+        request.timeout.ms: 60000
+    consumer:
+      group-id: datamigration-topic-consumer
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      # 실제 역직렬화기는 아래 delegate 로 들어간다. 감싸지 않으면 깨진 메시지 한 건이
+      # 그 파티션을 영구히 멈춘다
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      auto-offset-reset: earliest
+      # 한 건이 오래 걸리는 적재라 한 번에 하나만 가져온다
+      max-poll-records: 1
+      fetch-min-size: 1
+      fetch-max-wait: 5s
+      properties:
+        spring.deserializer.value.delegate.class: io.confluent.kafka.serializers.KafkaAvroDeserializer
+        specific.avro.reader: true
+        session.timeout.ms: 60000
+        heartbeat.interval.ms: 15000
+        max.poll.interval.ms: 1800000
+        max.partition.fetch.bytes: 2097152
+    listener:
+      type: batch
+      # 파티션 수가 상한이다. init-kafka 가 토픽을 3파티션으로 만든다
+      concurrency: 3
+      poll-timeout: 2s
 
 management:
   endpoints:
@@ -68,49 +102,6 @@ logging:
 #    org.springframework.transaction: debug
 #    org.springframework.kafka: debug
 
-
-kafka-config:
-  bootstrap-servers: localhost:19092, localhost:29092, localhost:39092
-  schema-registry-url-key: schema.registry.url
-  schema-registry-url: http://localhost:8081
-  num-of-partitions: 3
-  replication-factor: 3
-
-kafka-producer-config:
-  key-serializer-class: org.apache.kafka.common.serialization.StringSerializer
-  value-serializer-class: io.confluent.kafka.serializers.KafkaAvroSerializer
-  compression-type: none
-  acks: all
-  batch-size: 16384
-  batch-size-boost-factor: 100
-  linger-ms: 5
-  request-timeout-ms: 60000
-  retry-count: 5
-
-
-kafka-consumer-config:
-  key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-  value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-  data-migration-group-id: datamigration-topic-consumer
-  auto-offset-reset: earliest
-  specific-avro-reader-key: specific.avro.reader
-  specific-avro-reader: true
-  batch-listener: true
-  auto-startup: true
-  # 파티션 수가 상한이다. 이 값을 파티션보다 크게 주면 남는 스레드는 논다.
-  # init-kafka 가 토픽을 3파티션으로 만든다
-  concurrency-level: 3
-  session-timeout-ms: 60000
-  heartbeat-interval-ms: 15000
-  max-poll-interval-ms: 1800000
-  max-poll-records: 1
-  max-partition-fetch-bytes-default: 2097152
-  max-partition-fetch-bytes-boost-factor: 1
-  poll-timeout-ms: 2000
-  # 1MB 가 쌓이거나 fetch-max-wait-ms 가 지나야 가져온다. 참조 예제의 대량 스트림 값이라
-  # 요청이 띄엄띄엄 오는 이 시스템에서는 지연만 늘었다
-  fetch-min-bytes: 1
-  fetch-max-wait-ms: 5000
 
 data-migration-service:
   data-migration-request-topic-name: data-migration-request
