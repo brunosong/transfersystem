@@ -26,6 +26,8 @@
 - **컨테이너**: Docker (Docker Compose 사용)
 - **배포**: Kubernetes, Argo CD (Kustomize, Image Updater), Jenkins
 - **이미지 빌드**: Jib (`eclipse-temurin:21-jre` 베이스)
+- **화면**: React 19, TypeScript, Vite, Tailwind CSS, TanStack Query (nginx 컨테이너로 배포)
+- **테스트**: JUnit 5, Testcontainers(Postgres), Vitest
 - **기타**: Avro 데이터 직렬화
 
 ## 프로젝트 구조
@@ -46,7 +48,7 @@
 - **`data-migration-messaging`**: Kafka 요청 리스너와 결과 응답 퍼블리셔.
 
 ### 3. `transfer-service`
-- **`transfer-application`**: REST API.
+- **`transfer-application`**: REST API. 전송 접수와 조회 API(아래 표)를 제공합니다.
 - **`transfer-container`**: 메인 설정 및 서비스.
 - **`transfer-dataaccess`**: 전송 및 자재 데이터 관리.
 - **`transfer-cache`**: Redis 기반 전송 로그·데이터소스 캐시.
@@ -55,10 +57,26 @@
   - **`transfer-application-service`**: 유스케이스, 포트, Outbox 처리.
 - **`transfer-messaging`**: 아웃박스 메시지 퍼블리셔와 결과 응답 리스너.
 
-### 4. `config-service`
+#### 전송 API
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| `POST` | `/api/v1/transfers` | 전송 접수. 아웃박스에 저장까지 하고 `202 Accepted` + `Location` 을 돌려줍니다 |
+| `GET` | `/api/v1/transfers?status=&page=&size=` | 전송 목록(최신순, 청크 진행률 포함) |
+| `GET` | `/api/v1/transfers/stats` | 상태별 전송 수 |
+| `GET` | `/api/v1/transfers/{id}` | 전송 상세. 사가 단계(`steps`)와 청크 결과를 담습니다 |
+| `GET` | `/api/v1/source-configs` | 원본 저장소 설정 목록(접속 계정 제외) |
+
+### 4. `transfer-console`
+전송을 요청하고 진행 상황을 보는 화면입니다. Maven 빌드와 분리된 npm 프로젝트입니다.
+- **전송 현황**: 상태별 집계, 상태 필터, 청크 진행률. 진행 중인 전송이 있으면 자동으로 갱신합니다.
+- **전송 상세**: 사가 단계(대상별 반영, 실패 시 되돌리기)를 타임라인으로, 청크 결과를 칸으로 보여줍니다.
+- **새 전송**: 원본 저장소, 원본 ID, 대상 시스템을 골라 요청합니다.
+- **모의 데이터 모드**: 백엔드 없이 브라우저 안에서 사가 흐름(두 대상 반영, 실패 시 보상)을 흉내 냅니다. 원본 ID에 `fail` 이 들어가면 보상 흐름을 볼 수 있습니다.
+
+### 5. `config-service`
 - Spring Cloud Config 서버. 각 서비스의 설정 파일을 중앙에서 제공합니다.
 
-### 5. `infrastructure`
+### 6. `infrastructure`
 - **`kafka/kafka-support`**: Kafka 에러 처리(재시도·DLT 등) 스프링 부트 자동 설정.
 - **`message-contracts`**: 서비스 간 메시지 계약(Avro 스키마). 각 messaging 모듈이 아티팩트에서 스키마를 꺼내 자기 클래스를 만듭니다. ([ADR 0001](docs/adr/0001-message-contract-distribution.md))
 - **`outbox`**: Transactional Outbox 상태 및 스케줄러.
@@ -110,7 +128,22 @@
    docker-compose -f redis.yml up -d
    ```
 
-5. **Kubernetes 설정**
+5. **화면(transfer-console) 실행**
+   ```bash
+   cd transfer-console
+   npm install
+   npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
+   npm run dev        # transfer-service(기본 http://localhost:8080)에 붙어서 실행
+   ```
+   개발 서버가 `/api`, `/healthcheck` 를 transfer-service 로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `TRANSFER_SERVICE_URL` 환경 변수를 지정합니다.
+
+   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 `/api` 를 `TRANSFER_SERVICE_URL` 로 프록시합니다.
+   ```bash
+   docker build -t transfer-console transfer-console                         # 실제 API용
+   docker build -t transfer-console:demo --build-arg API_MODE=mock transfer-console  # 시연용
+   ```
+
+6. **Kubernetes 설정**
    - Kubernetes 클러스터에 배포하려면 `infrastructure/k8s` 디렉토리의 설정 파일을 사용합니다.
    - 인프라 리소스는 `kubectl apply -f infrastructure/k8s/<리소스>/` 명령어로 배포합니다.
    - 서비스는 Argo CD가 `infrastructure/k8s/services`의 Kustomize 설정을 기준으로 배포합니다.

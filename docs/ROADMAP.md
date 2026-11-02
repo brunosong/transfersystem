@@ -60,6 +60,20 @@ POST /transfers
 
 > 남겨 둔 것: `TransType.API` 값은 DB 컬럼에 쓰이므로 Phase 2의 Flyway 도입 때 함께 정리한다. Mongo 시드 생성기(`*DataGenerator`)는 Phase 2에서 로컬 시드 방식으로 옮긴다.
 
+## 화면 (transfer-console) ✅
+*목표: 전송을 요청하고, 사가가 어디까지 진행됐는지 눈으로 확인한다.*
+
+- [x] 조회 API: 목록(상태 필터·페이지), 상태별 집계, 상세(사가 단계 모양), 원본 설정 목록
+- [x] 전송 접수를 `POST /api/v1/transfers`(202 + Location)로 바꾸고, 응답에 transferId 를 담음(전에는 `null`)
+- [x] `@Valid` 가 `BindingResult` 때문에 무시되던 문제 수정, 404/400/422 오류 응답 정리
+- [x] 조회 어댑터를 Testcontainers Postgres 로 검증(Testcontainers 1.21.4, Docker Engine 29 호환)
+- [x] React + Vite + TS 화면: 전송 현황, 전송 상세(사가 타임라인·청크 칸), 새 전송
+- [x] 모의 데이터 모드: 사가 완성 후의 흐름(두 대상 반영, 실패 시 역순 보상)을 시간에 따라 흉내 냄
+- [x] nginx 컨테이너 이미지(`/api` 프록시, 요청 시점 DNS 조회)
+
+> 사가가 들어오면(Phase 3) 상세 API 의 `steps` 를 사가 상태 테이블에서 채우기만 하면 화면은 그대로 쓴다.
+> 지금은 단계가 `APPLY` 하나이고 대상 이름 대신 `targetId` 만 내려 주므로 화면이 시드 표로 이름을 붙인다.
+
 ## Phase 1. 정확성 버그 수정
 *목표: 데이터가 맞는 DB에, 맞는 트랜잭션으로 써짐.*
 
@@ -78,7 +92,8 @@ POST /transfers
 - [ ] Flyway 도입, `DROP` + `sql.init.mode: always` 제거
 - [ ] local 전용 설정을 `application.yml`로 옮기고 환경별 값은 `${ENV:default}`로
 - [ ] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리
-- [ ] Testcontainers 기반 `contextLoads`
+- [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)
+- [ ] 조회 어댑터 테스트용 스키마(`transfer-query-schema.sql`)를 Flyway 마이그레이션으로 대체
 
 ## Phase 3. 사가 구현
 **3-1. 계약**
@@ -100,14 +115,14 @@ POST /transfers
 - [ ] 오케스트레이터 상태 기계 단위 테스트
 - [ ] 서비스별 Testcontainers 통합 테스트
 - [ ] E2E 시나리오: 정상 / 부트캠프 실패 후 복원 / 중복 전달 / 응답 유실 후 재전송 / 동시 요청 409 / 보상 실패
-- [ ] GitHub Actions: PR마다 빌드와 테스트
+- [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포
-- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스 매니페스트
+- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `TRANSFER_SERVICE_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
 - [ ] Redis, MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
-- [ ] GitHub Actions → jib push → Argo CD Image Updater
+- [ ] GitHub Actions → jib push(서비스) / docker build(console) → Argo CD Image Updater
 - [ ] Argo Application을 GitHub repo 기준으로 두 서비스 등록, Bitbucket/Jenkins 참조 제거
 
 ## Phase 6. 포트폴리오 마감
