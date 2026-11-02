@@ -16,7 +16,6 @@
         <module>data-migration-domain</module>
         <module>data-migration-container</module>
         <module>data-migration-dataaccess</module>
-        <module>data-migration-application</module>
         <module>data-migration-messaging</module>
         <module>data-migration-cache</module>
     </modules>

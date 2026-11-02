@@ -17,7 +17,6 @@
         <module>transfer-dataaccess</module>
         <module>transfer-messaging</module>
         <module>transfer-application</module>
-        <module>transfer-infrastructure</module>
         <module>transfer-cache</module>
     </modules>
 
