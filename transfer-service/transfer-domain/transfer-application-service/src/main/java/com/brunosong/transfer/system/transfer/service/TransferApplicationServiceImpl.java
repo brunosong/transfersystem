@@ -33,9 +33,9 @@ public class TransferApplicationServiceImpl implements TransferApplicationServic
         SourceContentData sourceContentData = sourceFindDataHandler.findSourceContentData(transfer.getSourceConfigId(), transfer.getSourceId());
 
         // 2. 데이터 전송
-        transferExecutionHandler.sendData(transfer, sourceContentData);
+        Transfer sent = transferExecutionHandler.sendData(transfer, sourceContentData);
 
-        // return transferDataMapper.transferLogToExecutionTransferResponse(transferLogResult);
-        return null;
+        return new CreateTransferResponse(sent.getId().getValue(),
+                                          sourceContentData.getChunkDataList().size());
     }
 }

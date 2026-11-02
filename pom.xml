@@ -49,6 +49,8 @@
         <schema.registry.url>http://localhost:8081</schema.registry.url>
         <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <jib.base.image>eclipse-temurin:21-jre</jib.base.image>
+        <!-- Boot 3.3 기본값(1.19.x)은 Docker API 1.32 로 요청해 Docker Engine 29 이상에서 거부된다 -->
+        <testcontainers.version>1.21.4</testcontainers.version>
     </properties>
 
     <!--

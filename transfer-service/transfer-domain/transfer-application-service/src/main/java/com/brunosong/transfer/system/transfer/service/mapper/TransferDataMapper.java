@@ -1,9 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.mapper;
 
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
-import com.brunosong.transfer.system.transfer.service.dto.create.CreateTransferResponse;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
-import com.brunosong.transfer.system.transfer.service.dto.create.TransferLogResult;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.event.TransferRequestEvent;
@@ -22,13 +20,6 @@ public class TransferDataMapper {
                 .sourceConfigId(new SourceConfigId(request.getSourceConfigId()))
                 .dataMigrationInfoId(new DataMigrationId(request.getDataMigrationInfoId()))
                 .transType(request.getTransType())
-                .build();
-    }
-
-    public CreateTransferResponse transferLogToExecutionTransferResponse(TransferLogResult transferLogResult) {
-        return CreateTransferResponse.builder()
-                .transferLogId(transferLogResult.transferId())
-                .logMessage(transferLogResult.logMessage())
                 .build();
     }
 
