@@ -46,12 +46,6 @@
         <avro.version>1.11.0</avro.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <confluent.version>7.0.1</confluent.version>
-        <!--
-            메시지 계약 원본이 있는 곳. 각 messaging 모듈이 이 경로를 읽어
-            자기 Avro 클래스를 만든다. jar 로 주고받지 않으므로 경로로 가리킨다.
-            두 messaging 모듈이 모두 루트에서 두 단계 아래에 있어 상대 경로가 같다.
-        -->
-        <message.contracts.dir>${project.basedir}/../../infrastructure/message-contracts/src/main/resources/avro</message.contracts.dir>
         <schema.registry.url>http://localhost:8081</schema.registry.url>
         <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
         <jib.base.image>eclipse-temurin:21-jre</jib.base.image>
@@ -294,6 +288,54 @@
                             <image>${jib.base.image}</image>
                         </from>
                     </configuration>
+                </plugin>
+                <!--
+                    메시지 계약(.avsc)에서 Avro 클래스를 만드는 설정. 각 messaging 모듈은
+                    아래 두 플러그인을 이 순서대로 선언만 한다(같은 단계라 선언 순서대로 돈다).
+                    계약을 나눠 주는 방식과 다른 선택지는 docs/adr/0001-message-contract-distribution.md
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>unpack-contracts</id>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>unpack</goal>
+                            </goals>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>com.brunosong.transfer.system</groupId>
+                                        <artifactId>message-contracts</artifactId>
+                                        <version>${project.version}</version>
+                                        <includes>avro/*.avsc</includes>
+                                        <outputDirectory>${project.build.directory}/contracts</outputDirectory>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.avro</groupId>
+                    <artifactId>avro-maven-plugin</artifactId>
+                    <version>${avro.version}</version>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>schema</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>${project.build.directory}/contracts/avro</sourceDirectory>
+                                <outputDirectory>${project.build.directory}/generated-sources/avro</outputDirectory>
+                                <stringType>String</stringType>
+                                <enableDecimalLogicalType>true</enableDecimalLogicalType>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -12,30 +12,9 @@
     <artifactId>message-contracts</artifactId>
 
     <!--
-        서비스 사이의 메시지 계약을 담는 모듈이다.
-
-        이 jar 안에는 .avsc 만 들어간다. 자바 클래스는 한 개도 없다.
-        전에 있던 kafka-model 은 스키마에서 만든 클래스까지 담아 두 서비스가 그것을
-        그대로 썼다. 그러면 양쪽이 같은 클래스를 쓰는 것이고 곧 같은 스키마 버전에
-        묶인다는 뜻이라, 생산자가 버전을 올리면 소비자도 따라 올려야 했다.
-
-        지금은 스키마만 나눠 가지고 클래스는 각 messaging 모듈이 자기 빌드에서 만든다.
-        그래서 두 서비스가 서로 다른 계약 버전에 있어도 된다. 메시지에 쓴 쪽 스키마 ID 가
-        실려 오고 읽는 쪽은 자기 스키마로 맞춰 읽기 때문이다.
-
-        이 모듈을 다른 저장소로 떼어 낼 때 바뀌는 것은 groupId 와 버전 체계뿐이다.
-        받는 쪽 pom 은 그대로 둔다.
-
-        검사와 등록은 빌드 수명주기에 걸지 않았다. 걸어 두면 레지스트리가 떠 있어야
-        빌드가 되고, 레지스트리가 죽으면 CI 가 멈춘다. 필요할 때 명시적으로 부른다.
-
-            mvn -pl infrastructure/message-contracts \
-                io.confluent:kafka-schema-registry-maven-plugin:test-compatibility
-            mvn -pl infrastructure/message-contracts \
-                io.confluent:kafka-schema-registry-maven-plugin:register
-
-        PR 에서 test-compatibility 를 돌려 소비자를 깨뜨리는 변경을 막고,
-        머지된 뒤에 register 로 새 버전을 올린다.
+        서비스 사이의 메시지 계약(.avsc)만 담는 모듈. 클래스는 각 messaging 모듈이 만든다.
+        호환성 검사·등록은 빌드에 걸지 않고 명시적으로 부른다.
+        배경과 명령은 docs/adr/0001-message-contract-distribution.md
     -->
 
     <build>
