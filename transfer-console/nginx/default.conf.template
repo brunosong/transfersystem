@@ -1,0 +1,33 @@
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+
+    # upstream 주소를 요청할 때 조회한다. 시작할 때 고정하면 transfer-service 가
+    # 아직 없을 때 nginx 가 아예 뜨지 않는다. 리졸버는 컨테이너의 /etc/resolv.conf 에서 읽는다
+    # (NGINX_ENTRYPOINT_LOCAL_RESOLVERS). 이 리졸버는 search 도메인을 쓰지 않으므로
+    # k8s 에서는 TRANSFER_SERVICE_URL 에 FQDN(…svc.cluster.local)을 넣는다.
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
+    set $transfer_service ${TRANSFER_SERVICE_URL};
+
+    location /api/ {
+        proxy_pass $transfer_service;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    location /healthcheck/ {
+        proxy_pass $transfer_service;
+    }
+
+    # 파일 이름에 해시가 붙은 정적 파일은 오래 캐시한다
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # 클라이언트 라우팅: 모르는 경로는 index.html 로
+    location / {
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache";
+    }
+}
