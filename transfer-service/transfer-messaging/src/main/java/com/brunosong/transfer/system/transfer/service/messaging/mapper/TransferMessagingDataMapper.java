@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.transfer.messaging.mapper;
+package com.brunosong.transfer.system.transfer.service.messaging.mapper;
 
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;

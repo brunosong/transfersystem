@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.main.config;
+package com.brunosong.transfer.system.transfer.service.config;
 
 
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.main;
+package com.brunosong.transfer.system.transfer.service;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;

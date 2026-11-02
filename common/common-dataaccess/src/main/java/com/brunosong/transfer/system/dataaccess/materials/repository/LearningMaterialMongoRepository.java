@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.dataaccess.meterials.repository;
+package com.brunosong.transfer.system.dataaccess.materials.repository;
 
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
+import com.brunosong.transfer.system.dataaccess.materials.entity.LearningMaterialViewEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

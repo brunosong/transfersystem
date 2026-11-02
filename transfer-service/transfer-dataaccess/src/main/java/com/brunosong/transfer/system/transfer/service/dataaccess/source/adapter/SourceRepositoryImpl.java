@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.dataaccess.source.adapter;
 
-import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
+import com.brunosong.transfer.system.dataaccess.materials.repository.LearningMaterialMongoRepository;
 import com.brunosong.transfer.system.transfer.service.dataaccess.config.DynamicDataSourceConnector;
 import com.brunosong.transfer.system.transfer.service.dataaccess.source.mapper.SourceDataAccessMapper;
 import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;

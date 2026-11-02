@@ -1,7 +1,7 @@
-package com.brunosong.transfer.system.transfer.messaging.listener.kafka;
+package com.brunosong.transfer.system.transfer.service.messaging.listener.kafka;
 
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
-import com.brunosong.transfer.system.transfer.messaging.mapper.TransferMessagingDataMapper;
+import com.brunosong.transfer.system.transfer.service.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.ports.input.message.listener.DataMigrationMessageListener;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;

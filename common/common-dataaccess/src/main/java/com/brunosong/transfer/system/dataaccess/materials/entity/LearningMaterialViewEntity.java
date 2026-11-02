@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.dataaccess.meterials.entity;
+package com.brunosong.transfer.system.dataaccess.materials.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;

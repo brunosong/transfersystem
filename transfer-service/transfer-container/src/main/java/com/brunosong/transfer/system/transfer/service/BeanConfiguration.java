@@ -1,4 +1,4 @@
-package com.brunosong.transfer.system.main;
+package com.brunosong.transfer.system.transfer.service;
 
 import com.brunosong.transfer.system.transfer.service.TransferDomainService;
 import com.brunosong.transfer.system.transfer.service.TransferDomainServiceImpl;

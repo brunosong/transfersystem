@@ -1,6 +1,6 @@
-package com.brunosong.transfer.system.main;
+package com.brunosong.transfer.system.transfer.service;
 
-import com.brunosong.transfer.system.main.config.TransferServiceProperties;
+import com.brunosong.transfer.system.transfer.service.config.TransferServiceProperties;
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.SchemaMetadata;
 import jakarta.annotation.PostConstruct;

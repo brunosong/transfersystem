@@ -1,7 +1,7 @@
 package com.brunosong.transfer.system.dataaccess.integration.repository;
 
-import com.brunosong.transfer.system.dataaccess.meterials.entity.LearningMaterialViewEntity;
-import com.brunosong.transfer.system.dataaccess.meterials.repository.LearningMaterialMongoRepository;
+import com.brunosong.transfer.system.dataaccess.materials.entity.LearningMaterialViewEntity;
+import com.brunosong.transfer.system.dataaccess.materials.repository.LearningMaterialMongoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
