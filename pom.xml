@@ -54,6 +54,8 @@
         -->
         <message.contracts.dir>${project.basedir}/../../infrastructure/message-contracts/src/main/resources/avro</message.contracts.dir>
         <schema.registry.url>http://localhost:8081</schema.registry.url>
+        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
+        <jib.base.image>eclipse-temurin:21-jre</jib.base.image>
     </properties>
 
     <!--
@@ -283,6 +285,29 @@
     </dependencies>
 
     <build>
+        <!--
+            컨테이너 이미지는 jib 으로 만든다. 베이스 이미지와 버전은 여기서 한 번만 정하고,
+            각 container 모듈은 푸시할 이미지 이름만 적는다.
+            빌드 단계에 묶지 않으므로 이미지가 필요할 때만 명시적으로 실행한다.
+            ./mvnw install 뒤에
+              ./mvnw -pl <container 모듈> jib:build        (레지스트리로 푸시)
+              ./mvnw -pl <container 모듈> jib:dockerBuild  (로컬 도커 데몬)
+            -am 을 붙이면 상위 모듈에도 jib 이 돌므로 붙이지 않는다.
+        -->
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>${jib-maven-plugin.version}</version>
+                    <configuration>
+                        <from>
+                            <image>${jib.base.image}</image>
+                        </from>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

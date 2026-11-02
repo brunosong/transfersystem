@@ -73,11 +73,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.3.2</version>
                 <configuration>
-                    <from>
-                        <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
-                    </from>
                     <to>
                         <image>airtrack1234/data-migration.service:1.0.1</image> <!-- 푸시할 이미지 이름 -->
                     </to>

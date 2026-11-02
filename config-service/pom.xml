@@ -33,11 +33,7 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.3.2</version>
                 <configuration>
-                    <from>
-                        <image>openjdk:21-jdk-slim</image> <!-- 사용할 베이스 이미지 -->
-                    </from>
                     <to>
                         <image>docker.io/airtrack1234/config-service</image>
                         <tags>
@@ -56,14 +52,6 @@
                         </ports>
                     </container>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
