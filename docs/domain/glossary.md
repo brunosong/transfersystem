@@ -61,7 +61,7 @@
 | 뜻 | 배포를 받는 곳. **서비스 시스템 × 환경** 하나가 대상 하나다. 예: 온라인캠퍼스 PROD |
 | 코드 | **`Target`**, `TargetId` |
 | 지금 이름 | `DataMigration`, `DataMigrationId`, `DataMigrationInfoEntity`(`datamigrations`), 요청의 `dataMigrationInfoId` |
-| 비고 | 운영자가 배포 허용을 끌 수 있다(점검 중인 시스템 막기). |
+| 비고 | 운영자가 배포 허용을 끌 수 있다(점검 중인 시스템 막기). 대상은 배포 컨텍스트의 개념이다. 대상 쪽에서 반영을 누가 하는지(서비스 팀 컨슈머인지 대상 에이전트인지)는 대상의 일부가 아니다. |
 
 | 구성 요소 | 한국어 | 코드 | 지금 이름 | 값 |
 |---|---|---|---|---|
@@ -90,6 +90,20 @@
 | 코드 | **`apply`**, 결과는 **`ApplyResult`** |
 | 지금 이름 | `dataPersist`, `saveOrUpdate`, `DataPersistHandler` |
 | 비고 | 같은 청크를 두 번 반영해도 결과가 같아야 한다(멱등). 그래야 다시 보내도 안전하다. |
+
+### 대상 에이전트 (Target Agent)
+| | |
+|---|---|
+| 뜻 | 서비스 팀이 자기 컨슈머를 만들 수 없을 때, **그 팀 대신** 반영 명령을 받아 서비스 DB에 반영하는 프로세스. 언제든 대상별로 떼어 낼 수 있다. |
+| 코드 | 서비스 **`target-agent`**, 대상마다 **어댑터** |
+| 지금 이름 | `data-migration-service`, `*DataPersistHelper` |
+| 비고 | 배포 컨텍스트는 에이전트가 있다는 것을 모른다. 자세한 내용은 [컨텍스트 맵](context-map.md#1-전제-원래-모델과-지금-상황). |
+
+### 대상 연동 계약 (Target Contract)
+| | |
+|---|---|
+| 뜻 | 대상이 지켜야 할 약속. 반영 명령을 받는다, 반영 결과(무엇을 반영했는지 포함)를 돌려준다, (선택) 반영한 내용을 조회해 준다. |
+| 비고 | 서비스 팀이 이 계약만 읽고 자기 컨슈머를 만들 수 있어야 한다. |
 
 ### 재전송 (Retry)
 | | |
@@ -134,6 +148,6 @@
 
 ## 아직 정하지 않은 것
 
-1. ~~서비스(모듈) 이름~~ → [컨텍스트 맵](context-map.md#4-서비스와-이름)에서 `deployment-service`, `target-service` 로 정했다.
+1. ~~서비스(모듈) 이름~~ → [컨텍스트 맵](context-map.md#4-서비스와-이름)에서 `deployment-service`, `target-agent` 로 정했다.
 2. **배포 상태 값**: 지금 `TransferStatus`(PENDING, SENT, PROCESSED, SUCCESS, FAILED)는 처리 단계를 기록한 것에 가깝다. 업무 상태로 다시 정하는 일은 [모델](model.md) 단계에서 한다.
 3. **메시지 이름**: 지금 `DataMigrationRequestAvroModel`, `DataMigrationResponseAvroModel`. 새 이름은 [이벤트와 메시지](events.md) 단계에서 정한다.
