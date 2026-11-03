@@ -65,3 +65,24 @@ export function percent(progress: Progress): number | null {
 export function shortId(id: string): string {
   return id.slice(0, 8)
 }
+
+const number = new Intl.NumberFormat('ko-KR')
+
+export function formatNumber(value: number): string {
+  return number.format(value)
+}
+
+const shortDateTime = new Intl.DateTimeFormat('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
+
+/** 11. 03. 10:42 처럼 짧게 */
+export function formatShort(value: string | null | undefined): string {
+  const date = toDate(value)
+  return date ? shortDateTime.format(date) : '—'
+}
+
+/** 오늘 0시부터 days 일 전 0시 (0 이면 오늘 0시) */
+export function startOfDay(daysAgo = 0, now = new Date()): Date {
+  const date = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  date.setDate(date.getDate() - daysAgo)
+  return date
+}

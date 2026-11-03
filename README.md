@@ -15,6 +15,7 @@
 학습·포트폴리오용으로 진행 중인 프로젝트입니다. 목표는 커리큘럼 하나를 두 대상 시스템에 모두 반영하는 **오케스트레이션 사가**를 완성하고 Kubernetes에 배포하는 것입니다.
 - 남은 작업과 설계: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - 설계 결정 기록(ADR): [`docs/adr/`](docs/adr/)
+- 화면 기획: [`docs/console-plan.md`](docs/console-plan.md)
 
 ## 기술 스택
 - **언어**: Java 21
@@ -67,11 +68,17 @@
 | `GET` | `/api/v1/source-configs` | 원본 저장소 설정 목록(접속 계정 제외) |
 
 ### 4. `transfer-console`
-전송을 요청하고 진행 상황을 보는 화면입니다. Maven 빌드와 분리된 npm 프로젝트입니다.
-- **전송 현황**: 상태별 집계, 상태 필터, 청크 진행률. 진행 중인 전송이 있으면 자동으로 갱신합니다.
-- **전송 상세**: 사가 단계(대상별 반영, 실패 시 되돌리기)를 타임라인으로, 청크 결과를 칸으로 보여줍니다.
-- **새 전송**: 원본 저장소, 원본 ID, 대상 시스템을 골라 요청합니다.
-- **모의 데이터 모드**: 백엔드 없이 브라우저 안에서 사가 흐름(두 대상 반영, 실패 시 보상)을 흉내 냅니다. 원본 ID에 `fail` 이 들어가면 보상 흐름을 볼 수 있습니다.
+콘텐츠 운영자가 저작 DB의 커리큘럼을 서비스 시스템에 배포하는 화면입니다. Maven 빌드와 분리된 npm 프로젝트입니다. 기획은 [`docs/console-plan.md`](docs/console-plan.md)에 있습니다.
+- **대시보드**: 오늘 배포 건수, 진행 중, 확인이 필요한 실패, 원본·대상 연결 상태
+- **원본 저장소**: 추가·수정·삭제, 연결 테스트, 사용 켜기/끄기
+- **대상 시스템**: 연결 확인, 배포 허용 켜기/끄기, 대상별 최근 배포와 반영된 커리큘럼
+- **콘텐츠**: 원본의 커리큘럼 검색, 트리 미리보기, 예상 청크 수, 대상별 배포 현황
+- **새 배포**: 콘텐츠 → 대상 → 확인. 운영 환경은 확인 체크, 진행 중인 같은 배포는 막음
+- **배포 이력·상세**: 상태·대상·기간·요청자 조건, 청크별 내용과 실패 사유, 실패 청크 재전송
+- **대상 데이터 확인**: 대상에 실제로 들어간 트리를 원본과 개수·과목 단위로 비교
+- **모의 데이터 모드**: 백엔드 없이 브라우저 안에서 위 흐름이 모두 돕니다. 만든 데이터는 브라우저에 남고 사이드바에서 초기화합니다. `CUR-FAIL-01` 을 배포하면 청크 두 개가 실패하고, 호스트에 `down` 이 들어간 원본은 연결에 실패합니다.
+
+> 실제 모드로 쓰려면 화면이 정한 API를 백엔드에 만들어야 합니다(기획 문서 4장). 지금 백엔드에는 배포 목록·상세·집계·접수와 원본 목록만 있습니다.
 
 ### 5. `config-service`
 - Spring Cloud Config 서버. 각 서비스의 설정 파일을 중앙에서 제공합니다.
@@ -133,11 +140,11 @@
    cd transfer-console
    npm install
    npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
-   npm run dev        # transfer-service(기본 http://localhost:8080)에 붙어서 실행
+   npm run dev        # 실제 서비스에 붙어서 실행
    ```
-   개발 서버가 `/api`, `/healthcheck` 를 transfer-service 로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `TRANSFER_SERVICE_URL` 환경 변수를 지정합니다.
+   개발 서버가 `/api/v1/targets` 는 data-migration-service(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 transfer-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `DATA_MIGRATION_SERVICE_URL`, `TRANSFER_SERVICE_URL` 환경 변수를 지정합니다.
 
-   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 `/api` 를 `TRANSFER_SERVICE_URL` 로 프록시합니다.
+   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `DATA_MIGRATION_SERVICE_URL`, `TRANSFER_SERVICE_URL` 로 프록시합니다.
    ```bash
    docker build -t transfer-console transfer-console                         # 실제 API용
    docker build -t transfer-console:demo --build-arg API_MODE=mock transfer-console  # 시연용

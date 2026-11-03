@@ -74,6 +74,16 @@ POST /transfers
 > 사가가 들어오면(Phase 3) 상세 API 의 `steps` 를 사가 상태 테이블에서 채우기만 하면 화면은 그대로 쓴다.
 > 지금은 단계가 `APPLY` 하나이고 대상 이름 대신 `targetId` 만 내려 주므로 화면이 시드 표로 이름을 붙인다.
 
+## 화면 다시 기획: 콘텐츠 배포 콘솔
+*목표: 실제 서비스처럼 설정하고, 고르고, 보내고, 대상에 들어간 것까지 확인한다. 기획은 [console-plan.md](console-plan.md).*
+
+- [x] 화면 기획 문서 (화면 7개, 필요한 API, 하지 않는 것)
+- [x] 1단계: 모의 모드로 화면 7개 (대시보드, 원본 저장소, 대상 시스템, 콘텐츠 탐색, 배포 요청, 배포 이력·상세, 대상 데이터 확인)
+  - 이전 화면의 사가 표시(단계 타임라인, 보상 시뮬레이션)는 뺐다. Phase 3에서 다시 붙인다.
+  - 개발 서버·nginx 가 `/api/v1/targets` 를 data-migration-service 로 넘긴다(`DATA_MIGRATION_SERVICE_URL`)
+- [ ] 2단계: 백엔드 API (원본 조회 → 대상 목록 → 배포 요청 보강 → 원본 CRUD → 대상 데이터 조회 → 재전송)
+- [ ] 3단계: 로컬 E2E로 처음부터 끝까지 한 번 돌리기 (Phase 2 환경 필요)
+
 ## Phase 1. 정확성 버그 수정
 *목표: 데이터가 맞는 DB에, 맞는 트랜잭션으로 써짐.*
 
@@ -118,7 +128,7 @@ POST /transfers
 - [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포
-- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `TRANSFER_SERVICE_URL` 에 FQDN 사용)
+- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `TRANSFER_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
 - [ ] Redis, MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)

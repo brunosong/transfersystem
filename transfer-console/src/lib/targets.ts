@@ -1,21 +1,6 @@
-// 대상 시스템. data-migration-service 의 datamigrations 시드와 같은 ID 를 쓴다.
-// transfer-service 는 아직 대상 이름을 모르므로(단계에 targetId 만 옴) 화면이 이 표로 이름을 붙인다.
+// 대상 시스템 이름 붙이기. 대상 목록은 data-migration-service 에서 받고, 여기서는 화면에 쓸 이름만 정한다.
 
-export type TargetSystem = 'BRUNOSONG_ONLINE_CAMPUS' | 'BRUNOSONG_BOOTCAMP'
-export type TargetEnvironment = 'PROD' | 'DEV'
-
-export interface Target {
-  id: number
-  system: TargetSystem
-  environment: TargetEnvironment
-}
-
-export const TARGETS: Target[] = [
-  { id: 1, system: 'BRUNOSONG_ONLINE_CAMPUS', environment: 'PROD' },
-  { id: 2, system: 'BRUNOSONG_BOOTCAMP', environment: 'PROD' },
-  { id: 3, system: 'BRUNOSONG_ONLINE_CAMPUS', environment: 'DEV' },
-  { id: 4, system: 'BRUNOSONG_BOOTCAMP', environment: 'DEV' },
-]
+import type { Target } from '../api/types'
 
 const SYSTEM_LABELS: Record<string, string> = {
   BRUNOSONG_ONLINE_CAMPUS: '온라인캠퍼스',
@@ -27,9 +12,19 @@ export function systemLabel(system: string | null | undefined): string {
   return SYSTEM_LABELS[system] ?? system
 }
 
-export function targetLabel(targetId: number | null, targetSystem: string | null): string {
-  if (targetSystem) return systemLabel(targetSystem)
-  const target = TARGETS.find((t) => t.id === targetId)
-  if (!target) return targetId == null ? '알 수 없는 대상' : `대상 #${targetId}`
+export function targetLabel(target: Pick<Target, 'system' | 'environment'>): string {
   return `${systemLabel(target.system)} · ${target.environment}`
+}
+
+/** 목록에 대상 ID 만 있을 때 이름을 찾아 붙인다 */
+export function targetLabelById(targets: Target[] | undefined, targetId: number): string {
+  const target = targets?.find((t) => t.targetId === targetId)
+  return target ? targetLabel(target) : `대상 #${targetId}`
+}
+
+/** 화면에서 대상을 늘어놓는 순서: 시스템, 그다음 DEV → PROD */
+export function sortTargets(targets: Target[]): Target[] {
+  return [...targets].sort((a, b) =>
+    a.system === b.system ? a.environment.localeCompare(b.environment) : a.system.localeCompare(b.system) * -1,
+  )
 }

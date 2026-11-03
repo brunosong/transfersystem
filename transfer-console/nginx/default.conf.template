@@ -8,6 +8,15 @@ server {
     # k8s 에서는 TRANSFER_SERVICE_URL 에 FQDN(…svc.cluster.local)을 넣는다.
     resolver ${NGINX_LOCAL_RESOLVERS} valid=10s ipv6=off;
     set $transfer_service ${TRANSFER_SERVICE_URL};
+    set $data_migration_service ${DATA_MIGRATION_SERVICE_URL};
+
+    # 대상 시스템 API 는 data-migration-service 가 가진다. 더 긴 접두사가 먼저 맞는다.
+    location /api/v1/targets {
+        proxy_pass $data_migration_service;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
 
     location /api/ {
         proxy_pass $transfer_service;

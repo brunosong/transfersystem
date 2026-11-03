@@ -1,165 +1,146 @@
-// 사가가 완성됐을 때의 흐름을 시간에 따라 흉내 낸다. 상태는 저장하지 않고
-// "생성 시각으로부터 몇 ms 지났는가"만으로 계산하므로 같은 입력이면 항상 같은 결과가 나온다.
+// 배포 하나가 시간에 따라 어떻게 진행되는지 흉내 낸다.
+// 청크마다 "언제 처리되고 결과가 어떤지"를 시도(attempt) 목록으로 미리 정해 두고,
+// 화면이 물어볼 때마다 지금 시각을 기준으로 상태를 계산한다. 그래서 새로 고침해도 같은 결과가 나온다.
 //
-//   접수 → [온라인캠퍼스 APPLY] → [부트캠프 APPLY] → 성공
-//                                     └ 실패 → [부트캠프 COMPENSATE] → [온라인캠퍼스 COMPENSATE] → 보상 완료
+//   접수(PENDING) ─ 아웃박스가 집어 감 ─▶ 반영 중(SENT) ─ 청크가 하나씩 처리됨 ─▶ 완료(SUCCESS) / 실패(FAILED)
+//                                                                              실패 청크 재전송 ─▶ 다시 반영 중
 
-import type { Chunk, Progress, StepStatus, TransferDetail, TransferStatus, TransferStep } from '../types'
-
-export type Scenario = 'success' | 'fail-bootcamp'
-
-export interface MockTransfer {
-  transferId: string
-  sourceId: string
-  sourceType: string
-  sourceConfigId: number
-  createdBy: string
-  createdAt: number
-  chunkCount: number
-  scenario: Scenario
-}
+import type { Chunk, ChunkStatus, CurriculumTree, Progress, TransferDetail, TransferStatus } from '../types'
+import { planChunks } from './content'
 
 /** 아웃박스 스케줄러가 집어 가기까지 걸리는 시간 */
 export const ACCEPT_DELAY = 1200
-/** 청크 하나가 반영되는 데 걸리는 시간 */
-export const APPLY_TICK = 650
-/** 청크 하나를 되돌리는 데 걸리는 시간 */
-export const COMPENSATE_TICK = 450
+/** 청크 하나가 처리되는 데 걸리는 시간 */
+export const CHUNK_TICK = 220
 
-const ONLINE_CAMPUS = { id: 1, system: 'BRUNOSONG_ONLINE_CAMPUS' }
-const BOOTCAMP = { id: 2, system: 'BRUNOSONG_BOOTCAMP' }
-
-/** 부트캠프에서 실패하는 청크 순번. 앞의 청크들은 이미 반영돼 보상 대상이 된다. */
-export function failingChunk(chunkCount: number): number {
-  return Math.max(1, Math.ceil(chunkCount / 2))
+export interface Attempt {
+  /** 처리가 끝나는 시각(ms) */
+  at: number
+  ok: boolean
+  error?: string
 }
 
-interface Phase {
-  action: 'APPLY' | 'COMPENSATE'
-  target: { id: number; system: string }
-  chunks: number
-  tick: number
-  /** 이 번호의 청크에서 실패한다 (1부터) */
-  failAt?: number
+export interface MockChunk {
+  label: string
+  subjectId: string | null
+  attempts: Attempt[]
 }
 
-function phasesOf(t: MockTransfer): Phase[] {
-  const n = t.chunkCount
-  if (t.scenario === 'success') {
-    return [
-      { action: 'APPLY', target: ONLINE_CAMPUS, chunks: n, tick: APPLY_TICK },
-      { action: 'APPLY', target: BOOTCAMP, chunks: n, tick: APPLY_TICK },
-    ]
-  }
-  const failAt = failingChunk(n)
-  return [
-    { action: 'APPLY', target: ONLINE_CAMPUS, chunks: n, tick: APPLY_TICK },
-    { action: 'APPLY', target: BOOTCAMP, chunks: n, tick: APPLY_TICK, failAt },
-    // 부트캠프는 실패 전까지 반영된 청크만, 온라인캠퍼스는 전부 되돌린다. 나중 단계부터 되돌린다.
-    { action: 'COMPENSATE', target: BOOTCAMP, chunks: failAt - 1, tick: COMPENSATE_TICK },
-    { action: 'COMPENSATE', target: ONLINE_CAMPUS, chunks: n, tick: COMPENSATE_TICK },
-  ]
+export interface MockTransfer {
+  transferId: string
+  sourceConfigId: number
+  sourceId: string
+  targetId: number
+  createdBy: string
+  createdAt: number
+  /** 요청 시점의 원본. 대상에 무엇이 들어갔는지 계산할 때 쓴다. */
+  tree: CurriculumTree
+  chunks: MockChunk[]
 }
 
-function iso(ms: number): string {
-  return new Date(ms).toISOString()
+/** 실패 청크 번호와 오류 메시지 */
+export type FailurePlan = Record<number, string>
+
+export function createMockTransfer(
+  base: Omit<MockTransfer, 'chunks'>,
+  failures: FailurePlan = {},
+): MockTransfer {
+  const start = base.createdAt + ACCEPT_DELAY
+  const chunks = planChunks(base.tree).map((plan, offset) => {
+    const error = failures[offset]
+    return {
+      ...plan,
+      attempts: [{ at: start + (offset + 1) * CHUNK_TICK, ok: error === undefined, ...(error ? { error } : {}) }],
+    }
+  })
+  return { ...base, chunks }
+}
+
+interface ChunkState {
+  status: ChunkStatus
+  processedAt: number | null
+  error: string | null
+}
+
+function chunkState(chunk: MockChunk, now: number): ChunkState {
+  const done = chunk.attempts.filter((a) => a.at <= now)
+  const last = done.at(-1)
+  const waiting = chunk.attempts.some((a) => a.at > now)
+  if (!last || waiting) return { status: 'PENDING', processedAt: last?.at ?? null, error: null }
+  return { status: last.ok ? 'SUCCESS' : 'FAILED', processedAt: last.at, error: last.ok ? null : (last.error ?? null) }
+}
+
+/** 이 청크가 now 시점까지 한 번이라도 성공했는지. 대상 데이터를 계산할 때 쓴다. */
+export function succeededBy(chunk: MockChunk, now: number): number | null {
+  const ok = chunk.attempts.find((a) => a.ok && a.at <= now)
+  return ok ? ok.at : null
+}
+
+const iso = (ms: number) => new Date(ms).toISOString()
+
+export function statusOf(t: MockTransfer, now: number): TransferStatus {
+  if (now < t.createdAt + ACCEPT_DELAY) return 'PENDING'
+  const states = t.chunks.map((c) => chunkState(c, now).status)
+  if (states.includes('PENDING')) return 'SENT'
+  return states.includes('FAILED') ? 'FAILED' : 'SUCCESS'
 }
 
 export function simulate(t: MockTransfer, now: number): TransferDetail {
-  const steps: TransferStep[] = []
-  let cursor = t.createdAt + ACCEPT_DELAY
-  let failedAt: number | null = null
-  let lastEventAt = t.createdAt
-
-  for (const [index, phase] of phasesOf(t).entries()) {
-    const startedAt = cursor
-    const lastChunk = phase.failAt ?? phase.chunks
-    const chunks: Chunk[] = []
-
-    for (let i = 1; i <= lastChunk; i++) {
-      const at = startedAt + i * phase.tick
-      if (at > now) break
-      const failed = phase.failAt === i
-      chunks.push({
-        chunkOffset: i,
-        status: phase.action === 'COMPENSATE' ? 'COMPENSATED' : failed ? 'FAILED' : 'SUCCESS',
-        processedAt: iso(at),
-      })
-      lastEventAt = at
-      if (failed) failedAt = at
+  const chunks: Chunk[] = t.chunks.map((c, offset) => {
+    const state = chunkState(c, now)
+    return {
+      chunkOffset: offset,
+      label: c.label,
+      status: state.status,
+      processedAt: state.processedAt === null ? null : iso(state.processedAt),
+      errorMessage: state.error,
+      retryCount: c.attempts.length - 1,
     }
+  })
 
-    const finishedAt = startedAt + lastChunk * phase.tick
-    const started = now >= startedAt
-    const finished = now >= finishedAt
-    let status: StepStatus
-    if (phase.action === 'COMPENSATE') {
-      status = !started ? 'PENDING' : finished ? 'COMPENSATED' : 'COMPENSATING'
-    } else if (phase.failAt && finished) {
-      status = 'FAILED'
-    } else {
-      status = !started ? 'PENDING' : finished ? 'SUCCEEDED' : 'PROCESSING'
-    }
-
-    const succeeded = chunks.filter((c) => c.status === 'SUCCESS' || c.status === 'COMPENSATED').length
-    steps.push({
-      order: index + 1,
-      action: phase.action,
-      targetId: phase.target.id,
-      targetSystem: phase.target.system,
-      status,
-      progress: { total: phase.chunks, succeeded, failed: chunks.filter((c) => c.status === 'FAILED').length },
-      chunks,
-    })
-    cursor = finishedAt
-  }
-
-  // 아직 시작하지 않은 보상 단계는 실패가 나기 전까지 화면에 보이지 않아야 한다
-  const visibleSteps = failedAt === null ? steps.filter((s) => s.action === 'APPLY') : steps
-
-  const applySteps = steps.filter((s) => s.action === 'APPLY')
   const progress: Progress = {
-    total: applySteps.reduce((sum, s) => sum + s.progress.total, 0),
-    succeeded: applySteps.reduce((sum, s) => sum + s.progress.succeeded, 0),
-    failed: applySteps.reduce((sum, s) => sum + s.progress.failed, 0),
+    total: chunks.length,
+    succeeded: chunks.filter((c) => c.status === 'SUCCESS').length,
+    failed: chunks.filter((c) => c.status === 'FAILED').length,
   }
 
-  const compensation = steps.filter((s) => s.action === 'COMPENSATE')
-  const compensated = compensation.length > 0 && compensation.every((s) => s.status === 'COMPENSATED')
-  let status: TransferStatus
+  const status = statusOf(t, now)
+  const retried = chunks.some((c) => c.retryCount > 0)
   let resultMessage: string | null = null
-  if (failedAt !== null) {
-    status = 'FAILED'
-    resultMessage = compensated
-      ? `부트캠프 ${failingChunk(t.chunkCount)}번 청크 반영에 실패해 반영된 데이터를 모두 이전 상태로 되돌렸습니다.`
-      : `부트캠프 ${failingChunk(t.chunkCount)}번 청크 반영에 실패했습니다. 반영된 데이터를 되돌리는 중입니다.`
-  } else if (applySteps.every((s) => s.status === 'SUCCEEDED')) {
-    status = 'SUCCESS'
-  } else if (now < t.createdAt + ACCEPT_DELAY) {
-    status = 'PENDING'
-  } else {
-    status = 'SENT'
+  if (status === 'SUCCESS') {
+    resultMessage = `과목 ${chunks.length - 1}개를 포함해 청크 ${chunks.length}개를 모두 반영했습니다.${retried ? ' (재전송 포함)' : ''}`
+  } else if (status === 'FAILED') {
+    resultMessage = `청크 ${progress.failed}개가 반영되지 않았습니다. 실패한 청크만 다시 보낼 수 있습니다.`
   }
+
+  const events = t.chunks.flatMap((c) => c.attempts.map((a) => a.at)).filter((at) => at <= now)
+  const updatedAt = Math.max(t.createdAt, ...events)
 
   return {
     transferId: t.transferId,
-    sourceId: t.sourceId,
-    sourceType: t.sourceType,
     sourceConfigId: t.sourceConfigId,
+    sourceId: t.sourceId,
+    sourceTitle: t.tree.title,
+    targetId: t.targetId,
     status,
-    resultMessage,
     progress,
     createdBy: t.createdBy,
     createdAt: iso(t.createdAt),
-    updatedAt: iso(Math.min(now, Math.max(lastEventAt, t.createdAt))),
-    steps: visibleSteps,
+    updatedAt: iso(updatedAt),
+    resultMessage,
+    chunks,
   }
 }
 
-/** 모든 단계가 끝나는 시각. 이 뒤로는 결과가 바뀌지 않는다. */
+/** 실패한 청크마다 새 시도를 붙인다. 붙인 개수를 돌려준다. 끝나지 않은 배포에는 붙이지 않는다. */
+export function retryFailed(t: MockTransfer, now: number): number {
+  if (statusOf(t, now) !== 'FAILED') return 0
+  const failed = t.chunks.filter((c) => chunkState(c, now).status === 'FAILED')
+  failed.forEach((chunk, i) => chunk.attempts.push({ at: now + ACCEPT_DELAY + (i + 1) * CHUNK_TICK * 2, ok: true }))
+  return failed.length
+}
+
+/** 모든 시도가 끝나는 시각. 이 뒤로는 결과가 바뀌지 않는다. */
 export function finishesAt(t: MockTransfer): number {
-  return phasesOf(t).reduce(
-    (at, phase) => at + (phase.failAt ?? phase.chunks) * phase.tick,
-    t.createdAt + ACCEPT_DELAY,
-  )
+  return Math.max(t.createdAt + ACCEPT_DELAY, ...t.chunks.flatMap((c) => c.attempts.map((a) => a.at)))
 }
