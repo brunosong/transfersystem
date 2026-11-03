@@ -1,0 +1,139 @@
+# 용어집
+
+> 도메인 설계 1단계. 화면, 문서, 코드가 **같은 말**을 쓰기 위한 기준이다.
+> 새 용어를 만들거나 뜻을 바꾸면 이 문서부터 고친다.
+
+## 왜 용어부터 정하는가
+
+지금 이 시스템은 같은 것을 여러 이름으로 부르고, 다른 것을 같은 이름으로 부른다.
+
+| 문제 | 예 |
+|---|---|
+| 같은 것을 여러 이름으로 | 운영자가 하는 일 하나를 화면은 "배포", 코드는 `Transfer`·`TransferLog`, 메시지는 `DataMigrationRequest`, 서비스 이름은 "이관(migration)"이라고 부른다 |
+| 다른 것을 같은 이름으로 | `DataMigration` 이 **서비스 이름**(data-migration-service)이면서 **대상 시스템**(`datamigrations` 테이블)이기도 하다 |
+| 하나의 말이 두 가지를 가리킴 | `source` 가 `sourceConfigId`(원본 **저장소**)와 `sourceId`(원본 **데이터**) 양쪽에 쓰인다 |
+| 처리 방식이 도메인 말처럼 보임 | `TransType`(API/MESSAGING)은 업무 개념이 아니라 구현 방식이다 |
+
+말이 갈라져 있으면 규칙도 갈라진다. 예를 들어 "같은 커리큘럼을 같은 대상으로 동시에 두 번 배포하지 않는다"는 규칙을 어느 클래스가 지켜야 하는지 이름만 보고는 알 수 없다.
+
+## 핵심 용어
+
+**굵은 영어**가 앞으로 코드에서 쓸 이름이다. "지금 이름"은 바꾸기 전 코드에서 찾을 때 쓴다.
+
+### 배포 (Deployment)
+| | |
+|---|---|
+| 뜻 | 원본의 **커리큘럼 하나**를 **대상 하나**에 반영하는 작업. 운영자가 요청하고, 시스템이 끝까지 책임진다. |
+| 코드 | **`Deployment`**, `DeploymentId` |
+| 지금 이름 | `Transfer`, `TransferId`, `TransferLogEntity`(`transfer_log`) |
+| 비고 | 배포는 "보냈다"가 아니라 **"대상에 들어갔다"**로 끝난다. 그래서 상태는 대상의 결과를 받아야 정해진다. 상태 값은 [모델 문서](model.md)에서 정한다. |
+
+### 원본 저장소 (Content Source)
+| | |
+|---|---|
+| 뜻 | 콘텐츠를 만들어 두는 곳(저작 DB)의 접속 정보. 어느 DB의 어느 컬렉션에서 읽을지 정한다. |
+| 코드 | **`ContentSource`**, `ContentSourceId` |
+| 지금 이름 | `SourceConfig`, `SourceConfigId`(`sourceconfig`) |
+| 비고 | "설정(Config)"이 아니라 **업무에서 실제로 있는 대상**이다. 운영자가 등록하고, 연결을 확인하고, 끈다. |
+
+### 커리큘럼 (Curriculum)
+| | |
+|---|---|
+| 뜻 | 배포의 내용물. 원본 저장소에 들어 있는 교육 과정 하나와 그 아래 전부. |
+| 코드 | **`Curriculum`**, `CurriculumId`(예: `CUR003`) |
+| 지금 이름 | `SourceContentData`, `SourceData`, `SourceId`, `LearningMaterial` |
+| 비고 | 지금 콘텐츠 유형은 커리큘럼 하나뿐이다. 시험 결과(`EXAM_RESULT_DATA`)는 범위 밖이다. |
+
+커리큘럼은 여섯 단계 트리다. 이름은 지금 코드(`CurriculumBaseKey`, 대상 엔티티)와 같다.
+
+| 단계 | 한국어 | 코드 | 예 |
+|---|---|---|---|
+| 0 | 커리큘럼 | `Curriculum` | 중등 교육 과정 3 |
+| 1 | 학년 | `Grade` | 중등 1학년 |
+| 2 | 학기 | `Semester` | 1학기 |
+| 3 | 과목 | `Subject` | 수학 |
+| 4 | 단원 | `Unit` | 단원 1: 수학 주제 1 |
+| 5 | 차시 | `Lesson` | 차시 1: 수학 학습 1 |
+
+### 대상 (Target)
+| | |
+|---|---|
+| 뜻 | 배포를 받는 곳. **서비스 시스템 × 환경** 하나가 대상 하나다. 예: 온라인캠퍼스 PROD |
+| 코드 | **`Target`**, `TargetId` |
+| 지금 이름 | `DataMigration`, `DataMigrationId`, `DataMigrationInfoEntity`(`datamigrations`), 요청의 `dataMigrationInfoId` |
+| 비고 | 운영자가 배포 허용을 끌 수 있다(점검 중인 시스템 막기). |
+
+| 구성 요소 | 한국어 | 코드 | 지금 이름 | 값 |
+|---|---|---|---|---|
+| 서비스 시스템 | 서비스 | **`TargetSystem`** | `BrunoSongServiceType`, `targetSystem`(문자열) | `ONLINE_CAMPUS`(온라인캠퍼스), `BOOTCAMP`(부트캠프) |
+| 환경 | 환경 | **`Environment`** | `TargetSystemEnvironment` | `DEV`, `PROD` |
+
+### 청크 (Chunk)
+| | |
+|---|---|
+| 뜻 | 배포를 나눈 조각. 대상에 한 번에 반영되는 단위이고, 실패하면 이 단위로 다시 보낸다. |
+| 코드 | **`Chunk`**, 순번은 **`chunkNo`** |
+| 지금 이름 | `TransferChunkEntity`(`transfer_chunks`), `chunkOffset` |
+| 비고 | 커리큘럼 하나 = **뼈대 청크 1개 + 과목 청크 N개**. 메시지 하나에 문서 전체(약 10MB)를 실을 수 없어서 나눈다. 왜 이렇게 나누는지는 시스템 ADR에서 다룬다. |
+
+| 종류 | 코드 | 담는 것 |
+|---|---|---|
+| 뼈대 청크 | **`SKELETON`** | 커리큘럼, 학년, 학기 (0번) |
+| 과목 청크 | **`SUBJECT`** | 과목 하나와 그 아래 단원·차시 전부 (1번부터) |
+
+`offset` 은 바이트 위치처럼 읽혀서 **순번(`chunkNo`)**으로 바꾼다.
+
+### 반영 (Apply)
+| | |
+|---|---|
+| 뜻 | 대상이 청크 하나를 받아 자기 DB에 써 넣는 일. 같은 ID가 있으면 새 내용으로 덮어쓴다(업서트). |
+| 코드 | **`apply`**, 결과는 **`ApplyResult`** |
+| 지금 이름 | `dataPersist`, `saveOrUpdate`, `DataPersistHandler` |
+| 비고 | 같은 청크를 두 번 반영해도 결과가 같아야 한다(멱등). 그래야 다시 보내도 안전하다. |
+
+### 재전송 (Retry)
+| | |
+|---|---|
+| 뜻 | 실패한 청크만 같은 배포 안에서 다시 보내는 일. 배포를 새로 만들지 않는다. |
+| 코드 | **`retry`** |
+| 지금 이름 | 없음 (새 기능) |
+| 비고 | 원본을 다시 읽어 **새 배포**를 만드는 것은 **재배포(Redeploy)**라고 따로 부른다. |
+
+### 검증 (Verification)
+| | |
+|---|---|
+| 뜻 | 대상에 실제로 들어간 커리큘럼을 원본과 비교하는 일. |
+| 코드 | **`Verification`**, 차이 하나는 **`Difference`** |
+| 지금 이름 | 없음 (새 기능, 화면의 `compareTrees`) |
+| 비고 | 차이 종류: **없음(Missing)**, **변경됨(Changed)**, **원본에 없음(Extra)**. ID가 같은데 제목이나 단원·차시 수가 다르면 변경됨이다. |
+
+### 요청자 (Requester)
+| | |
+|---|---|
+| 뜻 | 배포를 요청한 운영자. |
+| 코드 | **`requestedBy`** |
+| 지금 이름 | `createUserId`, `createAdminId`(`create_admin_id`), 화면의 `createdBy` |
+
+### 운영자 (Operator)
+| | |
+|---|---|
+| 뜻 | 이 시스템을 쓰는 사람. 콘텐츠팀에서 커리큘럼을 서비스에 내보내는 사람이다. |
+| 비고 | 지금은 로그인이 없고 화면에서 이름만 고른다. |
+
+## 쓰지 않는 말
+
+| 쓰지 않는 말 | 대신 쓰는 말 | 이유 |
+|---|---|---|
+| 전송, Transfer | 배포, Deployment | 전송은 "보냈다"까지만 뜻한다. 이 시스템은 "들어갔다"까지 책임진다. |
+| 이관, 마이그레이션, DataMigration | 배포 / 반영 / 대상 | 이관은 한 번 옮기고 끝나는 일처럼 들린다. 이 시스템은 같은 커리큘럼을 계속 다시 배포한다. 게다가 서비스 이름과 대상 이름이 겹친다. |
+| SourceConfig | 원본 저장소, ContentSource | 설정 값이 아니라 업무상 대상이다. |
+| sourceId (커리큘럼을 가리킬 때) | curriculumId | 원본 저장소 ID와 헷갈린다. |
+| chunkOffset | chunkNo | 위치가 아니라 순번이다. |
+| TransType (API / MESSAGING) | 없앰 | 업무 개념이 아니라 구현 방식이다. API 경로는 이미 지웠다. |
+| 보상 (사가 이전) | 쓰지 않음 | 보상은 사가(Phase 3)에서 정의한다. 지금은 재전송과 재배포만 있다. |
+
+## 아직 정하지 않은 것
+
+1. **서비스(모듈) 이름**: `transfer-service`, `data-migration-service` 도 바꿀지. 이름은 컨텍스트의 경계와 함께 정하는 게 맞아서, [컨텍스트 맵](context-map.md) 단계에서 정한다.
+2. **배포 상태 값**: 지금 `TransferStatus`(PENDING, SENT, PROCESSED, SUCCESS, FAILED)는 처리 단계를 기록한 것에 가깝다. 업무 상태로 다시 정하는 일은 [모델](model.md) 단계에서 한다.
+3. **메시지 이름**: 지금 `DataMigrationRequestAvroModel`, `DataMigrationResponseAvroModel`. 새 이름은 [이벤트와 메시지](events.md) 단계에서 정한다.
