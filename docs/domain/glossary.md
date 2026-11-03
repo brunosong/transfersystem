@@ -134,6 +134,6 @@
 
 ## 아직 정하지 않은 것
 
-1. **서비스(모듈) 이름**: `transfer-service`, `data-migration-service` 도 바꿀지. 이름은 컨텍스트의 경계와 함께 정하는 게 맞아서, [컨텍스트 맵](context-map.md) 단계에서 정한다.
+1. ~~서비스(모듈) 이름~~ → [컨텍스트 맵](context-map.md#4-서비스와-이름)에서 `deployment-service`, `target-service` 로 정했다.
 2. **배포 상태 값**: 지금 `TransferStatus`(PENDING, SENT, PROCESSED, SUCCESS, FAILED)는 처리 단계를 기록한 것에 가깝다. 업무 상태로 다시 정하는 일은 [모델](model.md) 단계에서 한다.
 3. **메시지 이름**: 지금 `DataMigrationRequestAvroModel`, `DataMigrationResponseAvroModel`. 새 이름은 [이벤트와 메시지](events.md) 단계에서 정한다.
