@@ -3,16 +3,16 @@
 ## 개요
 `Transfer System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 이관하는 모듈화된 애플리케이션입니다. 서비스(`transfer-service`, `data-migration-service`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
 
-서비스 간 통신은 **Transactional Outbox** 패턴과 **Saga** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
+서비스 간 통신은 **Transactional Outbox** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
 
 ## 프로젝트 목적
 - **데이터 전송**: 원본 데이터를 조회해 청크 단위로 나눠 대상 서비스로 보낸다.
 - **데이터 마이그레이션**: 받은 데이터를 대상 시스템 DB에 반영한다.
 - **모듈화**: 헥사고날 아키텍처로 도메인과 어댑터를 분리한다.
-- **신뢰성 있는 메시징**: Outbox·Saga 패턴으로 DB 변경과 메시지 발행의 일관성을 보장한다.
+- **신뢰성 있는 메시징**: Outbox 패턴으로 DB 변경과 메시지 발행의 일관성을 보장한다.
 
 ## 진행 상태
-학습·포트폴리오용으로 진행 중인 프로젝트입니다. 목표는 커리큘럼 하나를 두 대상 시스템에 모두 반영하는 **오케스트레이션 사가**를 완성하고 Kubernetes에 배포하는 것입니다.
+학습·포트폴리오용으로 진행 중인 프로젝트입니다. 목표는 운영자가 커리큘럼을 골라 대상에 **배포하고 들어간 것까지 확인하는 시스템**을 완성하고 Kubernetes에 배포하는 것입니다. 사가는 뒤로 미뤘습니다([ADR 0003](docs/adr/0003-defer-saga.md)).
 - 남은 작업과 설계: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - 설계 결정 기록(ADR): [`docs/adr/`](docs/adr/)
 - 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵, 모델)
@@ -88,7 +88,7 @@
 - **`kafka/kafka-support`**: Kafka 에러 처리(재시도·DLT 등) 스프링 부트 자동 설정.
 - **`message-contracts`**: 서비스 간 메시지 계약(Avro 스키마). 각 messaging 모듈이 아티팩트에서 스키마를 꺼내 자기 클래스를 만듭니다. ([ADR 0001](docs/adr/0001-message-contract-distribution.md))
 - **`outbox`**: Transactional Outbox 상태 및 스케줄러.
-- **`saga`**: Saga 상태·단계 정의.
+- **`saga`**: Saga 상태·단계 정의. 사가를 미뤄서 지금은 아웃박스 조회 조건에만 쓰이며, 정리할 예정입니다.
 - **`docker-compose`**: 로컬 개발용 Kafka, Zookeeper, MongoDB, MySQL, PostgreSQL, Redis 설정.
 - **`k8s`**: Kubernetes 매니페스트(Kafka, MongoDB, MySQL, PostgreSQL, 서비스, Argo CD).
 - **`jenkins`**: Jenkins Helm values 및 Maven 캐시 PVC.
