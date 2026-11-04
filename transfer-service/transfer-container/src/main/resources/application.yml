@@ -13,10 +13,12 @@ spring:
       enabled: false
     config:
       profile: default
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:init-schema.sql
+#  sql:
+#    init:
+#      mode: always
+#      schema-locations: classpath:init-schema.sql
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed/local
   data:
     mongodb:
       uri: mongodb://root:example@localhost:27017/exampledb?authSource=admin

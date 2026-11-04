@@ -13,10 +13,9 @@ spring:
       enabled: false
     config:
       profile: default
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:init-schema-dev.sql
+  # 넣을 부분
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed/dev
   data:
     mongodb:
       uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGO_PORT}/exampledb?authSource=admin

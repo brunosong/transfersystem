@@ -13,8 +13,6 @@ import java.util.UUID;
 @Repository
 public interface TransferOutboxJpaRepository extends JpaRepository<TransferOutboxEntity, UUID> {
 
-    // 세 메서드 모두 init-schema 에 만들어 둔 (type, outbox_status, saga_status) 인덱스를 탄다.
-    // 포트가 SagaStatus 를 가변인자로 받으므로 여기서는 In 으로 받는다.
     Optional<List<TransferOutboxEntity>> findByTypeAndOutboxStatusAndSagaStatusIn(String type,
                                                                                   OutboxStatus outboxStatus,
                                                                                   List<SagaStatus> sagaStatus);

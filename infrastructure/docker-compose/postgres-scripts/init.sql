@@ -1,8 +1,3 @@
 
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- Enum 타입 생성
-CREATE TYPE source_type AS ENUM ('LEARNING_MATERIAL', 'USER_DATA');
-CREATE TYPE db_type AS ENUM ('MONGO', 'MYSQL');
-CREATE TYPE transfer_status AS ENUM ('PENDING', 'SENT', 'PROCESSED', 'SUCCESS', 'FAILED');

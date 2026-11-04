@@ -1,0 +1,2 @@
+INSERT INTO sourceconfig (source_type, db_type, host, port, database, username, password, table_or_collection)
+VALUES ('CURRICULUM', 'MONGO', 'localhost', 27017, 'learningDB', 'transfer_mongo_learning_user', 'asdf1234', 'CurriculumData');

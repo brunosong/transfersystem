@@ -46,8 +46,6 @@ public class TransferOutboxEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private String payload;
 
-    // 상태 두 개는 문자열로 담는다. 포스트그레스 enum 타입으로 두면 NAMED_ENUM 이 필요한데
-    // 그러면 H2 를 쓰는 테스트가 컨텍스트를 못 띄운다. init-schema 도 varchar 로 맞춰 뒀다
     @Enumerated(EnumType.STRING)
     @Column(name = "saga_status", nullable = false)
     private SagaStatus sagaStatus;

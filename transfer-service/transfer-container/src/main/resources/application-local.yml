@@ -6,10 +6,7 @@ spring:
   cloud:
     config:
       enabled: false
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:init-schema.sql
+
   data:
     mongodb:
       uri: mongodb://root:example@localhost:27017/exampledb?authSource=admin
