@@ -60,12 +60,13 @@
 - [x] 이벤트와 메시지 (대상 연동 계약의 명령·결과·조회)
 
 ## 시스템 설계 문서
-- [ ] [시스템 설계](system/architecture.md) (초안, 크기 제한·토픽 나누기·Redis 제거 확인 대기)
+- [x] [시스템 설계](system/architecture.md) (구성, 트랜잭션 경계, 토픽, 값, 저장소, 장애, 관측, 배포 구성)
+- [x] [ADR 0005](adr/0005-chunks-on-kafka.md) 청크 내용을 Kafka 메시지에 직접 싣고 크기를 제한한다
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)
 *목표: 서비스 DB 접속 정보를 배포 시스템에서 없애고, 마지막에는 에이전트를 서비스 팀 소유의 별도 서비스로 떼어 낸다.*
 
-- [ ] 2단계 계약 분리: 대상 목록을 배포 컨텍스트로 옮김, 계약(명령·결과·조회) 구현, 결과에 반영 내용 담기, (선택) 대상 시스템마다 토픽 나누기. 배포 시스템이 바뀌는 마지막 단계
+- [ ] 2단계 계약 분리: 대상 목록을 배포 컨텍스트로 옮김, 계약(명령·결과·조회) 구현, 결과에 반영 내용 담기, [대상별 토픽](system/architecture.md#4-kafka-토픽)으로 나누기. 배포 시스템이 바뀌는 마지막 단계
 - [ ] 3단계 대상별 에이전트: 대상 시스템마다 따로 띄우고 DB 계정 권한을 최소로
 - [ ] 4단계 떼어 내기: 각 서비스 팀 소유의 컨슈머 서비스로 옮기고, 3·4단계에서 배포 시스템 코드가 바뀌지 않았는지 확인
 
@@ -82,9 +83,9 @@
 ## Phase 2. 로컬 실행 환경
 *목표: `git clone` → `docker compose up` → 두 서비스 기동 → `curl` 한 번으로 이관 성공.*
 
-- [ ] docker-compose 통합(Postgres, MySQL, Mongo, Kafka, Schema Registry, Redis, Kafka UI)
+- [ ] docker-compose 통합(Postgres, MySQL, Mongo, Kafka, Schema Registry, Kafka UI)
 - [ ] MySQL `init.sql`의 MySQL 8 문법 오류 수정
-- [ ] Flyway 도입, `DROP` + `sql.init.mode: always` 제거
+- [ ] **가장 먼저** Flyway 도입, `DROP` + `sql.init.mode: always` 제거. 지금은 재시작하면 배포 기록이 지워진다
 - [ ] local 전용 설정을 `application.yml`로 옮기고 환경별 값은 `${ENV:default}`로
 - [ ] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리
 - [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)
@@ -100,7 +101,11 @@
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, 사가 칸 제거, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
-- [ ] 응답 기한 스케줄러 (`NO_REPLY`)
+- [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
+- [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
+- [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
+- [ ] 청크 내용 정리 작업, 아웃박스 행 정리
+- [ ] Redis 모듈 삭제 (`transfer-cache`, `data-migration-cache`)
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [ ] 사가 흔적 정리: `sagaId`, `SagaStatus`, `infrastructure/saga`
@@ -115,7 +120,7 @@
 - [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `TRANSFER_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
-- [ ] Redis, MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
+- [ ] MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
 - [ ] GitHub Actions → jib push(서비스) / docker build(console) → Argo CD Image Updater
 - [ ] Argo Application을 GitHub repo 기준으로 두 서비스 등록, Bitbucket/Jenkins 참조 제거
 
