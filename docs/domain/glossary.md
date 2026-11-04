@@ -105,6 +105,14 @@
 | 뜻 | 대상이 지켜야 할 약속. 반영 명령을 받는다, 반영 결과(무엇을 반영했는지 포함)를 돌려준다, (선택) 반영한 내용을 조회해 준다. |
 | 비고 | 서비스 팀이 이 계약만 읽고 자기 컨슈머를 만들 수 있어야 한다. |
 
+### 시도 (Attempt)
+| | |
+|---|---|
+| 뜻 | 청크 하나를 대상에 보낸 차례. 처음 보내면 1이고 재전송할 때마다 1씩 는다. |
+| 코드 | **`attempt`** |
+| 지금 이름 | 없음 (새 개념) |
+| 비고 | 명령과 결과에 함께 실어, 어느 시도의 결과인지 구별한다. |
+
 ### 재전송 (Retry)
 | | |
 |---|---|
@@ -149,5 +157,5 @@
 ## 아직 정하지 않은 것
 
 1. ~~서비스(모듈) 이름~~ → [컨텍스트 맵](context-map.md#4-서비스와-이름)에서 `deployment-service`, `target-agent` 로 정했다.
-2. **배포 상태 값**: 지금 `TransferStatus`(PENDING, SENT, PROCESSED, SUCCESS, FAILED)는 처리 단계를 기록한 것에 가깝다. 업무 상태로 다시 정하는 일은 [모델](model.md) 단계에서 한다.
+2. ~~배포 상태 값~~ → [모델](model.md#4-상태-기계)에서 `IN_PROGRESS`, `SUCCEEDED`, `FAILED` 로 정했다.
 3. **메시지 이름**: 지금 `DataMigrationRequestAvroModel`, `DataMigrationResponseAvroModel`. 새 이름은 [이벤트와 메시지](events.md) 단계에서 정한다.

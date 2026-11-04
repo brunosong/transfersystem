@@ -15,7 +15,7 @@
 학습·포트폴리오용으로 진행 중인 프로젝트입니다. 목표는 커리큘럼 하나를 두 대상 시스템에 모두 반영하는 **오케스트레이션 사가**를 완성하고 Kubernetes에 배포하는 것입니다.
 - 남은 작업과 설계: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - 설계 결정 기록(ADR): [`docs/adr/`](docs/adr/)
-- 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵)
+- 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵, 모델)
 - 화면 기획: [`docs/console-plan.md`](docs/console-plan.md)
 
 ## 기술 스택
