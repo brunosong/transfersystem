@@ -176,7 +176,8 @@ U는 상류(모델을 정하는 쪽), D는 하류(따르는 쪽)다. 점선은 �
 | 원본 변환기가 배포의 애플리케이션 계층에 섞여 있다 | `transfer-application-service`의 `helper/transfer/curriculum/CurriculumSourceConverter` | 원본 컨텍스트 패키지로 옮기고, 배포는 포트로만 부른다 |
 | 청크 나누기 규칙(뼈대 + 과목)이 변환기 안에 있다 | 같은 곳 | 어떻게 나눌지는 배포 규칙이다. 원본은 커리큘럼 트리만 주고 배포가 나눈다 |
 | 대상 스키마 엔티티가 `onlinecampus` 패키지에만 있고, 부트캠프 반영 코드는 아직 없다 | `data-migration-dataaccess`, `BootCampDataPersistHelper` | 대상마다 어댑터를 따로 두고 부트캠프 어댑터를 만든다 (ROADMAP Phase 1 "Bootcamp 저장 실제 구현") |
-| 메시지에 `sagaId`가 있지만 사가가 없다 | `data_migration_request.avsc` | [이벤트](events.md) 단계에서 정한다 |
+| 메시지에 `sagaId`가 있지만 사가가 없다 | `data_migration_request.avsc` | 뺀다 ([이벤트와 메시지](events.md#2-applychunkcommand)) |
+| 메시지 내용이 원본 JSON 그대로라 ACL이 내용에서 지켜지지 않는다 | `CurriculumSourceConverter`, `jsonData` | Avro 타입으로 정의한다 ([ADR 0005](../adr/0005-typed-chunk-content.md)) |
 | 화면의 대상 데이터 확인이 대상 DB 조회 API에 기댄다 | 1단계 화면, `docs/console-plan.md` 7번 화면 | 계약 2의 반영 결과로 비교하는 쪽으로 바꾼다. 조회 API(계약 3)는 있으면 쓴다 |
 
 ## 8. 다음 단계

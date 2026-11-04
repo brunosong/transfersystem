@@ -55,7 +55,9 @@
 - [x] [ADR 0003](adr/0003-defer-saga.md) 사가 구현을 뒤로 미룬다
 - [x] [ADR 0004](adr/0004-transactional-outbox.md) 명령 발행에 별도 아웃박스 테이블을 쓴다
 - [x] 모델 (애그리거트, 불변식, 상태 기계)
-- [ ] 이벤트와 메시지 (대상 연동 계약의 명령·결과·조회)
+- [x] 이벤트와 메시지 (대상 연동 계약의 명령·결과·조회)
+- [x] [ADR 0005](adr/0005-typed-chunk-content.md) 청크 내용을 Avro 타입으로 정의한다
+- [x] [ADR 0006](adr/0006-remove-deleted-subjects.md) 원본에서 지운 과목은 대상에서도 뺀다
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)
 *목표: 서비스 DB 접속 정보를 배포 시스템에서 없애고, 마지막에는 에이전트를 서비스 팀 소유의 별도 서비스로 떼어 낸다.*
@@ -88,7 +90,8 @@
 ## Phase 3. 배포 모델 구현
 *목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 지금은 0번 청크의 결과가 배포 결과가 된다.*
 
-- [ ] 메시지 계약: 명령·결과 이름과 필드, 시도 번호, 반영 내용 ([이벤트와 메시지](domain/events.md) 단계에서 정함). Avro namespace 통일
+- [ ] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, 시도 번호, 반영 내용, Avro 타입 내용([ADR 0005](adr/0005-typed-chunk-content.md)), namespace 통일, 호환성 `FULL`
+- [ ] 원본에서 지운 과목 빼기 ([ADR 0006](adr/0006-remove-deleted-subjects.md))
 - [ ] 이름 바꾸기: `Transfer` → `Deployment`, 서비스 이름, 패키지, 토픽 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
@@ -96,7 +99,7 @@
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, 사가 칸 제거, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`)
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
-- [ ] 대상의 멱등한 반영과 오류 구분: 일시적 오류는 재시도 후 DLT, 업무 오류는 실패 결과
+- [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [ ] 사가 흔적 정리: `sagaId`, `SagaStatus`, `infrastructure/saga`
 
 ## Phase 4. 테스트
