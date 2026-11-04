@@ -16,7 +16,7 @@
 - 남은 작업과 설계: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - 설계 결정 기록(ADR): [`docs/adr/`](docs/adr/)
 - 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵, 모델, 이벤트와 메시지)
-- 화면 기획: [`docs/console-plan.md`](docs/console-plan.md)
+- 화면 설계: [`docs/ui/screens.md`](docs/ui/screens.md), 기획과 API 목록: [`docs/console-plan.md`](docs/console-plan.md)
 
 ## 기술 스택
 - **언어**: Java 21
