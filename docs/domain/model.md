@@ -192,7 +192,7 @@ CREATE UNIQUE INDEX uk_deployment_in_progress
 | `ChunkNo` | 0 이상 정수 | 0번이 뼈대다 |
 | `ChunkKind` | `SKELETON`, `SUBJECT` | |
 | `Failure` | 종류(`REJECTED`, `NO_REPLY`), 메시지, 시각 | |
-| `AppliedContent` | 과목 ID, 단원 수, 차시 수 | 대상이 결과에 담아 보낸다. 검증에 쓴다 |
+| `AppliedContent` | 과목 청크: 과목 ID, 제목, 단원 수, 차시 수. 뼈대 청크: 학년 수, 학기 수 | 대상이 결과에 담아 보낸다. 검증에 쓴다. 필드는 [이벤트와 메시지](events.md#3-applyresult) |
 | `Requester` | 운영자 이름 | 로그인이 생기면 ID로 바꾼다 |
 
 **검증**은 상태를 바꾸지 않는 계산이다. 원본의 지금 트리와 청크들의 `AppliedContent`를 비교해 `Difference` 목록을 만든다. 저장하지 않고, 배포 상태에도 영향을 주지 않는다. 그래서 대상 데이터가 원본과 달라도 배포는 `SUCCEEDED`로 남는다. "그때 보낸 것이 다 들어갔다"와 "지금 원본과 같다"는 다른 질문이기 때문이다.
@@ -251,4 +251,4 @@ Kafka는 같은 키의 메시지를 같은 파티션에 넣고, 파티션 안에
 | 청크 상태가 `PENDING / SUCCESS / FAILED` 셋이다 | `api/types.ts` | `WAITING / SENT / APPLIED / FAILED`로 바꾼다 |
 
 ## 9. 다음 단계
-- [이벤트와 메시지](events.md): 명령과 결과의 이름·내용, 시도 번호, 반영 내용
+- [이벤트와 메시지](events.md): 명령과 결과의 이름·내용, 시도 번호, 반영 내용 (초안, 일부 확인 대기)

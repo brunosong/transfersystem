@@ -158,4 +158,4 @@
 
 1. ~~서비스(모듈) 이름~~ → [컨텍스트 맵](context-map.md#4-서비스와-이름)에서 `deployment-service`, `target-agent` 로 정했다.
 2. ~~배포 상태 값~~ → [모델](model.md#4-상태-기계)에서 `IN_PROGRESS`, `SUCCEEDED`, `FAILED` 로 정했다.
-3. **메시지 이름**: 지금 `DataMigrationRequestAvroModel`, `DataMigrationResponseAvroModel`. 새 이름은 [이벤트와 메시지](events.md) 단계에서 정한다.
+3. ~~메시지 이름~~ → [이벤트와 메시지](events.md)에서 `ApplyChunkCommand`, `ApplyResult` 로 정했다.

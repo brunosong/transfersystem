@@ -15,7 +15,7 @@
 학습·포트폴리오용으로 진행 중인 프로젝트입니다. 목표는 운영자가 커리큘럼을 골라 대상에 **배포하고 들어간 것까지 확인하는 시스템**을 완성하고 Kubernetes에 배포하는 것입니다. 사가는 뒤로 미뤘습니다([ADR 0003](docs/adr/0003-defer-saga.md)).
 - 남은 작업과 설계: [`docs/ROADMAP.md`](docs/ROADMAP.md)
 - 설계 결정 기록(ADR): [`docs/adr/`](docs/adr/)
-- 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵, 모델)
+- 도메인 설계: [`docs/domain/`](docs/domain/) (용어집, 컨텍스트 맵, 모델, 이벤트와 메시지)
 - 화면 기획: [`docs/console-plan.md`](docs/console-plan.md)
 
 ## 기술 스택
