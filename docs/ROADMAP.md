@@ -85,7 +85,7 @@
 
 - [ ] docker-compose 통합(Postgres, MySQL, Mongo, Kafka, Schema Registry, Kafka UI)
 - [ ] MySQL `init.sql`의 MySQL 8 문법 오류 수정
-- [ ] **가장 먼저** Flyway 도입, `DROP` + `sql.init.mode: always` 제거. 지금은 재시작하면 배포 기록이 지워진다
+- [x] Flyway 도입, `DROP` + `sql.init.mode: always` 제거 (두 서비스, 재시작 후 데이터 유지 확인)
 - [ ] local 전용 설정을 `application.yml`로 옮기고 환경별 값은 `${ENV:default}`로
 - [ ] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리
 - [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)

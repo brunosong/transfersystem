@@ -13,10 +13,6 @@ spring:
       enabled: false
     config:
       profile: dev
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:sql/init-schema.sql
 
   datasource:
     primary:
