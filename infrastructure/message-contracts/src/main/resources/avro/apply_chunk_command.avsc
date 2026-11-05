@@ -1,0 +1,117 @@
+{
+  "namespace": "com.brunosong.deployment.contract",
+  "type": "record",
+  "name": "ApplyChunkCommand",
+  "doc": "배포가 대상에게 청크 하나를 반영해 달라고 보내는 명령",
+  "fields": [
+    { "name": "deploymentId", "type": { "type": "string", "logicalType": "uuid" }, "doc": "대상은 해석하지 않고 결과에 그대로 돌려준다" },
+    { "name": "chunkNo", "type": "int", "doc": "0번이 뼈대다. 결과에 그대로 돌려준다" },
+    { "name": "attempt", "type": "int", "doc": "1부터 시작한다. 결과에 그대로 돌려준다" },
+    { "name": "targetSystem", "type": "string", "doc": "ONLINE_CAMPUS, BOOTCAMP" },
+    { "name": "environment", "type": "string", "doc": "DEV, PROD" },
+    { "name": "curriculumId", "type": "string" },
+    {
+      "name": "content",
+      "type": [
+        {
+          "type": "record",
+          "name": "SkeletonContent",
+          "doc": "커리큘럼, 학년, 학기와 학기별 과목 ID 목록",
+          "fields": [
+            { "name": "title", "type": "string" },
+            { "name": "description", "type": ["null", "string"], "default": null },
+            {
+              "name": "grades",
+              "type": {
+                "type": "array",
+                "items": {
+                  "type": "record",
+                  "name": "Grade",
+                  "fields": [
+                    { "name": "id", "type": "string" },
+                    { "name": "title", "type": "string" },
+                    { "name": "description", "type": ["null", "string"], "default": null },
+                    {
+                      "name": "semesters",
+                      "type": {
+                        "type": "array",
+                        "items": {
+                          "type": "record",
+                          "name": "Semester",
+                          "fields": [
+                            { "name": "id", "type": "string" },
+                            { "name": "title", "type": "string" },
+                            { "name": "description", "type": ["null", "string"], "default": null },
+                            {
+                              "name": "subjectIds",
+                              "type": { "type": "array", "items": "string" },
+                              "doc": "대상은 이 목록에 없는 과목을 서비스에서 뺀다"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "record",
+          "name": "SubjectContent",
+          "doc": "과목 하나와 그 아래 단원, 차시 전부",
+          "fields": [
+            { "name": "gradeId", "type": "string" },
+            { "name": "semesterId", "type": "string" },
+            {
+              "name": "subject",
+              "type": {
+                "type": "record",
+                "name": "Subject",
+                "fields": [
+                  { "name": "id", "type": "string" },
+                  { "name": "title", "type": "string" },
+                  { "name": "description", "type": ["null", "string"], "default": null },
+                  {
+                    "name": "units",
+                    "type": {
+                      "type": "array",
+                      "items": {
+                        "type": "record",
+                        "name": "Unit",
+                        "fields": [
+                          { "name": "id", "type": "string" },
+                          { "name": "title", "type": "string" },
+                          { "name": "description", "type": ["null", "string"], "default": null },
+                          {
+                            "name": "lessons",
+                            "type": {
+                              "type": "array",
+                              "items": {
+                                "type": "record",
+                                "name": "Lesson",
+                                "fields": [
+                                  { "name": "id", "type": "string" },
+                                  { "name": "title", "type": "string" },
+                                  { "name": "description", "type": ["null", "string"], "default": null },
+                                  { "name": "lessonNumber", "type": "int" },
+                                  { "name": "learningLevel", "type": "int" }
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    { "name": "createdAt", "type": { "type": "long", "logicalType": "timestamp-millis" } }
+  ]
+}

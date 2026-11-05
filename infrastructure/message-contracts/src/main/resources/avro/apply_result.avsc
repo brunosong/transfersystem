@@ -1,0 +1,60 @@
+{
+  "namespace": "com.brunosong.deployment.contract",
+  "type": "record",
+  "name": "ApplyResult",
+  "doc": "대상이 청크 하나를 처리한 결과. 대상은 사실만 알리고 상태는 배포가 정한다",
+  "fields": [
+    { "name": "deploymentId", "type": { "type": "string", "logicalType": "uuid" } },
+    { "name": "chunkNo", "type": "int" },
+    { "name": "attempt", "type": "int" },
+    {
+      "name": "outcome",
+      "type": [
+        {
+          "type": "record",
+          "name": "Applied",
+          "doc": "커밋까지 끝났다. 내용은 대상이 실제로 저장한 값이다",
+          "fields": [
+            {
+              "name": "content",
+              "type": [
+                {
+                  "type": "record",
+                  "name": "AppliedSkeleton",
+                  "fields": [
+                    { "name": "gradeCount", "type": "int" },
+                    { "name": "semesterCount", "type": "int" },
+                    {
+                      "name": "removedSubjectIds",
+                      "type": { "type": "array", "items": "string" },
+                      "doc": "이번에 서비스에서 뺀 과목. 기록용이다"
+                    }
+                  ]
+                },
+                {
+                  "type": "record",
+                  "name": "AppliedSubject",
+                  "fields": [
+                    { "name": "subjectId", "type": "string" },
+                    { "name": "title", "type": "string" },
+                    { "name": "unitCount", "type": "int" },
+                    { "name": "lessonCount", "type": "int" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "record",
+          "name": "Rejected",
+          "doc": "재시도해도 안 되거나 재시도를 다 썼다",
+          "fields": [
+            { "name": "message", "type": "string", "doc": "운영자가 읽을 문장" }
+          ]
+        }
+      ]
+    },
+    { "name": "occurredAt", "type": { "type": "long", "logicalType": "timestamp-millis" } }
+  ]
+}
