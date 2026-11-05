@@ -1,58 +1,100 @@
 package com.brunosong.transfer.system.transfer.service.messaging.mapper;
 
+import com.brunosong.deployment.contract.ApplyChunkCommand;
+import com.brunosong.deployment.contract.Grade;
+import com.brunosong.deployment.contract.Lesson;
+import com.brunosong.deployment.contract.Semester;
+import com.brunosong.deployment.contract.SkeletonContent;
+import com.brunosong.deployment.contract.Subject;
+import com.brunosong.deployment.contract.SubjectContent;
+import com.brunosong.deployment.contract.Unit;
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
-import com.brunosong.transfer.system.kafka.transfer.avro.model.SourceContentDataAvroModel;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
-import com.brunosong.transfer.system.transfer.service.entity.Transfer;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
-import com.brunosong.transfer.system.transfer.service.valueobject.SourceContentData;
 import org.springframework.stereotype.Component;
 
-import java.nio.ByteBuffer;
 import java.util.UUID;
 
 @Component
 public class TransferMessagingDataMapper {
 
-    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(Transfer transfer) {
-        return DataMigrationRequestAvroModel.newBuilder()
-                .setSagaId(UUID.randomUUID().toString())
-                .setTransferId(transfer.getId().getValue().toString())
-                .setSourceContentData(toSourceContentDataAvroModel(transfer.getSourceContentData()))
-                .setDataMigrationId(transfer.getDataMigrationId().getValue())
+    private static final int FIRST_ATTEMPT = 1;
+
+    /** 아웃박스에 적혀 있던 페이로드를 발행 모델로 편다. 재전송이 아직 없어 시도는 항상 1이다 */
+    public ApplyChunkCommand toApplyChunkCommand(DataTransferEventPayload payload) {
+        return ApplyChunkCommand.newBuilder()
+                .setDeploymentId(payload.getTransferId().toString())
+                .setChunkNo(payload.getChunkOffset())
+                .setAttempt(FIRST_ATTEMPT)
+                .setTargetSystem(payload.getTargetSystem())
+                .setEnvironment(payload.getEnvironment())
+                .setCurriculumId(payload.getSourceId())
+                .setContent(toContent(payload.getContent()))
+                .setCreatedAt(payload.getCreatedAt().toInstant())
                 .build();
     }
 
-    /**
-     * 아웃박스에 적혀 있던 페이로드를 그대로 발행 모델로 편다.
-     * sagaId 는 페이로드가 아니라 아웃박스 행이 들고 있으므로 따로 받는다.
-     */
-    public DataMigrationRequestAvroModel toDataMigrationRequestAvroModel(DataTransferEventPayload payload,
-                                                                        UUID sagaId) {
-        return DataMigrationRequestAvroModel.newBuilder()
-                .setSagaId(sagaId.toString())
-                .setTransferId(payload.getTransferId().toString())
-                .setSourceContentData(toSourceContentDataAvroModel(payload))
-                .setDataMigrationId(payload.getDataMigrationId())
+    private Object toContent(ChunkContent content) {
+        return switch (content) {
+            case ChunkContent.Skeleton skeleton -> SkeletonContent.newBuilder()
+                    .setTitle(skeleton.title())
+                    .setDescription(skeleton.description())
+                    .setGrades(skeleton.grades().stream().map(this::toGrade).toList())
+                    .build();
+            case ChunkContent.SubjectChunk chunk -> SubjectContent.newBuilder()
+                    .setGradeId(chunk.gradeId())
+                    .setSemesterId(chunk.semesterId())
+                    .setSubject(toSubject(chunk.subject()))
+                    .build();
+        };
+    }
+
+    private Grade toGrade(ChunkContent.Grade grade) {
+        return Grade.newBuilder()
+                .setId(grade.id())
+                .setTitle(grade.title())
+                .setDescription(grade.description())
+                .setSemesters(grade.semesters().stream().map(this::toSemester).toList())
                 .build();
     }
 
-    public SourceContentDataAvroModel toSourceContentDataAvroModel(SourceContentData sourceContentData) {
-        return SourceContentDataAvroModel.newBuilder()
-                .setChunkOffset(sourceContentData.getChunkOffset())
-                .setSourceId(sourceContentData.getSourceId())
-                .setJsonData(ByteBuffer.wrap(sourceContentData.getJsonData()))
+    private Semester toSemester(ChunkContent.Semester semester) {
+        return Semester.newBuilder()
+                .setId(semester.id())
+                .setTitle(semester.title())
+                .setDescription(semester.description())
+                .setSubjectIds(semester.subjectIds())
                 .build();
     }
 
-    public SourceContentDataAvroModel toSourceContentDataAvroModel(DataTransferEventPayload payload) {
-        return SourceContentDataAvroModel.newBuilder()
-                .setChunkOffset(payload.getChunkOffset())
-                .setSourceId(payload.getSourceId())
-                .setJsonData(ByteBuffer.wrap(payload.getChunkData()))
+    private Subject toSubject(ChunkContent.Subject subject) {
+        return Subject.newBuilder()
+                .setId(subject.id())
+                .setTitle(subject.title())
+                .setDescription(subject.description())
+                .setUnits(subject.units().stream().map(this::toUnit).toList())
+                .build();
+    }
+
+    private Unit toUnit(ChunkContent.Unit unit) {
+        return Unit.newBuilder()
+                .setId(unit.id())
+                .setTitle(unit.title())
+                .setDescription(unit.description())
+                .setLessons(unit.lessons().stream().map(this::toLesson).toList())
+                .build();
+    }
+
+    private Lesson toLesson(ChunkContent.Lesson lesson) {
+        return Lesson.newBuilder()
+                .setId(lesson.id())
+                .setTitle(lesson.title())
+                .setDescription(lesson.description())
+                .setLessonNumber(lesson.lessonNumber())
+                .setLearningLevel(lesson.learningLevel())
                 .build();
     }
 

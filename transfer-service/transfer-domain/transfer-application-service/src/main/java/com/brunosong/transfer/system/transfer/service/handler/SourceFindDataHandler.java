@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.handler;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import com.brunosong.transfer.system.transfer.service.entity.SourceConfig;
 import com.brunosong.transfer.system.transfer.service.helper.source.SourceConfigHelper;
 import com.brunosong.transfer.system.transfer.service.helper.source.SourceFindHelper;
@@ -29,7 +30,7 @@ public class SourceFindDataHandler {
         SourceContentData sourceContentData = sourceFindHelper.findSourceContentData(sourceId, sourceConfig);
 
         //3. 전송할 데이터를 청크 단위로 변환한다.
-        List<byte[]> chunkDataList = transferDataConvertHelper.splitCurriculumJsonIntoChunks(sourceContentData);
+        List<ChunkContent> chunkDataList = transferDataConvertHelper.splitCurriculumJsonIntoChunks(sourceContentData);
         sourceContentData.updateChunkDataList(chunkDataList);
 
         return sourceContentData;

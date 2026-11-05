@@ -13,9 +13,9 @@ public class SourceContentData {
     private SourceType sourceType;
     private DbType dbType;
     private byte[] jsonData;    // The original JSON data
-    private List<byte[]> chunkDataList;  // List of byte arrays representing chunks of the JSON data
+    private List<ChunkContent> chunkDataList;  // 원본을 청크로 나눈 내용
 
-    public void updateChunkDataList(List<byte[]> chunkDataList) {
+    public void updateChunkDataList(List<ChunkContent> chunkDataList) {
         this.chunkDataList = chunkDataList;
     }
 }

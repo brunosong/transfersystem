@@ -1,6 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.messaging.publisher.kafka.outbox;
 
-import com.brunosong.transfer.system.kafka.transfer.avro.model.DataMigrationRequestAvroModel;
+import com.brunosong.deployment.contract.ApplyChunkCommand;
 import com.brunosong.transfer.system.outbox.OutboxStatus;
 import com.brunosong.transfer.system.transfer.service.messaging.mapper.TransferMessagingDataMapper;
 import com.brunosong.transfer.system.transfer.service.config.TransferServiceConfigData;
@@ -55,20 +55,18 @@ public class DataTransferRequestKafkaMessagePublisher implements DataTransferReq
 
         try {
 
-            DataMigrationRequestAvroModel dataMigrationRequestAvroModel =
-                    transferMessagingDataMapper.toDataMigrationRequestAvroModel(payload,
-                            dataTransferOutboxMessage.getSagaId());
+            ApplyChunkCommand command = transferMessagingDataMapper.toApplyChunkCommand(payload);
 
-            kafkaTemplate.send(topicName, sagaId, dataMigrationRequestAvroModel)
+            kafkaTemplate.send(topicName, sagaId, command)
                     .whenComplete(getKafkaCallback(topicName,
-                                                   dataMigrationRequestAvroModel,
+                                                   command,
                                                    dataTransferOutboxMessage,
                                                    outboxCallback,
-                                      "DataMigrationRequestAvroModel"));
+                                      "ApplyChunkCommand"));
 
-            log.info("DataMigrationRequestAvroModel sent to kafka for saga id: {}", sagaId);
+            log.info("ApplyChunkCommand sent to kafka for saga id: {}", sagaId);
         } catch (Exception e) {
-            log.error("Error while sending DataMigrationRequestAvroModel message" +
+            log.error("Error while sending ApplyChunkCommand message" +
                             " to kafka with saga id: {} and error: {}",
                     sagaId, e.getMessage());
             outboxCallback.accept(dataTransferOutboxMessage, OutboxStatus.FAILED);
@@ -92,7 +90,7 @@ public class DataTransferRequestKafkaMessagePublisher implements DataTransferReq
      */
     private BiConsumer<SendResult<String, Object>, Throwable> getKafkaCallback(
             String responseTopicName,
-            DataMigrationRequestAvroModel avroModel,
+            ApplyChunkCommand avroModel,
             DataTransferOutboxMessage dataTransferOutboxMessage,
             BiConsumer<DataTransferOutboxMessage, OutboxStatus> outboxCallback,
             String avroModelName) {

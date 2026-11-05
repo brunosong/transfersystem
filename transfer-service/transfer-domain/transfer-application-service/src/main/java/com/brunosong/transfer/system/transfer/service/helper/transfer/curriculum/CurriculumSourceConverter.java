@@ -1,107 +1,96 @@
 package com.brunosong.transfer.system.transfer.service.helper.transfer.curriculum;
 
-
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 저작 문서를 청크 내용으로 옮긴다. 저작 문서의 필드 이름을 아는 곳은 여기뿐이다.
+ * 필드가 빠진 문서는 대상에 나가기 전에, 접수할 때 실패한다.
+ */
 @Component
-@RequiredArgsConstructor
 public class CurriculumSourceConverter {
 
-    private final ObjectMapper objectMapper;
-
-    // Grade와 Semester를 하나의 메시지로 묶음
-    public byte[] buildCurriculumWithGradesAndSemesters(JsonNode curriculumNode) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        // 1. 최상위 ObjectNode 생성
-        ObjectNode rootNode = objectMapper.createObjectNode();
-        ObjectNode newCurriculumNode = objectMapper.createObjectNode();
-        rootNode.set(CurriculumBaseKey.CURRICULUM.getKey(), newCurriculumNode);
-
-        // 2. curriculum 필드 추가
-        copyTextNode(curriculumNode, newCurriculumNode);
-
-        // 3. grades 배열 생성
-        ArrayNode gradesArray = objectMapper.createArrayNode();
-        JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
-        for (JsonNode grade : grades) {
-            ObjectNode gradeNode = objectMapper.createObjectNode();
-            copyTextNode(grade, gradeNode);
-
-            // 4. semester 배열 생성
-            ArrayNode semestersArray = objectMapper.createArrayNode();
-            JsonNode semesters = grade.path(CurriculumBaseKey.LEVEL2.getKey());
-            for (JsonNode semester : semesters) {
-                ObjectNode semesterNode = objectMapper.createObjectNode();
-                copyTextNode(semester, semesterNode);
-                semestersArray.add(semesterNode); // subject 제외
+    public ChunkContent.Skeleton toSkeleton(JsonNode curriculumNode) {
+        List<ChunkContent.Grade> grades = new ArrayList<>();
+        for (JsonNode grade : curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey())) {
+            List<ChunkContent.Semester> semesters = new ArrayList<>();
+            for (JsonNode semester : grade.path(CurriculumBaseKey.LEVEL2.getKey())) {
+                List<String> subjectIds = new ArrayList<>();
+                for (JsonNode subject : semester.path(CurriculumBaseKey.LEVEL3.getKey())) {
+                    subjectIds.add(requiredText(subject, "id"));
+                }
+                semesters.add(new ChunkContent.Semester(requiredText(semester, "id"), requiredText(semester, "title"),
+                        optionalText(semester, "description"), subjectIds));
             }
-            gradeNode.set(CurriculumBaseKey.LEVEL2.getKey(), semestersArray);
-            gradesArray.add(gradeNode);
+            grades.add(new ChunkContent.Grade(requiredText(grade, "id"), requiredText(grade, "title"),
+                    optionalText(grade, "description"), semesters));
         }
-        newCurriculumNode.set(CurriculumBaseKey.LEVEL1.getKey(), gradesArray);
-
-        return objectMapper.writeValueAsBytes(rootNode);
+        return new ChunkContent.Skeleton(requiredText(curriculumNode, "title"),
+                optionalText(curriculumNode, "description"), grades);
     }
 
-    public List<byte[]> buildCurriculumWithSubject(JsonNode curriculumNode) throws Exception {
-
-        List<byte[]> subjectDataList = new ArrayList<>();
-
-        JsonNode grades = curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey());
-
-        String curriculumId = curriculumNode.path("curriculumId").asText();
-        for (JsonNode grade : grades) {
-            String gradeId = grade.path("id").asText();
-            JsonNode semesters = grade.path(CurriculumBaseKey.LEVEL2.getKey());
-
-            for (JsonNode semester : semesters) {
-                String semesterId = semester.path("id").asText();
-                JsonNode subjects = semester.path(CurriculumBaseKey.LEVEL3.getKey());
-                if (subjects.isArray()) {
-                    for (JsonNode subject : subjects) {
-                        // subject 단위로 새 JSON 생성
-                        ObjectNode subjectNode = createSubjectNode(curriculumId, gradeId, semesterId, subject);
-
-                        // Transfer 객체 업데이트 및 전송
-                        byte[] subjectData = objectMapper.writeValueAsBytes(subjectNode);
-                        subjectDataList.add(subjectData);
-                    }
+    public List<ChunkContent.SubjectChunk> toSubjectChunks(JsonNode curriculumNode) {
+        List<ChunkContent.SubjectChunk> chunks = new ArrayList<>();
+        for (JsonNode grade : curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey())) {
+            String gradeId = requiredText(grade, "id");
+            for (JsonNode semester : grade.path(CurriculumBaseKey.LEVEL2.getKey())) {
+                String semesterId = requiredText(semester, "id");
+                for (JsonNode subject : semester.path(CurriculumBaseKey.LEVEL3.getKey())) {
+                    chunks.add(new ChunkContent.SubjectChunk(gradeId, semesterId, toSubject(subject)));
                 }
             }
         }
-
-        return subjectDataList;
+        return chunks;
     }
 
-    private ObjectNode createSubjectNode(String curriculumId, String gradeId, String semesterId, JsonNode subject) {
-        ObjectNode subjectNode = objectMapper.createObjectNode();
-        subjectNode.put("curriculumId", curriculumId);
-        subjectNode.put("gradeId", gradeId);
-        subjectNode.put("semesterId", semesterId);
-        subjectNode.set("subject", subject);
-
-        return subjectNode;
+    private ChunkContent.Subject toSubject(JsonNode subject) {
+        List<ChunkContent.Unit> units = new ArrayList<>();
+        for (JsonNode unit : subject.path(CurriculumBaseKey.LEVEL4.getKey())) {
+            units.add(toUnit(unit));
+        }
+        return new ChunkContent.Subject(requiredText(subject, "id"), requiredText(subject, "title"),
+                optionalText(subject, "description"), units);
     }
 
-    public void copyTextNode(JsonNode objectNode, ObjectNode newObjectNode) {
-        objectNode.fields().forEachRemaining(entry -> {
-            String fieldName = entry.getKey();
-            JsonNode valueNode = entry.getValue();
+    private ChunkContent.Unit toUnit(JsonNode unit) {
+        List<ChunkContent.Lesson> lessons = new ArrayList<>();
+        for (JsonNode lesson : unit.path(CurriculumBaseKey.LEVEL5.getKey())) {
+            lessons.add(new ChunkContent.Lesson(requiredText(lesson, "id"), requiredText(lesson, "title"),
+                    optionalText(lesson, "description"), requiredInt(lesson, "lessonNumber"),
+                    requiredInt(lesson, "learningLevel")));
+        }
+        return new ChunkContent.Unit(requiredText(unit, "id"), requiredText(unit, "title"),
+                optionalText(unit, "description"), lessons);
+    }
 
-            // 텍스트 값만 추가
-            if (valueNode.isTextual()) {
-                newObjectNode.put(fieldName, valueNode.asText());
-            }
-        });
+    private String requiredText(JsonNode node, String field) {
+        JsonNode value = node.path(field);
+        if (!value.isTextual()) {
+            throw new IllegalArgumentException("저작 문서에 문자열 필드 '" + field + "' 가 없습니다: " + describe(node));
+        }
+        return value.asText();
+    }
+
+    private String optionalText(JsonNode node, String field) {
+        JsonNode value = node.path(field);
+        return value.isTextual() ? value.asText() : null;
+    }
+
+    private int requiredInt(JsonNode node, String field) {
+        JsonNode value = node.path(field);
+        if (!value.isInt()) {
+            throw new IllegalArgumentException("저작 문서에 정수 필드 '" + field + "' 가 없습니다: " + describe(node));
+        }
+        return value.asInt();
+    }
+
+    // 큰 문서 전체를 오류 메시지에 넣지 않는다
+    private String describe(JsonNode node) {
+        return "id=" + node.path("id").asText("(없음)");
     }
 }

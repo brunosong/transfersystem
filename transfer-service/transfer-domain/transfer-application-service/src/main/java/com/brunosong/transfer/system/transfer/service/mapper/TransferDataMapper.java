@@ -1,5 +1,7 @@
 package com.brunosong.transfer.system.transfer.service.mapper;
 
+import com.brunosong.transfer.system.transfer.service.helper.transfer.TargetCatalog;
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import com.brunosong.transfer.system.domain.valueobject.DataMigrationId;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.dto.create.TransferRequest;
@@ -37,12 +39,16 @@ public class TransferDataMapper {
     }
 
     public DataTransferEventPayload transferRequestEventToDataTransferEventPayload(TransferRequestEvent transferRequestEvent) {
+        TargetCatalog.Target target = TargetCatalog.find(transferRequestEvent.getTransfer().getDataMigrationId().getValue());
+        ChunkContent content = transferRequestEvent.getContent();
         return DataTransferEventPayload.builder()
                 .transferId(transferRequestEvent.getTransfer().getId().getValue())
-                .dataMigrationId(transferRequestEvent.getTransfer().getDataMigrationId().getValue())
+                .targetSystem(target.system())
+                .environment(target.environment())
                 .transType(transferRequestEvent.getTransfer().getTransType())
                 .sourceId(transferRequestEvent.getTransfer().getSourceId().getValue())
-                .chunkData(transferRequestEvent.getChunkData())
+                .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
+                .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
                 .chunkOffset(transferRequestEvent.getChunkOffset())
                 .createdAt(transferRequestEvent.getCreatedAt())
                 .build();

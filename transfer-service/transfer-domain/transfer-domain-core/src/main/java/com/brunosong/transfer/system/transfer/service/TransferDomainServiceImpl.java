@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 
 import com.brunosong.transfer.system.domain.DomainConstants;
 import com.brunosong.transfer.system.transfer.service.entity.Transfer;
@@ -23,7 +24,7 @@ public class TransferDomainServiceImpl implements TransferDomainService {
 
         // 도메인 객채는 같고 데이터와 청크 순서만 다른 TransferRequestEvent 객체를 생성하여 반환
         List<TransferRequestEvent> transferRequestEventList = new ArrayList<>();
-        List<byte[]> chunkDataList = sourceContentData.getChunkDataList();
+        List<ChunkContent> chunkDataList = sourceContentData.getChunkDataList();
         for (int chunkOffset = 0; chunkOffset < chunkDataList.size(); chunkOffset++) {
             // 청크 데이터 유효성 검사
             transferRequestEventList.add(

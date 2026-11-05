@@ -1,5 +1,6 @@
 package com.brunosong.transfer.system.transfer.service.helper.transfer;
 
+import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 
 import com.brunosong.transfer.system.transfer.service.helper.transfer.curriculum.CurriculumSourceConverter;
 import com.brunosong.transfer.system.transfer.service.valueobject.CurriculumBaseKey;
@@ -22,9 +23,9 @@ public class TransferDataConvertHelper {
     private final CurriculumSourceConverter curriculumSourceConverter;
     private final ObjectMapper objectMapper;
 
-    public List<byte[]> splitCurriculumJsonIntoChunks(SourceContentData sourceContentData) {
+    public List<ChunkContent> splitCurriculumJsonIntoChunks(SourceContentData sourceContentData) {
 
-        List<byte[]> chunckDataList = new ArrayList<>();
+        List<ChunkContent> chunks = new ArrayList<>();
 
         // 디비에 저장된 데이터를 가져온다.
         byte[] jsonData = sourceContentData.getJsonData();
@@ -36,15 +37,13 @@ public class TransferDataConvertHelper {
 
             // 상위 데이터 grades & semester
             if (sourceContentData.getSourceType() == SourceType.CURRICULUM) {
-                byte[] upperData = curriculumSourceConverter.buildCurriculumWithGradesAndSemesters(curriculumNode);
-                chunckDataList.add(upperData);
+                chunks.add(curriculumSourceConverter.toSkeleton(curriculumNode));
 
                 // 하위 데이터 전송
-                List<byte[]> subjectDataList = curriculumSourceConverter.buildCurriculumWithSubject(curriculumNode);
-                chunckDataList.addAll(subjectDataList);
+                chunks.addAll(curriculumSourceConverter.toSubjectChunks(curriculumNode));
             }
 
-            return chunckDataList;
+            return chunks;
         } catch (Exception e) {
             log.error("Error converting curriculum source data: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to convert curriculum source data", e);
