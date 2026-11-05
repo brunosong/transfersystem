@@ -39,6 +39,8 @@ class CurriculumSourceConverterTest {
     void skeleton() throws Exception {
         ChunkContent.Skeleton skeleton = converter.toSkeleton(objectMapper.readTree(DOCUMENT));
 
+        assertEquals("CUR001", converter.toCurriculumId(objectMapper.readTree(DOCUMENT)));
+
         assertEquals("중등", skeleton.title());
         assertEquals("중등 과정", skeleton.description());
         ChunkContent.Grade grade = skeleton.grades().get(0);
@@ -80,7 +82,7 @@ class CurriculumSourceConverterTest {
                 .transferId(UUID.randomUUID())
                 .targetSystem("ONLINE_CAMPUS")
                 .environment("DEV")
-                .sourceId("CUR001")
+                .curriculumId("CUR001")
                 .subjectChunk(chunk)
                 .chunkOffset(1)
                 .build();

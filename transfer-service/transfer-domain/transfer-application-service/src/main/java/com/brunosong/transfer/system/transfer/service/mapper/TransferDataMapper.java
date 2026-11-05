@@ -46,7 +46,7 @@ public class TransferDataMapper {
                 .targetSystem(target.system())
                 .environment(target.environment())
                 .transType(transferRequestEvent.getTransfer().getTransType())
-                .sourceId(transferRequestEvent.getTransfer().getSourceId().getValue())
+                .curriculumId(transferRequestEvent.getTransfer().getSourceContentData().getCurriculumId())
                 .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
                 .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
                 .chunkOffset(transferRequestEvent.getChunkOffset())

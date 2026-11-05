@@ -7,6 +7,7 @@ import com.brunosong.transfer.system.datamigration.service.domain.valueobject.Ch
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -45,14 +46,10 @@ public class DataPersistHandler {
                 .findFirst();
     }
 
+    // @Transactional 이 있는 어댑터는 프록시로 감싸지므로 getClass() 에서 애너테이션을 바로 찾을 수 없다.
+    // findAnnotation 은 상위 클래스까지 찾아 준다
     private boolean matches(DataPersistService service, String targetSystem) {
-        Class<? extends DataPersistService> aClass = service.getClass();
-
-        if (aClass.isAnnotationPresent(ServiceTypeSelector.class)) {
-            ServiceTypeSelector selector = aClass.getAnnotation(ServiceTypeSelector.class);
-            return selector.type().name().equals(SERVICE_TYPE_PREFIX + targetSystem);
-        }
-
-        return false;
+        ServiceTypeSelector selector = AnnotationUtils.findAnnotation(service.getClass(), ServiceTypeSelector.class);
+        return selector != null && selector.type().name().equals(SERVICE_TYPE_PREFIX + targetSystem);
     }
 }

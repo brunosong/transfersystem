@@ -37,6 +37,7 @@ public class TransferDataConvertHelper {
 
             // 상위 데이터 grades & semester
             if (sourceContentData.getSourceType() == SourceType.CURRICULUM) {
+                sourceContentData.updateCurriculumId(curriculumSourceConverter.toCurriculumId(curriculumNode));
                 chunks.add(curriculumSourceConverter.toSkeleton(curriculumNode));
 
                 // 하위 데이터 전송

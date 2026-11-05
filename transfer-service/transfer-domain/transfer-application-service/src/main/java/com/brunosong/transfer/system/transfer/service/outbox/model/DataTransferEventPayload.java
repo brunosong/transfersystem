@@ -41,7 +41,7 @@ public class DataTransferEventPayload {
     private TransType transType;
 
     @JsonProperty
-    private String sourceId;
+    private String curriculumId;
 
     @JsonProperty
     private ChunkContent.Skeleton skeleton;

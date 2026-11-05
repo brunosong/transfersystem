@@ -126,7 +126,7 @@
    cd infrastructure/docker-compose
    # 주키퍼
    docker-compose -f common.yml -f zookeeper.yml up -d
-   # 카프카 클러스터
+   # 카프카 (브로커 1대 + 스키마 레지스트리)
    docker-compose -f common.yml -f kafka_cluster.yml up -d
    # 카프카 토픽 초기화
    docker-compose -f common.yml -f init-kafka.yml up -d

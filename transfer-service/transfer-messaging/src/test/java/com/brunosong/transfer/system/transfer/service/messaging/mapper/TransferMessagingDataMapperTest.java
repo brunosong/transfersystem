@@ -116,7 +116,7 @@ class TransferMessagingDataMapperTest {
                 .transferId(TRANSFER_ID)
                 .targetSystem("ONLINE_CAMPUS")
                 .environment("DEV")
-                .sourceId("CUR001")
+                .curriculumId("CUR001")
                 .chunkOffset(chunkNo)
                 .createdAt(CREATED_AT);
     }

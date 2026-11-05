@@ -15,6 +15,10 @@ import java.util.List;
 @Component
 public class CurriculumSourceConverter {
 
+    public String toCurriculumId(JsonNode curriculumNode) {
+        return requiredText(curriculumNode, "curriculumId");
+    }
+
     public ChunkContent.Skeleton toSkeleton(JsonNode curriculumNode) {
         List<ChunkContent.Grade> grades = new ArrayList<>();
         for (JsonNode grade : curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey())) {

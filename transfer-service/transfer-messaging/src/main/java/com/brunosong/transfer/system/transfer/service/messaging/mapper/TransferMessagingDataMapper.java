@@ -33,7 +33,7 @@ public class TransferMessagingDataMapper {
                 .setAttempt(FIRST_ATTEMPT)
                 .setTargetSystem(payload.getTargetSystem())
                 .setEnvironment(payload.getEnvironment())
-                .setCurriculumId(payload.getSourceId())
+                .setCurriculumId(payload.getCurriculumId())
                 .setContent(toContent(payload.getContent()))
                 .setCreatedAt(payload.getCreatedAt().toInstant())
                 .build();
