@@ -17,7 +17,5 @@ kafka-config:
 transfer-service:
   data-migration-request-topic-name: data-migration-request
   data-migration-response-topic-name: data-migration-response
-  data-migration-schema-subjects:
-    - avro/data_migration_request.avsc
 
 

@@ -15,5 +15,4 @@ import java.util.List;
 public class TransferServiceProperties {
     private String dataMigrationRequestTopicName;
     private String dataMigrationResponseTopicName;
-    private List<String> dataMigrationSchemaSubjects;
 }

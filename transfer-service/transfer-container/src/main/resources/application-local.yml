@@ -29,6 +29,8 @@ spring:
     # 생산자와 소비자가 함께 쓰는 것
     properties:
       schema.registry.url: http://localhost:8081
+      # 토픽이 대상별로 나뉘어도 스키마는 이름 기준으로 하나만 관리한다
+      value.subject.name.strategy: io.confluent.kafka.serializers.subject.RecordNameStrategy
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
@@ -85,8 +87,6 @@ logging:
 transfer-service:
   data-migration-request-topic-name: data-migration-request
   data-migration-response-topic-name: data-migration-response
-  data-migration-schema-subjects:
-    - avro/DataMigrationRequestAvroModel.avsc
   outbox-scheduler:
     initial-delay: 10000
     fixed-delay: 10000

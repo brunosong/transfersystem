@@ -51,8 +51,8 @@ transfer-service와 data-migration-service는 Kafka로 Avro 메시지를 주고�
                 <schemaRegistryUrls><param>${schema.registry.url}</param></schemaRegistryUrls>
                 <outputDirectory>${project.build.directory}/avro</outputDirectory>
                 <subjectPatterns>
-                    <param>^data-migration-request-value$</param>
-                    <param>^data-migration-response-value$</param>
+                    <param>^com\.brunosong\.deployment\.contract\.ApplyChunkCommand$</param>
+                    <param>^com\.brunosong\.deployment\.contract\.ApplyResult$</param>
                 </subjectPatterns>
             </configuration>
         </execution>

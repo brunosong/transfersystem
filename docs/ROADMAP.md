@@ -87,14 +87,14 @@
 - [ ] MySQL `init.sql`의 MySQL 8 문법 오류 수정
 - [x] Flyway 도입, `DROP` + `sql.init.mode: always` 제거 (두 서비스, 재시작 후 데이터 유지 확인)
 - [ ] local 전용 설정을 `application.yml`로 옮기고 환경별 값은 `${ENV:default}`로
-- [ ] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리
+- [x] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리 (지움, `RecordNameStrategy`로 통일)
 - [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)
 - [ ] 조회 어댑터 테스트용 스키마(`transfer-query-schema.sql`)를 Flyway 마이그레이션으로 대체
 
 ## Phase 3. 배포 모델 구현
 *목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 지금은 0번 청크의 결과가 배포 결과가 된다.*
 
-- [ ] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, 시도 번호, 반영 내용, Avro 타입 내용, namespace 통일, 호환성 `FULL`
+- [x] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, Avro 타입 내용, namespace 통일, 호환성 `FULL`. 시도 번호는 항상 1, 반영 내용은 아직 버림(모델 작업에서)
 - [ ] 원본에서 지운 과목 빼기 ([이벤트와 메시지](domain/events.md#6-원본에서-지운-과목은-대상에서도-뺀다))
 - [ ] 이름 바꾸기: `Transfer` → `Deployment`, 서비스 이름, 패키지, 토픽 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
