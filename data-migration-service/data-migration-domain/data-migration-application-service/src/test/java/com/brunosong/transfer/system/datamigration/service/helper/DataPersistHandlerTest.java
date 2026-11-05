@@ -1,6 +1,7 @@
 package com.brunosong.transfer.system.datamigration.service.helper;
 
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.transfer.system.datamigration.service.handler.DataPersistHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 @SpringJUnitConfig(
@@ -27,25 +31,33 @@ class DataPersistHandlerTest {
     OnlineCampusDataPersistHelper onlineCampusDataPersistHelper;
 
     @Test
-    @DisplayName("TargetType이 OnlineCampus인 경우, dataPersist 메서드가 호출되어야 한다.")
+    @DisplayName("대상 시스템이 ONLINE_CAMPUS 이면 온라인캠퍼스 어댑터에 맡기고 반영 내용을 돌려준다")
     void testDataPersist() {
         // Given
-        DataMigration dataMigration = DataMigration.builder()
-                .targetSystem("BRUNOSONG_ONLINE_CAMPUS")
-                .targetSystemEnvironment(null) // Assuming null is acceptable for this test
-                .build();
-        // When
-        Mockito.when(onlineCampusDataPersistHelper.dataPersist(Mockito.any(), Mockito.any()))
-                .thenReturn(100L);
+        AppliedContent applied = new AppliedContent.Subject("SUB001", "수학", 5, 500);
+        Mockito.when(onlineCampusDataPersistHelper.dataPersist(Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(applied);
 
-        long result = dataPersistHandler.persist(dataMigration, null);
+        // When
+        AppliedContent result = dataPersistHandler.persist("ONLINE_CAMPUS", TargetSystemEnvironment.DEV, "CUR001", null);
 
         // Then
-        assertEquals(100L, result);
-
+        assertEquals(applied, result);
         Mockito.verify(onlineCampusDataPersistHelper, Mockito.times(1))
-                .dataPersist(Mockito.any(), Mockito.any());
+                .dataPersist(TargetSystemEnvironment.DEV, "CUR001", null);
     }
 
-  
+    @Test
+    @DisplayName("맡지 않은 대상 시스템은 지원하지 않는다고 답한다")
+    void testSupports() {
+        assertTrue(dataPersistHandler.supports("BOOTCAMP"));
+        assertFalse(dataPersistHandler.supports("UNKNOWN"));
+    }
+
+    @Test
+    @DisplayName("부트캠프는 반영하지 않았으므로 성공으로 알리지 않는다")
+    void testBootcampIsNotReportedAsApplied() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> dataPersistHandler.persist("BOOTCAMP", TargetSystemEnvironment.DEV, "CUR001", null));
+    }
 }

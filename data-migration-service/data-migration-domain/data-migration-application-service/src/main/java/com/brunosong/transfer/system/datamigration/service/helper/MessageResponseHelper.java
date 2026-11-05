@@ -1,12 +1,14 @@
 package com.brunosong.transfer.system.datamigration.service.helper;
 
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationRequest;
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationResponseMessage;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyChunkRequest;
+import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyResultMessage;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
-import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+
+import java.time.Instant;
 
 @Slf4j
 @Component
@@ -15,37 +17,24 @@ public class MessageResponseHelper {
 
     private final DataMigrationResponsePublisher dataMigrationResponsePublisher;
 
-    public void failsResponseMessage(DataMigrationRequest dataMigrationRequest, Exception e) {
+    public void failsResponseMessage(ApplyChunkRequest request, Exception e) {
+        log.error("반영 실패. deploymentId={}, chunkNo={}, attempt={}",
+                request.deploymentId(), request.chunkNo(), request.attempt(), e);
 
-        log.error("migration exception! transferId is {}, dataMigrationId : {}",
-                dataMigrationRequest.getTransferId(), dataMigrationRequest.getDataMigrationId());
-
-        // DLT 대신 처리 실패 메시지 전송
-        DataMigrationResponseMessage outboxMessage = DataMigrationResponseMessage.builder()
-                .transferId(dataMigrationRequest.getTransferId())
-                .message("ErrorMessage is " + e.getMessage())
-                .transferStatus(TransferStatus.FAILED)
-                .chunkOffset(dataMigrationRequest.getSourceContentData().getChunkOffset())
-                .build();
-
-        dataMigrationResponsePublisher.dataMigrationStatusPublish(outboxMessage);
-
+        // 메시지가 없는 예외도 있다. 계약의 message 는 비어 있을 수 없다
+        String message = e.getMessage() != null ? e.getMessage() : e.getClass().getName();
+        publish(request, new ApplyResultMessage.Rejected(message));
     }
 
-    public void successResponseMessage(DataMigrationRequest dataMigrationRequest) {
+    public void successResponseMessage(ApplyChunkRequest request, AppliedContent applied) {
+        log.info("반영 성공. deploymentId={}, chunkNo={}, attempt={}",
+                request.deploymentId(), request.chunkNo(), request.attempt());
 
-        log.info("migration success !! transferId is {}, dataMigrationId : {}",
-                dataMigrationRequest.getTransferId(), dataMigrationRequest.getDataMigrationId());
-
-        // 성공 시 메시지
-        DataMigrationResponseMessage responseMessage = DataMigrationResponseMessage.builder()
-                .transferId(dataMigrationRequest.getTransferId())
-                .message("SUCCESS")
-                .transferStatus(TransferStatus.SUCCESS)
-                .chunkOffset(dataMigrationRequest.getSourceContentData().getChunkOffset())
-                .build();
-
-        dataMigrationResponsePublisher.dataMigrationStatusPublish(responseMessage);
+        publish(request, new ApplyResultMessage.Applied(applied));
     }
 
+    private void publish(ApplyChunkRequest request, ApplyResultMessage.Outcome outcome) {
+        dataMigrationResponsePublisher.dataMigrationStatusPublish(new ApplyResultMessage(
+                request.deploymentId(), request.chunkNo(), request.attempt(), outcome, Instant.now()));
+    }
 }

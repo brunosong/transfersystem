@@ -1,10 +1,10 @@
 package com.brunosong.transfer.system.datamigration.service.messaging.publisher.kafka;
 
+import com.brunosong.deployment.contract.ApplyResult;
 import com.brunosong.transfer.system.datamigration.service.config.DataMigrationServiceConfigData;
-import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationResponseMessage;
+import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyResultMessage;
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMigrationMessagingDataMapper;
 import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
-import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,21 +20,20 @@ public class DataMigrationStatusResponsePublisher implements DataMigrationRespon
     private final DataMigrationServiceConfigData dataMigrationServiceConfigData;
 
     @Override
-    public void dataMigrationStatusPublish(DataMigrationResponseMessage responseMessage) {
+    public void dataMigrationStatusPublish(ApplyResultMessage resultMessage) {
 
-        DataMigrationResponseAvroModel responseAvroModel = dataMigrationMessagingDataMapper
-                .toDataMigrationResponseAvroModel(responseMessage);
+        ApplyResult result = dataMigrationMessagingDataMapper.toApplyResult(resultMessage);
 
         String topicName = dataMigrationServiceConfigData.getDataMigrationResponseTopicName();
 
-        kafkaTemplate.send(topicName, responseAvroModel.getTransferId(), responseAvroModel)
-                .whenComplete((result, ex) -> {
+        kafkaTemplate.send(topicName, result.getDeploymentId(), result)
+                .whenComplete((sendResult, ex) -> {
                     if (ex != null) {
-                        log.error("DataMigrationResponseAvroModel 발행 실패. transferId={}",
-                                responseAvroModel.getTransferId(), ex);
+                        log.error("ApplyResult 발행 실패. deploymentId={}, chunkNo={}",
+                                result.getDeploymentId(), result.getChunkNo(), ex);
                     } else {
-                        log.info("DataMigrationResponseAvroModel sent to kafka for transferId id: {}",
-                                responseAvroModel.getTransferId());
+                        log.info("ApplyResult 발행. deploymentId={}, chunkNo={}",
+                                result.getDeploymentId(), result.getChunkNo());
                     }
                 });
     }

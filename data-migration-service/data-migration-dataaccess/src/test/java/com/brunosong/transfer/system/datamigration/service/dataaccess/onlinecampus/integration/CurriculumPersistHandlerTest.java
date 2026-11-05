@@ -7,8 +7,10 @@ import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecamp
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.mapper.OnlineCampusDataAccessMapper;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.CurriculumJpaRepository;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.SubjectJpaRepository;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
+import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationDto;
 import jakarta.persistence.EntityManager;
-import org.bson.Document;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,16 +63,13 @@ class CurriculumPersistHandlerTest extends CurriculumDummy {
         SubjectEntity newSubjectEntity = createNewSemester().getSubjectEntities().get(0);
         Mockito.when(dataAccessMapper.convertToSubject(Mockito.any(),Mockito.any())).thenReturn(newSubjectEntity);
 
-        Document document = new Document();
-        document.append("semesterId", "SEM001");
-        Document subjectDocument = new Document();
-        subjectDocument.append("id", "SUB001");
-        document.append("subject", subjectDocument);
+        ChunkContent.SubjectChunk chunk = new ChunkContent.SubjectChunk("GRD001", "SEM001",
+                new ChunkContent.Subject("SUB001", null, null, List.of()));
 
         // When
-        curriculumPersistHandler.subjectToLesson(document);
+        curriculumPersistHandler.subjectToLesson(chunk);
 
-        SubjectEntity result = subjectJpaRepository.findBySubjectId(subjectDocument.getString("id")).get();
+        SubjectEntity result = subjectJpaRepository.findBySubjectId("SUB001").get();
 
         assertEquals("New Description", result.getDescription());
         assertEquals("New Subject", result.getTitle());
@@ -99,17 +98,14 @@ class CurriculumPersistHandlerTest extends CurriculumDummy {
         SubjectEntity newSubjectEntity = createNewSemester().getSubjectEntities().get(0);
         Mockito.when(dataAccessMapper.convertToSubject(Mockito.any(),Mockito.any())).thenReturn(newSubjectEntity);
 
-        Document document = new Document();
-        document.append("semesterId", "SEM001");
-        Document subjectDocument = new Document();
-        subjectDocument.append("id", "SUB001");
-        document.append("subject", subjectDocument);
+        ChunkContent.SubjectChunk chunk = new ChunkContent.SubjectChunk("GRD001", "SEM001",
+                new ChunkContent.Subject("SUB001", null, null, List.of()));
 
         // When
-        curriculumPersistHandler.subjectToLesson(document);
+        curriculumPersistHandler.subjectToLesson(chunk);
 
         // Then
-        SubjectEntity result = subjectJpaRepository.findBySubjectId(subjectDocument.getString("id")).get();
+        SubjectEntity result = subjectJpaRepository.findBySubjectId("SUB001").get();
 
         Mockito.verify(curriculumUpdateMergeHelper, Mockito.times(1)).mergeSubject(Mockito.any(SubjectEntity.class),
                                                                                                          Mockito.any(SubjectEntity.class));

@@ -3,9 +3,9 @@ package com.brunosong.transfer.system.datamigration.service.helper;
 import com.brunosong.transfer.system.datamigration.service.DataPersistService;
 import com.brunosong.transfer.system.datamigration.service.annotation.ServiceTypeSelector;
 import com.brunosong.transfer.system.datamigration.service.config.OnlineCampusRoutingDataSourceContextHolder;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.DataSourceType;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationDto;
 import com.brunosong.transfer.system.datamigration.service.ports.output.cache.CurriculumCachePort;
@@ -28,9 +28,8 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
     private final CurriculumCachePort curriculumCachePort;
 
     @Override
-    public long dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData) {
+    public AppliedContent dataPersist(TargetSystemEnvironment targetSystemEnvironment, String curriculumId, ChunkContent content) {
 
-        TargetSystemEnvironment targetSystemEnvironment = dataMigrationInfo.getTargetSystemEnvironment();
         try {
             if (targetSystemEnvironment == TargetSystemEnvironment.PROD) {
                 log.info("Persisting data for Online Campus in PROD environment");
@@ -39,7 +38,7 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
                 OnlineCampusRoutingDataSourceContextHolder.setDataSourceType(DataSourceType.BRUNOSONG_ONLINE_CAMPUS_DEV);
                 log.info("Persisting data for Online Campus in DEV environment");
             }
-            return onlineCampusDataMigration(sourceContentData);
+            return onlineCampusDataMigration(curriculumId, content);
 
         } finally {
             OnlineCampusRoutingDataSourceContextHolder.clearDataSourceType();
@@ -47,13 +46,13 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
     }
 
     @Transactional
-    public long onlineCampusDataMigration(SourceContentData sourceContentData) {
-        DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(sourceContentData);
+    public AppliedContent onlineCampusDataMigration(String curriculumId, ChunkContent content) {
+        DataMigrationDto dataMigrationDto = curriculumRepository.saveOrUpdate(curriculumId, content);
         log.info("Successfully saved content with id: {}", dataMigrationDto.id());
 
         curriculumCachePort.save(dataMigrationDto.id(), dataMigrationDto.curriculumId());
         log.info("Successfully cached content with id: {}", dataMigrationDto.id());
 
-        return dataMigrationDto.id();
+        return dataMigrationDto.applied();
     }
 }

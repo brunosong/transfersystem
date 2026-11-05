@@ -6,10 +6,9 @@ import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecamp
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.mapper.OnlineCampusDataAccessMapper;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.CurriculumJpaRepository;
 import com.brunosong.transfer.system.datamigration.service.dataaccess.onlinecampus.repository.SemesterJpaRepository;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.CurriculumKey;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
 import com.brunosong.transfer.system.datamigration.service.dto.message.DataMigrationDto;
 import lombok.RequiredArgsConstructor;
-import org.bson.Document;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -23,8 +22,8 @@ public class CurriculumPersistHandler {
     private final OnlineCampusDataAccessMapper dataAccessMapper;
     private final CurriculumUpdateMergeHelper curriculumUpdateMergeHelper;
 
-    public DataMigrationDto curriculumToLesson(Document document) {
-        CurriculumEntity curriculumEntity = dataAccessMapper.documentToCurriculum(document);
+    public DataMigrationDto curriculumToLesson(String curriculumId, ChunkContent.Skeleton skeleton) {
+        CurriculumEntity curriculumEntity = dataAccessMapper.toCurriculum(curriculumId, skeleton);
 
         Optional<CurriculumEntity> existing = curriculumJpaRepository.findByCurriculumId(curriculumEntity.getCurriculumId());
 
@@ -37,15 +36,13 @@ public class CurriculumPersistHandler {
         }
     }
 
-    public DataMigrationDto subjectToLesson(Document document) {
+    public DataMigrationDto subjectToLesson(ChunkContent.SubjectChunk chunk) {
 
         // SemesterEntity 조회
-        String semesterId = document.getString("semesterId");
-        SemesterEntity semesterEntity = semesterJpaRepository.findBySemesterId(semesterId).orElseThrow();
+        SemesterEntity semesterEntity = semesterJpaRepository.findBySemesterId(chunk.semesterId()).orElseThrow();
 
         // SubjectEntity 저장
-        Document subjectDocument = document.get(CurriculumKey.SUBJECT.getKey(), Document.class);
-        SubjectEntity newSubject = dataAccessMapper.convertToSubject(subjectDocument, semesterEntity);
+        SubjectEntity newSubject = dataAccessMapper.convertToSubject(chunk.subject(), semesterEntity);
         
         // 기존 Subject가 존재하는지 확인
         Optional<SubjectEntity> existingSubject = semesterEntity.getSubjectEntities().stream().filter(subject ->

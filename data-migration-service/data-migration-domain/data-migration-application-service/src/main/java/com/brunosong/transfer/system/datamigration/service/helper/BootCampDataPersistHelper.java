@@ -2,8 +2,9 @@ package com.brunosong.transfer.system.datamigration.service.helper;
 
 import com.brunosong.transfer.system.datamigration.service.DataPersistService;
 import com.brunosong.transfer.system.datamigration.service.annotation.ServiceTypeSelector;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.transfer.system.domain.valueobject.BrunoSongServiceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +18,9 @@ import org.springframework.stereotype.Component;
 )
 public class BootCampDataPersistHelper implements DataPersistService {
 
+    // 전에는 아무것도 저장하지 않고 0 을 돌려줘 성공으로 알려졌다. 반영하지 않은 것을 반영했다고 알리면 안 된다
     @Override
-    public long dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData) {
-        return 0;
+    public AppliedContent dataPersist(TargetSystemEnvironment environment, String curriculumId, ChunkContent content) {
+        throw new UnsupportedOperationException("부트캠프 반영은 아직 구현되지 않았습니다");
     }
 }

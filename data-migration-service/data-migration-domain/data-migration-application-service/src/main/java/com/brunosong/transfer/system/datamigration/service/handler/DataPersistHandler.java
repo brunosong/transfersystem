@@ -2,8 +2,9 @@ package com.brunosong.transfer.system.datamigration.service.handler;
 
 import com.brunosong.transfer.system.datamigration.service.DataPersistService;
 import com.brunosong.transfer.system.datamigration.service.annotation.ServiceTypeSelector;
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,40 +13,46 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 이 클래스는 데이터 마이그레이션 정보를 처리할 수 있는 서비스들을 찾아서 해당 서비스를 실행 하는 핸들러입니다.
- * 만약 해당하는 서비스가 없을 경우 예외를 발생시킵니다.
+ * 메시지의 대상 시스템에 맞는 어댑터를 찾아 반영을 맡긴다.
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DataPersistHandler {
 
+    // 계약의 값(ONLINE_CAMPUS)과 코드의 enum(BRUNOSONG_ONLINE_CAMPUS)이 아직 다르다. 이름을 바꿀 때 없앤다
+    private static final String SERVICE_TYPE_PREFIX = "BRUNOSONG_";
+
     private final List<DataPersistService> dataPersistService;
 
-    public long persist(DataMigration dataMigrationInfo, SourceContentData sourceContentData) {
-
-        Optional<DataPersistService> optional = dataPersistService.stream()
-                .filter(service -> getDataPersistService(service, dataMigrationInfo.getTargetSystem()))
-                .findFirst();
-
-        if (optional.isPresent()) {
-            log.info("DataPersistService found for target system: {}", dataMigrationInfo.getTargetSystem());
-            return optional.get().dataPersist(dataMigrationInfo, sourceContentData);
-        } else {
-            log.error("No DataPersistService found for target system: {}", dataMigrationInfo.getTargetSystem());
-            throw new IllegalArgumentException("No DataPersistService found for target system: " + dataMigrationInfo.getTargetSystem());
-        }
+    /** 이 에이전트가 맡은 대상 시스템인가. 맡지 않은 대상의 명령은 결과 없이 건너뛴다 */
+    public boolean supports(String targetSystem) {
+        return findService(targetSystem).isPresent();
     }
 
-    private boolean getDataPersistService(DataPersistService service, String targetSystem) {
+    public AppliedContent persist(String targetSystem, TargetSystemEnvironment environment,
+                                  String curriculumId, ChunkContent content) {
+        DataPersistService service = findService(targetSystem)
+                .orElseThrow(() -> new IllegalArgumentException("맡지 않은 대상 시스템입니다: " + targetSystem));
+
+        log.info("DataPersistService found for target system: {}", targetSystem);
+        return service.dataPersist(environment, curriculumId, content);
+    }
+
+    private Optional<DataPersistService> findService(String targetSystem) {
+        return dataPersistService.stream()
+                .filter(service -> matches(service, targetSystem))
+                .findFirst();
+    }
+
+    private boolean matches(DataPersistService service, String targetSystem) {
         Class<? extends DataPersistService> aClass = service.getClass();
 
-        if (aClass.isAnnotationPresent(ServiceTypeSelector.class))  {
-            ServiceTypeSelector serviceTypeSelectorAnnotation = aClass.getAnnotation(ServiceTypeSelector.class);
-            return serviceTypeSelectorAnnotation.type().name().equals(targetSystem);
+        if (aClass.isAnnotationPresent(ServiceTypeSelector.class)) {
+            ServiceTypeSelector selector = aClass.getAnnotation(ServiceTypeSelector.class);
+            return selector.type().name().equals(SERVICE_TYPE_PREFIX + targetSystem);
         }
 
         return false;
     }
-
 }

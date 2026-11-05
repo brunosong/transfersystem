@@ -1,9 +1,10 @@
 package com.brunosong.transfer.system.datamigration.service;
 
-import com.brunosong.transfer.system.datamigration.service.domain.entity.DataMigration;
-import com.brunosong.transfer.system.datamigration.service.domain.valueobject.SourceContentData;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.ChunkContent;
+import com.brunosong.transfer.system.datamigration.service.domain.valueobject.TargetSystemEnvironment;
 
 public interface DataPersistService {
 
-    long dataPersist(DataMigration dataMigrationInfo, SourceContentData sourceContentData);
+    AppliedContent dataPersist(TargetSystemEnvironment environment, String curriculumId, ChunkContent content);
 }
