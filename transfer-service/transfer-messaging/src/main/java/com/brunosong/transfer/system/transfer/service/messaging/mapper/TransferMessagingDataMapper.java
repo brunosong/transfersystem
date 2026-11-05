@@ -1,8 +1,11 @@
 package com.brunosong.transfer.system.transfer.service.messaging.mapper;
 
+import com.brunosong.deployment.contract.Applied;
 import com.brunosong.deployment.contract.ApplyChunkCommand;
+import com.brunosong.deployment.contract.ApplyResult;
 import com.brunosong.deployment.contract.Grade;
 import com.brunosong.deployment.contract.Lesson;
+import com.brunosong.deployment.contract.Rejected;
 import com.brunosong.deployment.contract.Semester;
 import com.brunosong.deployment.contract.SkeletonContent;
 import com.brunosong.deployment.contract.Subject;
@@ -11,7 +14,6 @@ import com.brunosong.deployment.contract.Unit;
 import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import com.brunosong.transfer.system.domain.valueobject.TransferId;
 import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
-import com.brunosong.transfer.system.kafka.datamigration.avro.model.DataMigrationResponseAvroModel;
 import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
 import org.springframework.stereotype.Component;
@@ -98,13 +100,26 @@ public class TransferMessagingDataMapper {
                 .build();
     }
 
-    public DataMigrationResponse toDataMigrationResponse(DataMigrationResponseAvroModel dataMigrationResponseAvroModel) {
-        return DataMigrationResponse.builder()
-                .chunkOffset(dataMigrationResponseAvroModel.getChunkOffset())
-                .transferStatus(TransferStatus.valueOf(dataMigrationResponseAvroModel.getTransferStatus().name()))
-                .transferId(new TransferId(UUID.fromString(dataMigrationResponseAvroModel.getTransferId())))
-                .message(dataMigrationResponseAvroModel.getMessage())
-                .build();
-    }
+    /**
+     * 결과를 지금 처리 로직이 쓰는 모양으로 옮긴다. 상태를 정하는 일은 Deployment 모델이 생기면 그쪽으로 간다.
+     * 반영 내용은 아직 저장할 곳이 없어 쓰지 않는다.
+     */
+    public DataMigrationResponse toDataMigrationResponse(ApplyResult result) {
+        DataMigrationResponse.DataMigrationResponseBuilder response = DataMigrationResponse.builder()
+                .chunkOffset(result.getChunkNo())
+                .transferId(new TransferId(UUID.fromString(result.getDeploymentId())));
 
+        // 유니온은 생성 코드에서 Object 로 나온다. 모르는 타입은 예외로 올려 DLT 로 보낸다
+        return switch (result.getOutcome()) {
+            case Applied applied -> response
+                    .transferStatus(TransferStatus.SUCCESS)
+                    .message("SUCCESS")
+                    .build();
+            case Rejected rejected -> response
+                    .transferStatus(TransferStatus.FAILED)
+                    .message(rejected.getMessage())
+                    .build();
+            default -> throw new IllegalArgumentException("모르는 결과 타입입니다: " + result.getOutcome().getClass().getName());
+        };
+    }
 }

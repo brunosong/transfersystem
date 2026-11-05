@@ -1,8 +1,14 @@
 package com.brunosong.transfer.system.transfer.service.messaging.mapper;
 
+import com.brunosong.deployment.contract.Applied;
+import com.brunosong.deployment.contract.AppliedSubject;
 import com.brunosong.deployment.contract.ApplyChunkCommand;
+import com.brunosong.deployment.contract.ApplyResult;
+import com.brunosong.deployment.contract.Rejected;
 import com.brunosong.deployment.contract.SkeletonContent;
 import com.brunosong.deployment.contract.SubjectContent;
+import com.brunosong.transfer.system.domain.valueobject.TransferStatus;
+import com.brunosong.transfer.system.transfer.service.dto.create.DataMigrationResponse;
 import com.brunosong.transfer.system.transfer.service.outbox.model.DataTransferEventPayload;
 import com.brunosong.transfer.system.transfer.service.valueobject.ChunkContent;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +20,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TransferMessagingDataMapperTest {
 
@@ -60,6 +67,48 @@ class TransferMessagingDataMapperTest {
         assertEquals("L1", mapped.getId());
         assertEquals(1, mapped.getLessonNumber());
         assertEquals(3, mapped.getLearningLevel());
+    }
+
+    @Test
+    @DisplayName("성공 결과는 청크 번호와 SUCCESS 로 옮긴다")
+    void appliedResult() {
+        Applied applied = Applied.newBuilder()
+                .setContent(AppliedSubject.newBuilder().setSubjectId("SUB1").setTitle("수학").setUnitCount(5).setLessonCount(500).build())
+                .build();
+
+        DataMigrationResponse response = mapper.toDataMigrationResponse(result(3, applied));
+
+        assertEquals(TRANSFER_ID, response.getTransferId().getValue());
+        assertEquals(3, response.getChunkOffset());
+        assertEquals(TransferStatus.SUCCESS, response.getTransferStatus());
+    }
+
+    @Test
+    @DisplayName("실패 결과는 FAILED 와 대상이 보낸 사유로 옮긴다")
+    void rejectedResult() {
+        DataMigrationResponse response = mapper.toDataMigrationResponse(
+                result(3, Rejected.newBuilder().setMessage("학기를 찾을 수 없습니다").build()));
+
+        assertEquals(TransferStatus.FAILED, response.getTransferStatus());
+        assertEquals("학기를 찾을 수 없습니다", response.getMessage());
+    }
+
+    @Test
+    @DisplayName("모르는 결과 타입은 예외로 올린다")
+    void unknownResult() {
+        ApplyResult result = result(3, SkeletonContent.newBuilder().setTitle("결과가 아님").setGrades(List.of()).build());
+
+        assertThrows(IllegalArgumentException.class, () -> mapper.toDataMigrationResponse(result));
+    }
+
+    private ApplyResult result(int chunkNo, Object outcome) {
+        return ApplyResult.newBuilder()
+                .setDeploymentId(TRANSFER_ID.toString())
+                .setChunkNo(chunkNo)
+                .setAttempt(1)
+                .setOutcome(outcome)
+                .setOccurredAt(CREATED_AT.toInstant())
+                .build();
     }
 
     private DataTransferEventPayload.DataTransferEventPayloadBuilder payload(int chunkNo) {
