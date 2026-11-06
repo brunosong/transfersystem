@@ -21,9 +21,9 @@ const queryClient = new QueryClient({
 })
 
 /** 예전 주소(/transfers/...)로 들어와도 새 화면으로 보낸다 */
-function LegacyTransferRedirect() {
-  const { transferId } = useParams()
-  return <Navigate to={transferId ? `/deployments/${transferId}` : '/deployments'} replace />
+function LegacyDeploymentRedirect() {
+  const { deploymentId } = useParams()
+  return <Navigate to={deploymentId ? `/deployments/${deploymentId}` : '/deployments'} replace />
 }
 
 const router = createBrowserRouter([
@@ -34,13 +34,13 @@ const router = createBrowserRouter([
       { path: 'contents', element: <ContentsPage /> },
       { path: 'deployments', element: <DeploymentsPage /> },
       { path: 'deployments/new', element: <NewDeploymentPage /> },
-      { path: 'deployments/:transferId', element: <DeploymentDetailPage /> },
+      { path: 'deployments/:deploymentId', element: <DeploymentDetailPage /> },
       { path: 'targets/:targetId/curriculums/:curriculumId', element: <TargetCurriculumPage /> },
       { path: 'settings', element: <Navigate to="/settings/sources" replace /> },
       { path: 'settings/sources', element: <SourcesPage /> },
       { path: 'settings/targets', element: <TargetsPage /> },
       { path: 'transfers/new', element: <Navigate to="/deployments/new" replace /> },
-      { path: 'transfers/:transferId?', element: <LegacyTransferRedirect /> },
+      { path: 'transfers/:deploymentId?', element: <LegacyDeploymentRedirect /> },
       {
         path: '*',
         element: (

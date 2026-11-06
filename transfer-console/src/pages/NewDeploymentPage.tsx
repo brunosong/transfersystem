@@ -5,9 +5,9 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import type { CurriculumDeployment, CurriculumTree, Target } from '../api/types'
 import { LevelCountsLine, TargetName } from '../components/domain'
 import { Button, Card, Input, Mono, Notice, PageHeader, Select, Skeleton } from '../components/ui'
-import { useCreateTransfer, useCurriculum, useCurriculumDeployments, useCurriculums, useSources, useTargets } from '../hooks/queries'
+import { useCreateDeployment, useCurriculum, useCurriculumDeployments, useCurriculums, useSources, useTargets } from '../hooks/queries'
 import { formatShort } from '../lib/format'
-import { isActiveTransfer } from '../lib/status'
+import { isActiveDeployment } from '../lib/status'
 import { sortTargets } from '../lib/targets'
 import { useCurrentUser } from '../lib/user'
 
@@ -17,7 +17,7 @@ export function NewDeploymentPage() {
   const user = useCurrentUser()
   const sources = useSources()
   const targets = useTargets()
-  const create = useCreateTransfer()
+  const create = useCreateDeployment()
 
   const usable = sources.data?.filter((s) => s.enabled && s.sourceType === 'CURRICULUM') ?? []
   const [sourceId, setSourceId] = useState<number | null>(Number(params.get('source')) || null)
@@ -45,7 +45,7 @@ export function NewDeploymentPage() {
     if (!canSubmit || sourceId === null || !curriculumId || !target) return
     create.mutate(
       { sourceConfigId: sourceId, sourceId: curriculumId, dataMigrationInfoId: target.targetId, transType: 'MESSAGING' },
-      { onSuccess: (res) => navigate(`/deployments/${res.transferId}`) },
+      { onSuccess: (res) => navigate(`/deployments/${res.deploymentId}`) },
     )
   }
 
@@ -152,11 +152,11 @@ export function NewDeploymentPage() {
 /** 이 대상을 고를 수 없는 이유. 고를 수 있으면 null */
 function blockReason(target: Target, deployment: CurriculumDeployment | undefined): ReactNode {
   if (!target.enabled) return '배포 허용이 꺼져 있습니다.'
-  if (deployment?.last && isActiveTransfer(deployment.last.status)) {
+  if (deployment?.last && isActiveDeployment(deployment.last.status)) {
     return (
       <>
         같은 커리큘럼을 보내는 배포가 진행 중입니다.{' '}
-        <Link to={`/deployments/${deployment.last.transferId}`} className="font-medium underline">
+        <Link to={`/deployments/${deployment.last.deploymentId}`} className="font-medium underline">
           진행 중인 배포 보기
         </Link>
       </>

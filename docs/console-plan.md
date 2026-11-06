@@ -20,7 +20,7 @@
 | 원본 저장소 | `sourceconfig` (transfer-service) | 읽어 올 DB 접속 정보와 컬렉션 |
 | 콘텐츠 | 원본 컬렉션의 커리큘럼 문서 | 커리큘럼 → 학년 → 학기 → 과목 → 단원 → 차시 트리. 시드 기준 커리큘럼 하나에 차시 20,000개 |
 | 대상 시스템 | `datamigrations` (data-migration-service) | 온라인캠퍼스·부트캠프 × PROD·DEV, 4개 |
-| 전송(배포) | `transfer_log`, `transfer_chunk` | 커리큘럼 하나를 대상 하나로 보내는 작업 |
+| 전송(배포) | `deployment`, `deployment_chunks` | 커리큘럼 하나를 대상 하나로 보내는 작업 |
 | 청크 | Kafka 메시지 하나 | 첫 청크는 커리큘럼·학년·학기 뼈대, 나머지는 과목마다 하나 (시드 기준 1 + 40개) |
 
 ### 사용자
@@ -250,11 +250,11 @@
 ### transfer-service
 | | API | 쓰는 화면 | 비고 |
 |---|---|---|---|
-| ✅ | `GET /api/v1/transfers` | 1, 3, 6 | 🔧 상태 여러 개(`status=SENT&status=PROCESSED`), 대상·기간(`from`, `to`)·커리큘럼 ID·요청자 조건 추가. 응답에 `targetId`, `sourceTitle` 추가 |
-| ✅ | `GET /api/v1/transfers/stats` | 1, 6 | 🔧 기간 조건(`from`, `to`) 추가 |
-| ✅ | `GET /api/v1/transfers/{id}` | 6 | 🔧 사가 `steps` 대신 `chunks` 를 바로 담는다. 청크마다 `label`(뼈대 / 과목명), `errorMessage`, `retryCount` 추가 |
-| ✅ | `POST /api/v1/transfers` | 5 | 🔧 요청자를 `X-Requested-By` 헤더(URL 인코딩)로 받는다(지금은 `admin` 하드코딩). 같은 커리큘럼·대상으로 진행 중이면 409, 배포 허용이 꺼진 대상이면 422 |
-| 🆕 | `POST /api/v1/transfers/{id}/retry` | 6 | 실패한 청크만 다시 보냄 |
+| ✅ | `GET /api/v1/deployments` | 1, 3, 6 | 🔧 상태 여러 개(`status=SENT&status=PROCESSED`), 대상·기간(`from`, `to`)·커리큘럼 ID·요청자 조건 추가. 응답에 `targetId`, `sourceTitle` 추가 |
+| ✅ | `GET /api/v1/deployments/stats` | 1, 6 | 🔧 기간 조건(`from`, `to`) 추가 |
+| ✅ | `GET /api/v1/deployments/{id}` | 6 | 🔧 사가 `steps` 대신 `chunks` 를 바로 담는다. 청크마다 `label`(뼈대 / 과목명), `errorMessage`, `retryCount` 추가 |
+| ✅ | `POST /api/v1/deployments` | 5 | 🔧 요청자를 `X-Requested-By` 헤더(URL 인코딩)로 받는다(지금은 `admin` 하드코딩). 같은 커리큘럼·대상으로 진행 중이면 409, 배포 허용이 꺼진 대상이면 422 |
+| 🆕 | `POST /api/v1/deployments/{id}/retry` | 6 | 실패한 청크만 다시 보냄 |
 | ✅ | `GET /api/v1/source-configs` | 2, 4, 5 | 🔧 이름, 사용 여부 추가 |
 | 🆕 | `POST · PUT · DELETE /api/v1/source-configs[/{id}]` | 2 | 비밀번호는 응답에 넣지 않음 |
 | 🆕 | `POST /api/v1/source-configs/{id}/connection-test` | 1, 2 | 접속 확인, 컬렉션 존재 여부, 문서 수 |
@@ -278,8 +278,8 @@
 ### 저장소 변경
 - `sourceconfig`: `name`, `enabled` 컬럼 추가. 시드의 `source_type` 값(`LEARNING_MATERIAL`, `USER_DATA`)이 enum(`CURRICULUM`, `EXAM_RESULT_DATA`)과 안 맞으니 맞춘다.
 - `datamigrations`: `enabled` 컬럼 추가.
-- `transfer_log`: 요청자, 대상 ID를 조회 조건으로 쓰므로 인덱스 추가.
-- `transfer_chunk`: `label`(뼈대 / 과목명), `error_message`, `retry_count` 추가.
+- `deployment`: 요청자, 대상 ID를 조회 조건으로 쓰므로 인덱스 추가.
+- `deployment_chunks`: `label`(뼈대 / 과목명), `error_message`, `retry_count` 추가.
 
 ---
 

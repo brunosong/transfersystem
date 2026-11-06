@@ -105,7 +105,7 @@ export interface CurriculumSummary {
   subjectCount: number
   /** 한 번이라도 성공한 대상 수 */
   deployedTargetCount: number
-  lastDeployment: { transferId: string; status: TransferStatus; at: string } | null
+  lastDeployment: { deploymentId: string; status: DeploymentStatus; at: string } | null
 }
 
 export interface CurriculumQuery {
@@ -118,7 +118,7 @@ export interface CurriculumQuery {
 export interface CurriculumDeployment {
   targetId: number
   /** 마지막 배포(성공·실패·진행 중 무엇이든) */
-  last: { transferId: string; status: TransferStatus; at: string } | null
+  last: { deploymentId: string; status: DeploymentStatus; at: string } | null
   /** 마지막으로 성공한 시각. 대상에 데이터가 있다는 뜻이다. */
   lastSucceededAt: string | null
 }
@@ -154,9 +154,9 @@ export interface TargetCurriculumTree extends CurriculumTree {
 
 // ─── 배포 (transfer-service) ─────────────────────────────────────────────
 
-/** transfer_log 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다. */
-export type TransferStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'SUCCESS' | 'FAILED'
-export const TRANSFER_STATUSES: TransferStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'SUCCESS', 'FAILED']
+/** deployment 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다. */
+export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'SUCCESS' | 'FAILED'
+export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'SUCCESS', 'FAILED']
 
 export type ChunkStatus = 'PENDING' | 'SUCCESS' | 'FAILED'
 
@@ -177,27 +177,27 @@ export interface Chunk {
   retryCount: number
 }
 
-export interface TransferSummary {
-  transferId: string
+export interface DeploymentSummary {
+  deploymentId: string
   sourceConfigId: number
   sourceId: string
   /** 요청 시점의 커리큘럼 제목 */
   sourceTitle: string | null
   targetId: number
-  status: TransferStatus
+  status: DeploymentStatus
   progress: Progress
   createdBy: string
   createdAt: string
   updatedAt: string
 }
 
-export interface TransferDetail extends TransferSummary {
+export interface DeploymentDetail extends DeploymentSummary {
   resultMessage: string | null
   chunks: Chunk[]
 }
 
-export interface TransferQuery {
-  status?: TransferStatus[]
+export interface DeploymentQuery {
+  status?: DeploymentStatus[]
   targetId?: number
   /** 커리큘럼 ID 일부 */
   sourceId?: string
@@ -209,26 +209,26 @@ export interface TransferQuery {
   size?: number
 }
 
-export type StatusCounts = Record<TransferStatus, number>
+export type StatusCounts = Record<DeploymentStatus, number>
 
 export interface StatsQuery {
   from?: string
   to?: string
 }
 
-export interface CreateTransferRequest {
+export interface CreateDeploymentRequest {
   sourceConfigId: number
   sourceId: string
   dataMigrationInfoId: number
   transType: 'MESSAGING'
 }
 
-export interface CreateTransferResponse {
-  transferId: string
+export interface CreateDeploymentResponse {
+  deploymentId: string
   chunkCount: number
 }
 
-export interface RetryTransferResponse {
+export interface RetryDeploymentResponse {
   retriedChunks: number
 }
 
@@ -260,10 +260,10 @@ export interface ConsoleApi {
   getTargetCurriculum(targetId: number, curriculumId: string): Promise<TargetCurriculumTree>
 
   // 배포
-  listTransfers(query: TransferQuery): Promise<Page<TransferSummary>>
-  getTransfer(transferId: string): Promise<TransferDetail>
+  listDeployments(query: DeploymentQuery): Promise<Page<DeploymentSummary>>
+  getDeployment(deploymentId: string): Promise<DeploymentDetail>
   countByStatus(query?: StatsQuery): Promise<StatusCounts>
   /** requestedBy 는 X-Requested-By 헤더로 간다 */
-  createTransfer(request: CreateTransferRequest, requestedBy: string): Promise<CreateTransferResponse>
-  retryTransfer(transferId: string, requestedBy: string): Promise<RetryTransferResponse>
+  createDeployment(request: CreateDeploymentRequest, requestedBy: string): Promise<CreateDeploymentResponse>
+  retryDeployment(deploymentId: string, requestedBy: string): Promise<RetryDeploymentResponse>
 }

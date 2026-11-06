@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { isNotFound } from '../api'
 import type { CurriculumSummary } from '../api/types'
-import { CurriculumTreeView, LevelCountsLine, TargetName, TransferStatusBadge } from '../components/domain'
+import { CurriculumTreeView, LevelCountsLine, TargetName, DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, EmptyState, ErrorState, Input, Mono, PageHeader, Pagination, Select, Skeleton } from '../components/ui'
 import { useCurriculum, useCurriculumDeployments, useCurriculums, useSources, useTargets } from '../hooks/queries'
 import { formatShort } from '../lib/format'
@@ -218,8 +218,8 @@ function CurriculumPanel({ sourceId, curriculumId }: { sourceId: number; curricu
                 <li key={target.targetId} className="flex items-center gap-3 px-3 py-2 text-sm">
                   <TargetName target={target} className="w-40" />
                   {d?.last ? (
-                    <Link to={`/deployments/${d.last.transferId}`} className="flex items-center gap-2 hover:underline">
-                      <TransferStatusBadge status={d.last.status} size="sm" />
+                    <Link to={`/deployments/${d.last.deploymentId}`} className="flex items-center gap-2 hover:underline">
+                      <DeploymentStatusBadge status={d.last.status} size="sm" />
                       <span className="text-xs text-slate-500">{formatShort(d.last.at)}</span>
                     </Link>
                   ) : (

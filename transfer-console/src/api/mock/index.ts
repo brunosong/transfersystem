@@ -15,11 +15,11 @@ import type {
   SourceConfigInput,
   StatusCounts,
   TargetCurriculum,
-  TransferSummary,
+  DeploymentSummary,
 } from '../types'
-import { TRANSFER_STATUSES } from '../types'
+import { DEPLOYMENT_STATUSES } from '../types'
 import { curriculumIds, FAILING_CURRICULUM_ID, hasCurriculum } from './content'
-import { createMockTransfer, type MockTransfer, retryFailed, simulate, statusOf } from './simulation'
+import { createMockDeployment, type MockDeployment, retryFailed, simulate, statusOf } from './simulation'
 import { type MockSource, save, sourceTree, state, targetTree } from './store'
 
 function delay<T>(value: T): Promise<T> {
@@ -44,28 +44,28 @@ function findSource(id: number): MockSource | undefined {
   return liveSources().find((s) => s.sourceConfigId === id)
 }
 
-function isActive(t: MockTransfer, now: number): boolean {
+function isActive(t: MockDeployment, now: number): boolean {
   const status = statusOf(t, now)
   return status === 'PENDING' || status === 'SENT' || status === 'PROCESSED'
 }
 
-function summaryOf(t: MockTransfer, now: number): TransferSummary {
+function summaryOf(t: MockDeployment, now: number): DeploymentSummary {
   const { resultMessage: _r, chunks: _c, ...summary } = simulate(t, now)
   return summary
 }
 
-function byNewest(a: MockTransfer, b: MockTransfer): number {
+function byNewest(a: MockDeployment, b: MockDeployment): number {
   return b.createdAt - a.createdAt
 }
 
 function deploymentsOf(curriculumId: string, now: number): CurriculumDeployment[] {
   return state.targets.map((target) => {
-    const history = state.transfers.filter((t) => t.sourceId === curriculumId && t.targetId === target.targetId).sort(byNewest)
+    const history = state.deployments.filter((t) => t.sourceId === curriculumId && t.targetId === target.targetId).sort(byNewest)
     const last = history[0]
     const lastSuccess = history.map((t) => simulate(t, now)).find((d) => d.status === 'SUCCESS')
     return {
       targetId: target.targetId,
-      last: last ? { transferId: last.transferId, status: statusOf(last, now), at: iso(last.createdAt) } : null,
+      last: last ? { deploymentId: last.deploymentId, status: statusOf(last, now), at: iso(last.createdAt) } : null,
       lastSucceededAt: lastSuccess?.updatedAt ?? null,
     }
   })
@@ -133,7 +133,7 @@ export const mockApi: ConsoleApi = {
     const source = findSource(id)
     if (!source) return fail(404, `원본 저장소를 찾을 수 없습니다: ${id}`)
     const now = Date.now()
-    const related = state.transfers.filter((t) => t.sourceConfigId === id)
+    const related = state.deployments.filter((t) => t.sourceConfigId === id)
     if (related.some((t) => isActive(t, now))) return fail(409, '이 원본으로 진행 중인 배포가 있어 삭제할 수 없습니다.')
     if (related.length > 0) {
       source.deleted = true
@@ -216,7 +216,7 @@ export const mockApi: ConsoleApi = {
 
   listTargetCurriculums(targetId) {
     const now = Date.now()
-    const ids = [...new Set(state.transfers.filter((t) => t.targetId === targetId).map((t) => t.sourceId))]
+    const ids = [...new Set(state.deployments.filter((t) => t.targetId === targetId).map((t) => t.sourceId))]
     const items: TargetCurriculum[] = ids
       .map((id) => targetTree(targetId, id, now))
       .filter((tree) => tree !== null)
@@ -232,12 +232,12 @@ export const mockApi: ConsoleApi = {
   },
 
   // ─── 배포 ────────────────────────────────────────────────────
-  listTransfers({ status, targetId, sourceId, createdBy, from, to, page = 0, size = 20 }) {
+  listDeployments({ status, targetId, sourceId, createdBy, from, to, page = 0, size = 20 }) {
     const now = Date.now()
     const fromMs = from ? Date.parse(from) : -Infinity
     const toMs = to ? Date.parse(to) : Infinity
     const keyword = sourceId?.trim().toLowerCase() ?? ''
-    const all = [...state.transfers]
+    const all = [...state.deployments]
       .sort(byNewest)
       .filter((t) => t.createdAt >= fromMs && t.createdAt < toMs)
       .filter((t) => targetId === undefined || t.targetId === targetId)
@@ -249,9 +249,9 @@ export const mockApi: ConsoleApi = {
     return delay({ items, page, size, totalItems: all.length, totalPages: Math.max(1, Math.ceil(all.length / size)) })
   },
 
-  getTransfer(transferId) {
-    const found = state.transfers.find((t) => t.transferId === transferId)
-    if (!found) return fail(404, `배포를 찾을 수 없습니다: ${transferId}`)
+  getDeployment(deploymentId) {
+    const found = state.deployments.find((t) => t.deploymentId === deploymentId)
+    if (!found) return fail(404, `배포를 찾을 수 없습니다: ${deploymentId}`)
     return delay(simulate(found, Date.now()))
   },
 
@@ -259,14 +259,14 @@ export const mockApi: ConsoleApi = {
     const now = Date.now()
     const fromMs = from ? Date.parse(from) : -Infinity
     const toMs = to ? Date.parse(to) : Infinity
-    const counts = Object.fromEntries(TRANSFER_STATUSES.map((s) => [s, 0])) as StatusCounts
-    for (const t of state.transfers) {
+    const counts = Object.fromEntries(DEPLOYMENT_STATUSES.map((s) => [s, 0])) as StatusCounts
+    for (const t of state.deployments) {
       if (t.createdAt >= fromMs && t.createdAt < toMs) counts[statusOf(t, now)]++
     }
     return delay(counts)
   },
 
-  createTransfer(request, requestedBy) {
+  createDeployment(request, requestedBy) {
     const now = Date.now()
     const source = findSource(request.sourceConfigId)
     if (!source || !source.enabled) return fail(400, '사용할 수 있는 원본 저장소가 아닙니다.')
@@ -275,13 +275,13 @@ export const mockApi: ConsoleApi = {
     const target = state.targets.find((t) => t.targetId === request.dataMigrationInfoId)
     if (!target) return fail(400, '대상 시스템을 찾을 수 없습니다.')
     if (!target.enabled) return fail(422, '배포가 허용되지 않은 대상입니다.')
-    const running = state.transfers.find((t) => t.sourceId === request.sourceId && t.targetId === target.targetId && isActive(t, now))
+    const running = state.deployments.find((t) => t.sourceId === request.sourceId && t.targetId === target.targetId && isActive(t, now))
     if (running) return fail(409, '같은 커리큘럼을 같은 대상으로 보내는 배포가 진행 중입니다.')
 
     const failing = request.sourceId === FAILING_CURRICULUM_ID
-    const transfer = createMockTransfer(
+    const deployment = createMockDeployment(
       {
-        transferId: crypto.randomUUID(),
+        deploymentId: crypto.randomUUID(),
         sourceConfigId: source.sourceConfigId,
         sourceId: request.sourceId,
         targetId: target.targetId,
@@ -291,14 +291,14 @@ export const mockApi: ConsoleApi = {
       },
       failing ? { 3: "Duplicate entry 'U9901031' for key 'unit.UK_unit_id'", 7: 'Lock wait timeout exceeded; try restarting transaction' } : {},
     )
-    state.transfers.push(transfer)
+    state.deployments.push(deployment)
     save()
-    return delay({ transferId: transfer.transferId, chunkCount: transfer.chunks.length })
+    return delay({ deploymentId: deployment.deploymentId, chunkCount: deployment.chunks.length })
   },
 
-  retryTransfer(transferId) {
-    const found = state.transfers.find((t) => t.transferId === transferId)
-    if (!found) return fail(404, `배포를 찾을 수 없습니다: ${transferId}`)
+  retryDeployment(deploymentId) {
+    const found = state.deployments.find((t) => t.deploymentId === deploymentId)
+    if (!found) return fail(404, `배포를 찾을 수 없습니다: ${deploymentId}`)
     const now = Date.now()
     if (isActive(found, now)) return fail(409, '아직 진행 중인 배포입니다. 끝난 뒤에 다시 보낼 수 있습니다.')
     const retriedChunks = retryFailed(found, now)

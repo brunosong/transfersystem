@@ -5,7 +5,7 @@
 //   접수(PENDING) ─ 아웃박스가 집어 감 ─▶ 반영 중(SENT) ─ 청크가 하나씩 처리됨 ─▶ 완료(SUCCESS) / 실패(FAILED)
 //                                                                              실패 청크 재전송 ─▶ 다시 반영 중
 
-import type { Chunk, ChunkStatus, CurriculumTree, Progress, TransferDetail, TransferStatus } from '../types'
+import type { Chunk, ChunkStatus, CurriculumTree, Progress, DeploymentDetail, DeploymentStatus } from '../types'
 import { planChunks } from './content'
 
 /** 아웃박스 스케줄러가 집어 가기까지 걸리는 시간 */
@@ -26,8 +26,8 @@ export interface MockChunk {
   attempts: Attempt[]
 }
 
-export interface MockTransfer {
-  transferId: string
+export interface MockDeployment {
+  deploymentId: string
   sourceConfigId: number
   sourceId: string
   targetId: number
@@ -41,10 +41,10 @@ export interface MockTransfer {
 /** 실패 청크 번호와 오류 메시지 */
 export type FailurePlan = Record<number, string>
 
-export function createMockTransfer(
-  base: Omit<MockTransfer, 'chunks'>,
+export function createMockDeployment(
+  base: Omit<MockDeployment, 'chunks'>,
   failures: FailurePlan = {},
-): MockTransfer {
+): MockDeployment {
   const start = base.createdAt + ACCEPT_DELAY
   const chunks = planChunks(base.tree).map((plan, offset) => {
     const error = failures[offset]
@@ -78,14 +78,14 @@ export function succeededBy(chunk: MockChunk, now: number): number | null {
 
 const iso = (ms: number) => new Date(ms).toISOString()
 
-export function statusOf(t: MockTransfer, now: number): TransferStatus {
+export function statusOf(t: MockDeployment, now: number): DeploymentStatus {
   if (now < t.createdAt + ACCEPT_DELAY) return 'PENDING'
   const states = t.chunks.map((c) => chunkState(c, now).status)
   if (states.includes('PENDING')) return 'SENT'
   return states.includes('FAILED') ? 'FAILED' : 'SUCCESS'
 }
 
-export function simulate(t: MockTransfer, now: number): TransferDetail {
+export function simulate(t: MockDeployment, now: number): DeploymentDetail {
   const chunks: Chunk[] = t.chunks.map((c, offset) => {
     const state = chunkState(c, now)
     return {
@@ -117,7 +117,7 @@ export function simulate(t: MockTransfer, now: number): TransferDetail {
   const updatedAt = Math.max(t.createdAt, ...events)
 
   return {
-    transferId: t.transferId,
+    deploymentId: t.deploymentId,
     sourceConfigId: t.sourceConfigId,
     sourceId: t.sourceId,
     sourceTitle: t.tree.title,
@@ -133,7 +133,7 @@ export function simulate(t: MockTransfer, now: number): TransferDetail {
 }
 
 /** 실패한 청크마다 새 시도를 붙인다. 붙인 개수를 돌려준다. 끝나지 않은 배포에는 붙이지 않는다. */
-export function retryFailed(t: MockTransfer, now: number): number {
+export function retryFailed(t: MockDeployment, now: number): number {
   if (statusOf(t, now) !== 'FAILED') return 0
   const failed = t.chunks.filter((c) => chunkState(c, now).status === 'FAILED')
   failed.forEach((chunk, i) => chunk.attempts.push({ at: now + ACCEPT_DELAY + (i + 1) * CHUNK_TICK * 2, ok: true }))
@@ -141,6 +141,6 @@ export function retryFailed(t: MockTransfer, now: number): number {
 }
 
 /** 모든 시도가 끝나는 시각. 이 뒤로는 결과가 바뀌지 않는다. */
-export function finishesAt(t: MockTransfer): number {
+export function finishesAt(t: MockDeployment): number {
   return Math.max(t.createdAt + ACCEPT_DELAY, ...t.chunks.flatMap((c) => c.attempts.map((a) => a.at)))
 }

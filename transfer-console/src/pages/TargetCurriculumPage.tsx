@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../api'
 import type { CurriculumTree } from '../api/types'
-import { TargetName, TransferStatusBadge } from '../components/domain'
+import { TargetName, DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Mono, Notice, Skeleton, Toggle } from '../components/ui'
 import { useCurriculum, useCurriculumDeployments, useSources, useTargetCurriculum, useTargets } from '../hooks/queries'
 import { compareTrees, type DiffKind, isIdentical, type SubjectDiff, type TreeDiff } from '../lib/compare'
@@ -46,8 +46,8 @@ export function TargetCurriculumPage() {
         </div>
         <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
           {last ? (
-            <Link to={`/deployments/${last.transferId}`} className="inline-flex items-center gap-2 hover:underline">
-              마지막 배포 {formatShort(last.at)} <TransferStatusBadge status={last.status} size="sm" />
+            <Link to={`/deployments/${last.deploymentId}`} className="inline-flex items-center gap-2 hover:underline">
+              마지막 배포 {formatShort(last.at)} <DeploymentStatusBadge status={last.status} size="sm" />
             </Link>
           ) : (
             <span>이 대상으로 배포한 적이 없습니다</span>

@@ -3,7 +3,7 @@
 
 import type { ConnectionCheck, CurriculumTree, SourceConfig, Target, TargetCurriculumTree } from '../types'
 import { buildCurriculum, type Catalog, countLevels } from './content'
-import { createMockTransfer, type FailurePlan, type MockTransfer, retryFailed, succeededBy } from './simulation'
+import { createMockDeployment, type FailurePlan, type MockDeployment, retryFailed, succeededBy } from './simulation'
 
 export interface MockSource extends SourceConfig {
   catalog: Catalog
@@ -14,11 +14,11 @@ export interface MockState {
   version: number
   sources: MockSource[]
   targets: Target[]
-  transfers: MockTransfer[]
+  deployments: MockDeployment[]
 }
 
 const STORAGE_KEY = 'transfer-console.mock'
-const VERSION = 2
+const VERSION = 3
 
 const MINUTE = 60_000
 const HOUR = 60 * MINUTE
@@ -103,12 +103,12 @@ function seed(now: number): MockState {
     ['CUR015', 3, 6 * DAY + 2 * HOUR, '김운영'],
   ]
 
-  const transfers = rows.map(([curriculumId, targetId, ago, user, failures, retried], i) => {
+  const deployments = rows.map(([curriculumId, targetId, ago, user, failures, retried], i) => {
     const createdAt = now - ago
     // 원본이 고쳐지기 전 모습으로 배포됐다
-    const transfer = createMockTransfer(
+    const deployment = createMockDeployment(
       {
-        transferId: `7c1e${pad4(i)}-3b9a-4f2d-8e61-${String(1000 + i).padStart(12, '0')}`,
+        deploymentId: `7c1e${pad4(i)}-3b9a-4f2d-8e61-${String(1000 + i).padStart(12, '0')}`,
         sourceConfigId: 1,
         sourceId: curriculumId,
         targetId,
@@ -118,11 +118,11 @@ function seed(now: number): MockState {
       },
       failures,
     )
-    if (retried) retryFailed(transfer, createdAt + 10 * MINUTE)
-    return transfer
+    if (retried) retryFailed(deployment, createdAt + 10 * MINUTE)
+    return deployment
   })
 
-  return { version: VERSION, sources, targets, transfers }
+  return { version: VERSION, sources, targets, deployments }
 }
 
 function pad4(n: number): string {
@@ -168,23 +168,23 @@ export function reseed(now: number): void {
 // 대상 DB 를 따로 두지 않고 배포 이력에서 계산한다. 청크가 성공한 시점에 그 청크의 내용이 업서트된다고 본다.
 
 export function targetTree(targetId: number, curriculumId: string, now: number): TargetCurriculumTree | null {
-  const history = state.transfers
+  const history = state.deployments
     .filter((t) => t.targetId === targetId && t.sourceId === curriculumId)
     .sort((a, b) => a.createdAt - b.createdAt)
 
-  type Applied = { at: number; transfer: MockTransfer }
+  type Applied = { at: number; deployment: MockDeployment }
   let skeleton: Applied | null = null
   const subjects = new Map<string, Applied>()
 
-  for (const transfer of history) {
-    for (const chunk of transfer.chunks) {
+  for (const deployment of history) {
+    for (const chunk of deployment.chunks) {
       const at = succeededBy(chunk, now)
       if (at === null) continue
       if (chunk.subjectId === null) {
-        if (!skeleton || at >= skeleton.at) skeleton = { at, transfer }
+        if (!skeleton || at >= skeleton.at) skeleton = { at, deployment }
       } else {
         const prev = subjects.get(chunk.subjectId)
-        if (!prev || at >= prev.at) subjects.set(chunk.subjectId, { at, transfer })
+        if (!prev || at >= prev.at) subjects.set(chunk.subjectId, { at, deployment })
       }
     }
   }
@@ -193,7 +193,7 @@ export function targetTree(targetId: number, curriculumId: string, now: number):
   if (!base && subjects.size === 0) return null
 
   // 뼈대는 마지막으로 성공한 뼈대 청크의 모습, 과목은 과목마다 마지막으로 성공한 모습
-  const frame = (base ?? [...subjects.values()][0]).transfer.tree
+  const frame = (base ?? [...subjects.values()][0]).deployment.tree
   const grades = frame.grades.map((grade) => ({
     ...grade,
     semesters: grade.semesters.map((semester) => ({
@@ -201,7 +201,7 @@ export function targetTree(targetId: number, curriculumId: string, now: number):
       subjects: semester.subjects.flatMap((subject) => {
         const applied = subjects.get(subject.id)
         if (!applied) return []
-        const found = applied.transfer.tree.grades
+        const found = applied.deployment.tree.grades
           .flatMap((g) => g.semesters)
           .flatMap((s) => s.subjects)
           .find((s) => s.id === subject.id)

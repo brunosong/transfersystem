@@ -1,20 +1,20 @@
 import type {
   ConnectionCheck,
   ConsoleApi,
-  CreateTransferResponse,
+  CreateDeploymentResponse,
   CurriculumDeployment,
   CurriculumSummary,
   CurriculumTree,
   DeleteSourceConfigResult,
   Page,
-  RetryTransferResponse,
+  RetryDeploymentResponse,
   SourceConfig,
   StatusCounts,
   Target,
   TargetCurriculum,
   TargetCurriculumTree,
-  TransferDetail,
-  TransferSummary,
+  DeploymentDetail,
+  DeploymentSummary,
 } from './types'
 
 /** 백엔드가 돌려준 오류. ErrorDTO(code, message) 를 그대로 담는다. */
@@ -110,14 +110,14 @@ export const httpApi: ConsoleApi = {
     request<TargetCurriculumTree>(`/api/v1/targets/${targetId}/curriculums/${id(curriculumId)}`),
 
   // 배포 ────────────────────────────────────────────────────
-  listTransfers: ({ status, targetId, sourceId, createdBy, from, to, page = 0, size = 20 }) =>
-    request<Page<TransferSummary>>(
-      `/api/v1/transfers${query({ status, targetId, sourceId, createdBy, from, to, page, size })}`,
+  listDeployments: ({ status, targetId, sourceId, createdBy, from, to, page = 0, size = 20 }) =>
+    request<Page<DeploymentSummary>>(
+      `/api/v1/deployments${query({ status, targetId, sourceId, createdBy, from, to, page, size })}`,
     ),
-  getTransfer: (transferId) => request<TransferDetail>(`/api/v1/transfers/${id(transferId)}`),
-  countByStatus: ({ from, to } = {}) => request<StatusCounts>(`/api/v1/transfers/stats${query({ from, to })}`),
-  createTransfer: (body, requestedBy) =>
-    request<CreateTransferResponse>('/api/v1/transfers', { method: 'POST', body, requestedBy }),
-  retryTransfer: (transferId, requestedBy) =>
-    request<RetryTransferResponse>(`/api/v1/transfers/${id(transferId)}/retry`, { method: 'POST', requestedBy }),
+  getDeployment: (deploymentId) => request<DeploymentDetail>(`/api/v1/deployments/${id(deploymentId)}`),
+  countByStatus: ({ from, to } = {}) => request<StatusCounts>(`/api/v1/deployments/stats${query({ from, to })}`),
+  createDeployment: (body, requestedBy) =>
+    request<CreateDeploymentResponse>('/api/v1/deployments', { method: 'POST', body, requestedBy }),
+  retryDeployment: (deploymentId, requestedBy) =>
+    request<RetryDeploymentResponse>(`/api/v1/deployments/${id(deploymentId)}/retry`, { method: 'POST', requestedBy }),
 }

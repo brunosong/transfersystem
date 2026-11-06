@@ -3,18 +3,18 @@ import { ArrowLeft, ArrowRight, CheckCircle2, Loader2, RefreshCw, RotateCw, XCir
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../api'
-import type { Chunk, TransferDetail } from '../api/types'
-import { ChunkGrid, TargetName, TransferStatusBadge } from '../components/domain'
+import type { Chunk, DeploymentDetail } from '../api/types'
+import { ChunkGrid, TargetName, DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, CardHeader, CopyButton, EmptyState, ErrorState, Mono, Notice, ProgressBar, Skeleton } from '../components/ui'
-import { useRetryTransfer, useSources, useTargets, useTransfer } from '../hooks/queries'
+import { useRetryDeployment, useSources, useTargets, useDeployment } from '../hooks/queries'
 import { formatDateTime, formatDuration, formatTime, shortId } from '../lib/format'
-import { isActiveTransfer } from '../lib/status'
+import { isActiveDeployment } from '../lib/status'
 
 export function DeploymentDetailPage() {
-  const { transferId = '' } = useParams()
-  const transfer = useTransfer(transferId)
+  const { deploymentId = '' } = useParams()
+  const deployment = useDeployment(deploymentId)
 
-  if (transfer.isPending) {
+  if (deployment.isPending) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-1/2" />
@@ -23,13 +23,13 @@ export function DeploymentDetailPage() {
       </div>
     )
   }
-  if (transfer.isError) {
+  if (deployment.isError) {
     return (
       <Card>
-        {isNotFound(transfer.error) ? (
+        {isNotFound(deployment.error) ? (
           <EmptyState
             title="배포를 찾을 수 없습니다"
-            description={transferId}
+            description={deploymentId}
             action={
               <Link to="/deployments">
                 <Button variant="secondary">배포 이력으로</Button>
@@ -37,21 +37,21 @@ export function DeploymentDetailPage() {
             }
           />
         ) : (
-          <ErrorState error={transfer.error} onRetry={() => void transfer.refetch()} />
+          <ErrorState error={deployment.error} onRetry={() => void deployment.refetch()} />
         )}
       </Card>
     )
   }
-  return <Detail transfer={transfer.data} />
+  return <Detail deployment={deployment.data} />
 }
 
-function Detail({ transfer: t }: { transfer: TransferDetail }) {
+function Detail({ deployment: t }: { deployment: DeploymentDetail }) {
   const targets = useTargets()
   const sources = useSources()
-  const retry = useRetryTransfer()
+  const retry = useRetryDeployment()
   const [selected, setSelected] = useState<number | null>(null)
 
-  const active = isActiveTransfer(t.status)
+  const active = isActiveDeployment(t.status)
   const failed = t.chunks.filter((c) => c.status === 'FAILED')
   const pending = t.progress.total - t.progress.succeeded - t.progress.failed
   const source = sources.data?.find((s) => s.sourceConfigId === t.sourceConfigId)
@@ -70,7 +70,7 @@ function Detail({ transfer: t }: { transfer: TransferDetail }) {
           </h1>
           <ArrowRight className="size-5 text-slate-400" />
           <TargetName targetId={t.targetId} targets={targets.data} className="text-lg font-medium" />
-          <TransferStatusBadge status={t.status} />
+          <DeploymentStatusBadge status={t.status} />
         </div>
         <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
           <span>
@@ -79,8 +79,8 @@ function Detail({ transfer: t }: { transfer: TransferDetail }) {
           <span>원본 {source?.name ?? `#${t.sourceConfigId}`}</span>
           <span>걸린 시간 {active ? '진행 중' : formatDuration(t.createdAt, t.updatedAt)}</span>
           <span className="inline-flex items-center gap-1">
-            배포 ID <Mono>{shortId(t.transferId)}</Mono>
-            <CopyButton value={t.transferId} label="배포 ID 복사" />
+            배포 ID <Mono>{shortId(t.deploymentId)}</Mono>
+            <CopyButton value={t.deploymentId} label="배포 ID 복사" />
           </span>
         </p>
       </div>
@@ -121,7 +121,7 @@ function Detail({ transfer: t }: { transfer: TransferDetail }) {
             title={`실패한 청크 ${failed.length}개`}
             description="대상 시스템이 돌려준 오류입니다. 원인을 해결한 뒤 실패한 청크만 다시 보낼 수 있습니다."
             action={
-              <Button onClick={() => retry.mutate(t.transferId)} disabled={active || retry.isPending}>
+              <Button onClick={() => retry.mutate(t.deploymentId)} disabled={active || retry.isPending}>
                 {retry.isPending ? <Loader2 className="size-4 animate-spin" /> : <RotateCw className="size-4" />}
                 실패 청크 다시 보내기
               </Button>

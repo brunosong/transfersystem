@@ -4,7 +4,7 @@ import com.brunosong.deployment.contract.ApplyResult;
 import com.brunosong.transfer.system.datamigration.service.config.DataMigrationServiceConfigData;
 import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyResultMessage;
 import com.brunosong.transfer.system.datamigration.service.messaging.mapper.DataMigrationMessagingDataMapper;
-import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
+import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.deployment.DataMigrationResponsePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

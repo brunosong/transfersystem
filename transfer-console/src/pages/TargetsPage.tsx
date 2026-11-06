@@ -3,9 +3,9 @@ import { ChevronDown, ChevronRight, Loader2, Plug } from 'lucide-react'
 import { Fragment, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Target } from '../api/types'
-import { TransferStatusBadge } from '../components/domain'
+import { DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, ConnectionStatus, EnvBadge, ErrorState, Mono, Notice, PageHeader, Skeleton, Table, Td, Th, Toggle } from '../components/ui'
-import { useSetTargetEnabled, useTargetCurriculums, useTargets, useTestTarget, useTransfers } from '../hooks/queries'
+import { useSetTargetEnabled, useTargetCurriculums, useTargets, useTestTarget, useDeployments } from '../hooks/queries'
 import { formatRelative } from '../lib/format'
 import { sortTargets, systemLabel, targetLabel } from '../lib/targets'
 
@@ -118,7 +118,7 @@ function TargetRow({ target, open, onToggleOpen }: { target: Target; open: boole
 }
 
 function TargetDetail({ target }: { target: Target }) {
-  const recent = useTransfers({ targetId: target.targetId, size: 5 })
+  const recent = useDeployments({ targetId: target.targetId, size: 5 })
   const curriculums = useTargetCurriculums(target.targetId)
 
   return (
@@ -139,9 +139,9 @@ function TargetDetail({ target }: { target: Target }) {
         ) : (
           <ul className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
             {recent.data.items.map((t) => (
-              <li key={t.transferId}>
-                <Link to={`/deployments/${t.transferId}`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50">
-                  <TransferStatusBadge status={t.status} size="sm" />
+              <li key={t.deploymentId}>
+                <Link to={`/deployments/${t.deploymentId}`} className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-slate-50">
+                  <DeploymentStatusBadge status={t.status} size="sm" />
                   <Mono className="font-medium">{t.sourceId}</Mono>
                   <span className="truncate text-slate-500">{t.sourceTitle}</span>
                   <span className="ml-auto shrink-0 text-xs text-slate-400">{formatRelative(t.createdAt)}</span>

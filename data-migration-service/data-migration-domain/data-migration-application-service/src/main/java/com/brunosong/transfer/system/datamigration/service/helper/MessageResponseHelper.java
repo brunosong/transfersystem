@@ -3,7 +3,7 @@ package com.brunosong.transfer.system.datamigration.service.helper;
 import com.brunosong.transfer.system.datamigration.service.domain.valueobject.AppliedContent;
 import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyChunkRequest;
 import com.brunosong.transfer.system.datamigration.service.dto.message.ApplyResultMessage;
-import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.transfer.DataMigrationResponsePublisher;
+import com.brunosong.transfer.system.datamigration.service.ports.output.message.publisher.deployment.DataMigrationResponsePublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

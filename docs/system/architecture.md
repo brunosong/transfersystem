@@ -168,10 +168,10 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 
 | 표 | 지금 | 주요 칸과 제약 |
 |---|---|---|
-| `deployment` | `transfer_log` | `version`, `uk_deployment_in_progress`([규칙 A](../domain/model.md#규칙-a-커리큘럼--대상마다-진행-중인-배포는-하나)) |
-| `deployment_chunk` | `transfer_chunks` | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
+| `deployment` | `deployment` | `version`, `uk_deployment_in_progress`([규칙 A](../domain/model.md#규칙-a-커리큘럼--대상마다-진행-중인-배포는-하나)) |
+| `deployment_chunk` | `deployment_chunks` | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
 | `deployment_chunk_payload` | 없음 | `(deployment_id, chunk_no)` 기본 키. `content bytea`(Avro 직렬화 값) |
-| `outbox` | `transfer_outbox` | `seq`, 토픽, 키, 배포 ID, 청크 번호, 시도, 상태, 발행 시각 |
+| `outbox` | `deployment_outbox` | `seq`, 토픽, 키, 배포 ID, 청크 번호, 시도, 상태, 발행 시각 |
 | `target` | agent의 `datamigrations` | `(system, environment)` 유일, `deployment_allowed` |
 
 | 인덱스 | 쓰는 곳 |
@@ -257,7 +257,7 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 
 | 쓰는 곳 | 내용 | 없어도 되는 이유 |
 |---|---|---|
-| 배포 시스템 `TransferLogCachePort` | 배포의 총 청크 수 | 청크가 애그리거트 안에 들어오므로 DB에서 함께 읽는다 |
+| 배포 시스템 `DeploymentCachePort` | 배포의 총 청크 수 | 청크가 애그리거트 안에 들어오므로 DB에서 함께 읽는다 |
 | 에이전트 `DataMigrationInfoHandler` | 대상 정보 | 대상을 메시지 값으로 고르게 되어 조회가 사라진다 |
 | 에이전트 `CurriculumCachePort` | 반영한 커리큘럼의 ID | 저장만 하고 읽는 곳을 찾지 못했다 |
 

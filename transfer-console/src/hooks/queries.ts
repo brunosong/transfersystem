@@ -1,7 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, isNotFound } from '../api'
-import type { CreateTransferRequest, CurriculumQuery, SourceConfigInput, StatsQuery, TransferQuery } from '../api'
-import { isActiveTransfer } from '../lib/status'
+import type { CreateDeploymentRequest, CurriculumQuery, SourceConfigInput, StatsQuery, DeploymentQuery } from '../api'
+import { isActiveDeployment } from '../lib/status'
 import { useCurrentUser } from '../lib/user'
 
 /** 진행 중인 배포가 있을 때만 짧게 다시 읽는다. 끝난 화면은 조용히 둔다. */
@@ -17,9 +17,9 @@ export const keys = {
   targets: ['targets'] as const,
   targetCurriculums: (targetId: number) => ['target-curriculums', targetId] as const,
   targetCurriculum: (targetId: number, curriculumId: string) => ['target-curriculum', targetId, curriculumId] as const,
-  transfers: (query: TransferQuery) => ['transfers', query] as const,
-  transfer: (id: string) => ['transfer', id] as const,
-  stats: (query: StatsQuery) => ['transfer-stats', query] as const,
+  deployments: (query: DeploymentQuery) => ['deployments', query] as const,
+  deployment: (id: string) => ['deployment', id] as const,
+  stats: (query: StatsQuery) => ['deployment-stats', query] as const,
 }
 
 const noRetryOn404 = (count: number, error: Error) => !isNotFound(error) && count < 2
@@ -86,7 +86,7 @@ export function useCurriculumDeployments(curriculumId: string | null) {
     queryKey: keys.curriculumDeployments(curriculumId ?? ''),
     queryFn: () => api.listCurriculumDeployments(curriculumId!),
     enabled: !!curriculumId,
-    refetchInterval: (q) => (q.state.data?.some((d) => d.last && isActiveTransfer(d.last.status)) ? LIVE_INTERVAL : false),
+    refetchInterval: (q) => (q.state.data?.some((d) => d.last && isActiveDeployment(d.last.status)) ? LIVE_INTERVAL : false),
   })
 }
 
@@ -130,21 +130,21 @@ export function useTargetCurriculum(targetId: number, curriculumId: string) {
 
 // ─── 배포 ────────────────────────────────────────────────────
 
-export function useTransfers(query: TransferQuery, options: { enabled?: boolean } = {}) {
+export function useDeployments(query: DeploymentQuery, options: { enabled?: boolean } = {}) {
   return useQuery({
-    queryKey: keys.transfers(query),
-    queryFn: () => api.listTransfers(query),
+    queryKey: keys.deployments(query),
+    queryFn: () => api.listDeployments(query),
     placeholderData: keepPreviousData,
     enabled: options.enabled ?? true,
-    refetchInterval: (q) => (q.state.data?.items.some((t) => isActiveTransfer(t.status)) ? LIVE_INTERVAL : IDLE_INTERVAL),
+    refetchInterval: (q) => (q.state.data?.items.some((t) => isActiveDeployment(t.status)) ? LIVE_INTERVAL : IDLE_INTERVAL),
   })
 }
 
-export function useTransfer(transferId: string) {
+export function useDeployment(deploymentId: string) {
   return useQuery({
-    queryKey: keys.transfer(transferId),
-    queryFn: () => api.getTransfer(transferId),
-    refetchInterval: (q) => (q.state.data && isActiveTransfer(q.state.data.status) ? LIVE_INTERVAL : false),
+    queryKey: keys.deployment(deploymentId),
+    queryFn: () => api.getDeployment(deploymentId),
+    refetchInterval: (q) => (q.state.data && isActiveDeployment(q.state.data.status) ? LIVE_INTERVAL : false),
     retry: noRetryOn404,
   })
 }
@@ -155,25 +155,25 @@ export function useStatusCounts(query: StatsQuery = {}) {
 
 /** 배포가 바뀌면 함께 바뀌는 조회를 모두 다시 읽게 한다 */
 function invalidateDeployments(client: ReturnType<typeof useQueryClient>) {
-  for (const key of ['transfers', 'transfer', 'transfer-stats', 'curriculums', 'curriculum-deployments', 'target-curriculums', 'target-curriculum']) {
+  for (const key of ['deployments', 'deployment', 'deployment-stats', 'curriculums', 'curriculum-deployments', 'target-curriculums', 'target-curriculum']) {
     void client.invalidateQueries({ queryKey: [key] })
   }
 }
 
-export function useCreateTransfer() {
+export function useCreateDeployment() {
   const client = useQueryClient()
   const user = useCurrentUser()
   return useMutation({
-    mutationFn: (request: CreateTransferRequest) => api.createTransfer(request, user),
+    mutationFn: (request: CreateDeploymentRequest) => api.createDeployment(request, user),
     onSuccess: () => invalidateDeployments(client),
   })
 }
 
-export function useRetryTransfer() {
+export function useRetryDeployment() {
   const client = useQueryClient()
   const user = useCurrentUser()
   return useMutation({
-    mutationFn: (transferId: string) => api.retryTransfer(transferId, user),
+    mutationFn: (deploymentId: string) => api.retryDeployment(deploymentId, user),
     onSuccess: () => invalidateDeployments(client),
   })
 }

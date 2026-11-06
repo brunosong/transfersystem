@@ -63,10 +63,10 @@
 #### 전송 API
 | 메서드 | 경로 | 설명 |
 |---|---|---|
-| `POST` | `/api/v1/transfers` | 전송 접수. 아웃박스에 저장까지 하고 `202 Accepted` + `Location` 을 돌려줍니다 |
-| `GET` | `/api/v1/transfers?status=&page=&size=` | 전송 목록(최신순, 청크 진행률 포함) |
-| `GET` | `/api/v1/transfers/stats` | 상태별 전송 수 |
-| `GET` | `/api/v1/transfers/{id}` | 전송 상세. 사가 단계(`steps`)와 청크 결과를 담습니다 |
+| `POST` | `/api/v1/deployments` | 배포 접수. 아웃박스에 저장까지 하고 `202 Accepted` + `Location` 을 돌려줍니다 |
+| `GET` | `/api/v1/deployments?status=&page=&size=` | 배포 목록(최신순, 청크 진행률 포함) |
+| `GET` | `/api/v1/deployments/stats` | 상태별 배포 수 |
+| `GET` | `/api/v1/deployments/{id}` | 배포 상세. 사가 단계(`steps`)와 청크 결과를 담습니다 |
 | `GET` | `/api/v1/source-configs` | 원본 저장소 설정 목록(접속 계정 제외) |
 
 ### 4. `transfer-console`

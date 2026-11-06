@@ -26,7 +26,7 @@
 ## 3. 용어는 하나로 맞춘다
 
 - 기준은 [`docs/domain/glossary.md`](docs/domain/glossary.md)다. 화면, 문서, 코드가 같은 말을 쓴다.
-- 핵심 개념은 **배포(Deployment)**다. "전송(Transfer)", "이관", "마이그레이션"은 새로 쓰지 않는다. 코드의 `Transfer` 이름은 Deployment로 바꿀 예정이다.
+- 핵심 개념은 **배포(Deployment)**다. "전송(Transfer)", "이관", "마이그레이션"은 새로 쓰지 않는다. 코드의 클래스, 패키지, API, DB 이름은 바꿨고 모듈과 서비스 이름(`transfer-service` 등)은 아직 남아 있다.
 
 ## 4. 글쓰기
 

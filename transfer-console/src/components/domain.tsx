@@ -5,12 +5,12 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import type { Chunk, CurriculumTree, Target } from '../api/types'
 import { formatNumber, formatTime } from '../lib/format'
-import { chunkClass, transferStatusMeta } from '../lib/status'
+import { chunkClass, deploymentStatusMeta } from '../lib/status'
 import { systemLabel } from '../lib/targets'
 import { EnvBadge, StatusBadge } from './ui'
 
-export function TransferStatusBadge({ status, size }: { status: string; size?: 'sm' | 'md' }) {
-  return <StatusBadge meta={transferStatusMeta(status)} size={size} />
+export function DeploymentStatusBadge({ status, size }: { status: string; size?: 'sm' | 'md' }) {
+  return <StatusBadge meta={deploymentStatusMeta(status)} size={size} />
 }
 
 /** "온라인캠퍼스 PROD" 처럼 시스템 이름과 환경 배지 */

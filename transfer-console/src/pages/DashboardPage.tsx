@@ -2,12 +2,12 @@ import clsx from 'clsx'
 import { AlertTriangle, ArrowRight, CheckCircle2, Loader2, Send, XCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
-import type { StatusCounts, Target, TransferSummary } from '../api/types'
-import { TargetName, TransferStatusBadge } from '../components/domain'
+import type { StatusCounts, Target, DeploymentSummary } from '../api/types'
+import { TargetName, DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Mono, ProgressBar, ProgressText, Skeleton } from '../components/ui'
-import { useSources, useStatusCounts, useTargets, useTransfers } from '../hooks/queries'
+import { useSources, useStatusCounts, useTargets, useDeployments } from '../hooks/queries'
 import { formatRelative, startOfDay } from '../lib/format'
-import { isActiveTransfer } from '../lib/status'
+import { isActiveDeployment } from '../lib/status'
 
 // 하루 단위 범위는 화면을 여는 동안 바뀌지 않게 한 번만 계산한다
 const today = startOfDay(0).toISOString()
@@ -20,8 +20,8 @@ export function DashboardPage() {
   const todayCounts = useStatusCounts({ from: today })
   const yesterdayCounts = useStatusCounts({ from: yesterday, to: today })
   const allCounts = useStatusCounts()
-  const recent = useTransfers({ size: 8 })
-  const week = useTransfers({ from: weekAgo, size: 200 })
+  const recent = useDeployments({ size: 8 })
+  const week = useDeployments({ from: weekAgo, size: 200 })
   const targets = useTargets()
 
   const running = allCounts.data ? allCounts.data.PENDING + allCounts.data.SENT + allCounts.data.PROCESSED : 0
@@ -79,7 +79,7 @@ export function DashboardPage() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {needsAttention.map((t) => (
-              <TransferRow key={t.transferId} transfer={t} targets={targets.data} />
+              <DeploymentRow key={t.deploymentId} deployment={t} targets={targets.data} />
             ))}
           </ul>
         )}
@@ -111,7 +111,7 @@ export function DashboardPage() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {recent.data.items.map((t) => (
-              <TransferRow key={t.transferId} transfer={t} targets={targets.data} />
+              <DeploymentRow key={t.deploymentId} deployment={t} targets={targets.data} />
             ))}
           </ul>
         )}
@@ -121,8 +121,8 @@ export function DashboardPage() {
 }
 
 /** 커리큘럼·대상 쌍마다 가장 최근 배포만 보고, 그게 실패면 확인이 필요하다 */
-function unresolvedFailures(items: TransferSummary[]): TransferSummary[] {
-  const latest = new Map<string, TransferSummary>()
+function unresolvedFailures(items: DeploymentSummary[]): DeploymentSummary[] {
+  const latest = new Map<string, DeploymentSummary>()
   for (const t of items) {
     const key = `${t.sourceId}#${t.targetId}`
     const prev = latest.get(key)
@@ -187,12 +187,12 @@ function ConnectionLine({ to, label, ok, total }: { to: string; label: string; o
   )
 }
 
-export function TransferRow({ transfer: t, targets }: { transfer: TransferSummary; targets: Target[] | undefined }) {
-  const active = isActiveTransfer(t.status)
+export function DeploymentRow({ deployment: t, targets }: { deployment: DeploymentSummary; targets: Target[] | undefined }) {
+  const active = isActiveDeployment(t.status)
   return (
     <li>
-      <Link to={`/deployments/${t.transferId}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-3 transition hover:bg-slate-50 md:grid-cols-[6rem_1fr_13rem_9rem_7rem]">
-        <TransferStatusBadge status={t.status} size="sm" />
+      <Link to={`/deployments/${t.deploymentId}`} className="grid grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-3 transition hover:bg-slate-50 md:grid-cols-[6rem_1fr_13rem_9rem_7rem]">
+        <DeploymentStatusBadge status={t.status} size="sm" />
         <div className="min-w-0">
           <p className="truncate text-sm">
             <Mono className="font-medium text-slate-900">{t.sourceId}</Mono>

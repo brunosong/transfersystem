@@ -2,12 +2,12 @@ import clsx from 'clsx'
 import { Loader2, Plus, Search } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import type { StatusCounts, TransferQuery } from '../api/types'
-import { TargetName, TransferStatusBadge } from '../components/domain'
+import type { StatusCounts, DeploymentQuery } from '../api/types'
+import { TargetName, DeploymentStatusBadge } from '../components/domain'
 import { Button, Card, EmptyState, ErrorState, Input, Mono, Pagination, ProgressBar, ProgressText, Select, Skeleton, Table, Td, Th } from '../components/ui'
-import { useStatusCounts, useTargets, useTransfers } from '../hooks/queries'
+import { useStatusCounts, useTargets, useDeployments } from '../hooks/queries'
 import { formatRelative, formatShort, startOfDay } from '../lib/format'
-import { isActiveTransfer, isStatusGroup, STATUS_GROUP_ORDER, STATUS_GROUPS, type StatusGroup } from '../lib/status'
+import { isActiveDeployment, isStatusGroup, STATUS_GROUP_ORDER, STATUS_GROUPS, type StatusGroup } from '../lib/status'
 import { sortTargets, targetLabel } from '../lib/targets'
 import { OPERATORS } from '../lib/user'
 
@@ -38,8 +38,8 @@ export function DeploymentsPage() {
     return days === null ? undefined : startOfDay(days).toISOString()
   }, [period])
 
-  const base: TransferQuery = { targetId, createdBy, sourceId: sourceId || undefined, from }
-  const transfers = useTransfers({ ...base, status: group ? STATUS_GROUPS[group].statuses : undefined, page, size: PAGE_SIZE })
+  const base: DeploymentQuery = { targetId, createdBy, sourceId: sourceId || undefined, from }
+  const deployments = useDeployments({ ...base, status: group ? STATUS_GROUPS[group].statuses : undefined, page, size: PAGE_SIZE })
   const counts = useStatusCounts({ from })
 
   const update = (next: Record<string, string | null>) => {
@@ -114,19 +114,19 @@ export function DeploymentsPage() {
                 조건 지우기
               </Button>
             )}
-            {transfers.isFetching && !transfers.isPending && <Loader2 className="ml-auto size-4 animate-spin text-slate-400" />}
+            {deployments.isFetching && !deployments.isPending && <Loader2 className="ml-auto size-4 animate-spin text-slate-400" />}
           </div>
         </div>
 
-        {transfers.isPending ? (
+        {deployments.isPending ? (
           <div className="space-y-3 p-5">
             {Array.from({ length: 6 }, (_, i) => (
               <Skeleton key={i} className="h-10" />
             ))}
           </div>
-        ) : transfers.isError ? (
-          <ErrorState error={transfers.error} onRetry={() => void transfers.refetch()} />
-        ) : transfers.data.items.length === 0 ? (
+        ) : deployments.isError ? (
+          <ErrorState error={deployments.error} onRetry={() => void deployments.refetch()} />
+        ) : deployments.data.items.length === 0 ? (
           <EmptyState
             title={filtered ? '조건에 맞는 배포가 없습니다' : '아직 배포가 없습니다'}
             action={
@@ -151,15 +151,15 @@ export function DeploymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {transfers.data.items.map((t) => {
-                  const active = isActiveTransfer(t.status)
+                {deployments.data.items.map((t) => {
+                  const active = isActiveDeployment(t.status)
                   return (
-                    <tr key={t.transferId} onClick={() => navigate(`/deployments/${t.transferId}`)} className="cursor-pointer transition hover:bg-slate-50">
+                    <tr key={t.deploymentId} onClick={() => navigate(`/deployments/${t.deploymentId}`)} className="cursor-pointer transition hover:bg-slate-50">
                       <Td>
-                        <TransferStatusBadge status={t.status} size="sm" />
+                        <DeploymentStatusBadge status={t.status} size="sm" />
                       </Td>
                       <Td>
-                        <Link to={`/deployments/${t.transferId}`} onClick={(e) => e.stopPropagation()}>
+                        <Link to={`/deployments/${t.deploymentId}`} onClick={(e) => e.stopPropagation()}>
                           <Mono className="font-medium text-slate-900">{t.sourceId}</Mono>
                         </Link>
                         <p className="max-w-56 truncate text-xs text-slate-500">{t.sourceTitle}</p>
@@ -184,8 +184,8 @@ export function DeploymentsPage() {
               </tbody>
             </Table>
             <div className="flex items-center justify-between px-4 py-2">
-              <span className="text-xs text-slate-500">총 {transfers.data.totalItems}건</span>
-              <Pagination page={page} totalPages={transfers.data.totalPages} onChange={(p) => update({ page: String(p) })} />
+              <span className="text-xs text-slate-500">총 {deployments.data.totalItems}건</span>
+              <Pagination page={page} totalPages={deployments.data.totalPages} onChange={(p) => update({ page: String(p) })} />
             </div>
           </>
         )}

@@ -96,7 +96,9 @@
 
 - [x] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, Avro 타입 내용, namespace 통일, 호환성 `FULL`. 시도 번호는 항상 1, 반영 내용은 아직 버림(모델 작업에서)
 - [ ] 원본에서 지운 과목 빼기 ([이벤트와 메시지](domain/events.md#6-원본에서-지운-과목은-대상에서도-뺀다))
-- [ ] 이름 바꾸기: `Transfer` → `Deployment`, 서비스 이름, 패키지, 토픽 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
+- [x] 이름 바꾸기 1: 배포 쪽 클래스, 필드, 패키지, REST 경로, DB 이름(`V3`), 화면의 API 타입 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
+- [ ] 이름 바꾸기 2: 모듈과 서비스 이름(`transfer-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
+- [ ] 이름 바꾸기 3: `data-migration-service` → `target-agent`, 토픽
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거

@@ -30,45 +30,45 @@ async function rejects(promise: Promise<unknown>): Promise<ApiError> {
 describe('mockApi 배포', () => {
   it('같은 커리큘럼을 같은 대상으로 보내는 배포가 진행 중이면 409', async () => {
     // 시드의 CUR003 → 온라인캠퍼스·DEV 는 진행 중이다
-    const error = await rejects(mockApi.createTransfer(request('CUR003'), '김운영'))
+    const error = await rejects(mockApi.createDeployment(request('CUR003'), '김운영'))
     expect(error.status).toBe(409)
     // 다른 대상은 된다
-    await expect(mockApi.createTransfer(request('CUR003', 4), '김운영')).resolves.toMatchObject({ chunkCount: 41 })
+    await expect(mockApi.createDeployment(request('CUR003', 4), '김운영')).resolves.toMatchObject({ chunkCount: 41 })
   })
 
   it('배포 허용이 꺼진 대상이면 422', async () => {
-    const error = await rejects(mockApi.createTransfer(request('CUR001', 2), '김운영'))
+    const error = await rejects(mockApi.createDeployment(request('CUR001', 2), '김운영'))
     expect(error.status).toBe(422)
   })
 
   it('원본에 없는 커리큘럼이면 404', async () => {
-    const error = await rejects(mockApi.createTransfer(request('CUR999'), '김운영'))
+    const error = await rejects(mockApi.createDeployment(request('CUR999'), '김운영'))
     expect(error.status).toBe(404)
   })
 
   it('실패 재현용 커리큘럼은 실패하고, 재전송하면 대상 데이터가 원본과 같아진다', async () => {
-    const { transferId } = await mockApi.createTransfer(request(FAILING_CURRICULUM_ID, 4), '이배포')
-    const transfer = state.transfers.find((t) => t.transferId === transferId)!
-    expect(transfer.createdBy).toBe('이배포')
+    const { deploymentId } = await mockApi.createDeployment(request(FAILING_CURRICULUM_ID, 4), '이배포')
+    const deployment = state.deployments.find((t) => t.deploymentId === deploymentId)!
+    expect(deployment.createdBy).toBe('이배포')
 
-    vi.setSystemTime(finishesAt(transfer))
-    const failed = await mockApi.getTransfer(transferId)
+    vi.setSystemTime(finishesAt(deployment))
+    const failed = await mockApi.getDeployment(deploymentId)
     expect(failed.status).toBe('FAILED')
     expect(failed.progress.failed).toBe(2)
 
     const partial = await mockApi.getTargetCurriculum(4, FAILING_CURRICULUM_ID)
     expect(partial.counts.subjects).toBe(failed.chunks.length - 1 - 2)
 
-    await expect(mockApi.retryTransfer(transferId, '이배포')).resolves.toEqual({ retriedChunks: 2 })
-    vi.setSystemTime(finishesAt(transfer))
-    expect((await mockApi.getTransfer(transferId)).status).toBe('SUCCESS')
+    await expect(mockApi.retryDeployment(deploymentId, '이배포')).resolves.toEqual({ retriedChunks: 2 })
+    vi.setSystemTime(finishesAt(deployment))
+    expect((await mockApi.getDeployment(deploymentId)).status).toBe('SUCCESS')
     const full = await mockApi.getTargetCurriculum(4, FAILING_CURRICULUM_ID)
     expect(full.counts.subjects).toBe(failed.chunks.length - 1)
   })
 
   it('진행 중인 배포는 재전송할 수 없다', async () => {
-    const running = state.transfers.find((t) => t.sourceId === 'CUR003')!
-    const error = await rejects(mockApi.retryTransfer(running.transferId, '김운영'))
+    const running = state.deployments.find((t) => t.sourceId === 'CUR003')!
+    const error = await rejects(mockApi.retryDeployment(running.deploymentId, '김운영'))
     expect(error.status).toBe(409)
   })
 })

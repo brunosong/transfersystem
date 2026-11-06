@@ -1,4 +1,4 @@
-import type { ChunkStatus, TransferStatus } from '../api/types'
+import type { ChunkStatus, DeploymentStatus } from '../api/types'
 
 export type Tone = 'neutral' | 'info' | 'success' | 'danger' | 'warning'
 
@@ -9,10 +9,10 @@ export interface StatusMeta {
   active: boolean
 }
 
-/** 운영자에게 보여 주는 네 묶음. transfer_log 상태 다섯 개를 묶는다. */
+/** 운영자에게 보여 주는 네 묶음. deployment 상태 다섯 개를 묶는다. */
 export type StatusGroup = 'waiting' | 'running' | 'done' | 'failed'
 
-export const STATUS_GROUPS: Record<StatusGroup, { label: string; statuses: TransferStatus[] }> = {
+export const STATUS_GROUPS: Record<StatusGroup, { label: string; statuses: DeploymentStatus[] }> = {
   waiting: { label: '대기', statuses: ['PENDING'] },
   running: { label: '진행 중', statuses: ['SENT', 'PROCESSED'] },
   done: { label: '완료', statuses: ['SUCCESS'] },
@@ -25,7 +25,7 @@ export function isStatusGroup(value: string | null): value is StatusGroup {
   return value !== null && value in STATUS_GROUPS
 }
 
-const TRANSFER: Record<TransferStatus, StatusMeta> = {
+const DEPLOYMENT: Record<DeploymentStatus, StatusMeta> = {
   PENDING: { label: '대기', tone: 'neutral', active: true },
   SENT: { label: '진행 중', tone: 'info', active: true },
   PROCESSED: { label: '진행 중', tone: 'info', active: true },
@@ -35,12 +35,12 @@ const TRANSFER: Record<TransferStatus, StatusMeta> = {
 
 const FALLBACK: StatusMeta = { label: '알 수 없음', tone: 'neutral', active: false }
 
-export function transferStatusMeta(status: string): StatusMeta {
-  return TRANSFER[status as TransferStatus] ?? { ...FALLBACK, label: status }
+export function deploymentStatusMeta(status: string): StatusMeta {
+  return DEPLOYMENT[status as DeploymentStatus] ?? { ...FALLBACK, label: status }
 }
 
-export function isActiveTransfer(status: string): boolean {
-  return transferStatusMeta(status).active
+export function isActiveDeployment(status: string): boolean {
+  return deploymentStatusMeta(status).active
 }
 
 /** 상태 색. 배지·점·막대가 같은 표를 쓴다. */
