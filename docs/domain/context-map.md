@@ -154,7 +154,7 @@ U는 상류(모델을 정하는 쪽), D는 하류(따르는 쪽)다. 점선은 �
 
 | 컨텍스트 | 서비스 (지금) | 서비스 (바꿀 이름) | 이유 |
 |---|---|---|---|
-| 배포 + 원본 | `transfer-service` | **`deployment-service`** | 핵심 컨텍스트 이름을 그대로 쓴다. 원본 읽기는 배포를 접수할 때만 쓰므로 따로 띄우면 호출 하나가 늘 뿐 얻는 게 없다. |
+| 배포 + 원본 | `deployment-service` | **`deployment-service`** | 핵심 컨텍스트 이름을 그대로 쓴다. 원본 읽기는 배포를 접수할 때만 쓰므로 따로 띄우면 호출 하나가 늘 뿐 얻는 게 없다. |
 | 대상 에이전트 | `data-migration-service` | **`target-agent`** | 이 서비스는 대상의 주인이 아니라 **대상을 대신해 일하는 쪽**이다. 이름에서 그게 드러나야 떼어 낼 수 있는 부분이라는 게 보인다. |
 
 `target-agent` 로 정하기 전에 본 이름들:
@@ -173,7 +173,7 @@ U는 상류(모델을 정하는 쪽), D는 하류(따르는 쪽)다. 점선은 �
 | 대상 목록과 배포 허용이 에이전트 쪽에 있다 | data-migration-service의 `datamigrations`, `DataMigrationInfoRepository` | 배포 컨텍스트로 옮긴다. 에이전트는 자기가 맡은 대상의 접속 정보만 갖는다 |
 | 모든 대상의 명령이 토픽 하나로 간다 | `data-migration-request` 토픽, `DataPersistHandler` | [대상별 토픽](../system/architecture.md#4-kafka-토픽)으로 나눈다 |
 | 반영 결과에 "무엇을 반영했는지"가 없다 | `apply_result.avsc` | 메시지에는 담았다. 배포 쪽 저장은 모델 작업에서 한다 (계약 2) |
-| 원본 변환기가 배포의 애플리케이션 계층에 섞여 있다 | `transfer-application-service`의 `helper/transfer/curriculum/CurriculumSourceConverter` | 원본 컨텍스트 패키지로 옮기고, 배포는 포트로만 부른다 |
+| 원본 변환기가 배포의 애플리케이션 계층에 섞여 있다 | `deployment-application-service`의 `helper/transfer/curriculum/CurriculumSourceConverter` | 원본 컨텍스트 패키지로 옮기고, 배포는 포트로만 부른다 |
 | 청크 나누기 규칙(뼈대 + 과목)이 변환기 안에 있다 | 같은 곳 | 어떻게 나눌지는 배포 규칙이다. 원본은 커리큘럼 트리만 주고 배포가 나눈다 |
 | 대상 스키마 엔티티가 `onlinecampus` 패키지에만 있고, 부트캠프 반영 코드는 아직 없다 | `data-migration-dataaccess`, `BootCampDataPersistHelper` | 대상마다 어댑터를 따로 두고 부트캠프 어댑터를 만든다 (ROADMAP Phase 1 "Bootcamp 저장 실제 구현") |
 | 메시지 내용이 원본 JSON 그대로라 ACL이 내용에서 지켜지지 않는다 | `CurriculumSourceConverter`, `jsonData` | Avro 타입으로 정의한다 ([이벤트와 메시지](events.md#4-내용은-avro-타입으로-싣는다)) |

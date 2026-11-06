@@ -3,7 +3,7 @@
 - 상태: 채택
 - 날짜: 2026-11-04
 - 관련 문서: [도메인 모델](../domain/model.md), [ADR 0003](0003-defer-saga.md)
-- 관련 모듈: `transfer-service`의 `outbox`, `infrastructure/outbox`
+- 관련 모듈: `deployment-service`의 `outbox`, `infrastructure/outbox`
 
 ## 맥락
 

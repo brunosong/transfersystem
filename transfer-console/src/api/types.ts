@@ -1,5 +1,5 @@
 // 화면이 쓰는 API 의 모양. docs/console-plan.md 의 "필요한 API" 표와 1:1 로 맞춘다.
-// transfer-service(원본, 배포)와 data-migration-service(대상) 두 곳을 부른다.
+// deployment-service(원본, 배포)와 data-migration-service(대상) 두 곳을 부른다.
 
 // ─── 공통 ────────────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ export interface ConnectionCheck {
   checkedAt: string
 }
 
-// ─── 원본 저장소 (transfer-service) ───────────────────────────────────────
+// ─── 원본 저장소 (deployment-service) ───────────────────────────────────────
 
 export type SourceType = 'CURRICULUM' | 'EXAM_RESULT_DATA'
 export type DbType = 'MONGO' | 'MYSQL'
@@ -59,7 +59,7 @@ export interface DeleteSourceConfigResult {
   softDeleted: boolean
 }
 
-// ─── 콘텐츠 (transfer-service 가 원본을 읽어 준다) ───────────────────────
+// ─── 콘텐츠 (deployment-service 가 원본을 읽어 준다) ───────────────────────
 
 export interface LevelCounts {
   grades: number
@@ -152,7 +152,7 @@ export interface TargetCurriculumTree extends CurriculumTree {
   updatedAt: string
 }
 
-// ─── 배포 (transfer-service) ─────────────────────────────────────────────
+// ─── 배포 (deployment-service) ─────────────────────────────────────────────
 
 /** deployment 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다. */
 export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'SUCCESS' | 'FAILED'

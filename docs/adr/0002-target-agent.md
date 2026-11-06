@@ -3,7 +3,7 @@
 - 상태: 채택
 - 날짜: 2026-11-03
 - 관련 문서: [컨텍스트 맵](../domain/context-map.md), [용어집](../domain/glossary.md)
-- 관련 모듈: `transfer-service`(→ `deployment-service`), `data-migration-service`(→ `target-agent`)
+- 관련 모듈: `deployment-service`(→ `deployment-service`), `data-migration-service`(→ `target-agent`)
 
 ## 맥락
 

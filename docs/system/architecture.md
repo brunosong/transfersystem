@@ -285,5 +285,5 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | 대상 쪽 `Thread.sleep(1000)` | 삭제 |
 | 공통 에러 핸들러: 모든 오류를 30초 재시도 후 DLT | 일시적 오류는 대상은 `Rejected`, 결과 소비자는 계속 재시도 |
 | 배포마다 `DataMigrationInfoHandler`로 대상 표 조회 | 메시지 값으로 어댑터와 DB 선택 |
-| Redis 모듈 `transfer-cache`, `data-migration-cache` | 삭제 |
+| Redis 모듈 `deployment-cache`, `data-migration-cache` | 삭제 |
 | 지표 노출 없음 (`refresh`, `busrefresh`만 공개) | Actuator 지표 공개 |

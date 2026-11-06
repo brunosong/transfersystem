@@ -1,7 +1,7 @@
-# Transfer System 프로젝트
+# Deployment System 프로젝트
 
 ## 개요
-`Transfer System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 이관하는 모듈화된 애플리케이션입니다. 서비스(`transfer-service`, `data-migration-service`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
+`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `data-migration-service`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
 
 서비스 간 통신은 **Transactional Outbox** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
 
@@ -50,15 +50,15 @@
   - **`data-migration-application-service`**: 유스케이스 및 포트 정의.
 - **`data-migration-messaging`**: Kafka 요청 리스너와 결과 응답 퍼블리셔.
 
-### 3. `transfer-service`
-- **`transfer-application`**: REST API. 전송 접수와 조회 API(아래 표)를 제공합니다.
-- **`transfer-container`**: 메인 설정 및 서비스.
-- **`transfer-dataaccess`**: 전송 및 자재 데이터 관리.
-- **`transfer-cache`**: Redis 기반 전송 로그·데이터소스 캐시.
-- **`transfer-domain`**
-  - **`transfer-domain-core`**: 전송 관련 도메인 모델 및 핵심 로직.
-  - **`transfer-application-service`**: 유스케이스, 포트, Outbox 처리.
-- **`transfer-messaging`**: 아웃박스 메시지 퍼블리셔와 결과 응답 리스너.
+### 3. `deployment-service`
+- **`deployment-application`**: REST API. 전송 접수와 조회 API(아래 표)를 제공합니다.
+- **`deployment-container`**: 메인 설정 및 서비스.
+- **`deployment-dataaccess`**: 전송 및 자재 데이터 관리.
+- **`deployment-cache`**: Redis 기반 전송 로그·데이터소스 캐시.
+- **`deployment-domain`**
+  - **`deployment-domain-core`**: 전송 관련 도메인 모델 및 핵심 로직.
+  - **`deployment-application-service`**: 유스케이스, 포트, Outbox 처리.
+- **`deployment-messaging`**: 아웃박스 메시지 퍼블리셔와 결과 응답 리스너.
 
 #### 전송 API
 | 메서드 | 경로 | 설명 |
@@ -116,9 +116,9 @@
    ```bash
    # (먼저 ./mvnw install 로 모듈들이 로컬 저장소에 있어야 한다)
    # 로컬 도커 데몬에 이미지 생성
-   ./mvnw -pl transfer-service/transfer-container jib:dockerBuild
+   ./mvnw -pl deployment-service/deployment-container jib:dockerBuild
    # 레지스트리로 푸시
-   ./mvnw -pl transfer-service/transfer-container jib:build
+   ./mvnw -pl deployment-service/deployment-container jib:build
    ```
 
 4. **인프라 실행**
@@ -144,9 +144,9 @@
    npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
    npm run dev        # 실제 서비스에 붙어서 실행
    ```
-   개발 서버가 `/api/v1/targets` 는 data-migration-service(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 transfer-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `DATA_MIGRATION_SERVICE_URL`, `TRANSFER_SERVICE_URL` 환경 변수를 지정합니다.
+   개발 서버가 `/api/v1/targets` 는 data-migration-service(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `DATA_MIGRATION_SERVICE_URL`, `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
 
-   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `DATA_MIGRATION_SERVICE_URL`, `TRANSFER_SERVICE_URL` 로 프록시합니다.
+   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `DATA_MIGRATION_SERVICE_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
    ```bash
    docker build -t transfer-console transfer-console                         # 실제 API용
    docker build -t transfer-console:demo --build-arg API_MODE=mock transfer-console  # 시연용

@@ -1,4 +1,4 @@
-# Transfer System 완성 로드맵
+# Deployment System 완성 로드맵
 
 > 목적: 학습·포트폴리오용. 범위: 로컬 E2E 검증 + Kubernetes 배포까지.
 > 최종 목표: 운영자가 커리큘럼을 골라 대상에 **배포하고 들어간 것까지 확인하는 시스템**을 로컬 E2E로 검증한 뒤 k8s에 배포한다.
@@ -78,7 +78,7 @@
 - [ ] `DataPersistHandler`: 프록시에서도 안전한 어노테이션 조회
 - [ ] `H2Dialect` 하드코딩과 `hbm2ddl.auto=update` 제거
 - [ ] Bootcamp 저장 실제 구현
-- [ ] transfer-service 버그: `totalChunkSize`가 0으로 저장됨, admin id 하드코딩, `Optional.get()`, `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성
+- [ ] deployment-service 버그: `totalChunkSize`가 0으로 저장됨, admin id 하드코딩, `Optional.get()`, `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성
 
 ## Phase 2. 로컬 실행 환경
 *목표: `git clone` → `docker compose up` → 두 서비스 기동 → `curl` 한 번으로 이관 성공.*
@@ -89,7 +89,7 @@
 - [ ] local 전용 설정을 `application.yml`로 옮기고 환경별 값은 `${ENV:default}`로
 - [x] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리 (지움, `RecordNameStrategy`로 통일)
 - [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)
-- [ ] 조회 어댑터 테스트용 스키마(`transfer-query-schema.sql`)를 Flyway 마이그레이션으로 대체
+- [ ] 조회 어댑터 테스트용 스키마(`deployment-query-schema.sql`)를 Flyway 마이그레이션으로 대체
 
 ## Phase 3. 배포 모델 구현
 *목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 지금은 0번 청크의 결과가 배포 결과가 된다.*
@@ -97,7 +97,7 @@
 - [x] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, Avro 타입 내용, namespace 통일, 호환성 `FULL`. 시도 번호는 항상 1, 반영 내용은 아직 버림(모델 작업에서)
 - [ ] 원본에서 지운 과목 빼기 ([이벤트와 메시지](domain/events.md#6-원본에서-지운-과목은-대상에서도-뺀다))
 - [x] 이름 바꾸기 1: 배포 쪽 클래스, 필드, 패키지, REST 경로, DB 이름(`V3`), 화면의 API 타입 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
-- [ ] 이름 바꾸기 2: 모듈과 서비스 이름(`transfer-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
+- [x] 이름 바꾸기 2: 모듈과 서비스 이름(`deployment-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
 - [ ] 이름 바꾸기 3: `data-migration-service` → `target-agent`, 토픽
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
@@ -107,7 +107,7 @@
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
-- [ ] Redis 모듈 삭제 (`transfer-cache`, `data-migration-cache`)
+- [ ] Redis 모듈 삭제 (`deployment-cache`, `data-migration-cache`)
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [ ] 사가 흔적 정리: `sagaId`, `SagaStatus`, `infrastructure/saga`
@@ -119,7 +119,7 @@
 - [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포
-- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `TRANSFER_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
+- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `DEPLOYMENT_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
 - [ ] MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
@@ -148,7 +148,7 @@
 
 #### 흐름
 ```
-POST /transfers
+POST /deployments
   └─ 사가 시작 (sagaId 1개, 같은 커리큘럼으로 진행 중인 사가가 있으면 거절)
       Step 1. APPLY → 온라인캠퍼스   (청크 N개, 전부 성공 응답이 오면 다음)
       Step 2. APPLY → 부트캠프       (청크 N개)
@@ -166,29 +166,29 @@ POST /transfers
 4. **시맨틱 락을 쓴다.** 같은 커리큘럼으로 진행 중인 사가가 있으면 새 전송을 거절(409)한다.
 
 #### 메시지 계약
-- `MigrationCommand`: sagaId, transferId, commandType(APPLY/COMPENSATE), targetSystem, chunkOffset, totalChunks, payload
-- `MigrationReply`: sagaId, transferId, commandType, targetSystem, chunkOffset, result(SUCCEEDED/FAILED/COMPENSATED), message
+- `MigrationCommand`: sagaId, deploymentId, commandType(APPLY/COMPENSATE), targetSystem, chunkOffset, totalChunks, payload
+- `MigrationReply`: sagaId, deploymentId, commandType, targetSystem, chunkOffset, result(SUCCEEDED/FAILED/COMPENSATED), message
 
 #### 사가 완료 기준
 | 항목 | 해야 할 것 |
 |---|---|
-| 사가 상태 영속화 | `transfer_saga` 테이블(현재 단계, 상태, version)과 오케스트레이터의 상태 전이 |
+| 사가 상태 영속화 | `deployment_saga` 테이블(현재 단계, 상태, version)과 오케스트레이터의 상태 전이 |
 | 상관관계 ID | 전송당 sagaId 하나, 요청과 응답 모두에 포함 |
 | 참여자 멱등성 | inbox 테이블로 중복 명령 무시하고 저장된 결과로 재응답 |
 | 보상 | 멱등하고 재시도 가능한 before-image 복원 |
 | 타임아웃 | deadline 초과 시 재전송, 그래도 안 되면 보상 |
 | 동시성 | 낙관적 락(`@Version`), 아웃박스 중복 발행 방지, 시맨틱 락 |
-| 관측 가능성 | `GET /transfers/{id}`로 사가 진행 상태 조회 |
+| 관측 가능성 | `GET /deployments/{id}`로 사가 진행 상태 조회 |
 
 ### 사가 구현 목록
 **3-1. 계약**
 - [ ] `MigrationCommand`/`MigrationReply` 스키마 추가, Avro namespace 통일
 
-**3-2. 오케스트레이터 (transfer-service)**
-- [ ] `transfer_saga`, `saga_chunk_ack` 테이블
-- [ ] `TransferSagaOrchestrator`: 순수 도메인 상태 전이. 응답 기록 → 단계 완료 판단 → 다음 명령을 아웃박스에 저장까지 한 트랜잭션
+**3-2. 오케스트레이터 (deployment-service)**
+- [ ] `deployment_saga`, `saga_chunk_ack` 테이블
+- [ ] `DeploymentSagaOrchestrator`: 순수 도메인 상태 전이. 응답 기록 → 단계 완료 판단 → 다음 명령을 아웃박스에 저장까지 한 트랜잭션
 - [ ] 아웃박스 개선: 발행 중 상태 또는 `SKIP LOCKED`, 동기 send, 완료된 행 정리
-- [ ] 타임아웃 스케줄러, 시맨틱 락, `GET /transfers/{id}`
+- [ ] 타임아웃 스케줄러, 시맨틱 락, `GET /deployments/{id}`
 
 **3-3. 참여자 (data-migration)**
 - [ ] 대상 DB마다 `migration_inbox`, `migration_snapshot`

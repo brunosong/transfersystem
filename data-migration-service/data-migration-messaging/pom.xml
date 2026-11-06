@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>data-migration-service</artifactId>
-        <groupId>com.brunosong.transfer.system</groupId>
+        <groupId>com.brunosong.deployment.system</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -30,11 +30,11 @@
             아래 unpack 이 꺼내 주고 avro-maven-plugin 이 그것으로 클래스를 만든다.
         -->
         <dependency>
-            <groupId>com.brunosong.transfer.system</groupId>
+            <groupId>com.brunosong.deployment.system</groupId>
             <artifactId>message-contracts</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.brunosong.transfer.system</groupId>
+            <groupId>com.brunosong.deployment.system</groupId>
             <artifactId>data-migration-application-service</artifactId>
         </dependency>
         <dependency>

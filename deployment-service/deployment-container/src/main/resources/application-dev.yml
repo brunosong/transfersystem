@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: deployment-service
+  config:
+    import: "optional:configserver:http://config-service.transfer.svc.cluster.local:8888/"
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
+    compatibility-verifier:
+      enabled: false
+    config:
+      profile: default
+  # 넣을 부분
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed/dev
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@${MONGODB_HOST}:${MONGO_PORT}/exampledb?authSource=admin
+  datasource:
+    url: jdbc:postgresql://${POSTGRE_HOST}:${POSTGRE_PORT}/transfer
+    username: ${POSTGRE_USERNAME}
+    password: ${POSTGRE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        generate_statistics: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: ERROR
+#    org.springframework.cloud: DEBUG
+#    org.springframework.kafka: DEBUG
+#    org.springframework.cloud.bus: TRACE

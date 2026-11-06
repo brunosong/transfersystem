@@ -5,7 +5,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>data-migration-service</module>
-        <module>transfer-service</module>
+        <module>deployment-service</module>
         <module>common</module>
 <!--        <module>dataupload-service</module>-->
         <module>infrastructure</module>
@@ -17,11 +17,11 @@
         <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.brunosong.transfer.system</groupId>
-    <artifactId>transfer-system</artifactId>
+    <groupId>com.brunosong.deployment.system</groupId>
+    <artifactId>deployment-system</artifactId>
     <version>1.0</version>
-    <name>TransferSystem</name>
-    <description>TransferSystem</description>
+    <name>DeploymentSystem</name>
+    <description>DeploymentSystem</description>
     <url/>
     <licenses>
         <license/>
@@ -86,12 +86,12 @@
                 이 jar 안에는 .avsc 만 있고 클래스는 없다.
             -->
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>message-contracts</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>kafka-support</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -136,100 +136,100 @@
                 <version>${avro.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-application-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-messaging</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>data-migration-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-container</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-dataaccess</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-messaging</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-messaging</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-domain-core</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-application-service</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-application-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-application</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
-                <artifactId>transfer-cache</artifactId>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>deployment-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>common-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>common-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>common-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>saga</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.brunosong.transfer.system</groupId>
+                <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>outbox</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -309,7 +309,7 @@
                             <configuration>
                                 <artifactItems>
                                     <artifactItem>
-                                        <groupId>com.brunosong.transfer.system</groupId>
+                                        <groupId>com.brunosong.deployment.system</groupId>
                                         <artifactId>message-contracts</artifactId>
                                         <version>${project.version}</version>
                                         <includes>avro/*.avsc</includes>

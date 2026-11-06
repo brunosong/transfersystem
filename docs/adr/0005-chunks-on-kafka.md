@@ -3,7 +3,7 @@
 - 상태: 채택
 - 날짜: 2026-11-04
 - 관련 문서: [시스템 설계](../system/architecture.md#3-메시지-크기), [이벤트와 메시지](../domain/events.md), [ADR 0002](0002-target-agent.md)
-- 관련 모듈: `message-contracts`, `transfer-messaging`, `infrastructure/docker-compose`
+- 관련 모듈: `message-contracts`, `deployment-messaging`, `infrastructure/docker-compose`
 
 ## 맥락
 

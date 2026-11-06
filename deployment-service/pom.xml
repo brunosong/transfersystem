@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>deployment-system</artifactId>
+        <groupId>com.brunosong.deployment.system</groupId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>deployment-service</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>deployment-domain</module>
+        <module>deployment-container</module>
+        <module>deployment-dataaccess</module>
+        <module>deployment-messaging</module>
+        <module>deployment-application</module>
+        <module>deployment-cache</module>
+    </modules>
+
+</project>

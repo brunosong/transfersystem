@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.brunosong.transfer.system</groupId>
-        <artifactId>transfer-system</artifactId>
+        <groupId>com.brunosong.deployment.system</groupId>
+        <artifactId>deployment-system</artifactId>
         <version>1.0</version>
     </parent>
 
-    <groupId>com.brunosong.transfer-system</groupId>
+    <groupId>com.brunosong.deployment-system</groupId>
     <artifactId>config-service</artifactId>
 
     <dependencies>
@@ -42,7 +42,7 @@
                         </tags>
                     </to>
                     <container>
-                        <mainClass>com.brunosong.transfer.system.ConfigServerApplication</mainClass>
+                        <mainClass>com.brunosong.deployment.system.ConfigServerApplication</mainClass>
                         <jvmFlags>
                             <jvmFlag>-Xms256m</jvmFlag>
                             <jvmFlag>-Xmx1024m</jvmFlag>
