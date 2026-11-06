@@ -4,7 +4,7 @@ import { useSyncExternalStore } from 'react'
 
 export const OPERATORS = ['김운영', '이배포', '박콘텐츠']
 
-const KEY = 'transfer-console.user'
+const KEY = 'deployment-console.user'
 const listeners = new Set<() => void>()
 
 function read(): string {

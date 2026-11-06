@@ -17,7 +17,7 @@ export interface MockState {
   deployments: MockDeployment[]
 }
 
-const STORAGE_KEY = 'transfer-console.mock'
+const STORAGE_KEY = 'deployment-console.mock'
 const VERSION = 3
 
 const MINUTE = 60_000

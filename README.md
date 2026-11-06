@@ -69,7 +69,7 @@
 | `GET` | `/api/v1/deployments/{id}` | 배포 상세. 사가 단계(`steps`)와 청크 결과를 담습니다 |
 | `GET` | `/api/v1/source-configs` | 원본 저장소 설정 목록(접속 계정 제외) |
 
-### 4. `transfer-console`
+### 4. `deployment-console`
 콘텐츠 운영자가 저작 DB의 커리큘럼을 서비스 시스템에 배포하는 화면입니다. Maven 빌드와 분리된 npm 프로젝트입니다. 기획은 [`docs/console-plan.md`](docs/console-plan.md)에 있습니다.
 - **대시보드**: 오늘 배포 건수, 진행 중, 확인이 필요한 실패, 원본·대상 연결 상태
 - **원본 저장소**: 추가·수정·삭제, 연결 테스트, 사용 켜기/끄기
@@ -137,9 +137,9 @@
    docker-compose -f redis.yml up -d
    ```
 
-5. **화면(transfer-console) 실행**
+5. **화면(deployment-console) 실행**
    ```bash
-   cd transfer-console
+   cd deployment-console
    npm install
    npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
    npm run dev        # 실제 서비스에 붙어서 실행
@@ -148,8 +148,8 @@
 
    컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `DATA_MIGRATION_SERVICE_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
    ```bash
-   docker build -t transfer-console transfer-console                         # 실제 API용
-   docker build -t transfer-console:demo --build-arg API_MODE=mock transfer-console  # 시연용
+   docker build -t deployment-console deployment-console                         # 실제 API용
+   docker build -t deployment-console:demo --build-arg API_MODE=mock deployment-console  # 시연용
    ```
 
 6. **Kubernetes 설정**

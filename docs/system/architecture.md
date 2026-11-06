@@ -8,7 +8,7 @@
 
 ```mermaid
 flowchart LR
-  OP([운영자]) --> UI[transfer-console<br/>React + nginx]
+  OP([운영자]) --> UI[deployment-console<br/>React + nginx]
   UI --> DS
 
   subgraph DSBOX[배포 시스템]
@@ -39,7 +39,7 @@ flowchart LR
 
 | 구성 요소 | 하는 일 | 가진 데이터 | 비밀 |
 |---|---|---|---|
-| `transfer-console` | 화면 | 없음 | 없음 |
+| `deployment-console` | 화면 | 없음 | 없음 |
 | `deployment-service` | 접수, 청크 나누기, 발행, 결과 처리, 응답 기한 | 배포 기록의 원본 | 저작 DB 접속 정보 |
 | `target-agent` | 반영하고 결과 보내기 | 없음 | 서비스 DB 접속 정보 |
 | Kafka | 두 서비스 사이의 전달과 쌓아 두기 | 7일 지나면 사라지는 사본 | |

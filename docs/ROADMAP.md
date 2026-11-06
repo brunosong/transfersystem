@@ -23,7 +23,7 @@
 
 > 남겨 둔 것: `TransType.API` 값은 DB 컬럼에 쓰이므로 Phase 2의 Flyway 도입 때 함께 정리한다. Mongo 시드 생성기(`*DataGenerator`)는 Phase 2에서 로컬 시드 방식으로 옮긴다.
 
-## 화면 (transfer-console) ✅
+## 화면 (deployment-console) ✅
 *목표: 전송을 요청하고, 사가가 어디까지 진행됐는지 눈으로 확인한다.*
 
 - [x] 조회 API: 목록(상태 필터·페이지), 상태별 집계, 상세(사가 단계 모양), 원본 설정 목록
@@ -119,7 +119,7 @@
 - [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포
-- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 transfer-console 매니페스트 (console 은 `DEPLOYMENT_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
+- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 deployment-console 매니페스트 (console 은 `DEPLOYMENT_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
 - [ ] MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
