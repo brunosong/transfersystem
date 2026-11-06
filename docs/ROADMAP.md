@@ -90,6 +90,7 @@
 - [x] Avro subject 파일명 불일치 수정, `SchemaRegistryInitializer` 정리 (지움, `RecordNameStrategy`로 통일)
 - [ ] Testcontainers 기반 `contextLoads` (Postgres 어댑터 테스트는 화면 작업에서 먼저 도입)
 - [ ] 조회 어댑터 테스트용 스키마(`deployment-query-schema.sql`)를 Flyway 마이그레이션으로 대체
+- [ ] 안 쓰는 Mongo 코드 정리: `spring.data.mongodb.uri`와 k8s `MONGODB_*`, `MongoConfiguration`, `LearningMaterialMongoRepository`와 엔티티, 테스트, `MongoDBExamDataGenerator` 삭제, Mongo 자동 설정 끄기. 원본을 읽는 `MongoConnectHelper`와 MongoDB는 유지
 
 ## Phase 3. 배포 모델 구현
 *목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 지금은 0번 청크의 결과가 배포 결과가 된다.*
