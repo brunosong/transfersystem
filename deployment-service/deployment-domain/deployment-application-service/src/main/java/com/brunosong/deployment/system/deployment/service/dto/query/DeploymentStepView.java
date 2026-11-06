@@ -7,7 +7,7 @@ import java.util.List;
  * 사가가 들어오면 온라인캠퍼스 APPLY, 부트캠프 APPLY, 그리고 보상 단계(COMPENSATE)가 더해진다.
  *
  * @param action       APPLY 또는 COMPENSATE
- * @param targetId     대상 설정 ID(data-migration-service 의 datamigration_id)
+ * @param targetId     대상 설정 ID(target-agent 의 target_id)
  * @param targetSystem 대상 시스템 이름. 지금은 deployment-service 가 알지 못해 null 이다
  * @param status       PENDING, PROCESSING, SUCCEEDED, FAILED
  */

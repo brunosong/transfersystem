@@ -43,8 +43,8 @@ public class DeploymentEntity implements Persistable<UUID> {
     //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SourceType sourceType;
 
-    @Column(name = "datamigration_id", nullable = false)
-    private Long dataMigrationInfoId;
+    @Column(name = "target_id", nullable = false)
+    private Long targetId;
 
     @Enumerated(EnumType.STRING)
     //@JdbcTypeCode(SqlTypes.NAMED_ENUM)

@@ -14,7 +14,7 @@ import com.brunosong.deployment.contract.Unit;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import org.springframework.stereotype.Component;
 
@@ -104,8 +104,8 @@ public class DeploymentMessagingDataMapper {
      * 결과를 지금 처리 로직이 쓰는 모양으로 옮긴다. 상태를 정하는 일은 Deployment 모델이 생기면 그쪽으로 간다.
      * 반영 내용은 아직 저장할 곳이 없어 쓰지 않는다.
      */
-    public DataMigrationResponse toDataMigrationResponse(ApplyResult result) {
-        DataMigrationResponse.DataMigrationResponseBuilder response = DataMigrationResponse.builder()
+    public ApplyResultMessage toApplyResultMessage(ApplyResult result) {
+        ApplyResultMessage.ApplyResultMessageBuilder response = ApplyResultMessage.builder()
                 .chunkOffset(result.getChunkNo())
                 .deploymentId(new DeploymentId(UUID.fromString(result.getDeploymentId())));
 

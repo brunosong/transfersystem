@@ -14,7 +14,7 @@ public record DeploymentRecord(
         String sourceId,
         String sourceType,
         Long sourceConfigId,
-        Long dataMigrationInfoId,
+        Long targetId,
         DeploymentStatus status,
         int totalChunks,
         long succeededChunks,

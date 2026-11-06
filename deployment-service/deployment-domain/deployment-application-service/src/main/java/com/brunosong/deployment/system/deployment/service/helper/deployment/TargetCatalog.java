@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * 요청의 숫자 대상 ID 를 계약의 시스템, 환경 이름으로 바꾼다.
  *
- * 임시 코드다. 대상 목록은 아직 대상 에이전트의 datamigrations 표에 있고, ID 는 그 표의 시드 순서와 같다.
+ * 임시 코드다. 대상 목록은 아직 대상 에이전트의 targets 표에 있고, ID 는 그 표의 시드 순서와 같다.
  * 대상 목록을 배포 컨텍스트로 옮기면 지운다 (ADR 0002 이행 2단계).
  */
 public final class TargetCatalog {

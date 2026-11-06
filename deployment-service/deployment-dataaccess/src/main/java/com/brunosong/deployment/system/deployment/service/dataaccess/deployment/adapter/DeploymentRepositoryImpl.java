@@ -6,7 +6,7 @@ import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.mapper.DeploymentDataAccessMapper;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentChunksJpaRepository;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentJpaRepository;
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,10 +40,10 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
     }
 
     @Override
-    public void saveChunk(DataMigrationResponse dataMigrationResponse) {
+    public void saveChunk(ApplyResultMessage applyResultMessage) {
 
-        UUID deploymentId = dataMigrationResponse.getDeploymentId().getValue();
-        int chunkOffset = dataMigrationResponse.getChunkOffset();
+        UUID deploymentId = applyResultMessage.getDeploymentId().getValue();
+        int chunkOffset = applyResultMessage.getChunkOffset();
 
         // 메시지는 최소 한 번 전달된다. 아웃박스가 보내고 상태를 닫기 전에 죽으면
         // 다음 주기가 같은 것을 다시 보낸다. 중복은 사고가 아니라 정상 경로다
@@ -57,7 +57,7 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
                 .build();
 
         DeploymentChunkEntity deploymentChunkEntity =
-                deploymentDataAccessMapper.dataMigrationResponseToChunkEntity(dataMigrationResponse, deploymentEntity);
+                deploymentDataAccessMapper.applyResultMessageToChunkEntity(applyResultMessage, deploymentEntity);
 
         deploymentChunksJpaRepository.save(deploymentChunkEntity);
     }

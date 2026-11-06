@@ -1,6 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.ports.output.repository;
 
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 
 import java.util.List;
@@ -11,7 +11,7 @@ public interface DeploymentRepository {
 
     Deployment save(Deployment deployment);
 
-    void saveChunk(DataMigrationResponse dataMigrationResponse);
+    void saveChunk(ApplyResultMessage applyResultMessage);
 
     Optional<Deployment> findById(UUID deploymentId);
 

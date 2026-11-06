@@ -1,4 +1,4 @@
-// 대상 시스템 이름 붙이기. 대상 목록은 data-migration-service 에서 받고, 여기서는 화면에 쓸 이름만 정한다.
+// 대상 시스템 이름 붙이기. 대상 목록은 target-agent 에서 받고, 여기서는 화면에 쓸 이름만 정한다.
 
 import type { Target } from '../api/types'
 

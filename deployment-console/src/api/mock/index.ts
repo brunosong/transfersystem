@@ -272,7 +272,7 @@ export const mockApi: ConsoleApi = {
     if (!source || !source.enabled) return fail(400, '사용할 수 있는 원본 저장소가 아닙니다.')
     if (source.sourceType !== 'CURRICULUM') return fail(422, `지원하지 않는 원본 유형입니다: ${source.sourceType}`)
     if (!hasCurriculum(source.catalog, request.sourceId)) return fail(404, `원본에 커리큘럼이 없습니다: ${request.sourceId}`)
-    const target = state.targets.find((t) => t.targetId === request.dataMigrationInfoId)
+    const target = state.targets.find((t) => t.targetId === request.targetId)
     if (!target) return fail(400, '대상 시스템을 찾을 수 없습니다.')
     if (!target.enabled) return fail(422, '배포가 허용되지 않은 대상입니다.')
     const running = state.deployments.find((t) => t.sourceId === request.sourceId && t.targetId === target.targetId && isActive(t, now))

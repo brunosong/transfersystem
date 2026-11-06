@@ -1,7 +1,7 @@
 # Deployment System 프로젝트
 
 ## 개요
-`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `data-migration-service`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
+`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `target-agent`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
 
 서비스 간 통신은 **Transactional Outbox** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
 
@@ -41,14 +41,14 @@
 - **`common-dataaccess`**: 데이터 액세스 레이어(엔티티, 리포지토리 등).
 - **`common-domain`**: 도메인 모델(엔티티, 값 객체, 예외).
 
-### 2. `data-migration-service`
-- **`data-migration-container`**: 메인 설정(어노테이션, AOP, 데이터소스 라우팅).
-- **`data-migration-dataaccess`**: 챕터, 코스, 마이그레이션 정보 관리.
-- **`data-migration-cache`**: Redis 기반 마이그레이션 정보·커리큘럼 캐시.
-- **`data-migration-domain`**
-  - **`data-migration-domain-core`**: 도메인 모델 및 핵심 로직.
-  - **`data-migration-application-service`**: 유스케이스 및 포트 정의.
-- **`data-migration-messaging`**: Kafka 요청 리스너와 결과 응답 퍼블리셔.
+### 2. `target-agent`
+- **`target-agent-container`**: 메인 설정(어노테이션, AOP, 데이터소스 라우팅).
+- **`target-agent-dataaccess`**: 챕터, 코스, 마이그레이션 정보 관리.
+- **`target-agent-cache`**: Redis 기반 마이그레이션 정보·커리큘럼 캐시.
+- **`target-agent-domain`**
+  - **`target-agent-domain-core`**: 도메인 모델 및 핵심 로직.
+  - **`target-agent-application-service`**: 유스케이스 및 포트 정의.
+- **`target-agent-messaging`**: Kafka 요청 리스너와 결과 응답 퍼블리셔.
 
 ### 3. `deployment-service`
 - **`deployment-application`**: REST API. 전송 접수와 조회 API(아래 표)를 제공합니다.
@@ -144,9 +144,9 @@
    npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
    npm run dev        # 실제 서비스에 붙어서 실행
    ```
-   개발 서버가 `/api/v1/targets` 는 data-migration-service(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `DATA_MIGRATION_SERVICE_URL`, `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
+   개발 서버가 `/api/v1/targets` 는 target-agent(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
 
-   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `DATA_MIGRATION_SERVICE_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
+   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
    ```bash
    docker build -t deployment-console deployment-console                         # 실제 API용
    docker build -t deployment-console:demo --build-arg API_MODE=mock deployment-console  # 시연용

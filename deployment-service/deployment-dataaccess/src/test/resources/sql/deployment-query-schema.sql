@@ -29,7 +29,7 @@ CREATE TABLE deployment (
     source_id VARCHAR(100) NOT NULL,
     sourceconfig_id BIGINT NOT NULL,
     source_type source_type NOT NULL,
-    datamigration_id BIGINT NOT NULL,
+    target_id BIGINT NOT NULL,
     db_type db_type NOT NULL,
     trans_type VARCHAR(50) NOT NULL,
     deployment_status VARCHAR(50) NOT NULL,
@@ -56,7 +56,7 @@ INSERT INTO sourceconfig (source_type, db_type, host, port, database, username, 
     ('LEARNING_MATERIAL', 'MONGO', 'mongo', 27017, 'exampledb', 'root', 'example', 'learning_materials');
 
 -- 배포 세 건: 진행 중(청크 5개 중 2개 성공), 실패(1개 실패), 성공
-INSERT INTO deployment (id, source_id, sourceconfig_id, source_type, datamigration_id, db_type, trans_type,
+INSERT INTO deployment (id, source_id, sourceconfig_id, source_type, target_id, db_type, trans_type,
                           deployment_status, create_admin_id, created_at, updated_at, total_chunk_size) VALUES
     ('11111111-1111-1111-1111-111111111111', 'curriculum-001', 1, 'CURRICULUM', 1, 'MONGO', 'MESSAGING',
      'SENT', 'brunosong', '2026-11-01 10:00:00', '2026-11-01 10:00:05', 5),

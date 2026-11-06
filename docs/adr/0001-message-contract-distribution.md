@@ -5,7 +5,7 @@
 
 ## 맥락
 
-deployment-service와 data-migration-service는 Kafka로 Avro 메시지를 주고받는다. 양쪽이 같은 계약을 봐야 한다.
+deployment-service와 target-agent는 Kafka로 Avro 메시지를 주고받는다. 양쪽이 같은 계약을 봐야 한다.
 
 전에는 `kafka-model` 모듈이 스키마에서 만든 **클래스**까지 담고 있었고, 두 서비스가 그 클래스를 그대로 썼다. 그러면 두 서비스가 같은 스키마 버전에 묶인다. 생산자가 버전을 올리면 소비자도 함께 올려야 했다.
 

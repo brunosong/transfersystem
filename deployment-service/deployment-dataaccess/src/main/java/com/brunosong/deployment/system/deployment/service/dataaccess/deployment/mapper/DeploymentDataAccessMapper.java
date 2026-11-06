@@ -1,10 +1,10 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.deployment.mapper;
 
-import com.brunosong.deployment.system.domain.valueobject.DataMigrationId;
+import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentChunkEntity;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentEntity;
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ public class DeploymentDataAccessMapper {
                 .sourceId(deployment.getSourceId().getValue())
                 .sourceType(deployment.getSourceContentData().getSourceType())
                 .sourceconfigId(deployment.getSourceConfigId().getValue())
-                .dataMigrationInfoId(deployment.getDataMigrationId().getValue())
+                .targetId(deployment.getTargetId().getValue())
                 .transType(deployment.getTransType())
                 .deploymentStatus(deployment.getDeploymentStatus())
                 .dbType(deployment.getSourceContentData().getDbType())
@@ -30,7 +30,7 @@ public class DeploymentDataAccessMapper {
     public Deployment deploymentEntityToDeployment(DeploymentEntity entity) {
         return Deployment.builder()
                 .id(new DeploymentId(entity.getId()))
-                .dataMigrationInfoId(new DataMigrationId(entity.getDataMigrationInfoId()))
+                .targetId(new TargetId(entity.getTargetId()))
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .transType(entity.getTransType())
@@ -39,11 +39,11 @@ public class DeploymentDataAccessMapper {
                 .build();
     }
 
-    public DeploymentChunkEntity dataMigrationResponseToChunkEntity(DataMigrationResponse dataMigrationResponse, DeploymentEntity deploymentEntity) {
+    public DeploymentChunkEntity applyResultMessageToChunkEntity(ApplyResultMessage applyResultMessage, DeploymentEntity deploymentEntity) {
         return DeploymentChunkEntity.builder()
-                .status(dataMigrationResponse.getDeploymentStatus().getDescription())
-                .chunkOffset(dataMigrationResponse.getChunkOffset())
-                .size(dataMigrationResponse.getTotalChunkSize())
+                .status(applyResultMessage.getDeploymentStatus().getDescription())
+                .chunkOffset(applyResultMessage.getChunkOffset())
+                .size(applyResultMessage.getTotalChunkSize())
                 .log(deploymentEntity)
                 .build();
     }

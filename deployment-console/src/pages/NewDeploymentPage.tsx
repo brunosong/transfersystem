@@ -44,7 +44,7 @@ export function NewDeploymentPage() {
     e.preventDefault()
     if (!canSubmit || sourceId === null || !curriculumId || !target) return
     create.mutate(
-      { sourceConfigId: sourceId, sourceId: curriculumId, dataMigrationInfoId: target.targetId, transType: 'MESSAGING' },
+      { sourceConfigId: sourceId, sourceId: curriculumId, targetId: target.targetId, transType: 'MESSAGING' },
       { onSuccess: (res) => navigate(`/deployments/${res.deploymentId}`) },
     )
   }

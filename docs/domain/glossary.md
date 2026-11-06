@@ -59,7 +59,6 @@
 |---|---|
 | 뜻 | 배포를 받는 곳. **서비스 시스템 × 환경** 하나가 대상 하나다. 예: 온라인캠퍼스 PROD |
 | 코드 | **`Target`**, `TargetId` |
-| 지금 이름 | `DataMigration`, `DataMigrationId`, `DataMigrationInfoEntity`(`datamigrations`), 요청의 `dataMigrationInfoId` |
 | 비고 | 운영자가 배포 허용을 끌 수 있다(점검 중인 시스템 막기). 대상은 배포 컨텍스트의 개념이다. 대상 쪽에서 반영을 누가 하는지(서비스 팀 컨슈머인지 대상 에이전트인지)는 대상의 일부가 아니다. |
 
 | 구성 요소 | 한국어 | 코드 | 지금 이름 | 값 |
@@ -95,7 +94,7 @@
 |---|---|
 | 뜻 | 서비스 팀이 자기 컨슈머를 만들 수 없을 때, **그 팀 대신** 반영 명령을 받아 서비스 DB에 반영하는 프로세스. 언제든 대상별로 떼어 낼 수 있다. |
 | 코드 | 서비스 **`target-agent`**, 대상마다 **어댑터** |
-| 지금 이름 | `data-migration-service`, `*DataPersistHelper` |
+| 지금 이름 | `*DataPersistHelper` |
 | 비고 | 배포 컨텍스트는 에이전트가 있다는 것을 모른다. 자세한 내용은 [컨텍스트 맵](context-map.md#1-전제-원래-모델과-지금-상황). |
 
 ### 대상 연동 계약 (Target Contract)

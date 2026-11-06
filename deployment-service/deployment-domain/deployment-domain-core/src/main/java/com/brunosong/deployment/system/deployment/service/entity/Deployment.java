@@ -1,7 +1,7 @@
 package com.brunosong.deployment.system.deployment.service.entity;
 
 import com.brunosong.deployment.system.domain.entity.AggregateRoot;
-import com.brunosong.deployment.system.domain.valueobject.DataMigrationId;
+import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
@@ -14,7 +14,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
 
     private SourceId sourceId;
     private SourceContentData sourceContentData;
-    private DataMigrationId dataMigrationId;
+    private TargetId targetId;
     private DeploymentStatus deploymentStatus;
     private TransType transType;
     private SourceConfigId sourceConfigId;
@@ -30,7 +30,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         this.createUserId = builder.createUserId;
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
-        this.dataMigrationId = builder.dataMigrationId;
+        this.targetId = builder.targetId;
         this.deploymentStatus = builder.deploymentStatus;
         this.transType = builder.transType;
         this.sourceConfigId = builder.sourceConfigId;
@@ -85,8 +85,8 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         }
     }
 
-    public DataMigrationId getDataMigrationId() {
-        return dataMigrationId;
+    public TargetId getTargetId() {
+        return targetId;
     }
 
     public SourceId getSourceId() {
@@ -137,7 +137,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         private DeploymentId id;
         private SourceId sourceId;
         private SourceContentData sourceContentData;
-        private DataMigrationId dataMigrationId;
+        private TargetId targetId;
         private DeploymentStatus deploymentStatus;
         private TransType transType;
         private SourceConfigId sourceConfigId;
@@ -165,8 +165,8 @@ public class Deployment extends AggregateRoot<DeploymentId> {
             return this;
         }
 
-        public Builder dataMigrationInfoId(DataMigrationId dataMigrationId) {
-            this.dataMigrationId = dataMigrationId;
+        public Builder targetId(TargetId targetId) {
+            this.targetId = targetId;
             return this;
         }
 

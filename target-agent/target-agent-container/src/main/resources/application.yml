@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: target-agent
+  config:
+    import: "optional:configserver:http://localhost:8888/"
+  cloud:
+    bus:
+      enabled: true
+      refresh:
+        enabled: true
+      id: ${spring.application.name}:${spring.profiles.active:local}:${random.uuid}
+    compatibility-verifier:
+      enabled: false
+    config:
+      profile: default
+  flyway:
+    schemas: datamigration
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        generate_statistics: true
+  kafka:
+    bootstrap-servers: localhost:19092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh, busrefresh
+
+server:
+  port: 8001
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type.descriptor.sql: trace
+    #org.apache.kafka.clients.consumer: DEBUG
+#    org.springframework.transaction: debug
+#    org.springframework.kafka: debug
+

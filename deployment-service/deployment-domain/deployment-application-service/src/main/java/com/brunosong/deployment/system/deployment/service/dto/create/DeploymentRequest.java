@@ -13,8 +13,8 @@ import java.util.UUID;
 @Builder
 public class DeploymentRequest {
 
-    @NotNull(message = "dataMigrationInfoId is null")
-    private Long dataMigrationInfoId;
+    @NotNull(message = "targetId is null")
+    private Long targetId;
 
     @NotNull(message = "transType is null")
     private TransType transType;

@@ -101,7 +101,7 @@ public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository 
                 entity.getSourceId(),
                 entity.getSourceType() == null ? null : entity.getSourceType().name(),
                 entity.getSourceconfigId(),
-                entity.getDataMigrationInfoId(),
+                entity.getTargetId(),
                 entity.getDeploymentStatus(),
                 entity.getTotalChunkSize(),
                 counts.succeeded(),

@@ -1,5 +1,5 @@
 // 화면이 쓰는 API 의 모양. docs/console-plan.md 의 "필요한 API" 표와 1:1 로 맞춘다.
-// deployment-service(원본, 배포)와 data-migration-service(대상) 두 곳을 부른다.
+// deployment-service(원본, 배포)와 target-agent(대상) 두 곳을 부른다.
 
 // ─── 공통 ────────────────────────────────────────────────────────────────
 
@@ -123,7 +123,7 @@ export interface CurriculumDeployment {
   lastSucceededAt: string | null
 }
 
-// ─── 대상 시스템 (data-migration-service) ─────────────────────────────────
+// ─── 대상 시스템 (target-agent) ─────────────────────────────────
 
 export type TargetSystem = 'BRUNOSONG_ONLINE_CAMPUS' | 'BRUNOSONG_BOOTCAMP'
 export type TargetEnvironment = 'PROD' | 'DEV'
@@ -219,7 +219,7 @@ export interface StatsQuery {
 export interface CreateDeploymentRequest {
   sourceConfigId: number
   sourceId: string
-  dataMigrationInfoId: number
+  targetId: number
   transType: 'MESSAGING'
 }
 

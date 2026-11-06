@@ -100,7 +100,7 @@ export const httpApi: ConsoleApi = {
   listCurriculumDeployments: (curriculumId) =>
     request<CurriculumDeployment[]>(`/api/v1/curriculums/${id(curriculumId)}/deployments`),
 
-  // 대상 시스템 (data-migration-service) ────────────────────
+  // 대상 시스템 (target-agent) ────────────────────
   listTargets: () => request<Target[]>('/api/v1/targets'),
   testTarget: (targetId) => request<ConnectionCheck>(`/api/v1/targets/${targetId}/connection-test`, { method: 'POST' }),
   setTargetEnabled: (targetId, enabled) =>

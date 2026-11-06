@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
     <modules>
-        <module>data-migration-service</module>
+        <module>target-agent</module>
         <module>deployment-service</module>
         <module>common</module>
 <!--        <module>dataupload-service</module>-->
@@ -137,37 +137,37 @@
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-domain-core</artifactId>
+                <artifactId>target-agent-domain-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-domain</artifactId>
+                <artifactId>target-agent-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-application-service</artifactId>
+                <artifactId>target-agent-application-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-dataaccess</artifactId>
+                <artifactId>target-agent-dataaccess</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-messaging</artifactId>
+                <artifactId>target-agent-messaging</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-container</artifactId>
+                <artifactId>target-agent-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>data-migration-cache</artifactId>
+                <artifactId>target-agent-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

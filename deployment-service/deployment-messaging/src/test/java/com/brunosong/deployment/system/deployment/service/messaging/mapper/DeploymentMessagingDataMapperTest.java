@@ -8,7 +8,7 @@ import com.brunosong.deployment.contract.Rejected;
 import com.brunosong.deployment.contract.SkeletonContent;
 import com.brunosong.deployment.contract.SubjectContent;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import org.junit.jupiter.api.DisplayName;
@@ -76,7 +76,7 @@ class DeploymentMessagingDataMapperTest {
                 .setContent(AppliedSubject.newBuilder().setSubjectId("SUB1").setTitle("수학").setUnitCount(5).setLessonCount(500).build())
                 .build();
 
-        DataMigrationResponse response = mapper.toDataMigrationResponse(result(3, applied));
+        ApplyResultMessage response = mapper.toApplyResultMessage(result(3, applied));
 
         assertEquals(DEPLOYMENT_ID, response.getDeploymentId().getValue());
         assertEquals(3, response.getChunkOffset());
@@ -86,7 +86,7 @@ class DeploymentMessagingDataMapperTest {
     @Test
     @DisplayName("실패 결과는 FAILED 와 대상이 보낸 사유로 옮긴다")
     void rejectedResult() {
-        DataMigrationResponse response = mapper.toDataMigrationResponse(
+        ApplyResultMessage response = mapper.toApplyResultMessage(
                 result(3, Rejected.newBuilder().setMessage("학기를 찾을 수 없습니다").build()));
 
         assertEquals(DeploymentStatus.FAILED, response.getDeploymentStatus());
@@ -98,7 +98,7 @@ class DeploymentMessagingDataMapperTest {
     void unknownResult() {
         ApplyResult result = result(3, SkeletonContent.newBuilder().setTitle("결과가 아님").setGrades(List.of()).build());
 
-        assertThrows(IllegalArgumentException.class, () -> mapper.toDataMigrationResponse(result));
+        assertThrows(IllegalArgumentException.class, () -> mapper.toApplyResultMessage(result));
     }
 
     private ApplyResult result(int chunkNo, Object outcome) {

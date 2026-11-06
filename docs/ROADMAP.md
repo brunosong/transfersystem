@@ -44,7 +44,7 @@
 - [ ] 화면 고치기: [모델과 어긋나는 점](domain/model.md#8-지금-화면모의와-어긋나는-점), [화면 설계의 고칠 목록](ui/screens.md#6-지금-화면에서-고칠-것)
 - [x] 1단계: 모의 모드로 화면 7개 (대시보드, 원본 저장소, 대상 시스템, 콘텐츠 탐색, 배포 요청, 배포 이력·상세, 대상 데이터 확인)
   - 이전 화면의 사가 표시(단계 타임라인, 보상 시뮬레이션)는 뺐다.
-  - 개발 서버·nginx 가 `/api/v1/targets` 를 data-migration-service 로 넘긴다(`DATA_MIGRATION_SERVICE_URL`)
+  - 개발 서버·nginx 가 `/api/v1/targets` 를 target-agent 로 넘긴다(`TARGET_AGENT_URL`)
 - [ ] 2단계: 백엔드 API (원본 조회 → 대상 목록 → 배포 요청 보강 → 원본 CRUD → 대상 데이터 조회 → 재전송)
 - [ ] 3단계: 로컬 E2E로 처음부터 끝까지 한 번 돌리기 (Phase 2 환경 필요)
 
@@ -81,7 +81,7 @@
 - [ ] deployment-service 버그: `totalChunkSize`가 0으로 저장됨, admin id 하드코딩, `Optional.get()`, `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성
 
 ## Phase 2. 로컬 실행 환경
-*목표: `git clone` → `docker compose up` → 두 서비스 기동 → `curl` 한 번으로 이관 성공.*
+*목표: `git clone` → `docker compose up` → 두 서비스 기동 → `curl` 한 번으로 배포 성공.*
 
 - [ ] docker-compose 통합(Postgres, MySQL, Mongo, Kafka, Schema Registry, Kafka UI)
 - [ ] MySQL `init.sql`의 MySQL 8 문법 오류 수정
@@ -97,8 +97,9 @@
 - [x] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, Avro 타입 내용, namespace 통일, 호환성 `FULL`. 시도 번호는 항상 1, 반영 내용은 아직 버림(모델 작업에서)
 - [ ] 원본에서 지운 과목 빼기 ([이벤트와 메시지](domain/events.md#6-원본에서-지운-과목은-대상에서도-뺀다))
 - [x] 이름 바꾸기 1: 배포 쪽 클래스, 필드, 패키지, REST 경로, DB 이름(`V3`), 화면의 API 타입 ([용어집](domain/glossary.md), [컨텍스트 맵](domain/context-map.md))
-- [x] 이름 바꾸기 2: 모듈과 서비스 이름(`deployment-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
-- [ ] 이름 바꾸기 3: `data-migration-service` → `target-agent`, 토픽
+- [x] 이름 바꾸기 2: 모듈과 서비스 이름(`transfer-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
+- [x] 이름 바꾸기 3: `data-migration-service` → `target-agent`, `DataMigration*` 코드 이름, 표 `targets`
+- [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
@@ -107,7 +108,7 @@
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
-- [ ] Redis 모듈 삭제 (`deployment-cache`, `data-migration-cache`)
+- [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`)
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [ ] 사가 흔적 정리: `sagaId`, `SagaStatus`, `infrastructure/saga`
@@ -119,7 +120,7 @@
 - [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포
-- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 deployment-console 매니페스트 (console 은 `DEPLOYMENT_SERVICE_URL`, `DATA_MIGRATION_SERVICE_URL` 에 FQDN 사용)
+- [ ] Kustomize `base/` + `overlays/dev` 구조로 두 서비스와 deployment-console 매니페스트 (console 은 `DEPLOYMENT_SERVICE_URL`, `TARGET_AGENT_URL` 에 FQDN 사용)
 - [ ] Actuator 기반 liveness/readiness probe
 - [ ] 비밀번호를 Secret으로 옮기고 커밋된 비밀번호는 교체
 - [ ] MySQL, Schema Registry 매니페스트 정비 (Kafka는 Strimzi 고려)
@@ -190,7 +191,7 @@ POST /deployments
 - [ ] 아웃박스 개선: 발행 중 상태 또는 `SKIP LOCKED`, 동기 send, 완료된 행 정리
 - [ ] 타임아웃 스케줄러, 시맨틱 락, `GET /deployments/{id}`
 
-**3-3. 참여자 (data-migration)**
+**3-3. 참여자 (target-agent)**
 - [ ] 대상 DB마다 `migration_inbox`, `migration_snapshot`
 - [ ] APPLY: inbox 확인 → before-image 저장 + 업서트 + inbox 기록(한 트랜잭션) → 응답
 - [ ] COMPENSATE: 스냅샷으로 복원(새로 생성된 데이터면 삭제), 멱등

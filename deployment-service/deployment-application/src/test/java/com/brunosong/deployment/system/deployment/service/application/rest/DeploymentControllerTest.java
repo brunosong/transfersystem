@@ -48,7 +48,7 @@ class DeploymentControllerTest {
         when(applicationService.executeDeployment(any())).thenReturn(new CreateDeploymentResponse(id, 4));
 
         mockMvc.perform(post("/api/v1/deployments").contentType(MediaType.APPLICATION_JSON).content("""
-                        {"dataMigrationInfoId": 1, "transType": "MESSAGING",
+                        {"targetId": 1, "transType": "MESSAGING",
                          "sourceId": "curriculum-001", "sourceConfigId": 4}
                         """))
                 .andExpect(status().isAccepted())

@@ -16,7 +16,7 @@ beforeEach(() => {
 
 afterEach(() => vi.useRealTimers())
 
-const request = (sourceId: string, targetId = 3) => ({ sourceConfigId: 1, sourceId, dataMigrationInfoId: targetId, transType: 'MESSAGING' as const })
+const request = (sourceId: string, targetId = 3) => ({ sourceConfigId: 1, sourceId, targetId: targetId, transType: 'MESSAGING' as const })
 
 async function rejects(promise: Promise<unknown>): Promise<ApiError> {
   try {

@@ -56,7 +56,7 @@ public class DeploymentQueryServiceImpl implements DeploymentQueryService {
         DeploymentStepView applyStep = new DeploymentStepView(
                 1,
                 ACTION_APPLY,
-                record.dataMigrationInfoId(),
+                record.targetId(),
                 null,
                 stepStatus(record.status(), progress),
                 progress,

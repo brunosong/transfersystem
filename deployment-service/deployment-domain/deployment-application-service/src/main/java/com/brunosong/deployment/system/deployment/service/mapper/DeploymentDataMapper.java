@@ -2,8 +2,8 @@ package com.brunosong.deployment.system.deployment.service.mapper;
 
 import com.brunosong.deployment.system.deployment.service.helper.deployment.TargetCatalog;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
-import com.brunosong.deployment.system.domain.valueobject.DataMigrationId;
-import com.brunosong.deployment.system.deployment.service.dto.create.DataMigrationResponse;
+import com.brunosong.deployment.system.domain.valueobject.TargetId;
+import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
@@ -20,7 +20,7 @@ public class DeploymentDataMapper {
         return Deployment.builder()
                 .sourceId(new SourceId(request.getSourceId()))
                 .sourceConfigId(new SourceConfigId(request.getSourceConfigId()))
-                .dataMigrationInfoId(new DataMigrationId(request.getDataMigrationInfoId()))
+                .targetId(new TargetId(request.getTargetId()))
                 .transType(request.getTransType())
                 .build();
     }
@@ -29,17 +29,17 @@ public class DeploymentDataMapper {
         return new SourceConfigId(request.getSourceConfigId());
     }
 
-    public Deployment dataMigrationResponseToDeployment(DataMigrationResponse dataMigrationResponse) {
+    public Deployment applyResultMessageToDeployment(ApplyResultMessage applyResultMessage) {
         return Deployment.builder()
-                .id(dataMigrationResponse.getDeploymentId())
-                .deploymentStatus(dataMigrationResponse.getDeploymentStatus())
-                .resultMessage(dataMigrationResponse.getMessage())
-                .sourceContentData(SourceContentData.builder().chunkOffset(dataMigrationResponse.getChunkOffset()).build())
+                .id(applyResultMessage.getDeploymentId())
+                .deploymentStatus(applyResultMessage.getDeploymentStatus())
+                .resultMessage(applyResultMessage.getMessage())
+                .sourceContentData(SourceContentData.builder().chunkOffset(applyResultMessage.getChunkOffset()).build())
                 .build();
     }
 
     public DeploymentEventPayload deploymentRequestEventToDeploymentEventPayload(DeploymentRequestEvent deploymentRequestEvent) {
-        TargetCatalog.Target target = TargetCatalog.find(deploymentRequestEvent.getDeployment().getDataMigrationId().getValue());
+        TargetCatalog.Target target = TargetCatalog.find(deploymentRequestEvent.getDeployment().getTargetId().getValue());
         ChunkContent content = deploymentRequestEvent.getContent();
         return DeploymentEventPayload.builder()
                 .deploymentId(deploymentRequestEvent.getDeployment().getId().getValue())

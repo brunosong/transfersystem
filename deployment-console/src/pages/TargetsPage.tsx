@@ -18,7 +18,7 @@ export function TargetsPage() {
       <PageHeader title="대상 시스템" description="배포할 수 있는 서비스 시스템과 그 상태입니다. 행을 누르면 최근 배포와 반영된 커리큘럼이 보입니다." />
 
       <Notice>
-        접속 정보는 data-migration-service 설정 파일에서 관리합니다. 여기서는 연결을 확인하고 배포 허용 여부만 바꿉니다.
+        접속 정보는 target-agent 설정 파일에서 관리합니다. 여기서는 연결을 확인하고 배포 허용 여부만 바꿉니다.
       </Notice>
 
       <Card>

@@ -10,7 +10,7 @@
 **교육 콘텐츠 배포 시스템**이다. 콘텐츠를 만들어 두는 **원본 저장소**(Mongo)에서 커리큘럼을 꺼내, 학습자가 쓰는 **서비스 시스템**(MySQL)으로 배포한다.
 
 ```
-[원본 저장소]  ──전송 요청──▶  deployment-service  ──Kafka(청크)──▶  data-migration-service  ──업서트──▶  [대상 시스템]
+[원본 저장소]  ──전송 요청──▶  deployment-service  ──Kafka(청크)──▶  target-agent  ──업서트──▶  [대상 시스템]
  Mongo 컬렉션                    청크로 나눔, 이력 기록                  대상 DB 선택, 저장                     온라인캠퍼스 / 부트캠프
                                                                                                              × PROD / DEV
 ```
@@ -19,7 +19,7 @@
 |---|---|---|
 | 원본 저장소 | `sourceconfig` (deployment-service) | 읽어 올 DB 접속 정보와 컬렉션 |
 | 콘텐츠 | 원본 컬렉션의 커리큘럼 문서 | 커리큘럼 → 학년 → 학기 → 과목 → 단원 → 차시 트리. 시드 기준 커리큘럼 하나에 차시 20,000개 |
-| 대상 시스템 | `datamigrations` (data-migration-service) | 온라인캠퍼스·부트캠프 × PROD·DEV, 4개 |
+| 대상 시스템 | `targets` (target-agent) | 온라인캠퍼스·부트캠프 × PROD·DEV, 4개 |
 | 전송(배포) | `deployment`, `deployment_chunks` | 커리큘럼 하나를 대상 하나로 보내는 작업 |
 | 청크 | Kafka 메시지 하나 | 첫 청크는 커리큘럼·학년·학기 뼈대, 나머지는 과목마다 하나 (시드 기준 1 + 40개) |
 
@@ -119,7 +119,7 @@
 │ 부트캠프      │ DEV   │ mysql://…/bootcamp   │ ● 정상    │ [■ 켜짐]    │
 └──────────────┴───────┴──────────────────────┴──────────┴─────────────┘
 ```
-- 접속 정보는 data-migration-service 설정 파일에 있다. 그래서 **처음엔 조회와 배포 허용 토글만** 한다. 화면에서 추가하거나 수정하지 않는다.
+- 접속 정보는 target-agent 설정 파일에 있다. 그래서 **처음엔 조회와 배포 허용 토글만** 한다. 화면에서 추가하거나 수정하지 않는다.
 - 배포 허용이 꺼진 대상은 배포 요청 화면에서 고를 수 없다. 점검 중인 시스템을 막는 용도다.
 - 행을 누르면 그 대상의 최근 배포 이력과 반영된 커리큘럼 목록이 나온다. 커리큘럼을 누르면 7번 화면으로 간다.
 
@@ -262,7 +262,7 @@
 | 🆕 | `GET /api/v1/source-configs/{id}/curriculums/{curriculumId}` | 4, 5, 7 | 트리(과목까지)와 수준별 개수, 예상 청크 수 |
 | 🆕 | `GET /api/v1/curriculums/{curriculumId}/deployments` | 4, 5 | 대상별 마지막 배포 결과 |
 
-### data-migration-service
+### target-agent
 | | API | 쓰는 화면 | 비고 |
 |---|---|---|---|
 | 🆕 | `GET /api/v1/targets` | 1, 3, 5, 6 | 대상 목록(시스템, 환경, DB 위치, 배포 허용 여부). 화면의 하드코딩 표(`lib/targets.ts`)를 대신함 |
@@ -272,12 +272,12 @@
 | 🆕 | `GET /api/v1/targets/{id}/curriculums/{curriculumId}` | 7 | 원본과 같은 모양의 트리와 수준별 개수 |
 
 ### API 경로
-- 화면은 두 서비스를 모두 부른다. 개발 서버와 nginx 프록시에서 `/api/v1/targets`는 data-migration-service로, 나머지 `/api`는 deployment-service로 넘긴다(`DATA_MIGRATION_SERVICE_URL` 추가).
-- 배포 허용이 꺼진 대상으로 오는 요청은 deployment-service가 막는다. 그러려면 deployment-service가 대상 정보를 알아야 한다. 처음엔 data-migration-service를 조회하고, 나중에 이벤트로 캐시하는 방식을 검토한다.
+- 화면은 두 서비스를 모두 부른다. 개발 서버와 nginx 프록시에서 `/api/v1/targets`는 target-agent로, 나머지 `/api`는 deployment-service로 넘긴다(`TARGET_AGENT_URL` 추가).
+- 배포 허용이 꺼진 대상으로 오는 요청은 deployment-service가 막는다. 그러려면 deployment-service가 대상 정보를 알아야 한다. 처음엔 target-agent를 조회하고, 나중에 이벤트로 캐시하는 방식을 검토한다.
 
 ### 저장소 변경
 - `sourceconfig`: `name`, `enabled` 컬럼 추가. 시드의 `source_type` 값(`LEARNING_MATERIAL`, `USER_DATA`)이 enum(`CURRICULUM`, `EXAM_RESULT_DATA`)과 안 맞으니 맞춘다.
-- `datamigrations`: `enabled` 컬럼 추가.
+- `targets`: `enabled` 컬럼 추가.
 - `deployment`: 요청자, 대상 ID를 조회 조건으로 쓰므로 인덱스 추가.
 - `deployment_chunks`: `label`(뼈대 / 과목명), `error_message`, `retry_count` 추가.
 
@@ -311,6 +311,6 @@
 Phase 2의 docker-compose 환경에서 처음부터 끝까지 한 번 돌린다. 원본 등록 → 연결 테스트 → 커리큘럼 고르기 → DEV 배포 → 완료 확인 → 대상 데이터가 원본과 같은지 확인.
 
 ## 7. 정해야 할 것
-1. **대상 정보를 deployment-service가 어떻게 알게 할지**: 매번 data-migration-service를 조회할지, 이벤트로 받아 캐시할지. 제안: 처음엔 조회로 시작한다.
+1. **대상 정보를 deployment-service가 어떻게 알게 할지**: 매번 target-agent를 조회할지, 이벤트로 받아 캐시할지. 제안: 처음엔 조회로 시작한다.
 2. **원본 비밀번호 저장**: 지금은 평문이다. 제안: 이번에는 응답에서 빼는 것만 하고, 암호화는 Phase 5의 Secret 정리와 함께 한다.
 3. **재전송 단위**: 실패한 청크만 다시 보낼지, 배포 전체를 새로 만들지. 제안: 둘 다 제공한다(상세 화면의 버튼 두 개).

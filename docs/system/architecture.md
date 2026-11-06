@@ -172,7 +172,7 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | `deployment_chunk` | `deployment_chunks` | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
 | `deployment_chunk_payload` | 없음 | `(deployment_id, chunk_no)` 기본 키. `content bytea`(Avro 직렬화 값) |
 | `outbox` | `deployment_outbox` | `seq`, 토픽, 키, 배포 ID, 청크 번호, 시도, 상태, 발행 시각 |
-| `target` | agent의 `datamigrations` | `(system, environment)` 유일, `deployment_allowed` |
+| `target` | agent의 `targets` | `(system, environment)` 유일, `deployment_allowed` |
 
 | 인덱스 | 쓰는 곳 |
 |---|---|
@@ -258,7 +258,7 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | 쓰는 곳 | 내용 | 없어도 되는 이유 |
 |---|---|---|
 | 배포 시스템 `DeploymentCachePort` | 배포의 총 청크 수 | 청크가 애그리거트 안에 들어오므로 DB에서 함께 읽는다 |
-| 에이전트 `DataMigrationInfoHandler` | 대상 정보 | 대상을 메시지 값으로 고르게 되어 조회가 사라진다 |
+| 에이전트 `TargetHandler` | 대상 정보 | 대상을 메시지 값으로 고르게 되어 조회가 사라진다 |
 | 에이전트 `CurriculumCachePort` | 반영한 커리큘럼의 ID | 저장만 하고 읽는 곳을 찾지 못했다 |
 
 새 모델에서는 쓸 곳이 없다. 결과 하나를 처리하는 데 DB 조회 몇 번이면 되고, 배포량이 많지 않아 캐시가 필요한 부하도 아니다. 캐시를 두면 DB와 어긋나는 경우만 늘어난다. **뺀다.** 부하를 재 보고 필요해지면 그때 넣는다.
@@ -284,6 +284,6 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | 발행 주기 10초 | 1초 |
 | 대상 쪽 `Thread.sleep(1000)` | 삭제 |
 | 공통 에러 핸들러: 모든 오류를 30초 재시도 후 DLT | 일시적 오류는 대상은 `Rejected`, 결과 소비자는 계속 재시도 |
-| 배포마다 `DataMigrationInfoHandler`로 대상 표 조회 | 메시지 값으로 어댑터와 DB 선택 |
-| Redis 모듈 `deployment-cache`, `data-migration-cache` | 삭제 |
+| 배포마다 `TargetHandler`로 대상 표 조회 | 메시지 값으로 어댑터와 DB 선택 |
+| Redis 모듈 `deployment-cache`, `target-agent-cache` | 삭제 |
 | 지표 노출 없음 (`refresh`, `busrefresh`만 공개) | Actuator 지표 공개 |
