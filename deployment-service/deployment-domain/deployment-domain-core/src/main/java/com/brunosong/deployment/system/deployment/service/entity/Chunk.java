@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.entity;
 
+import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkStatus;
 
 public class Chunk {
@@ -20,6 +21,20 @@ public class Chunk {
 
     public void recordSuccess() {
         this.status = ChunkStatus.APPLIED;
+    }
+
+    public void recordFailure(int attempt) {
+        if (this.status == ChunkStatus.SENT && this.attempt == attempt) {
+            this.status = ChunkStatus.FAILED;
+        }
+    }
+
+    public void retry() {
+        if (this.status != ChunkStatus.FAILED) {
+            throw new DeploymentDomainException("Cannot retry chunk " + no + " from " + status);
+        }
+        this.status = ChunkStatus.SENT;
+        this.attempt++;
     }
 
     public int getNo() {
