@@ -79,4 +79,118 @@ class DeploymentTest {
 
         assertThrows(UnsupportedOperationException.class, () -> deployment.getChunks().clear());
     }
+
+    @Test
+    @DisplayName("뼈대가 반영되면 기다리던 과목을 모두 보내고 그 목록을 돌려준다")
+    void skeletonSuccessSendsWaitingSubjects() {
+        Deployment deployment = accepted(3);
+
+        List<Chunk> toSend = deployment.recordSuccess(0, NOW);
+
+        assertEquals(3, toSend.size());
+        for (int no = 1; no <= 3; no++) {
+            assertEquals(ChunkStatus.SENT, deployment.getChunks().get(no).getStatus());
+        }
+        assertEquals(DeploymentStatus.IN_PROGRESS, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("모든 청크가 반영되면 배포는 SUCCEEDED 다")
+    void allAppliedMeansSucceeded() {
+        Deployment deployment = accepted(2);
+        deployment.recordSuccess(0, NOW);
+
+        deployment.recordSuccess(1, NOW);
+        deployment.recordSuccess(2, NOW);
+
+        assertEquals(DeploymentStatus.SUCCEEDED, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("뼈대가 실패하면 과목은 WAITING 으로 남고 배포는 FAILED 다")
+    void skeletonFailureKeepsSubjectsWaiting() {
+        Deployment deployment = accepted(3);
+
+        deployment.recordFailure(0, 1, "학년을 저장하지 못했습니다", NOW);
+
+        assertEquals(DeploymentStatus.FAILED, deployment.getDeploymentStatus());
+        for (int no = 1; no <= 3; no++) {
+            assertEquals(ChunkStatus.WAITING, deployment.getChunks().get(no).getStatus());
+        }
+    }
+
+    @Test
+    @DisplayName("과목 하나가 실패해도 응답을 기다리는 청크가 있으면 아직 IN_PROGRESS 다")
+    void staysInProgressWhileAwaitingReplies() {
+        Deployment deployment = accepted(3);
+        deployment.recordSuccess(0, NOW);
+
+        deployment.recordFailure(1, 1, "학기가 없습니다", NOW);
+
+        assertEquals(DeploymentStatus.IN_PROGRESS, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("기다릴 청크가 없고 실패가 남아 있으면 배포는 FAILED 다")
+    void failedWhenNothingToAwaitAndFailureRemains() {
+        Deployment deployment = accepted(3);
+        deployment.recordSuccess(0, NOW);
+        deployment.recordFailure(1, 1, "학기가 없습니다", NOW);
+
+        deployment.recordSuccess(2, NOW);
+        deployment.recordSuccess(3, NOW);
+
+        assertEquals(DeploymentStatus.FAILED, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("실패한 과목에 성공이 늦게 와서 모두 반영되면 SUCCEEDED 가 된다")
+    void lateSuccessTurnsFailedIntoSucceeded() {
+        Deployment deployment = accepted(2);
+        deployment.recordSuccess(0, NOW);
+        deployment.recordFailure(1, 1, "학기가 없습니다", NOW);
+        deployment.recordSuccess(2, NOW);
+
+        deployment.recordSuccess(1, NOW);
+
+        assertEquals(DeploymentStatus.SUCCEEDED, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("실패한 배포에 뼈대 성공이 늦게 와도 과목을 스스로 보내지 않는다")
+    void lateSkeletonSuccessDoesNotSendSubjects() {
+        Deployment deployment = accepted(3);
+        deployment.recordFailure(0, 1, "학년을 저장하지 못했습니다", NOW);
+
+        List<Chunk> toSend = deployment.recordSuccess(0, NOW);
+
+        assertTrue(toSend.isEmpty());
+        assertEquals(ChunkStatus.WAITING, deployment.getChunks().get(1).getStatus());
+        assertEquals(DeploymentStatus.FAILED, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("뼈대 성공이 중복으로 와도 과목을 다시 보내지 않는다")
+    void duplicateSkeletonSuccessSendsNothing() {
+        Deployment deployment = accepted(3);
+        deployment.recordSuccess(0, NOW);
+
+        List<Chunk> toSend = deployment.recordSuccess(0, NOW);
+
+        assertTrue(toSend.isEmpty());
+    }
+
+    @Test
+    @DisplayName("없는 청크 번호의 결과는 예외를 던진다")
+    void unknownChunkNoThrows() {
+        Deployment deployment = accepted(3);
+
+        assertThrows(DeploymentDomainException.class, () -> deployment.recordSuccess(9, NOW));
+    }
+
+    private Deployment accepted(int subjectCount) {
+        Deployment deployment = Deployment.builder().build();
+        deployment.accept(subjectCount, NOW);
+        return deployment;
+    }
 }

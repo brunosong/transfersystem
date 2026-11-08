@@ -219,4 +219,24 @@ public class ChunkTest {
         assertEquals(ChunkStatus.WAITING, chunk.getStatus());
     }
 
+    @Test
+    @DisplayName("기다리던 청크를 보내면 SENT 가 되고 첫 시도다")
+    void sendingWaitingChunkMakesFirstAttempt() {
+        Chunk chunk = Chunk.waiting(1);
+
+        chunk.send(SENT_AT);
+
+        assertEquals(ChunkStatus.SENT, chunk.getStatus());
+        assertEquals(1, chunk.getAttempt());
+        assertEquals(SENT_AT, chunk.getSentAt());
+    }
+
+    @Test
+    @DisplayName("기다리는 청크가 아니면 보낼 수 없다")
+    void onlyWaitingChunkCanBeSent() {
+        Chunk chunk = Chunk.sent(0, SENT_AT);
+
+        assertThrows(DeploymentDomainException.class, () -> chunk.send(SENT_AT));
+    }
+
 }

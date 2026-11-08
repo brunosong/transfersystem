@@ -29,6 +29,8 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     private LocalDateTime updatedAt;
     private String resultMessage;
     private int totalChunkSize;
+
+    private static final int SKELETON_NO = 0;
     private final List<Chunk> chunks = new ArrayList<>();
 
     /** id 는 부모(BaseEntity)의 필드라 클래스에 붙인 @Builder 로는 받을 수 없어 생성자에 붙인다 */
@@ -122,13 +124,64 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         if (subjectCount < 0) {
             throw new DeploymentDomainException("Subject count cannot be negative: " + subjectCount);
         }
-        Chunk skeleton = Chunk.sent(0, now);
+        Chunk skeleton = Chunk.sent(SKELETON_NO, now);
         chunks.add(skeleton);
         for (int no = 1; no <= subjectCount; no++) {
             chunks.add(Chunk.waiting(no));
         }
         this.deploymentStatus = DeploymentStatus.IN_PROGRESS;
         return List.of(skeleton);
+    }
+
+    /**
+     * 청크 하나가 반영됐다는 결과를 기록하고, 이제 보낼 청크 목록을 돌려준다.
+     * 진행 중인 배포의 뼈대가 반영되면 기다리던 과목을 모두 보낸다(불변식 3).
+     * 실패한 배포에 뼈대 성공이 늦게 오면 과목을 스스로 보내지 않는다. 운영자가 재전송해야 나간다.
+     */
+    public List<Chunk> recordSuccess(int chunkNo, Instant now) {
+        chunk(chunkNo).recordSuccess();
+        List<Chunk> toSend = new ArrayList<>();
+        if (chunkNo == SKELETON_NO && deploymentStatus == DeploymentStatus.IN_PROGRESS) {
+            for (Chunk c : chunks) {
+                if (c.getStatus() == ChunkStatus.WAITING) {
+                    c.send(now);
+                    toSend.add(c);
+                }
+            }
+        }
+        updateStatus();
+        return toSend;
+    }
+
+    /** 청크 하나가 실패했다는 결과를 기록한다. 어느 시도의 결과인지는 청크가 판단한다. */
+    public void recordFailure(int chunkNo, int attempt, String message, Instant now) {
+        chunk(chunkNo).recordFailure(attempt, message, now);
+        updateStatus();
+    }
+
+    /**
+     * 청크 상태로 배포 상태를 정한다.
+     * 모두 APPLIED 면 SUCCEEDED(불변식 2), 응답을 기다리는 청크가 없는데 실패가 남아 있으면 FAILED 다.
+     * 그 밖에는 지금 상태를 유지한다. 그래서 FAILED 가 스스로 IN_PROGRESS 로 돌아가지는 않는다.
+     */
+    private void updateStatus() {
+        if (chunks.stream().allMatch(c -> c.getStatus() == ChunkStatus.APPLIED)) {
+            this.deploymentStatus = DeploymentStatus.SUCCEEDED;
+            return;
+        }
+        boolean awaiting = chunks.stream().anyMatch(c -> c.getStatus() == ChunkStatus.SENT);
+        boolean failed = chunks.stream().anyMatch(c -> c.getStatus() == ChunkStatus.FAILED);
+        if (!awaiting && failed) {
+            this.deploymentStatus = DeploymentStatus.FAILED;
+        }
+    }
+
+    /** 번호로 청크를 찾는다. 없는 번호의 결과는 잘못된 메시지라 예외를 던진다. */
+    private Chunk chunk(int no) {
+        return chunks.stream()
+                .filter(c -> c.getNo() == no)
+                .findFirst()
+                .orElseThrow(() -> new DeploymentDomainException("Chunk " + no + " not found"));
     }
 
     /** 밖에서 청크를 넣거나 빼지 못하게 복사본을 준다. 직접 쓴 getter 라 @Getter 는 이것을 만들지 않는다 */

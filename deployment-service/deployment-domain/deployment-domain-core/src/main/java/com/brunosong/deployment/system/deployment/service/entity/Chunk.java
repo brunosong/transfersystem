@@ -39,6 +39,16 @@ public class Chunk {
         return new Chunk(no, ChunkStatus.WAITING, 0, null);
     }
 
+    /** 기다리던 청크를 보낸다. 첫 시도이고, 이때부터 응답 기한을 잰다. */
+    void send(Instant now) {
+        if (this.status != ChunkStatus.WAITING) {
+            throw new DeploymentDomainException("Cannot send chunk " + no + " from " + status);
+        }
+        this.status = ChunkStatus.SENT;
+        this.attempt = 1;
+        this.sentAt = now;
+    }
+
     /**
      * 대상이 반영했다는 결과를 기록한다.
      * 어느 시도의 성공이든 APPLIED 로 바꾼다. 한 배포의 청크 내용은 시도와 상관없이 같기 때문이다.
