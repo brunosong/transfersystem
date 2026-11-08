@@ -199,4 +199,24 @@ public class ChunkTest {
         assertNull(chunk.getFailure());
     }
 
+    @Test
+    @DisplayName("기다리는 청크는 WAITING 이고 아직 시도하지 않았다")
+    void waitingChunkHasNoAttempt() {
+        Chunk chunk = Chunk.waiting(1);
+
+        assertEquals(ChunkStatus.WAITING, chunk.getStatus());
+        assertEquals(0, chunk.getAttempt());
+        assertNull(chunk.getSentAt());
+    }
+
+    @Test
+    @DisplayName("기다리는 청크는 기한 검사에서 빠진다")
+    void waitingChunkDoesNotExpire() {
+        Chunk chunk = Chunk.waiting(1);
+
+        chunk.expireIfOverdue(SENT_AT.plus(DEADLINE).plusSeconds(1), DEADLINE);
+
+        assertEquals(ChunkStatus.WAITING, chunk.getStatus());
+    }
+
 }

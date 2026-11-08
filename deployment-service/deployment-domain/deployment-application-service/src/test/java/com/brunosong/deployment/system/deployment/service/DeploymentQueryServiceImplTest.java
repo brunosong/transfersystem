@@ -73,7 +73,7 @@ class DeploymentQueryServiceImplTest {
         when(repository.countByStatus()).thenReturn(Map.of(DeploymentStatus.FAILED, 2L));
 
         assertThat(service.countByStatus())
-                .containsOnlyKeys("PENDING", "SENT", "PROCESSED", "SUCCESS", "FAILED")
+                .containsOnlyKeys("PENDING", "SENT", "PROCESSED", "SUCCESS", "IN_PROGRESS", "SUCCEEDED", "FAILED")
                 .containsEntry("FAILED", 2L)
                 .containsEntry("SUCCESS", 0L);
     }
