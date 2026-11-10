@@ -100,4 +100,14 @@ public class Chunk {
         }
     }
 
+    /**
+     *  저장된 청크를 되살린다. 저장소에서 읽을 때만 쓴다.
+     *  이미 규칙을 거쳐 저장된 값이라 검사 없이 그대로 담는다.
+     *  매퍼가 다른 패키지에 있어 public 이다. 상태를 바꾸는 메서드는 여전히 패키지 안에서만 부를 수 있다
+     * */
+    public static Chunk restore(int no, ChunkStatus status, int attempt, Instant sentAt, Failure failure) {
+        Chunk chunk = new Chunk(no,status,attempt,sentAt);
+        chunk.failure = failure;
+        return chunk;
+    }
 }

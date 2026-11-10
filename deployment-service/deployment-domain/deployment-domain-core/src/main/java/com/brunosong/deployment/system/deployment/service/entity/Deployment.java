@@ -38,7 +38,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     private Deployment(DeploymentId id, SourceId sourceId, SourceContentData sourceContentData, TargetId targetId,
                        DeploymentStatus deploymentStatus, TransType transType, SourceConfigId sourceConfigId,
                        LocalDateTime createdAt, String createUserId, LocalDateTime updatedAt,
-                       String resultMessage, int totalChunkSize) {
+                       String resultMessage, int totalChunkSize, List<Chunk> chunks) {
         setId(id);
         this.sourceId = sourceId;
         this.sourceContentData = sourceContentData;
@@ -51,6 +51,9 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         this.updatedAt = updatedAt;
         this.resultMessage = resultMessage;
         this.totalChunkSize = totalChunkSize;
+        if (chunks != null) {
+            this.chunks.addAll(chunks);   // 저장소에서 되살릴 때만 넘긴다. 새 배포는 accept() 로 만든다
+        }
     }
 
     /** 상태를 그대로 덮어쓴다. 규칙을 거치지 않으므로 연결 단계에서 지운다. */

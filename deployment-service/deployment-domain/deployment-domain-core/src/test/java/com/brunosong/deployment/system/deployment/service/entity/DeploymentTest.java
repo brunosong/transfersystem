@@ -188,9 +188,40 @@ class DeploymentTest {
         assertThrows(DeploymentDomainException.class, () -> deployment.recordSuccess(9, NOW));
     }
 
+    @Test
+    @DisplayName("되살린 배포도 접수한 배포처럼 결과를 처리한다")
+    void restoredDeploymentHandlesResults() {
+        Deployment deployment = restored();
+
+        List<Chunk> toSend = deployment.recordSuccess(0, NOW);
+
+        assertEquals(2, toSend.size());
+        assertEquals(DeploymentStatus.IN_PROGRESS, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("되살린 배포는 다시 접수할 수 없다")
+    void restoredDeploymentCannotBeAccepted() {
+        Deployment deployment = restored();
+
+        assertThrows(DeploymentDomainException.class, () -> deployment.accept(2, NOW));
+    }
+
     private Deployment accepted(int subjectCount) {
         Deployment deployment = Deployment.builder().build();
         deployment.accept(subjectCount, NOW);
         return deployment;
+    }
+
+    /** 뼈대를 보내 놓고 과목 둘이 기다리는 배포를 저장소에서 읽은 것처럼 만든다. */
+    private Deployment restored() {
+        return Deployment.builder()
+                .deploymentStatus(DeploymentStatus.IN_PROGRESS)
+                .chunks(List.of(
+                        Chunk.restore(0, ChunkStatus.SENT, 1, NOW, null),
+                        Chunk.restore(1, ChunkStatus.WAITING, 0, null, null),
+                        Chunk.restore(2, ChunkStatus.WAITING, 0, null, null)
+                ))
+                .build();
     }
 }

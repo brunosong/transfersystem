@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.deployment.service.entity;
 
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkStatus;
+import com.brunosong.deployment.system.deployment.service.valueobject.Failure;
 import com.brunosong.deployment.system.deployment.service.valueobject.FailureKind;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -237,6 +238,20 @@ public class ChunkTest {
         Chunk chunk = Chunk.sent(0, SENT_AT);
 
         assertThrows(DeploymentDomainException.class, () -> chunk.send(SENT_AT));
+    }
+
+    @Test
+    @DisplayName("되살린 청크는 저장된 값을 그대로 가진다")
+    void restoredChunkKeepsSavedValues() {
+        Failure failure = Failure.noReply(SENT_AT.plus(DEADLINE));
+
+        Chunk chunk = Chunk.restore(2, ChunkStatus.FAILED, 3, SENT_AT, failure);
+
+        assertEquals(2, chunk.getNo());
+        assertEquals(ChunkStatus.FAILED, chunk.getStatus());
+        assertEquals(3, chunk.getAttempt());
+        assertEquals(SENT_AT, chunk.getSentAt());
+        assertEquals(failure, chunk.getFailure());
     }
 
 }
