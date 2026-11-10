@@ -79,6 +79,10 @@ public class DeploymentEntity implements Persistable<UUID> {
     @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeploymentChunkEntity> chunks = new ArrayList<>();
 
+    /** 같은 배포에 결과가 동시에 와서 서로의 변경을 덮어쓰지 않게 막는다(낙관적 락) */
+    @Version
+    private Long version;
+
     public void updateResult(DeploymentStatus status, String resultMessage) {
         this.deploymentStatus = status;
         this.resultMessage = resultMessage;

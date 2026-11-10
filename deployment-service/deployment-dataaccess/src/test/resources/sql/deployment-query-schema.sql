@@ -3,6 +3,7 @@
 -- deployment-container 의 init-schema.sql(테이블)로 나뉘어 있다.
 -- Phase 2 에서 Flyway 마이그레이션으로 합치면 이 파일 대신 그것을 쓴다.
 
+DROP TABLE IF EXISTS deployment_chunk CASCADE;
 DROP TABLE IF EXISTS deployment_chunks CASCADE;
 DROP TABLE IF EXISTS deployment CASCADE;
 DROP TABLE IF EXISTS sourceconfig CASCADE;
@@ -37,7 +38,8 @@ CREATE TABLE deployment (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     result_message VARCHAR(1000),
-    total_chunk_size BIGINT
+    total_chunk_size BIGINT,
+    version BIGINT NOT NULL DEFAULT 0
 );
 
 CREATE TABLE deployment_chunks (
@@ -49,6 +51,19 @@ CREATE TABLE deployment_chunks (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_deployment_chunk UNIQUE (deployment_id, chunk_offset)
 );
+
+CREATE TABLE deployment_chunk (
+  deployment_id   UUID          NOT NULL REFERENCES deployment (id) ON DELETE CASCADE,
+  chunk_no        INTEGER       NOT NULL,
+  status          VARCHAR(20)   NOT NULL,
+  attempt         INTEGER       NOT NULL,
+  sent_at         TIMESTAMP WITH TIME ZONE,
+  failure_kind    VARCHAR(20),
+  failure_message VARCHAR(1000),
+  failed_at       TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY (deployment_id, chunk_no)
+);
+
 
 -- 원본 설정. 코드의 SourceType 에 없는 값(LEARNING_MATERIAL)이 섞여 있어도 목록이 깨지지 않아야 한다
 INSERT INTO sourceconfig (source_type, db_type, host, port, database, username, password, table_or_collection) VALUES
