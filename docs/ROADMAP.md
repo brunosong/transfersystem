@@ -62,6 +62,7 @@
 ## 시스템 설계 문서
 - [x] [시스템 설계](system/architecture.md) (구성, 트랜잭션 경계, 토픽, 값, 저장소, 장애, 관측, 배포 구성)
 - [x] [ADR 0005](adr/0005-chunks-on-kafka.md) 청크 내용을 Kafka 메시지에 직접 싣고 크기를 제한한다
+- [x] [원본을 읽어 청크로 나누는 흐름](system/source-read.md) (요청 → 원본 설정 → 문서 꺼내기 → 청크 나누기, 객체 모양, 실패 응답, 남은 문제)
 - [x] [ADR 0006](adr/0006-chunk-content-contract.md) 청크 내용 계약은 계층을 타입으로 두고 세부 속성은 JSON 문자열로 보낸다
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)
