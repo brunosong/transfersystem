@@ -62,6 +62,7 @@
 ## 시스템 설계 문서
 - [x] [시스템 설계](system/architecture.md) (구성, 트랜잭션 경계, 토픽, 값, 저장소, 장애, 관측, 배포 구성)
 - [x] [ADR 0005](adr/0005-chunks-on-kafka.md) 청크 내용을 Kafka 메시지에 직접 싣고 크기를 제한한다
+- [x] [ADR 0006](adr/0006-chunk-content-contract.md) 청크 내용 계약은 계층을 타입으로 두고 세부 속성은 JSON 문자열로 보낸다
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)
 *목표: 서비스 DB 접속 정보를 배포 시스템에서 없애고, 마지막에는 에이전트를 서비스 팀 소유의 별도 서비스로 떼어 낸다.*
@@ -107,6 +108,7 @@
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, 사가 칸 제거, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
+- [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
 - [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`)
