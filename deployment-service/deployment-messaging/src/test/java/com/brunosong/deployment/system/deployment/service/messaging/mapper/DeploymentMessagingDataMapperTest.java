@@ -52,11 +52,11 @@ class DeploymentMessagingDataMapperTest {
     }
 
     @Test
-    @DisplayName("과목 페이로드는 차시까지 담은 명령이 된다")
+    @DisplayName("과목 페이로드는 차시까지 담은 명령이 되고, 단원과 차시의 attributes가 그대로 실린다. 단원 attributes가 없으면 \"{}\"로 나간다")
     void subject() {
-        ChunkContent.Lesson lesson = new ChunkContent.Lesson("L1", "차시 1", null, 1, 3);
+        ChunkContent.Lesson lesson = new ChunkContent.Lesson("L1", "차시 1", null, 1, 3, "{\"learningLevel\":3}");
         ChunkContent.Subject subject = new ChunkContent.Subject("SUB1", "수학", null,
-                List.of(new ChunkContent.Unit("U1", "단원 1", null, List.of(lesson))));
+                List.of(new ChunkContent.Unit("U1", "단원 1", null, null, List.of(lesson))));
         ChunkContent.SubjectChunk chunk = new ChunkContent.SubjectChunk("G1", "S1", subject);
 
         ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(1).subjectChunk(chunk).build());
@@ -67,6 +67,8 @@ class DeploymentMessagingDataMapperTest {
         assertEquals("L1", mapped.getId());
         assertEquals(1, mapped.getLessonNumber());
         assertEquals(3, mapped.getLearningLevel());
+        assertEquals("{\"learningLevel\":3}", mapped.getAttributes());
+        assertEquals("{}", content.getSubject().getUnits().get(0).getAttributes());
     }
 
     @Test

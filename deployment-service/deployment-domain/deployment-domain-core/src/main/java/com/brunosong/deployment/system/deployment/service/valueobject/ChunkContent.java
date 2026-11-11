@@ -25,9 +25,17 @@ public sealed interface ChunkContent {
     record Subject(String id, String title, String description, List<Unit> units) {
     }
 
-    record Unit(String id, String title, String description, List<Lesson> lessons) {
+    /** 단원. attributes는 아는 칸을 뺀 나머지 원본 칸을 담은 JSON 객체 문자열이다. 없으면 "{}"로 두고 null은 쓰지 않는다 */
+    record Unit(String id, String title, String description, String attributes, List<Lesson> lessons) {
+        public Unit {
+            if (attributes == null) attributes = "{}";
+        }
     }
 
-    record Lesson(String id, String title, String description, int lessonNumber, int learningLevel) {
+    /** 차시. learningLevel은 받는 쪽이 attributes로 옮겨 갈 때까지만 함께 싣는다 */
+    record Lesson(String id, String title, String description, int lessonNumber, int learningLevel, String attributes) {
+        public Lesson {
+            if (attributes == null) attributes = "{}";
+        }
     }
 }

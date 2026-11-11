@@ -130,9 +130,12 @@ SkeletonContent
 SubjectContent
   gradeId, semesterId
   subject: id, title, description
-    units[]: id, title, description
-      lessons[]: id, title, description, lessonNumber, learningLevel
+    units[]: id, title, description, attributes
+      lessons[]: id, title, description, lessonNumber, attributes
+                 learningLevel                                 ← 곧 지운다. attributes에서 읽는다
 ```
+
+`attributes`는 단원과 차시의 세부 속성을 담은 JSON 객체 문자열이다. 없으면 `"{}"`다([ADR 0006](../adr/0006-chunk-content-contract.md)).
 
 ## 5. 대상이 지켜야 할 규칙
 

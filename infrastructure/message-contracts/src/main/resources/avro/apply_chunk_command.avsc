@@ -84,6 +84,7 @@
                           { "name": "id", "type": "string" },
                           { "name": "title", "type": "string" },
                           { "name": "description", "type": ["null", "string"], "default": null },
+                          { "name": "attributes", "type": "string", "default": "{}", "doc": "단원의 세부 속성. JSON 객체 하나를 담은 문자열이다(ADR 0006)" },
                           {
                             "name": "lessons",
                             "type": {
@@ -96,7 +97,8 @@
                                   { "name": "title", "type": "string" },
                                   { "name": "description", "type": ["null", "string"], "default": null },
                                   { "name": "lessonNumber", "type": "int" },
-                                  { "name": "learningLevel", "type": "int" }
+                                  { "name": "learningLevel", "type": "int", "default": 0, "doc": "곧 지운다. attributes의 learningLevel을 읽는다" },
+                                  { "name": "attributes", "type": "string", "default": "{}", "doc": "차시의 세부 속성. JSON 객체 하나를 담은 문자열이다(ADR 0006)" }
                                 ]
                               }
                             }

@@ -49,7 +49,7 @@ class CurriculumSourceConverterTest {
     }
 
     @Test
-    @DisplayName("과목마다 청크 하나가 되고 차시까지 담긴다")
+    @DisplayName("과목마다 청크 하나가 되고 차시까지 담기며, 아는 칸을 뺀 나머지 원본 칸은 단원과 차시의 attributes에 JSON으로 모인다")
     void subjectChunks() throws Exception {
         List<ChunkContent.SubjectChunk> chunks = converter.toSubjectChunks(objectMapper.readTree(DOCUMENT));
 
@@ -57,8 +57,10 @@ class CurriculumSourceConverterTest {
         ChunkContent.SubjectChunk first = chunks.get(0);
         assertEquals("G1", first.gradeId());
         assertEquals("S1", first.semesterId());
-        assertEquals(new ChunkContent.Lesson("L1", "차시 1", "차시 설명", 1, 3),
+        assertEquals(new ChunkContent.Lesson("L1", "차시 1", "차시 설명", 1, 3,
+                        "{\"learningLevel\":3,\"extra\":\"저작에만 있는 값\"}"),
                 first.subject().units().get(0).lessons().get(0));
+        assertEquals("{}", first.subject().units().get(0).attributes());
         assertTrue(chunks.get(1).subject().units().isEmpty());
     }
 

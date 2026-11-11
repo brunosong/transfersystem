@@ -3,10 +3,13 @@ package com.brunosong.deployment.system.deployment.service.helper.deployment.cur
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.deployment.service.valueobject.CurriculumBaseKey;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 저작 문서를 청크 내용으로 옮긴다. 저작 문서의 필드 이름을 아는 곳은 여기뿐이다.
@@ -14,6 +17,11 @@ import java.util.List;
  */
 @Component
 public class CurriculumSourceConverter {
+
+    /** 단원에서 타입으로 옮기는 칸과 자식 목록. 나머지는 attributes로 간다 */
+    private static final Set<String> UNIT_KEYS = Set.of("id", "title", "description", CurriculumBaseKey.LEVEL5.getKey());
+    /** 차시에서 타입으로 옮기는 칸. learningLevel은 세부 속성이라 여기 없다 */
+    private static final Set<String> LESSON_KEYS = Set.of("id", "title", "description", "lessonNumber");
 
     public String toCurriculumId(JsonNode curriculumNode) {
         return requiredText(curriculumNode, "curriculumId");
@@ -66,10 +74,24 @@ public class CurriculumSourceConverter {
         for (JsonNode lesson : unit.path(CurriculumBaseKey.LEVEL5.getKey())) {
             lessons.add(new ChunkContent.Lesson(requiredText(lesson, "id"), requiredText(lesson, "title"),
                     optionalText(lesson, "description"), requiredInt(lesson, "lessonNumber"),
-                    requiredInt(lesson, "learningLevel")));
+                    requiredInt(lesson, "learningLevel"), attributes(lesson, LESSON_KEYS)));
         }
         return new ChunkContent.Unit(requiredText(unit, "id"), requiredText(unit, "title"),
-                optionalText(unit, "description"), lessons);
+                optionalText(unit, "description"), attributes(unit, UNIT_KEYS), lessons);
+    }
+
+    /**
+     * 아는 칸을 뺀 나머지 원본 칸을 JSON 객체 문자열로 모은다.
+     * 저작 쪽에 속성이 늘어도 이 변환기를 고치지 않게 하려는 것이다(ADR 0006). 원본의 칸 순서를 그대로 둔다.
+     */
+    private String attributes(JsonNode node, Set<String> knownKeys) {
+        ObjectNode attributes = JsonNodeFactory.instance.objectNode();
+        for (var field : node.properties()) {
+            if (!knownKeys.contains(field.getKey())) {
+                attributes.set(field.getKey(), field.getValue());
+            }
+        }
+        return attributes.toString();
     }
 
     private String requiredText(JsonNode node, String field) {

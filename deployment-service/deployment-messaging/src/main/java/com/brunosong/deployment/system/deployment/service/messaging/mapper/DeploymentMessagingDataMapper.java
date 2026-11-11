@@ -86,6 +86,7 @@ public class DeploymentMessagingDataMapper {
                 .setId(unit.id())
                 .setTitle(unit.title())
                 .setDescription(unit.description())
+                .setAttributes(unit.attributes())
                 .setLessons(unit.lessons().stream().map(this::toLesson).toList())
                 .build();
     }
@@ -97,6 +98,7 @@ public class DeploymentMessagingDataMapper {
                 .setDescription(lesson.description())
                 .setLessonNumber(lesson.lessonNumber())
                 .setLearningLevel(lesson.learningLevel())
+                .setAttributes(lesson.attributes())
                 .build();
     }
 
