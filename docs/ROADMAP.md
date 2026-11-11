@@ -79,7 +79,8 @@
 - [ ] `DataPersistHandler`: 프록시에서도 안전한 어노테이션 조회
 - [ ] `H2Dialect` 하드코딩과 `hbm2ddl.auto=update` 제거
 - [ ] Bootcamp 저장 실제 구현
-- [ ] deployment-service 버그: `totalChunkSize`가 0으로 저장됨, admin id 하드코딩, `Optional.get()`, `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성
+- [ ] deployment-service 버그: `totalChunkSize`가 0으로 저장됨, admin id 하드코딩, `Optional.get()`
+- [x] 원본 읽기: `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성, MySQL 풀을 쓸 때마다 닫던 문제, Mongo 문서를 드라이버가 바로 JSON으로 씀
 
 ## Phase 2. 로컬 실행 환경
 *목표: `git clone` → `docker compose up` → 두 서비스 기동 → `curl` 한 번으로 배포 성공.*

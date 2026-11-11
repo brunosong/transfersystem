@@ -5,6 +5,7 @@ import com.brunosong.deployment.system.deployment.service.valueobject.DbType;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -64,6 +65,7 @@ class MysqlConnectHelperTest {
     }
 
     @Test
+    @DisplayName("MySQL 원본 테이블에서 id로 행 하나를 찾으면 칸 이름과 값이 담긴 Map으로 돌려준다")
     void queryMySql() {
         SourceConfig sourceConfig = SourceConfig.builder()
                 .tableOrCollection("users")
@@ -83,6 +85,7 @@ class MysqlConnectHelperTest {
     }
 
     @Test
+    @DisplayName("같은 원본 설정으로 두 번 조회하면 연결 풀은 한 번만 만들고, 두 번째 조회도 닫히지 않은 그 풀로 성공한다")
     void queryMySqlCacheHit() {
         SourceConfig sourceConfig = SourceConfig.builder()
                 .dbType(DbType.H2)
@@ -102,6 +105,10 @@ class MysqlConnectHelperTest {
         assertTrue(result.isPresent());
         assertEquals("John Doe", result.get().get("NAME"));
         assertEquals(1L, result.get().get("ID"));
+
+        // 두 번째 호출은 캐시의 풀을 다시 쓴다. 닫힌 풀이면 여기서 실패한다
+        Optional<Map<String, Object>> second = mysqlConnectHelper.queryMySql(sourceConfig, "1");
+        assertTrue(second.isPresent());
 
         // 딱 한번만 호출됨
         Mockito.verify(mysqlConnectHelper, Mockito.times(1)).createDynamicDataSource(any(SourceConfig.class));
