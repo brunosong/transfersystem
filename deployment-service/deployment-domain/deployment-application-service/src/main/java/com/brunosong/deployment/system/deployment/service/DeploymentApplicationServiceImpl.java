@@ -48,6 +48,6 @@ public class DeploymentApplicationServiceImpl implements DeploymentApplicationSe
         Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceConfig,
                 curriculum.curriculumId(), chunks);
 
-        return new CreateDeploymentResponse(sent.getId().getValue(), sent.getTotalChunkSize());
+        return deploymentDataMapper.deploymentToCreateDeploymentResponse(sent);
     }
 }

@@ -4,6 +4,7 @@ import com.brunosong.deployment.system.deployment.service.helper.deployment.Targ
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
+import com.brunosong.deployment.system.deployment.service.dto.create.CreateDeploymentResponse;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
@@ -22,6 +23,11 @@ public class DeploymentDataMapper {
                 .targetId(new TargetId(request.getTargetId()))
                 .transType(request.getTransType())
                 .build();
+    }
+
+    /** 접수한 배포를 응답으로 바꾼다. 도메인 객체가 컨트롤러로 나가지 않게 여기서 끊는다 */
+    public CreateDeploymentResponse deploymentToCreateDeploymentResponse(Deployment deployment) {
+        return new CreateDeploymentResponse(deployment.getId().getValue(), deployment.getTotalChunkSize());
     }
 
     public SourceConfigId toSourceConfigId(DeploymentRequest request) {
