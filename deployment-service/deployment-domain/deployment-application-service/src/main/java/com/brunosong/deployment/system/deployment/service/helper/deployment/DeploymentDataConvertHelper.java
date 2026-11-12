@@ -1,16 +1,18 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment;
 
-import com.brunosong.deployment.system.deployment.service.valueobject.*;
-
+import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.curriculum.CurriculumSourceConverter;
+import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceDocument;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
+import com.brunosong.deployment.system.deployment.service.valueobject.CurriculumBaseKey;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 @Slf4j
 @Component
@@ -20,31 +22,24 @@ public class DeploymentDataConvertHelper {
     private final CurriculumSourceConverter curriculumSourceConverter;
     private final ObjectMapper objectMapper;
 
-    public List<ChunkContent> splitCurriculumJsonIntoChunks(SourceContentData sourceContentData) {
-
-        List<ChunkContent> chunks = new ArrayList<>();
-
-        // 디비에 저장된 데이터를 가져온다.
-        byte[] jsonData = sourceContentData.getJsonData();
-
-        try {
-            // 원본 JSON 파싱
-            JsonNode rootNode = objectMapper.readTree(jsonData);
-            JsonNode curriculumNode = rootNode.path(CurriculumBaseKey.CURRICULUM.getKey());
-
-            // 상위 데이터 grades & semester
-            if (sourceContentData.getSourceType() == SourceType.CURRICULUM) {
-                Curriculum curriculum = curriculumSourceConverter.toCurriculum(curriculumNode);
-                // 5단계에서 지운다. 지금은 뒤쪽 코드가 아직 SourceContentData에서 커리큘럼 ID를 읽는다
-                sourceContentData.updateCurriculumId(curriculum.curriculumId());
-                chunks.addAll(ChunkContent.split(curriculum));
-            }
-
-            return chunks;
-        } catch (Exception e) {
-            log.error("Error converting curriculum source data: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to convert curriculum source data", e);
+    /**
+     * 꺼낸 원본 문서를 커리큘럼으로 바꾼다. 받은 문서는 건드리지 않고 새 커리큘럼을 돌려준다.
+     * 지금 배포할 수 있는 원본 종류는 커리큘럼뿐이라 다른 종류는 거절한다.
+     */
+    public Curriculum toCurriculum(SourceDocument document) {
+        if (document.sourceType() != SourceType.CURRICULUM) {
+            throw new DeploymentDomainException("지원하지 않는 원본 종류: " + document.sourceType());
         }
+        JsonNode curriculumNode = readTree(document).path(CurriculumBaseKey.CURRICULUM.getKey());
+        return curriculumSourceConverter.toCurriculum(curriculumNode);
+    }
 
+    private JsonNode readTree(SourceDocument document) {
+        try {
+            return objectMapper.readTree(document.json());
+        } catch (IOException e) {
+            log.error("원본 문서를 JSON으로 읽지 못했다. sourceId={}", document.sourceId(), e);
+            throw new IllegalStateException("원본 문서를 JSON으로 읽지 못했다: " + document.sourceId(), e);
+        }
     }
 }

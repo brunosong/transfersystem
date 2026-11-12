@@ -2,19 +2,14 @@ package com.brunosong.deployment.system.deployment.service.dataaccess.source.map
 
 import com.brunosong.deployment.system.deployment.service.dataaccess.source.entity.SourceConfigEntity;
 import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
+import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceDocument;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SourceDataAccessMapper {
 
-    public SourceContentData mapToSourceContentData(byte[] jsonData, String id, SourceConfig sourceConfig) {
-        return SourceContentData.builder()
-                            .sourceId(id)
-                            .sourceType(sourceConfig.getSourceType())
-                            .dbType(sourceConfig.getDbType())
-                            .jsonData(jsonData)
-                            .build();
+    public SourceDocument toSourceDocument(byte[] json, String sourceId, SourceConfig sourceConfig) {
+        return new SourceDocument(sourceId, sourceConfig.getSourceType(), json);
     }
 
     public SourceConfig entityToSourceConfig(SourceConfigEntity entity) {

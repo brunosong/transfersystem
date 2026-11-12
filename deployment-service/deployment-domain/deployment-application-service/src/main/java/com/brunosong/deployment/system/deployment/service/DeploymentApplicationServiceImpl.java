@@ -30,7 +30,8 @@ public class DeploymentApplicationServiceImpl implements DeploymentApplicationSe
                 deploymentDataMapper.deploymentRequestToDeployment(deploymentRequest);
 
         // 1. 데이터 배포를 위한 소스 데이터 조회
-        SourceContentData sourceContentData = sourceFindDataHandler.findSourceContentData(deployment.getSourceConfigId(), deployment.getSourceId());
+        SourceContentData sourceContentData =
+                sourceFindDataHandler.findSourceContentData(deployment);
 
         // 2. 데이터 배포
         Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceContentData);
