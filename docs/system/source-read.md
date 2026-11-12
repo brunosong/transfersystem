@@ -2,7 +2,7 @@
 
 > 배포를 접수할 때 **원본 저장소에서 커리큘럼 문서 하나를 꺼내 청크 목록으로 바꾸기까지**를 다룬다.
 > 청크를 저장하고 아웃박스에 넣는 뒤쪽 일은 다루지 않는다([시스템 설계 2장](architecture.md#2-처리-흐름과-트랜잭션)).
-> 2026-11-11 코드 기준이다. 클래스 이름은 코드 그대로 적었다.
+> 2026-11-12 코드 기준이다. 클래스 이름은 코드 그대로 적었다.
 
 ## 0. 한눈에
 
@@ -16,12 +16,12 @@ flowchart TD
     C[DeploymentController] --> S[DeploymentApplicationServiceImpl]
   end
 
-  P1 --> H[SourceFindDataHandler.findSourceContentData]
-
-  H --> P2
+  S --> P2
   subgraph P2["2장. 원본 설정 찾기"]
     CH[SourceConfigHelper] --> CR[SourceConfigRepositoryImpl] --> PGDB[(Postgres<br/>sourceconfig 표)]
   end
+
+  S --> H[SourceFindDataHandler.findCurriculum]
 
   H --> P3
   subgraph P3["3장. 원본 문서 꺼내기"]
@@ -31,37 +31,40 @@ flowchart TD
   end
 
   H --> P4
-  subgraph P4["4장. 청크로 나누기"]
+  subgraph P4["4장. 커리큘럼으로 바꾸고 청크로 나누기"]
     DH[DeploymentDataConvertHelper] --> CV[CurriculumSourceConverter]
+    SP["ChunkContent.split<br/>(DeploymentDomainServiceImpl)"]
   end
 
-  P4 --> OUT["SourceContentData<br/>curriculumId + chunkDataList"]
-  OUT --> NEXT["DeploymentExecutionHandler.sendData<br/>(저장과 아웃박스, 이 문서 밖)"]
+  CV --> CUR["Curriculum"] --> SP
+  SP --> NEXT["뼈대 1 + 과목 N 청크<br/>저장과 아웃박스는 이 문서 밖"]
 ```
 
-`SourceFindDataHandler`가 2, 3, 4장을 차례로 부르는 조율자다.
+애플리케이션 서비스가 2, 3장을 차례로 부르고, 4장의 나누기는 도메인 서비스가 한다.
 
 ```java
-SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(sourceConfigId);          // 2장
-SourceContentData data = sourceFindHelper.findSourceContentData(sourceId, sourceConfig);      // 3장
-List<ChunkContent> chunks = deploymentDataConvertHelper.splitCurriculumJsonIntoChunks(data);  // 4장
-data.updateChunkDataList(chunks);
+// DeploymentApplicationServiceImpl
+SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(deployment.getSourceConfigId());   // 2장
+Curriculum curriculum = sourceFindDataHandler.findCurriculum(deployment.getSourceId(), sourceConfig);   // 3장, 4장 앞
+Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceConfig, curriculum);
+
+// DeploymentDomainServiceImpl (sendData 안에서 불린다)
+List<ChunkContent> chunks = ChunkContent.split(curriculum);                                            // 4장 뒤
 ```
 
 ### 객체가 바뀌는 순서
 
-같은 데이터가 단계마다 어떤 모양이 되는지 먼저 본다.
+같은 데이터가 단계마다 어떤 모양이 되는지 먼저 본다. 화살표마다 **새 객체**가 나오고, 앞의 객체는 고치지 않는다([7장](#7-원본-문서-커리큘럼-청크를-나눈다)).
 
 ```mermaid
 flowchart LR
   A["DeploymentRequest<br/>sourceConfigId: Long<br/>sourceId: String"] --> B["Deployment<br/>SourceConfigId, SourceId"]
   B --> C["SourceConfig<br/>접속 정보"]
   C --> D["Mongo Document"]
-  D --> E["byte[]<br/>JSON"]
-  E --> F["SourceContentData<br/>jsonData 채움"]
-  F --> G["JsonNode<br/>트리"]
-  G --> H["List&lt;ChunkContent&gt;<br/>뼈대 1 + 과목 N"]
-  H --> I["SourceContentData<br/>curriculumId, chunkDataList 채움"]
+  D --> E["SourceDocument<br/>sourceId, sourceType, json"]
+  E --> G["JsonNode<br/>트리"]
+  G --> H["Curriculum<br/>학년 → 차시 트리"]
+  H --> I["List&lt;ChunkContent&gt;<br/>뼈대 1 + 과목 N"]
 ```
 
 | 단계 | 객체 | 있는 모듈 | 누가 만드나 |
@@ -70,9 +73,10 @@ flowchart LR
 | 배포 | `Deployment` | domain-core | `DeploymentDataMapper` |
 | 원본 설정 | `SourceConfigEntity` → `SourceConfig` | dataaccess → domain-core | JPA, `SourceDataAccessMapper` |
 | 원본 문서 | `Document` → `byte[]` | dataaccess | Mongo 드라이버, `MongoConnectHelper.toJson` |
-| 원본 데이터 | `SourceContentData` | domain-core | `SourceDataAccessMapper` |
+| 꺼낸 문서 | `SourceDocument` | application-service (`ports/output/repository`) | `SourceDataAccessMapper` |
 | 파싱한 트리 | `JsonNode` | application-service 안에서만 | `ObjectMapper.readTree` |
-| 청크 내용 | `ChunkContent` | domain-core | `CurriculumSourceConverter` |
+| 커리큘럼 | `Curriculum` | domain-core | `CurriculumSourceConverter` |
+| 청크 내용 | `ChunkContent` | domain-core | `ChunkContent.split` |
 
 ## 1. 요청 받기
 
@@ -83,6 +87,7 @@ sequenceDiagram
   participant C as DeploymentController
   participant S as DeploymentApplicationServiceImpl
   participant M as DeploymentDataMapper
+  participant CH as SourceConfigHelper
   participant H as SourceFindDataHandler
 
   OP->>C: POST /api/v1/deployments<br/>{targetId, transType, sourceId, sourceConfigId}
@@ -90,9 +95,11 @@ sequenceDiagram
   C->>S: executeDeployment(request)
   S->>M: deploymentRequestToDeployment(request)
   M-->>S: Deployment (SourceConfigId, SourceId 값 객체)
-  S->>H: findSourceContentData(sourceConfigId, sourceId)
-  H-->>S: SourceContentData
-  S->>S: sendData(deployment, data) — 이 문서 밖
+  S->>CH: findSourceConfigInfo(sourceConfigId)
+  CH-->>S: SourceConfig
+  S->>H: findCurriculum(sourceId, sourceConfig)
+  H-->>S: Curriculum
+  S->>S: sendData(deployment, sourceConfig, curriculum) — 나누기만 4장, 나머지는 이 문서 밖
   S-->>C: CreateDeploymentResponse(deploymentId, 청크 수)
   C-->>OP: 202 Accepted + Location
 ```
@@ -167,9 +174,9 @@ sequenceDiagram
   MG->>MG: toJson(Document) — 3.4
   MG-->>DC: JSON 바이트 (없으면 빈 Optional)
   DC-->>SR: JSON 바이트
-  SR->>MP: mapToSourceContentData(jsonData, sourceId, sourceConfig)
-  MP-->>SR: SourceContentData
-  SR-->>FH: SourceContentData (없으면 빈 Optional)
+  SR->>MP: toSourceDocument(json, sourceId, sourceConfig)
+  MP-->>SR: SourceDocument
+  SR-->>FH: SourceDocument (없으면 빈 Optional)
   FH->>FH: 비었으면 MaterialNotFoundException (→ 400)
 ```
 
@@ -188,7 +195,7 @@ flowchart TD
 
 어느 길로 와도 결과는 **JSON 바이트**다. 원본마다 JSON을 만드는 방법이 달라서 여기서 통일한다.
 
-경계를 `JsonNode`나 `Document`가 아니라 `byte[]`로 둔 이유: `SourceContentData`는 domain-core에 있고, domain-core는 Jackson도 BSON도 모른다.
+경계를 `JsonNode`나 `Document`가 아니라 `byte[]`로 둔 이유: 포트는 application-service에 있고, 어댑터마다 JSON을 만드는 방법이 다르다. Jackson이나 BSON 타입을 포트에 드러내지 않으려는 것이다.
 
 ### 3.3 연결 풀은 원본 설정마다 하나
 
@@ -221,29 +228,22 @@ flowchart TD
 
 ### 3.5 이 단계가 끝나면
 
-```mermaid
-classDiagram
-  class SourceContentData {
-    String sourceId
-    SourceType sourceType
-    DbType dbType
-    byte[] jsonData
-    String curriculumId
-    List~ChunkContent~ chunkDataList
-    int chunkOffset
-  }
+```java
+// application-service, 포트 SourceRepository 옆
+public record SourceDocument(String sourceId, SourceType sourceType, byte[] json) { }
 ```
 
-| 칸 | 3장이 끝난 뒤 | 채우는 곳 |
-|---|---|---|
-| `sourceId` | 채움 | 요청의 `sourceId` |
-| `sourceType`, `dbType` | 채움 | 원본 설정 |
-| `jsonData` | 채움 | 원본 문서 JSON |
-| `curriculumId` | 비어 있음 | 4장 `toCurriculumId` |
-| `chunkDataList` | 비어 있음 | 4장 결과를 `SourceFindDataHandler`가 넣는다 |
-| `chunkOffset` | 쓰지 않음 | 결과 처리 쪽의 옛 코드가 쓴다 |
+| 칸 | 채우는 곳 |
+|---|---|
+| `sourceId` | 요청의 `sourceId` |
+| `sourceType` | 원본 설정 |
+| `json` | 원본 문서 JSON (3.2절) |
 
-## 4. 청크로 나누기
+- 도메인 객체가 아니다. 포트가 돌려주는 데이터일 뿐이고, JSON을 해석하는 것은 4장의 변환기다.
+- `record`라 만든 뒤 바뀌지 않는다. 4장은 이것을 읽기만 하고 새 `Curriculum`을 만든다.
+- `dbType`은 넣지 않았다. 어떻게 읽었는지는 꺼낸 뒤에는 알 필요가 없다.
+
+## 4. 커리큘럼으로 바꾸고 청크로 나누기
 
 ### 4.1 원본 문서의 모양
 
@@ -282,21 +282,61 @@ flowchart TD
 }
 ```
 
-### 4.2 나누는 순서
+### 4.2 바꾸고 나누는 순서
+
+두 단계로 나뉜다. **커리큘럼으로 바꾸기**는 원본 쪽 일이고, **청크로 나누기**는 배포 쪽 일이다([컨텍스트 맵](../domain/context-map.md): 원본은 커리큘럼 트리만 주고 배포가 나눈다).
 
 ```mermaid
 flowchart TD
-  A["DeploymentDataConvertHelper.splitCurriculumJsonIntoChunks"] --> B["objectMapper.readTree(jsonData)<br/>→ rootNode"]
-  B --> C["rootNode.path(curriculum)<br/>→ curriculumNode"]
-  C --> D{"sourceType == CURRICULUM?"}
-  D -- 아니오 --> E["빈 목록 반환<br/>(EXAM_RESULT_DATA는 아직 없음)"]
-  D -- 예 --> F["toCurriculumId<br/>→ SourceContentData.curriculumId"]
-  F --> G["toSkeleton → 목록 0번"]
-  G --> H["toSubjectChunks → 목록 1번부터"]
-  H --> I["List&lt;ChunkContent&gt; 반환"]
+  subgraph SRC["원본 쪽: DeploymentDataConvertHelper.toCurriculum(SourceDocument)"]
+    D{"sourceType == CURRICULUM?"}
+    D -- 아니오 --> E["DeploymentDomainException<br/>(지원하지 않는 원본 종류 → 422)"]
+    D -- 예 --> B["objectMapper.readTree(json)<br/>→ rootNode"]
+    B --> C["rootNode.path(curriculum)<br/>→ curriculumNode"]
+    C --> F["CurriculumSourceConverter.toCurriculum<br/>→ Curriculum (값 객체)"]
+  end
+  subgraph DEP["배포 쪽: DeploymentDomainServiceImpl"]
+    F --> G["ChunkContent.split(curriculum)"]
+    G --> H["0번: Skeleton"]
+    G --> I["1번부터: SubjectChunk"]
+    H --> J["청크 수 → Deployment.totalChunkSize<br/>커리큘럼 ID + 청크 → DeploymentRequestEvent"]
+    I --> J
+  end
 ```
 
-`SourceFindDataHandler`가 이 목록을 `SourceContentData.chunkDataList`에 넣는다. 목록의 순서가 곧 청크 번호다.
+목록의 순서가 곧 청크 번호다. 배포는 청크 수만 기억하고, 청크 내용과 커리큘럼 ID는 청크마다 하나씩 만드는 이벤트에 싣는다.
+
+### 4.2.1 Curriculum
+
+원본 문서의 트리를 그대로 옮긴 값 객체다. 청크 번호나 뼈대 같은 배포의 말은 들어 있지 않다.
+
+```mermaid
+classDiagram
+  class Curriculum {
+    <<값 객체>>
+    String curriculumId
+    String title
+    String description
+    List~Grade~ grades
+  }
+  class Grade {
+    String id
+    String title
+    String description
+    List~Semester~ semesters
+  }
+  class Semester {
+    String id
+    String title
+    String description
+    List~Subject~ subjects
+  }
+  Curriculum --> Grade
+  Grade --> Semester
+  Semester --> Subject
+```
+
+`Subject`, `Unit`, `Lesson`은 `Curriculum` 안에 있다(4.4절 그림). 모두 `record`이고 목록은 `List.copyOf`로 복사해 둔다. 만들 때 `curriculumId`와 `title`이 비어 있으면 `DeploymentDomainException`을 던진다.
 
 ### 4.3 문서 하나가 청크 여러 개가 된다
 
@@ -319,30 +359,35 @@ flowchart LR
 
 ### 4.4 만들어지는 객체
 
-`ChunkContent`(domain-core)는 sealed interface이고, 청크는 `Skeleton`이나 `SubjectChunk` 둘 중 하나다.
+`ChunkContent`(domain-core)는 sealed interface이고, 청크는 `Skeleton`이나 `SubjectChunk` 둘 중 하나다. `sealed`라서 다른 종류는 만들 수 없고, 메시징 매퍼의 `switch`는 `default` 없이 두 경우만 다룬다.
+
+뼈대용 `Grade`, `Semester`는 커리큘럼의 것과 따로 있다. 뼈대의 학기는 과목 **ID 목록**만 가진다. 과목 내용을 실으면 메시지가 커지고, 단원을 비워 실으면 대상이 "단원이 없다"로 읽고 지워 버리기 때문이다. 과목 청크는 `Curriculum.Subject`를 그대로 담는다. 청크가 커리큘럼을 나눈 결과라서다.
+
+그림에서 `SkeletonGrade`, `SkeletonSemester`는 코드의 `ChunkContent.Grade`, `ChunkContent.Semester`이고, `Subject`, `Unit`, `Lesson`은 `Curriculum.Subject`, `Curriculum.Unit`, `Curriculum.Lesson`이다.
 
 ```mermaid
 classDiagram
   class ChunkContent {
     <<sealed interface>>
+    split(Curriculum) List~ChunkContent~
   }
   class Skeleton {
     String title
     String description
-    List~Grade~ grades
+    List~SkeletonGrade~ grades
   }
   class SubjectChunk {
     String gradeId
     String semesterId
     Subject subject
   }
-  class Grade {
+  class SkeletonGrade {
     String id
     String title
     String description
-    List~Semester~ semesters
+    List~SkeletonSemester~ semesters
   }
-  class Semester {
+  class SkeletonSemester {
     String id
     String title
     String description
@@ -372,8 +417,8 @@ classDiagram
 
   ChunkContent <|.. Skeleton
   ChunkContent <|.. SubjectChunk
-  Skeleton --> Grade
-  Grade --> Semester
+  Skeleton --> SkeletonGrade
+  SkeletonGrade --> SkeletonSemester
   SubjectChunk --> Subject
   Subject --> Unit
   Unit --> Lesson
@@ -383,7 +428,7 @@ classDiagram
 
 | 원본 칸 | 필수? | 어디로 |
 |---|---|---|
-| `curriculum.curriculumId` | 필수 | `SourceContentData.curriculumId` (청크 안에는 없다) |
+| `curriculum.curriculumId` | 필수 | `Curriculum.curriculumId`. 청크 안에는 없고, 청크마다 만드는 `DeploymentRequestEvent`에 실린다 |
 | 모든 단계의 `id`, `title` | 필수 | 같은 이름의 칸 |
 | 모든 단계의 `description` | 없어도 됨 | 같은 이름의 칸, 없으면 `null` |
 | 차시 `lessonNumber` | 필수 (정수) | `Lesson.lessonNumber` |
@@ -423,7 +468,10 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 | 3장 | 지원하지 않는 DB 종류다 | `UnsupportedOperationException` | 500 |
 | 3장 | Mongo에 붙지 못한다 | `MongoTimeoutException` (서버 선택 30초 뒤) | 500 |
 | 3장 | 문서가 없다 | `MaterialNotFoundException` | 400 |
-| 4장 | 필수 칸이 없거나 타입이 다르다 | `IllegalArgumentException`을 `RuntimeException`으로 감쌈 | 500 |
+| 4장 | 원본 종류가 `CURRICULUM`이 아니다 | `DeploymentDomainException` | 422 |
+| 4장 | 원본 문서가 JSON이 아니다 | `IllegalStateException` | 500 |
+| 4장 | 필수 칸이 없거나 타입이 다르다 | `IllegalArgumentException` (감싸지 않는다) | 500 |
+| 4장 | 커리큘럼 ID나 제목이 비었다 (`Curriculum` 검사) | `DeploymentDomainException` | 422. 변환기 검사가 먼저 걸리므로 보통은 위 줄이 난다 |
 
 500은 공통 처리기(`GlobalExceptionHandler`)가 `"Unexpected error!"`로 돌려준다. 그래서 운영자는 무엇이 잘못됐는지 알 수 없다. 아래 6장에 적었다.
 
@@ -431,17 +479,22 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 
 | # | 문제 | 고칠 방향 |
 |---|---|---|
-| 1 | 4장의 필수 칸 오류가 500이 된다. `DeploymentDataConvertHelper`가 모든 예외를 `RuntimeException`으로 감싸기 때문이다 | 감싸지 않거나 원본 문서 오류용 예외를 두고 422로 돌려준다. 어느 차시의 어느 칸인지 운영자가 봐야 한다 |
+| 1 | 4장의 필수 칸 오류가 500이 된다. 이제 감싸지는 않지만 `IllegalArgumentException`을 받는 처리기가 없다 | 원본 문서 오류용 예외를 두고 422로 돌려준다. 어느 차시의 어느 칸인지 운영자가 봐야 한다 |
 | 2 | `sourceId`가 ObjectId 모양이 아니면 500이 된다 | 400으로 돌려준다 |
 | 3 | 원본 설정이 없을 때 메시지가 "Not found sourceContentData"다 | "원본 저장소가 없다"로 고친다 |
 | 4 | MySQL 원본은 행 하나를 평평한 Map으로 읽는다. 변환기는 `curriculum` 아래 트리를 기대하므로 MySQL 원본으로는 커리큘럼을 나눌 수 없다 | MySQL 원본을 계속 둘지 정한다. 둔다면 행을 트리로 바꾸는 방법이 따로 있어야 한다 |
-| 5 | `sourceType`이 `EXAM_RESULT_DATA`면 오류 없이 청크 0개가 된다 | 지원하지 않는다고 거절한다 |
-| 6 | `SourceContentData`가 원본 JSON(`jsonData`)을 청크로 나눈 뒤에도 들고 다닌다 | [7장](#7-원본-문서-커리큘럼-청크를-나눈다)대로 꺼낸 문서, 커리큘럼, 청크로 나눈다 |
 | 7 | 캐시를 비우는 `DataSourceCacheEvent`를 보내는 곳이 없다 | 원본 설정 수정 기능을 만들 때 보낸다 |
+
+2026-11-12에 푼 것:
+
+| # | 문제 | 어떻게 풀었나 |
+|---|---|---|
+| 5 | `sourceType`이 `EXAM_RESULT_DATA`면 오류 없이 청크 0개가 됐다 | `DeploymentDataConvertHelper`가 `DeploymentDomainException`(422)으로 거절한다 |
+| 6 | `SourceContentData`가 원본 JSON을 나눈 뒤에도 들고 다녔다 | [7장](#7-원본-문서-커리큘럼-청크를-나눈다)대로 꺼낸 문서, 커리큘럼, 청크로 나누고 `SourceContentData`를 지웠다 |
 
 ## 7. 원본 문서, 커리큘럼, 청크를 나눈다
 
-> 2026-11-12에 정했다. 0~6장은 바꾸기 전 코드를 적은 것이다. 코드를 바꾸면 그 장들도 고친다.
+> 2026-11-12에 정하고 같은 날 코드에 반영했다. 0~6장은 바꾼 뒤의 코드다. 이 장은 무엇이 왜 바뀌었는지 남긴 기록이라 바꾸기 전 이름이 나온다.
 
 ### 7.1 문제
 
@@ -585,34 +638,43 @@ static List<ChunkContent> split(Curriculum curriculum)
 - 돌려주는 목록은 바꿀 수 없다. 과목 수는 `size() - 1`이다.
 - 나누는 규칙이 청크 타입 바로 옆에 있어서, 청크 모양을 바꿀 때 한곳만 보면 된다. 원본 칸 이름은 모른다.
 
-지금 `CurriculumSourceConverter`의 `toSkeleton`, `toSubjectChunks`가 하는 일이다. 변환기는 `toCurriculum` 하나만 남는다.
+전에는 `CurriculumSourceConverter`의 `toSkeleton`, `toSubjectChunks`가 하던 일이다. 변환기에는 `toCurriculum` 하나만 남았다.
 
-### 7.7 바뀌는 곳
+### 7.7 바뀐 곳
 
-| 곳 | 지금 | 바꾼 뒤 |
+| 곳 | 전 | 후 |
 |---|---|---|
 | `SourceRepository.findData` | `Optional<SourceContentData>` | `Optional<SourceDocument>` |
 | `CurriculumSourceConverter` | `toCurriculumId`, `toSkeleton`, `toSubjectChunks` | `toCurriculum(JsonNode)` 하나 |
-| `DeploymentDataConvertHelper` | JSON을 읽고 청크를 돌려주며, 인자를 고친다 | `SourceDocument`를 받아 `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
-| `SourceFindDataHandler` | `SourceContentData`를 돌려준다 | `Curriculum`을 돌려준다 |
+| `DeploymentDataConvertHelper` | JSON을 읽고 청크를 돌려주며, 인자를 고친다 | `toCurriculum(SourceDocument)`가 `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
+| `SourceFindDataHandler` | 원본 설정을 찾고, 문서를 꺼내고, 청크로 나눠 `SourceContentData`를 돌려준다 | `findCurriculum(SourceId, SourceConfig)`가 문서를 꺼내 `Curriculum`을 돌려준다 |
+| `DeploymentApplicationServiceImpl` | 핸들러 하나를 부른다 | 원본 설정 찾기 → `findCurriculum` → `sendData(deployment, sourceConfig, curriculum)` |
 | `ChunkContent` | 나누는 일은 밖에 있다 | `split(Curriculum)`을 가진다 |
-| `Deployment` | `sourceContentData` 칸, `initializeDeployment(SourceContentData)` | 칸을 지운다 |
-| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `Curriculum`을 받아 나눈다 |
-| `DeploymentDataAccessMapper` | `sourceType`, `dbType`, `totalChunkSize`를 `SourceContentData`에서 꺼낸다 | `totalChunkSize`는 청크 수로 채운다. `sourceType`, `dbType`은 원본 설정에서 온다 |
-| 결과 처리(`DeploymentDataMapper`, `DeploymentRepositoryImpl`) | 결과의 청크 번호를 `SourceContentData.chunkOffset`에 담아 옮긴다 | 청크 번호를 따로 넘긴다 |
+| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `(Deployment, SourceConfig, Curriculum)`을 받아 직접 나눈다 |
+| `Deployment` | `sourceContentData` 칸 | 칸을 지웠다. `initializeDeployment(sourceType, dbType, 청크 수)` |
+| `DeploymentRequestEvent` | 커리큘럼 ID는 `Deployment.sourceContentData`에서 읽었다 | `curriculumId` 칸을 가진다 |
+| `DeploymentDataAccessMapper`, `DeploymentRepositoryImpl` | `totalChunkSize`에 늘 0인 `chunkOffset`을 넣었다 | 청크 수를 넣는다 |
+| 결과 처리(`DeploymentDataMapper`) | 결과의 청크 번호를 `SourceContentData`에 담았다. 읽는 곳은 없었다 | 그 줄을 지웠다 |
+| `SourceContentData` | | 지웠다 |
 
-`SourceContentData`는 마지막에 지운다.
+처음 계획과 다르게 한 것이 셋 있다.
+
+| 계획 | 실제 | 이유 |
+|---|---|---|
+| 커리큘럼 ID를 `Deployment`가 받는다 | 청크 이벤트(`DeploymentRequestEvent`)에 싣는다 | 배포 표에 커리큘럼 ID 칸이 없다. `Deployment`에만 두면 DB에서 되살린 배포는 그 값이 늘 빈다. 저장은 [도메인 모델](../domain/model.md#6-값-객체)의 `CurriculumRef` 작업 때 마이그레이션과 함께 한다 |
+| `Deployment`는 커리큘럼 ID와 청크 수만 받는다 | `sourceType`, `dbType`도 칸으로 가진다 | 배포 표의 두 칸이 `NOT NULL`이다. 전에는 `SourceContentData`가 대신 들고 있었다 |
+| 원본 설정은 핸들러 안에서 찾는다 | 애플리케이션 서비스가 찾는다 | 배포 쪽이 원본 설정(위 줄)을 써야 해서, 핸들러가 설정과 커리큘럼을 함께 돌려주는 모양을 피했다. 대신 배포 쪽이 `SourceConfig`를 더 본다. 7.9절에서 푼다 |
 
 ### 7.8 순서
 
-단계마다 빌드와 테스트가 통과한 상태로 멈춘다.
+모두 했다. 단계마다 빌드와 테스트가 통과한 상태로 커밋했다.
 
-1. 이 장을 쓴다.
-2. `Curriculum`을 만들고 JUnit으로 테스트한다. `Subject`, `Unit`, `Lesson`을 옮긴다.
-3. `ChunkContent.split`을 만들고 테스트한다.
-4. 변환기가 `Curriculum`을 돌려주게 한다. `SourceDocument`를 만들고 포트와 어댑터를 바꾼다.
-5. 접수 흐름(`SourceFindDataHandler`, `Deployment`, 도메인 서비스, 매퍼)에서 `SourceContentData`를 걷어내고 지운다.
-6. 0~6장과 8장을 바뀐 코드에 맞게 고친다.
+1. 이 장을 썼다.
+2. `Curriculum`을 만들고 JUnit으로 테스트했다(`CurriculumTest`). `Subject`, `Unit`, `Lesson`을 옮겼다.
+3. `ChunkContent.split`을 만들고 테스트했다(`ChunkContentTest`).
+4. 변환기가 `Curriculum`을 돌려주게 했다. `SourceDocument`를 만들고 포트와 어댑터를 바꿨다.
+5. 접수 흐름에서 `SourceContentData`를 걷어내고 지웠다.
+6. 0~6장과 8장을 바뀐 코드에 맞게 고쳤다.
 
 ### 7.9 이번에 하지 않는 것
 
@@ -624,8 +686,8 @@ static List<ChunkContent> split(Curriculum curriculum)
 | 모듈 | 이 흐름의 클래스 | 역할 |
 |---|---|---|
 | `deployment-application` | `DeploymentController`, `DeploymentGlobalExceptionHandler` | REST 입구, 예외를 응답으로 |
-| `deployment-application-service` | `DeploymentApplicationServiceImpl`, `SourceFindDataHandler`, `SourceConfigHelper`, `SourceFindHelper`, `DeploymentDataConvertHelper`, `CurriculumSourceConverter`, 포트 `SourceConfigRepository`, `SourceRepository` | 유스케이스 조율, 원본 문서 해석 |
-| `deployment-domain-core` | `SourceConfig`, `SourceContentData`, `ChunkContent`, `SourceType`, `DbType`, `CurriculumBaseKey` | 프레임워크 없는 모델 |
+| `deployment-application-service` | `DeploymentApplicationServiceImpl`, `SourceFindDataHandler`, `SourceConfigHelper`, `SourceFindHelper`, `DeploymentDataConvertHelper`, `CurriculumSourceConverter`, 포트 `SourceConfigRepository`, `SourceRepository`와 `SourceDocument` | 유스케이스 조율, 원본 문서 해석 |
+| `deployment-domain-core` | `SourceConfig`, `Curriculum`, `ChunkContent`(`split`), `DeploymentDomainServiceImpl`, `SourceType`, `DbType`, `CurriculumBaseKey` | 프레임워크 없는 모델. 청크로 나누는 규칙도 여기 있다 |
 | `deployment-dataaccess` | `SourceConfigRepositoryImpl`, `SourceRepositoryImpl`, `DynamicDataSourceConnector`, `MongoConnectHelper`, `MysqlConnectHelper`, `SourceDataAccessMapper` | 포트 구현, 원본 DB 접속 |
 
-application-service는 포트(`SourceRepository`)만 알고, Mongo와 MySQL은 dataaccess 안에만 있다. 원본 칸 이름은 application-service의 `CurriculumSourceConverter`만 안다.
+application-service는 포트(`SourceRepository`)만 알고, Mongo와 MySQL은 dataaccess 안에만 있다. 원본 칸 이름은 application-service의 `CurriculumSourceConverter`만 알고, 청크로 나누는 규칙은 domain-core의 `ChunkContent.split`만 안다.

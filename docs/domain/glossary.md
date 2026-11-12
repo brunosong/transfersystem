@@ -40,7 +40,7 @@
 |---|---|
 | 뜻 | 배포의 내용물. 원본 저장소에 들어 있는 교육 과정 하나와 그 아래 전부. |
 | 코드 | **`Curriculum`**, `CurriculumId`(예: `CUR003`) |
-| 지금 이름 | `SourceContentData`, `SourceData`, `SourceId`, `LearningMaterial` |
+| 지금 이름 | `Curriculum`은 코드에 있다(값 객체, 2026-11-12). 남은 옛 이름: `SourceData`, `SourceId`, `LearningMaterial` |
 | 비고 | 지금 콘텐츠 유형은 커리큘럼 하나뿐이다. 시험 결과(`EXAM_RESULT_DATA`)는 범위 밖이다. |
 
 커리큘럼은 여섯 단계 트리다. 이름은 지금 코드(`CurriculumBaseKey`, 대상 엔티티)와 같다.

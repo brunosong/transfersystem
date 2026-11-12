@@ -174,7 +174,7 @@ U는 상류(모델을 정하는 쪽), D는 하류(따르는 쪽)다. 점선은 �
 | 모든 대상의 명령이 토픽 하나로 간다 | `data-migration-request` 토픽, `DataPersistHandler` | [대상별 토픽](../system/architecture.md#4-kafka-토픽)으로 나눈다 |
 | 반영 결과에 "무엇을 반영했는지"가 없다 | `apply_result.avsc` | 메시지에는 담았다. 배포 쪽 저장은 모델 작업에서 한다 (계약 2) |
 | 원본 변환기가 배포의 애플리케이션 계층에 섞여 있다 | `deployment-application-service`의 `helper/transfer/curriculum/CurriculumSourceConverter` | 원본 컨텍스트 패키지로 옮기고, 배포는 포트로만 부른다 |
-| 청크 나누기 규칙(뼈대 + 과목)이 변환기 안에 있다 | 같은 곳 | 어떻게 나눌지는 배포 규칙이다. 원본은 커리큘럼 트리만 주고 배포가 나눈다 |
+| ~~청크 나누기 규칙(뼈대 + 과목)이 변환기 안에 있다~~ | 같은 곳 | **고쳤다(2026-11-12).** 변환기는 `Curriculum` 트리만 만들고, 배포의 `ChunkContent.split`이 나눈다 ([원본 읽기 7장](../system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)) |
 | 대상 스키마 엔티티가 `onlinecampus` 패키지에만 있고, 부트캠프 반영 코드는 아직 없다 | `target-agent-dataaccess`, `BootCampDataPersistHelper` | 대상마다 어댑터를 따로 두고 부트캠프 어댑터를 만든다 (ROADMAP Phase 1 "Bootcamp 저장 실제 구현") |
 | 메시지 내용이 원본 JSON 그대로라 ACL이 내용에서 지켜지지 않는다 | `CurriculumSourceConverter`, `jsonData` | Avro 타입으로 정의한다 ([이벤트와 메시지](events.md#4-내용은-avro-타입으로-싣는다)) |
 | 화면의 대상 데이터 확인이 대상 DB 조회 API에 기댄다 | 1단계 화면, `docs/console-plan.md` 7번 화면 | 계약 2의 반영 결과로 비교하는 쪽으로 바꾼다. 조회 API(계약 3)는 있으면 쓴다 |
