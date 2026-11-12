@@ -1,6 +1,5 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment.curriculum;
 
-import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.brunosong.deployment.system.deployment.service.valueobject.CurriculumBaseKey;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,7 +12,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 저작 문서를 청크 내용으로 옮긴다. 저작 문서의 필드 이름을 아는 곳은 여기뿐이다.
+ * 저작 문서를 커리큘럼으로 옮긴다. 저작 문서의 필드 이름을 아는 곳은 여기뿐이다.
+ * 청크로 나누는 일은 배포의 규칙이라 여기서 하지 않는다(ChunkContent.split).
  * 필드가 빠진 문서는 대상에 나가기 전에, 접수할 때 실패한다.
  */
 @Component
@@ -24,41 +24,23 @@ public class CurriculumSourceConverter {
     /** 차시에서 타입으로 옮기는 칸. learningLevel은 세부 속성이라 여기 없다 */
     private static final Set<String> LESSON_KEYS = Set.of("id", "title", "description", "lessonNumber");
 
-    public String toCurriculumId(JsonNode curriculumNode) {
-        return requiredText(curriculumNode, "curriculumId");
-    }
-
-    public ChunkContent.Skeleton toSkeleton(JsonNode curriculumNode) {
-        List<ChunkContent.Grade> grades = new ArrayList<>();
+    public Curriculum toCurriculum(JsonNode curriculumNode) {
+        List<Curriculum.Grade> grades = new ArrayList<>();
         for (JsonNode grade : curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey())) {
-            List<ChunkContent.Semester> semesters = new ArrayList<>();
+            List<Curriculum.Semester> semesters = new ArrayList<>();
             for (JsonNode semester : grade.path(CurriculumBaseKey.LEVEL2.getKey())) {
-                List<String> subjectIds = new ArrayList<>();
+                List<Curriculum.Subject> subjects = new ArrayList<>();
                 for (JsonNode subject : semester.path(CurriculumBaseKey.LEVEL3.getKey())) {
-                    subjectIds.add(requiredText(subject, "id"));
+                    subjects.add(toSubject(subject));
                 }
-                semesters.add(new ChunkContent.Semester(requiredText(semester, "id"), requiredText(semester, "title"),
-                        optionalText(semester, "description"), subjectIds));
+                semesters.add(new Curriculum.Semester(requiredText(semester, "id"), requiredText(semester, "title"),
+                        optionalText(semester, "description"), subjects));
             }
-            grades.add(new ChunkContent.Grade(requiredText(grade, "id"), requiredText(grade, "title"),
+            grades.add(new Curriculum.Grade(requiredText(grade, "id"), requiredText(grade, "title"),
                     optionalText(grade, "description"), semesters));
         }
-        return new ChunkContent.Skeleton(requiredText(curriculumNode, "title"),
+        return new Curriculum(requiredText(curriculumNode, "curriculumId"), requiredText(curriculumNode, "title"),
                 optionalText(curriculumNode, "description"), grades);
-    }
-
-    public List<ChunkContent.SubjectChunk> toSubjectChunks(JsonNode curriculumNode) {
-        List<ChunkContent.SubjectChunk> chunks = new ArrayList<>();
-        for (JsonNode grade : curriculumNode.path(CurriculumBaseKey.LEVEL1.getKey())) {
-            String gradeId = requiredText(grade, "id");
-            for (JsonNode semester : grade.path(CurriculumBaseKey.LEVEL2.getKey())) {
-                String semesterId = requiredText(semester, "id");
-                for (JsonNode subject : semester.path(CurriculumBaseKey.LEVEL3.getKey())) {
-                    chunks.add(new ChunkContent.SubjectChunk(gradeId, semesterId, toSubject(subject)));
-                }
-            }
-        }
-        return chunks;
     }
 
     private Curriculum.Subject toSubject(JsonNode subject) {

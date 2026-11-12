@@ -1,11 +1,8 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment;
 
-import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
+import com.brunosong.deployment.system.deployment.service.valueobject.*;
 
 import com.brunosong.deployment.system.deployment.service.helper.deployment.curriculum.CurriculumSourceConverter;
-import com.brunosong.deployment.system.deployment.service.valueobject.CurriculumBaseKey;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +34,10 @@ public class DeploymentDataConvertHelper {
 
             // 상위 데이터 grades & semester
             if (sourceContentData.getSourceType() == SourceType.CURRICULUM) {
-                sourceContentData.updateCurriculumId(curriculumSourceConverter.toCurriculumId(curriculumNode));
-                chunks.add(curriculumSourceConverter.toSkeleton(curriculumNode));
-
-                // 하위 데이터 배포
-                chunks.addAll(curriculumSourceConverter.toSubjectChunks(curriculumNode));
+                Curriculum curriculum = curriculumSourceConverter.toCurriculum(curriculumNode);
+                // 5단계에서 지운다. 지금은 뒤쪽 코드가 아직 SourceContentData에서 커리큘럼 ID를 읽는다
+                sourceContentData.updateCurriculumId(curriculum.curriculumId());
+                chunks.addAll(ChunkContent.split(curriculum));
             }
 
             return chunks;
