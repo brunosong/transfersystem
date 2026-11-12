@@ -19,7 +19,8 @@ import java.util.UUID;
 public class Deployment extends AggregateRoot<DeploymentId> {
 
     private SourceId sourceId;
-    private SourceContentData sourceContentData;
+    private SourceType sourceType;
+    private DbType dbType;
     private TargetId targetId;
     private DeploymentStatus deploymentStatus;
     private TransType transType;
@@ -35,13 +36,14 @@ public class Deployment extends AggregateRoot<DeploymentId> {
 
     /** id 는 부모(BaseEntity)의 필드라 클래스에 붙인 @Builder 로는 받을 수 없어 생성자에 붙인다 */
     @Builder
-    private Deployment(DeploymentId id, SourceId sourceId, SourceContentData sourceContentData, TargetId targetId,
+    private Deployment(DeploymentId id, SourceId sourceId, SourceType sourceType, DbType dbType, TargetId targetId,
                        DeploymentStatus deploymentStatus, TransType transType, SourceConfigId sourceConfigId,
                        LocalDateTime createdAt, String createUserId, LocalDateTime updatedAt,
                        String resultMessage, int totalChunkSize, List<Chunk> chunks) {
         setId(id);
         this.sourceId = sourceId;
-        this.sourceContentData = sourceContentData;
+        this.sourceType = sourceType;
+        this.dbType = dbType;
         this.targetId = targetId;
         this.deploymentStatus = deploymentStatus;
         this.transType = transType;
@@ -99,17 +101,22 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /** 새 배포에 ID, 시작 상태, 생성 시각, 읽어 온 원본 내용을 채운다. */
-    public void initializeDeployment(SourceContentData sourceContentData) {
+    /**
+     * 새 배포에 ID, 시작 상태, 생성 시각, 원본 종류와 청크 수를 채운다.
+     * 청크 내용은 들고 있지 않는다. 내용은 아웃박스로 따로 나간다(도메인 모델: 청크 내용은 애그리거트에 넣지 않는다).
+     */
+    public void initializeDeployment(SourceType sourceType, DbType dbType, int totalChunkSize) {
         setId(new DeploymentId(UUID.randomUUID()));
         this.deploymentStatus = DeploymentStatus.PENDING;
         this.createdAt = LocalDateTime.now();
-        this.sourceContentData = sourceContentData;
+        this.sourceType = sourceType;
+        this.dbType = dbType;
+        this.totalChunkSize = totalChunkSize;
     }
 
     /** 아직 아무것도 채워지지 않은 새 배포인지 확인한다. */
     public void validateInitialDeployment() {
-        if (deploymentStatus != null || getCreatedAt() != null || getSourceContentData() != null) {
+        if (deploymentStatus != null || getCreatedAt() != null || totalChunkSize != 0) {
             throw new DeploymentDomainException("Deployment is not in correct state for initialization!");
         }
     }

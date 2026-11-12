@@ -9,7 +9,6 @@ import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
 import org.springframework.stereotype.Component;
 
@@ -34,7 +33,6 @@ public class DeploymentDataMapper {
                 .id(applyResultMessage.getDeploymentId())
                 .deploymentStatus(applyResultMessage.getDeploymentStatus())
                 .resultMessage(applyResultMessage.getMessage())
-                .sourceContentData(SourceContentData.builder().chunkOffset(applyResultMessage.getChunkOffset()).build())
                 .build();
     }
 
@@ -46,7 +44,7 @@ public class DeploymentDataMapper {
                 .targetSystem(target.system())
                 .environment(target.environment())
                 .transType(deploymentRequestEvent.getDeployment().getTransType())
-                .curriculumId(deploymentRequestEvent.getDeployment().getSourceContentData().getCurriculumId())
+                .curriculumId(deploymentRequestEvent.getCurriculumId())
                 .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
                 .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
                 .chunkOffset(deploymentRequestEvent.getChunkOffset())

@@ -3,10 +3,11 @@ package com.brunosong.deployment.system.deployment.service.helper.deployment;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
 import com.brunosong.deployment.system.deployment.service.DeploymentDomainService;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
+import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,10 +24,11 @@ public class DeploymentPersistHelper {
     private final DeploymentDomainService deploymentDomainService;
 
     @Transactional
-    public List<DeploymentRequestEvent> persistDeployment(Deployment deployment, SourceContentData sourceContentData) {
+    public List<DeploymentRequestEvent> persistDeployment(Deployment deployment, SourceConfig sourceConfig, Curriculum curriculum) {
 
         // 1. 데이터 유효성 검사 및 이벤트 객체 생성
-        List<DeploymentRequestEvent> deploymentRequestEvents = deploymentDomainService.validateAndInitiateDeployment(deployment, sourceContentData);
+        List<DeploymentRequestEvent> deploymentRequestEvents =
+                deploymentDomainService.validateAndInitiateDeployment(deployment, sourceConfig, curriculum);
 
         // 2. 배포 로그 저장
         Deployment deploymentResult = saveDeployment(deployment);

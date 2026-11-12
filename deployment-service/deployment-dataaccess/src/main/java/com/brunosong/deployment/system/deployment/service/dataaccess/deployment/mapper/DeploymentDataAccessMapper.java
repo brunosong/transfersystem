@@ -23,13 +23,13 @@ public class DeploymentDataAccessMapper {
         return DeploymentEntity.builder()
                 .id(deployment.getId().getValue())
                 .sourceId(deployment.getSourceId().getValue())
-                .sourceType(deployment.getSourceContentData().getSourceType())
+                .sourceType(deployment.getSourceType())
                 .sourceconfigId(deployment.getSourceConfigId().getValue())
                 .targetId(deployment.getTargetId().getValue())
                 .transType(deployment.getTransType())
                 .deploymentStatus(deployment.getDeploymentStatus())
-                .dbType(deployment.getSourceContentData().getDbType())
-                .totalChunkSize(deployment.getSourceContentData().getChunkOffset())
+                .dbType(deployment.getDbType())
+                .totalChunkSize(deployment.getTotalChunkSize())
                 .createAdminId("BrunoSong")
                 .build();
     }

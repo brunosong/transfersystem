@@ -164,11 +164,9 @@ class DeploymentRepositoryImplTest {
                 .sourceConfigId(new SourceConfigId(1L))
                 .targetId(new TargetId(1L))
                 .transType(TransType.MESSAGING)
-                .sourceContentData(SourceContentData.builder()
-                        .sourceType(SourceType.CURRICULUM)
-                        .dbType(DbType.MONGO)
-                        .chunkOffset(3)
-                        .build())
+                .sourceType(SourceType.CURRICULUM)
+                .dbType(DbType.MONGO)
+                .totalChunkSize(3)
                 .build();
         deployment.accept(2, NOW);
         deployment.recordSuccess(0, NOW);

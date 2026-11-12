@@ -6,7 +6,6 @@ import com.brunosong.deployment.system.deployment.service.exception.MaterialNotF
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceConfigRepository;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import lombok.RequiredArgsConstructor;

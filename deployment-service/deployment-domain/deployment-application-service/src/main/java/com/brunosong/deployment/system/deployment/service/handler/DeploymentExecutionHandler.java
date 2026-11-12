@@ -1,12 +1,13 @@
 package com.brunosong.deployment.system.deployment.service.handler;
 
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
+import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.DeploymentPersistHelper;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.outbox.scheduler.DeploymentOutboxHelper;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceContentData;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,11 +25,11 @@ public class DeploymentExecutionHandler {
 
 
     @Transactional
-    public Deployment sendData(Deployment deployment, SourceContentData sourceContentData) {
-
+    public Deployment sendData(Deployment deployment, SourceConfig sourceConfig, Curriculum curriculum) {
 
         // 1. 데이터 배포 전 로그 저장
-        List<DeploymentRequestEvent> deploymentRequestEvents = deploymentPersistHelper.persistDeployment(deployment,sourceContentData);
+        List<DeploymentRequestEvent> deploymentRequestEvents =
+                deploymentPersistHelper.persistDeployment(deployment, sourceConfig, curriculum);
 
         for (DeploymentRequestEvent deploymentRequestEvent : deploymentRequestEvents) {
 

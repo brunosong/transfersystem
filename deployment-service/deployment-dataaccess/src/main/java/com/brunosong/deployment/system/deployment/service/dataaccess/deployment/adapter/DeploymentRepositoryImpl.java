@@ -103,6 +103,6 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
     public void updateDeploymentSendResult(Deployment deployment) {
         Optional<DeploymentEntity> result = deploymentJpaRepository.findById(deployment.getId().getValue());
         result.ifPresent(entity -> entity.updateSendResult( deployment.getDeploymentStatus(),
-                                                            deployment.getSourceContentData().getChunkOffset() ));
+                                                            deployment.getTotalChunkSize() ));
     }
 }
