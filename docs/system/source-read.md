@@ -436,10 +436,84 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 | 3 | 원본 설정이 없을 때 메시지가 "Not found sourceContentData"다 | "원본 저장소가 없다"로 고친다 |
 | 4 | MySQL 원본은 행 하나를 평평한 Map으로 읽는다. 변환기는 `curriculum` 아래 트리를 기대하므로 MySQL 원본으로는 커리큘럼을 나눌 수 없다 | MySQL 원본을 계속 둘지 정한다. 둔다면 행을 트리로 바꾸는 방법이 따로 있어야 한다 |
 | 5 | `sourceType`이 `EXAM_RESULT_DATA`면 오류 없이 청크 0개가 된다 | 지원하지 않는다고 거절한다 |
-| 6 | `SourceContentData`가 원본 JSON(`jsonData`)을 청크로 나눈 뒤에도 들고 다닌다 | 나눈 뒤에는 필요 없다. 접수 단계를 새 모델에 이을 때 함께 정리한다 |
+| 6 | `SourceContentData`가 원본 JSON(`jsonData`)을 청크로 나눈 뒤에도 들고 다닌다 | [7장](#7-원본-문서와-커리큘럼을-나눈다)대로 둘로 나눈다 |
 | 7 | 캐시를 비우는 `DataSourceCacheEvent`를 보내는 곳이 없다 | 원본 설정 수정 기능을 만들 때 보낸다 |
 
-## 7. 모듈 지도
+## 7. 원본 문서와 커리큘럼을 나눈다
+
+> 2026-11-12에 정했다. 0~6장은 바꾸기 전 코드를 적은 것이다. 코드를 바꾸면 그 장들도 고친다.
+
+### 7.1 문제
+
+`SourceContentData`는 `valueobject` 패키지에 있지만 값 객체가 아니다.
+
+| 값 객체라면 | 지금 |
+|---|---|
+| 만든 뒤 바뀌지 않는다 | `updateCurriculumId`, `updateChunkDataList`로 바뀐다 |
+| 값이 같으면 같은 것이다 | `equals`가 없다. `byte[]`는 값으로 비교되지도 않는다 |
+| 뜻이 하나다 | 3장의 결과(꺼낸 문서)와 4장의 결과(나눈 청크)가 한 객체에 섞여 있다 |
+
+그래서 이런 일이 생긴다.
+
+- `splitCurriculumJsonIntoChunks`는 청크 목록을 돌려주면서, 받은 인자의 `curriculumId`도 몰래 채운다. 시그니처만 봐서는 모른다.
+- 나눈 뒤에도 원본 JSON을 들고 다니고, `Deployment`가 이 객체를 칸으로 들고 있다. [도메인 모델](../domain/model.md#청크-내용은-애그리거트에-넣지-않는다)의 "청크 내용은 애그리거트에 넣지 않는다"와 어긋난다.
+- `chunkOffset` 칸 하나를 여러 뜻으로 쓴다. 접수 때는 아무도 채우지 않는데 `DeploymentDataAccessMapper`가 이것을 `totalChunkSize`로 저장한다. [ROADMAP](../ROADMAP.md)의 "`totalChunkSize`가 0으로 저장됨"이 이것이다.
+
+### 7.2 선택지
+
+| 안 | 내용 | 얻는 것 | 남는 문제 |
+|---|---|---|---|
+| A | 값 객체가 아니라고 인정하고 패키지만 옮긴다 | 고칠 곳이 적다 | 위 세 가지가 그대로다 |
+| B | 불변으로 바꾸고 `withChunks(...)`처럼 복사본을 돌려준다 | 숨은 부작용이 없어진다 | 두 단계가 한 객체에 섞여 있고, 원본 JSON도 계속 따라다닌다 |
+| **C** | **단계마다 객체를 하나씩 둔다** | 단계마다 필요한 칸만 있다. 4장이 "입력 → 새 결과"인 함수가 된다 | `Deployment`와 저장·메시징 매퍼까지 고쳐야 한다 |
+
+**C를 고른다.** 흐름이 원래 "꺼낸다 → 나눈다" 두 단계라서 객체도 둘로 두는 것이 가장 자연스럽다.
+
+### 7.3 두 객체
+
+```mermaid
+flowchart LR
+  P["SourceRepository (포트)"] --> D["SourceDocument<br/>꺼낸 원본 문서<br/>application-service"]
+  D --> CV["CurriculumSourceConverter"]
+  CV --> C["Curriculum<br/>배포할 내용<br/>domain-core 값 객체"]
+  C --> A["Deployment.accept(subjectCount)"]
+  C --> S["청크 내용 저장 (ChunkPayload)"]
+```
+
+| | `SourceDocument` | `Curriculum` |
+|---|---|---|
+| 뜻 | 원본 저장소에서 꺼낸 문서 그대로 | 배포의 내용물. 뼈대 1개와 과목 N개로 나눈 것 ([용어집](../domain/glossary.md)의 커리큘럼) |
+| 칸 | `sourceId`, `sourceType`, `json`(`byte[]`) | `curriculumId`, `chunks`(`List<ChunkContent>`) |
+| 모양 | `record`. 바뀌지 않는다 | `record`. 바뀌지 않는다 |
+| 있는 곳 | **application-service**, 포트 `SourceRepository` 옆 | **domain-core** `valueobject` |
+| 도메인 객체인가 | **아니다.** 포트가 돌려주는 데이터다. JSON 바이트는 도메인이 해석하지 않는다 | **그렇다.** 식별자가 없고, 값이 같으면 같은 내용이며, 지킬 규칙이 있다 |
+| 언제까지 쓰나 | 4장에서 나누고 나면 버린다 | 접수할 때 쓰고, 청크 내용은 따로 저장한다. `Deployment` 칸으로는 들고 있지 않는다 |
+
+`Curriculum`은 만들 때 이것을 검사한다. 규칙을 객체가 지키므로 쓰는 쪽은 다시 검사하지 않는다.
+
+- `curriculumId`는 비어 있지 않다.
+- `chunks`는 0번이 `Skeleton`이고, 1번부터는 모두 `SubjectChunk`다.
+- 목록은 복사해 두고(`List.copyOf`), 밖에서 바꿀 수 없다.
+
+`subjectCount()`는 `chunks.size() - 1`을 돌려준다. `Deployment.accept(subjectCount, now)`에 넘기는 값이다.
+
+`SourceDocument`가 `byte[]`를 가진 `record`라 `equals`가 내용을 비교하지 않는다. 값 객체가 아니고 비교할 일도 없어서 그대로 둔다.
+
+### 7.4 바뀌는 곳
+
+| 곳 | 지금 | 바꾼 뒤 |
+|---|---|---|
+| `SourceRepository.findData` | `Optional<SourceContentData>` | `Optional<SourceDocument>` |
+| `DeploymentDataConvertHelper` | `List<ChunkContent>`를 돌려주고 인자를 고친다 | `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
+| `SourceFindDataHandler` | `SourceContentData`를 돌려준다 | `Curriculum`을 돌려준다 |
+| `Deployment` | `sourceContentData` 칸, `initializeDeployment(SourceContentData)` | 칸을 지운다. 접수에 필요한 커리큘럼 ID와 청크 수만 받는다 |
+| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `Curriculum`에서 꺼낸다 |
+| `DeploymentDataAccessMapper` | `sourceType`, `dbType`, `totalChunkSize`를 `SourceContentData`에서 꺼낸다 | `totalChunkSize`는 청크 수로 채운다. `sourceType`, `dbType`은 원본 설정에서 온다 |
+| 결과 처리(`DeploymentDataMapper`, `DeploymentRepositoryImpl`) | 결과의 청크 번호를 `SourceContentData.chunkOffset`에 담아 옮긴다 | 청크 번호를 따로 넘긴다 |
+
+`SourceContentData`는 마지막에 지운다.
+
+## 8. 모듈 지도
 
 | 모듈 | 이 흐름의 클래스 | 역할 |
 |---|---|---|

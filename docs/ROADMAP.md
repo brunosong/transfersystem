@@ -105,6 +105,7 @@
 - [x] 이름 바꾸기 3: `data-migration-service` → `target-agent`, `DataMigration*` 코드 이름, 표 `targets`
 - [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
+- [ ] `SourceContentData`를 `SourceDocument`(꺼낸 문서)와 `Curriculum`(값 객체)으로 나누기 ([원본 읽기 7장](system/source-read.md#7-원본-문서와-커리큘럼을-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4)
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, 사가 칸 제거, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
