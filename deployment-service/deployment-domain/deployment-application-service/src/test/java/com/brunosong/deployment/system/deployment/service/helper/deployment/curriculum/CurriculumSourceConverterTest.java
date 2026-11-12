@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.deployment.service.helper.deployment.cur
 
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +58,7 @@ class CurriculumSourceConverterTest {
         ChunkContent.SubjectChunk first = chunks.get(0);
         assertEquals("G1", first.gradeId());
         assertEquals("S1", first.semesterId());
-        assertEquals(new ChunkContent.Lesson("L1", "차시 1", "차시 설명", 1, 3,
+        assertEquals(new Curriculum.Lesson("L1", "차시 1", "차시 설명", 1, 3,
                         "{\"learningLevel\":3,\"extra\":\"저작에만 있는 값\"}"),
                 first.subject().units().get(0).lessons().get(0));
         assertEquals("{}", first.subject().units().get(0).attributes());

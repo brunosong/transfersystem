@@ -11,6 +11,7 @@ import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -54,9 +55,9 @@ class DeploymentMessagingDataMapperTest {
     @Test
     @DisplayName("과목 페이로드는 차시까지 담은 명령이 되고, 단원과 차시의 attributes가 그대로 실린다. 단원 attributes가 없으면 \"{}\"로 나간다")
     void subject() {
-        ChunkContent.Lesson lesson = new ChunkContent.Lesson("L1", "차시 1", null, 1, 3, "{\"learningLevel\":3}");
-        ChunkContent.Subject subject = new ChunkContent.Subject("SUB1", "수학", null,
-                List.of(new ChunkContent.Unit("U1", "단원 1", null, null, List.of(lesson))));
+        Curriculum.Lesson lesson = new Curriculum.Lesson("L1", "차시 1", null, 1, 3, "{\"learningLevel\":3}");
+        Curriculum.Subject subject = new Curriculum.Subject("SUB1", "수학", null,
+                List.of(new Curriculum.Unit("U1", "단원 1", null, null, List.of(lesson))));
         ChunkContent.SubjectChunk chunk = new ChunkContent.SubjectChunk("G1", "S1", subject);
 
         ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(1).subjectChunk(chunk).build());

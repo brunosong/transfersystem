@@ -12,6 +12,7 @@ import com.brunosong.deployment.contract.Subject;
 import com.brunosong.deployment.contract.SubjectContent;
 import com.brunosong.deployment.contract.Unit;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
@@ -72,7 +73,7 @@ public class DeploymentMessagingDataMapper {
                 .build();
     }
 
-    private Subject toSubject(ChunkContent.Subject subject) {
+    private Subject toSubject(Curriculum.Subject subject) {
         return Subject.newBuilder()
                 .setId(subject.id())
                 .setTitle(subject.title())
@@ -81,7 +82,7 @@ public class DeploymentMessagingDataMapper {
                 .build();
     }
 
-    private Unit toUnit(ChunkContent.Unit unit) {
+    private Unit toUnit(Curriculum.Unit unit) {
         return Unit.newBuilder()
                 .setId(unit.id())
                 .setTitle(unit.title())
@@ -91,7 +92,7 @@ public class DeploymentMessagingDataMapper {
                 .build();
     }
 
-    private Lesson toLesson(ChunkContent.Lesson lesson) {
+    private Lesson toLesson(Curriculum.Lesson lesson) {
         return Lesson.newBuilder()
                 .setId(lesson.id())
                 .setTitle(lesson.title())

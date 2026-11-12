@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment.curriculum;
 
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
+import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.brunosong.deployment.system.deployment.service.valueobject.CurriculumBaseKey;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -60,23 +61,23 @@ public class CurriculumSourceConverter {
         return chunks;
     }
 
-    private ChunkContent.Subject toSubject(JsonNode subject) {
-        List<ChunkContent.Unit> units = new ArrayList<>();
+    private Curriculum.Subject toSubject(JsonNode subject) {
+        List<Curriculum.Unit> units = new ArrayList<>();
         for (JsonNode unit : subject.path(CurriculumBaseKey.LEVEL4.getKey())) {
             units.add(toUnit(unit));
         }
-        return new ChunkContent.Subject(requiredText(subject, "id"), requiredText(subject, "title"),
+        return new Curriculum.Subject(requiredText(subject, "id"), requiredText(subject, "title"),
                 optionalText(subject, "description"), units);
     }
 
-    private ChunkContent.Unit toUnit(JsonNode unit) {
-        List<ChunkContent.Lesson> lessons = new ArrayList<>();
+    private Curriculum.Unit toUnit(JsonNode unit) {
+        List<Curriculum.Lesson> lessons = new ArrayList<>();
         for (JsonNode lesson : unit.path(CurriculumBaseKey.LEVEL5.getKey())) {
-            lessons.add(new ChunkContent.Lesson(requiredText(lesson, "id"), requiredText(lesson, "title"),
+            lessons.add(new Curriculum.Lesson(requiredText(lesson, "id"), requiredText(lesson, "title"),
                     optionalText(lesson, "description"), requiredInt(lesson, "lessonNumber"),
                     requiredInt(lesson, "learningLevel"), attributes(lesson, LESSON_KEYS)));
         }
-        return new ChunkContent.Unit(requiredText(unit, "id"), requiredText(unit, "title"),
+        return new Curriculum.Unit(requiredText(unit, "id"), requiredText(unit, "title"),
                 optionalText(unit, "description"), attributes(unit, UNIT_KEYS), lessons);
     }
 
