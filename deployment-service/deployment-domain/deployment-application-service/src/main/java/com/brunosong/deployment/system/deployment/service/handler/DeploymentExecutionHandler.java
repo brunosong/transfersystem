@@ -7,7 +7,7 @@ import com.brunosong.deployment.system.deployment.service.helper.deployment.Depl
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.outbox.scheduler.DeploymentOutboxHelper;
-import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
+import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +25,12 @@ public class DeploymentExecutionHandler {
 
 
     @Transactional
-    public Deployment sendData(Deployment deployment, SourceConfig sourceConfig, Curriculum curriculum) {
+    public Deployment sendData(Deployment deployment, SourceConfig sourceConfig,
+                               String curriculumId, List<ChunkContent> chunks) {
 
         // 1. 데이터 배포 전 로그 저장
         List<DeploymentRequestEvent> deploymentRequestEvents =
-                deploymentPersistHelper.persistDeployment(deployment, sourceConfig, curriculum);
+                deploymentPersistHelper.persistDeployment(deployment, sourceConfig, curriculumId, chunks);
 
         for (DeploymentRequestEvent deploymentRequestEvent : deploymentRequestEvents) {
 

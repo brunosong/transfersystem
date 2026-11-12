@@ -33,23 +33,21 @@ flowchart TD
   H --> P4
   subgraph P4["4장. 커리큘럼으로 바꾸고 청크로 나누기"]
     DH[DeploymentDataConvertHelper] --> CV[CurriculumSourceConverter]
-    SP["ChunkContent.split<br/>(DeploymentDomainServiceImpl)"]
+    SP["ChunkContent.split<br/>(DeploymentApplicationServiceImpl이 부른다)"]
   end
 
   CV --> CUR["Curriculum"] --> SP
   SP --> NEXT["뼈대 1 + 과목 N 청크<br/>저장과 아웃박스는 이 문서 밖"]
 ```
 
-애플리케이션 서비스가 2, 3장을 차례로 부르고, 4장의 나누기는 도메인 서비스가 한다.
+애플리케이션 서비스가 2, 3, 4장을 차례로 부른다. 나누는 **규칙**은 domain-core의 `ChunkContent.split`에 있고, 서비스는 부르기만 한다.
 
 ```java
 // DeploymentApplicationServiceImpl
 SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(deployment.getSourceConfigId());   // 2장
 Curriculum curriculum = sourceFindDataHandler.findCurriculum(deployment.getSourceId(), sourceConfig);   // 3장, 4장 앞
-Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceConfig, curriculum);
-
-// DeploymentDomainServiceImpl (sendData 안에서 불린다)
 List<ChunkContent> chunks = ChunkContent.split(curriculum);                                            // 4장 뒤
+Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceConfig, curriculum.curriculumId(), chunks);
 ```
 
 ### 객체가 바뀌는 순서
@@ -99,7 +97,8 @@ sequenceDiagram
   CH-->>S: SourceConfig
   S->>H: findCurriculum(sourceId, sourceConfig)
   H-->>S: Curriculum
-  S->>S: sendData(deployment, sourceConfig, curriculum) — 나누기만 4장, 나머지는 이 문서 밖
+  S->>S: ChunkContent.split(curriculum) — 4장
+  S->>S: sendData(deployment, sourceConfig, curriculumId, chunks) — 이 문서 밖
   S-->>C: CreateDeploymentResponse(deploymentId, 청크 수)
   C-->>OP: 202 Accepted + Location
 ```
@@ -295,7 +294,7 @@ flowchart TD
     B --> C["rootNode.path(curriculum)<br/>→ curriculumNode"]
     C --> F["CurriculumSourceConverter.toCurriculum<br/>→ Curriculum (값 객체)"]
   end
-  subgraph DEP["배포 쪽: DeploymentDomainServiceImpl"]
+  subgraph DEP["배포 쪽: DeploymentApplicationServiceImpl → DeploymentPersistHelper"]
     F --> G["ChunkContent.split(curriculum)"]
     G --> H["0번: Skeleton"]
     G --> I["1번부터: SubjectChunk"]
@@ -648,9 +647,9 @@ static List<ChunkContent> split(Curriculum curriculum)
 | `CurriculumSourceConverter` | `toCurriculumId`, `toSkeleton`, `toSubjectChunks` | `toCurriculum(JsonNode)` 하나 |
 | `DeploymentDataConvertHelper` | JSON을 읽고 청크를 돌려주며, 인자를 고친다 | `toCurriculum(SourceDocument)`가 `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
 | `SourceFindDataHandler` | 원본 설정을 찾고, 문서를 꺼내고, 청크로 나눠 `SourceContentData`를 돌려준다 | `findCurriculum(SourceId, SourceConfig)`가 문서를 꺼내 `Curriculum`을 돌려준다 |
-| `DeploymentApplicationServiceImpl` | 핸들러 하나를 부른다 | 원본 설정 찾기 → `findCurriculum` → `sendData(deployment, sourceConfig, curriculum)` |
+| `DeploymentApplicationServiceImpl` | 핸들러 하나를 부른다 | 원본 설정 찾기 → `findCurriculum` → `ChunkContent.split` → `sendData(deployment, sourceConfig, curriculumId, chunks)`. 유스케이스 한 곳에서 흐름이 다 보인다 |
 | `ChunkContent` | 나누는 일은 밖에 있다 | `split(Curriculum)`을 가진다 |
-| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `(Deployment, SourceConfig, Curriculum)`을 받아 직접 나눈다 |
+| `DeploymentDomainService(Impl)` | `SourceContentData`에서 청크 목록을 꺼내 배포를 시작 상태로 만들고 이벤트를 만든다 | 지웠다. 하는 일이 배포 메서드 두 개를 부르고 이벤트 목록을 만드는 것뿐이라 지금은 따로 둘 이유가 없다. 그 일은 `DeploymentPersistHelper`가 한다. 쓰지 않던 `markSent` 같은 위임 메서드와 이 빈 하나만 등록하던 `BeanConfiguration`도 함께 지웠다 |
 | `Deployment` | `sourceContentData` 칸 | 칸을 지웠다. `initializeDeployment(sourceType, dbType, 청크 수)` |
 | `DeploymentRequestEvent` | 커리큘럼 ID는 `Deployment.sourceContentData`에서 읽었다 | `curriculumId` 칸을 가진다 |
 | `DeploymentDataAccessMapper`, `DeploymentRepositoryImpl` | `totalChunkSize`에 늘 0인 `chunkOffset`을 넣었다 | 청크 수를 넣는다 |
@@ -687,7 +686,7 @@ static List<ChunkContent> split(Curriculum curriculum)
 |---|---|---|
 | `deployment-application` | `DeploymentController`, `DeploymentGlobalExceptionHandler` | REST 입구, 예외를 응답으로 |
 | `deployment-application-service` | `DeploymentApplicationServiceImpl`, `SourceFindDataHandler`, `SourceConfigHelper`, `SourceFindHelper`, `DeploymentDataConvertHelper`, `CurriculumSourceConverter`, 포트 `SourceConfigRepository`, `SourceRepository`와 `SourceDocument` | 유스케이스 조율, 원본 문서 해석 |
-| `deployment-domain-core` | `SourceConfig`, `Curriculum`, `ChunkContent`(`split`), `DeploymentDomainServiceImpl`, `SourceType`, `DbType`, `CurriculumBaseKey` | 프레임워크 없는 모델. 청크로 나누는 규칙도 여기 있다 |
+| `deployment-domain-core` | `SourceConfig`, `Curriculum`, `ChunkContent`(`split`), `SourceType`, `DbType`, `CurriculumBaseKey` | 프레임워크 없는 모델. 청크로 나누는 규칙도 여기 있다 |
 | `deployment-dataaccess` | `SourceConfigRepositoryImpl`, `SourceRepositoryImpl`, `DynamicDataSourceConnector`, `MongoConnectHelper`, `MysqlConnectHelper`, `SourceDataAccessMapper` | 포트 구현, 원본 DB 접속 |
 
 application-service는 포트(`SourceRepository`)만 알고, Mongo와 MySQL은 dataaccess 안에만 있다. 원본 칸 이름은 application-service의 `CurriculumSourceConverter`만 알고, 청크로 나누는 규칙은 domain-core의 `ChunkContent.split`만 안다.
