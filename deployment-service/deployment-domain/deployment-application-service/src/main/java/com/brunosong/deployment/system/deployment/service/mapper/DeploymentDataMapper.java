@@ -18,10 +18,10 @@ public class DeploymentDataMapper {
 
     public Deployment deploymentRequestToDeployment(DeploymentRequest request) {
         return Deployment.builder()
-                .sourceId(new SourceId(request.getSourceId()))
-                .sourceConfigId(new SourceConfigId(request.getSourceConfigId()))
-                .targetId(new TargetId(request.getTargetId()))
-                .transType(request.getTransType())
+                .sourceId(new SourceId(request.sourceId()))
+                .sourceConfigId(new SourceConfigId(request.sourceConfigId()))
+                .targetId(new TargetId(request.targetId()))
+                .transType(request.transType())
                 .build();
     }
 
@@ -31,7 +31,7 @@ public class DeploymentDataMapper {
     }
 
     public SourceConfigId toSourceConfigId(DeploymentRequest request) {
-        return new SourceConfigId(request.getSourceConfigId());
+        return new SourceConfigId(request.sourceConfigId());
     }
 
     public Deployment applyResultMessageToDeployment(ApplyResultMessage applyResultMessage) {
