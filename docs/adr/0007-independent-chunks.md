@@ -1,6 +1,6 @@
 # ADR 0007. [도메인] 청크끼리 의존을 없애고 과목 청크가 자기 상위를 싣는다
 
-- 상태: 채택
+- 상태: 제안 (아직 채택하지 않았다)
 - 날짜: 2026-11-12
 - 관련 문서: [도메인 모델](../domain/model.md)(불변식 3, 청크 상태), [이벤트와 메시지](../domain/events.md), [시스템 설계](../system/architecture.md), [원본 읽기 흐름](../system/source-read.md), [ADR 0004](0004-transactional-outbox.md), [ADR 0005](0005-chunks-on-kafka.md)
 - 관련 모듈: `deployment-domain-core`의 `ChunkContent`, `Deployment`, `Chunk`, `message-contracts`, `target-agent`
@@ -29,7 +29,9 @@
 
 ## 결정
 
-**D를 쓴다.** 복잡함의 뿌리는 "과목이 혼자 저장될 수 없다"는 것이고, D는 그 뿌리를 없앤다. A와 B는 의존을 관리하는 방법이고, D는 의존을 없애는 방법이다.
+> 제안이다. 채택하기 전까지 [도메인 모델](../domain/model.md)의 불변식 3이 기준이다.
+
+**D를 제안한다.** 복잡함의 뿌리는 "과목이 혼자 저장될 수 없다"는 것이고, D는 그 뿌리를 없앤다. A와 B는 의존을 관리하는 방법이고, D는 의존을 없애는 방법이다.
 
 ### 청크의 모양
 
