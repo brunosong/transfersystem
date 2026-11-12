@@ -64,7 +64,7 @@
 - [x] [ADR 0005](adr/0005-chunks-on-kafka.md) 청크 내용을 Kafka 메시지에 직접 싣고 크기를 제한한다
 - [x] [원본을 읽어 청크로 나누는 흐름](system/source-read.md) (요청 → 원본 설정 → 문서 꺼내기 → 청크 나누기, 객체 모양, 실패 응답, 남은 문제)
 - [x] [ADR 0006](adr/0006-chunk-content-contract.md) 청크 내용 계약은 계층을 타입으로 두고 세부 속성은 JSON 문자열로 보낸다
-- [ ] [ADR 0007](adr/0007-independent-chunks.md) (제안) 청크끼리 의존을 없애고 과목 청크가 자기 상위를 싣는다
+- [x] [ADR 0007](adr/0007-independent-chunks.md) (기각) 청크끼리 의존을 없애고 과목 청크가 자기 상위를 싣는다. 실제 학년은 속성이 많아 뼈대 먼저(불변식 3)를 유지한다
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)
 *목표: 서비스 DB 접속 정보를 배포 시스템에서 없애고, 마지막에는 에이전트를 서비스 팀 소유의 별도 서비스로 떼어 낸다.*
@@ -107,7 +107,7 @@
 - [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [x] `SourceContentData`를 `SourceDocument`(꺼낸 문서), `Curriculum`(트리 값 객체), 청크로 나누고, 청크로 나누는 일을 배포로 옮기기 ([원본 읽기 7장](system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
-- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). [ADR 0007](adr/0007-independent-chunks.md)(제안)을 채택하면 불변식 3은 없어진다
+- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, 사가 칸 제거, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
