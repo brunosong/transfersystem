@@ -436,10 +436,10 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 | 3 | 원본 설정이 없을 때 메시지가 "Not found sourceContentData"다 | "원본 저장소가 없다"로 고친다 |
 | 4 | MySQL 원본은 행 하나를 평평한 Map으로 읽는다. 변환기는 `curriculum` 아래 트리를 기대하므로 MySQL 원본으로는 커리큘럼을 나눌 수 없다 | MySQL 원본을 계속 둘지 정한다. 둔다면 행을 트리로 바꾸는 방법이 따로 있어야 한다 |
 | 5 | `sourceType`이 `EXAM_RESULT_DATA`면 오류 없이 청크 0개가 된다 | 지원하지 않는다고 거절한다 |
-| 6 | `SourceContentData`가 원본 JSON(`jsonData`)을 청크로 나눈 뒤에도 들고 다닌다 | [7장](#7-원본-문서와-커리큘럼을-나눈다)대로 둘로 나눈다 |
+| 6 | `SourceContentData`가 원본 JSON(`jsonData`)을 청크로 나눈 뒤에도 들고 다닌다 | [7장](#7-원본-문서-커리큘럼-청크를-나눈다)대로 꺼낸 문서, 커리큘럼, 청크로 나눈다 |
 | 7 | 캐시를 비우는 `DataSourceCacheEvent`를 보내는 곳이 없다 | 원본 설정 수정 기능을 만들 때 보낸다 |
 
-## 7. 원본 문서와 커리큘럼을 나눈다
+## 7. 원본 문서, 커리큘럼, 청크를 나눈다
 
 > 2026-11-12에 정했다. 0~6장은 바꾸기 전 코드를 적은 것이다. 코드를 바꾸면 그 장들도 고친다.
 
@@ -451,67 +451,173 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 |---|---|
 | 만든 뒤 바뀌지 않는다 | `updateCurriculumId`, `updateChunkDataList`로 바뀐다 |
 | 값이 같으면 같은 것이다 | `equals`가 없다. `byte[]`는 값으로 비교되지도 않는다 |
-| 뜻이 하나다 | 3장의 결과(꺼낸 문서)와 4장의 결과(나눈 청크)가 한 객체에 섞여 있다 |
+| 뜻이 하나다 | 꺼낸 문서(JSON), 문서 안의 커리큘럼 ID, 나눈 청크가 한 객체에 섞여 있다 |
 
 그래서 이런 일이 생긴다.
 
 - `splitCurriculumJsonIntoChunks`는 청크 목록을 돌려주면서, 받은 인자의 `curriculumId`도 몰래 채운다. 시그니처만 봐서는 모른다.
 - 나눈 뒤에도 원본 JSON을 들고 다니고, `Deployment`가 이 객체를 칸으로 들고 있다. [도메인 모델](../domain/model.md#청크-내용은-애그리거트에-넣지-않는다)의 "청크 내용은 애그리거트에 넣지 않는다"와 어긋난다.
 - `chunkOffset` 칸 하나를 여러 뜻으로 쓴다. 접수 때는 아무도 채우지 않는데 `DeploymentDataAccessMapper`가 이것을 `totalChunkSize`로 저장한다. [ROADMAP](../ROADMAP.md)의 "`totalChunkSize`가 0으로 저장됨"이 이것이다.
+- 청크로 나누는 일이 원본 쪽 변환기(`CurriculumSourceConverter`) 안에 있다. [컨텍스트 맵](../domain/context-map.md)은 "원본은 커리큘럼 트리만 주고 배포가 나눈다"고 정했다. 어떻게 나눌지(뼈대 먼저, 과목은 따로)는 배포의 규칙이기 때문이다.
 
 ### 7.2 선택지
 
 | 안 | 내용 | 얻는 것 | 남는 문제 |
 |---|---|---|---|
-| A | 값 객체가 아니라고 인정하고 패키지만 옮긴다 | 고칠 곳이 적다 | 위 세 가지가 그대로다 |
-| B | 불변으로 바꾸고 `withChunks(...)`처럼 복사본을 돌려준다 | 숨은 부작용이 없어진다 | 두 단계가 한 객체에 섞여 있고, 원본 JSON도 계속 따라다닌다 |
-| **C** | **단계마다 객체를 하나씩 둔다** | 단계마다 필요한 칸만 있다. 4장이 "입력 → 새 결과"인 함수가 된다 | `Deployment`와 저장·메시징 매퍼까지 고쳐야 한다 |
+| A | 값 객체가 아니라고 인정하고 패키지만 옮긴다 | 고칠 곳이 적다 | 위 문제가 그대로다 |
+| B | 불변으로 바꾸고 `withChunks(...)`처럼 복사본을 돌려준다 | 숨은 부작용이 없어진다 | 여러 뜻이 한 객체에 섞여 있고, 원본 JSON도 계속 따라다닌다 |
+| **C** | **단계마다 객체를 따로 둔다.** 원본은 커리큘럼 트리를 주고, 배포가 그것을 청크로 나눈다 | 단계마다 필요한 칸만 있다. 컨텍스트 맵의 경계와 맞는다 | `Deployment`와 저장·메시징 매퍼까지 고쳐야 한다 |
 
-**C를 고른다.** 흐름이 원래 "꺼낸다 → 나눈다" 두 단계라서 객체도 둘로 두는 것이 가장 자연스럽다.
+**C를 고른다.** 흐름이 원래 "꺼낸다 → 커리큘럼으로 바꾼다 → 청크로 나눈다"라서 객체도 그대로 나누는 것이 가장 자연스럽다.
 
-### 7.3 두 객체
+### 7.3 한눈에
 
 ```mermaid
 flowchart LR
-  P["SourceRepository (포트)"] --> D["SourceDocument<br/>꺼낸 원본 문서<br/>application-service"]
-  D --> CV["CurriculumSourceConverter"]
-  CV --> C["Curriculum<br/>배포할 내용<br/>domain-core 값 객체"]
-  C --> A["Deployment.accept(subjectCount)"]
-  C --> S["청크 내용 저장 (ChunkPayload)"]
+  subgraph SRC["원본 컨텍스트"]
+    CFG["SourceConfig<br/>어디서 읽나"] --> DOC["SourceDocument<br/>꺼낸 문서 (JSON)"]
+    DOC --> CV["CurriculumSourceConverter<br/>(부패 방지 계층)"]
+  end
+  CV --> CUR["Curriculum<br/>커리큘럼 트리 (값 객체)"]
+  subgraph DEP["배포 컨텍스트"]
+    CUR --> SP["ChunkContent.split<br/>뼈대 1 + 과목 N"]
+    SP --> ACC["Deployment.accept(과목 수)"]
+    SP --> PAY["청크 내용 저장"]
+  end
 ```
 
-| | `SourceDocument` | `Curriculum` |
+| 객체 | 뜻 | 누구 것 | 도메인 객체인가 | 언제까지 쓰나 |
+|---|---|---|---|---|
+| `SourceConfig` | **어디서** 읽나. 접속 정보 | 원본 | 엔티티 (식별자 있음) | 오래 산다. 운영자가 등록하고 끈다 |
+| `SourceDocument` | 꺼낸 문서 그대로 | 원본 | **아니다.** 포트가 돌려주는 데이터다. JSON은 도메인이 해석하지 않는다 | 커리큘럼으로 바꾸면 버린다 |
+| `Curriculum` | **무엇을** 배포하나. 학년부터 차시까지의 트리 | 원본이 만들어 배포에 준다 | **값 객체.** 식별자가 없고, 값이 같으면 같은 내용이다 | 청크로 나누면 버린다 |
+| `ChunkContent` | **어떻게** 나눠 보내나. 뼈대, 과목 청크 | 배포 | 값 객체 | 저장해 두고 보낼 때 읽는다 |
+
+`Deployment`는 이 중 어느 것도 칸으로 들고 있지 않다. 접수할 때 커리큘럼 ID와 과목 수만 받는다.
+
+### 7.4 SourceDocument
+
+```java
+// application-service, 포트 SourceRepository 옆
+public record SourceDocument(String sourceId, SourceType sourceType, byte[] json) { }
+```
+
+- `SourceRepository.findData`가 이것을 돌려준다. dataaccess 어댑터가 만든다.
+- `byte[]`를 가진 `record`라 `equals`가 내용을 비교하지 않는다. 값 객체가 아니고 비교할 일도 없어서 그대로 둔다.
+- `dbType`은 넣지 않는다. 어떻게 읽었는지는 꺼낸 뒤에는 알 필요가 없다.
+
+### 7.5 Curriculum
+
+원본 문서의 트리를 그대로 옮긴 것이다. 청크 번호, 뼈대 같은 배포의 말은 들어 있지 않다.
+
+```mermaid
+classDiagram
+  class Curriculum {
+    <<값 객체>>
+    String curriculumId
+    String title
+    String description
+    List~Grade~ grades
+  }
+  class Grade {
+    String id
+    String title
+    String description
+    List~Semester~ semesters
+  }
+  class Semester {
+    String id
+    String title
+    String description
+    List~Subject~ subjects
+  }
+  class Subject {
+    String id
+    String title
+    String description
+    List~Unit~ units
+  }
+  class Unit {
+    String id
+    String title
+    String description
+    String attributes
+    List~Lesson~ lessons
+  }
+  class Lesson {
+    String id
+    String title
+    String description
+    int lessonNumber
+    int learningLevel
+    String attributes
+  }
+  Curriculum --> Grade
+  Grade --> Semester
+  Semester --> Subject
+  Subject --> Unit
+  Unit --> Lesson
+```
+
+- domain-core `valueobject`에 둔다. 원본과 배포가 함께 쓰는 모델이고, 프레임워크를 모른다.
+- 모두 `record`이고 목록은 `List.copyOf`로 복사해 둔다. 만든 뒤 바뀌지 않는다.
+- 만들 때 `curriculumId`와 `title`이 비어 있지 않은지 검사한다. 원본 문서의 칸 검사는 지금처럼 변환기가 한다. 변환기는 "문서에 칸이 있나"를, `Curriculum`은 "커리큘럼으로서 말이 되나"를 본다.
+
+**`Subject`, `Unit`, `Lesson`은 `Curriculum` 쪽으로 옮긴다.** 지금은 `ChunkContent` 안에 있다. 과목 청크는 "과목 하나와 그 아래 전부"라서 이 셋을 그대로 쓴다. 그렇다면 청크가 커리큘럼을 가리켜야지, 커리큘럼이 청크의 타입을 빌려 쓰면 안 된다. 청크는 커리큘럼을 나눈 결과이기 때문이다. `Grade`와 `Semester`는 둘 다 두되 모양이 다르다. 커리큘럼의 학기는 과목 목록을 가지고, 뼈대의 학기는 과목 ID 목록만 가진다.
+
+| 타입 | 지금 | 바꾼 뒤 |
 |---|---|---|
-| 뜻 | 원본 저장소에서 꺼낸 문서 그대로 | 배포의 내용물. 뼈대 1개와 과목 N개로 나눈 것 ([용어집](../domain/glossary.md)의 커리큘럼) |
-| 칸 | `sourceId`, `sourceType`, `json`(`byte[]`) | `curriculumId`, `chunks`(`List<ChunkContent>`) |
-| 모양 | `record`. 바뀌지 않는다 | `record`. 바뀌지 않는다 |
-| 있는 곳 | **application-service**, 포트 `SourceRepository` 옆 | **domain-core** `valueobject` |
-| 도메인 객체인가 | **아니다.** 포트가 돌려주는 데이터다. JSON 바이트는 도메인이 해석하지 않는다 | **그렇다.** 식별자가 없고, 값이 같으면 같은 내용이며, 지킬 규칙이 있다 |
-| 언제까지 쓰나 | 4장에서 나누고 나면 버린다 | 접수할 때 쓰고, 청크 내용은 따로 저장한다. `Deployment` 칸으로는 들고 있지 않는다 |
+| `Subject`, `Unit`, `Lesson` | `ChunkContent.Subject` … | `Curriculum.Subject` …. `SubjectChunk`가 `Curriculum.Subject`를 담는다 |
+| `Grade`, `Semester` (과목까지 있는 것) | 없다 | `Curriculum.Grade`, `Curriculum.Semester` |
+| `Grade`, `Semester` (과목 ID만 있는 것) | `ChunkContent.Grade`, `ChunkContent.Semester` | 그대로 |
 
-`Curriculum`은 만들 때 이것을 검사한다. 규칙을 객체가 지키므로 쓰는 쪽은 다시 검사하지 않는다.
+메시지 계약(Avro)은 바뀌지 않는다. 메시징 매퍼의 import만 바뀐다.
 
-- `curriculumId`는 비어 있지 않다.
-- `chunks`는 0번이 `Skeleton`이고, 1번부터는 모두 `SubjectChunk`다.
-- 목록은 복사해 두고(`List.copyOf`), 밖에서 바꿀 수 없다.
+### 7.6 청크로 나누기
 
-`subjectCount()`는 `chunks.size() - 1`을 돌려준다. `Deployment.accept(subjectCount, now)`에 넘기는 값이다.
+```java
+// domain-core, ChunkContent 안
+static List<ChunkContent> split(Curriculum curriculum)
+```
 
-`SourceDocument`가 `byte[]`를 가진 `record`라 `equals`가 내용을 비교하지 않는다. 값 객체가 아니고 비교할 일도 없어서 그대로 둔다.
+- 0번은 `Skeleton`이다. 학기까지와 학기별 과목 ID 목록을 담는다.
+- 1번부터는 `SubjectChunk`다. 학년과 학기 순서대로, 과목 하나에 하나씩이다.
+- 돌려주는 목록은 바꿀 수 없다. 과목 수는 `size() - 1`이다.
+- 나누는 규칙이 청크 타입 바로 옆에 있어서, 청크 모양을 바꿀 때 한곳만 보면 된다. 원본 칸 이름은 모른다.
 
-### 7.4 바뀌는 곳
+지금 `CurriculumSourceConverter`의 `toSkeleton`, `toSubjectChunks`가 하는 일이다. 변환기는 `toCurriculum` 하나만 남는다.
+
+### 7.7 바뀌는 곳
 
 | 곳 | 지금 | 바꾼 뒤 |
 |---|---|---|
 | `SourceRepository.findData` | `Optional<SourceContentData>` | `Optional<SourceDocument>` |
-| `DeploymentDataConvertHelper` | `List<ChunkContent>`를 돌려주고 인자를 고친다 | `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
+| `CurriculumSourceConverter` | `toCurriculumId`, `toSkeleton`, `toSubjectChunks` | `toCurriculum(JsonNode)` 하나 |
+| `DeploymentDataConvertHelper` | JSON을 읽고 청크를 돌려주며, 인자를 고친다 | `SourceDocument`를 받아 `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
 | `SourceFindDataHandler` | `SourceContentData`를 돌려준다 | `Curriculum`을 돌려준다 |
-| `Deployment` | `sourceContentData` 칸, `initializeDeployment(SourceContentData)` | 칸을 지운다. 접수에 필요한 커리큘럼 ID와 청크 수만 받는다 |
-| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `Curriculum`에서 꺼낸다 |
+| `ChunkContent` | 나누는 일은 밖에 있다 | `split(Curriculum)`을 가진다 |
+| `Deployment` | `sourceContentData` 칸, `initializeDeployment(SourceContentData)` | 칸을 지운다 |
+| `DeploymentDomainServiceImpl` | `SourceContentData`에서 청크 목록을 꺼낸다 | `Curriculum`을 받아 나눈다 |
 | `DeploymentDataAccessMapper` | `sourceType`, `dbType`, `totalChunkSize`를 `SourceContentData`에서 꺼낸다 | `totalChunkSize`는 청크 수로 채운다. `sourceType`, `dbType`은 원본 설정에서 온다 |
 | 결과 처리(`DeploymentDataMapper`, `DeploymentRepositoryImpl`) | 결과의 청크 번호를 `SourceContentData.chunkOffset`에 담아 옮긴다 | 청크 번호를 따로 넘긴다 |
 
 `SourceContentData`는 마지막에 지운다.
+
+### 7.8 순서
+
+단계마다 빌드와 테스트가 통과한 상태로 멈춘다.
+
+1. 이 장을 쓴다.
+2. `Curriculum`을 만들고 JUnit으로 테스트한다. `Subject`, `Unit`, `Lesson`을 옮긴다.
+3. `ChunkContent.split`을 만들고 테스트한다.
+4. 변환기가 `Curriculum`을 돌려주게 한다. `SourceDocument`를 만들고 포트와 어댑터를 바꾼다.
+5. 접수 흐름(`SourceFindDataHandler`, `Deployment`, 도메인 서비스, 매퍼)에서 `SourceContentData`를 걷어내고 지운다.
+6. 0~6장과 8장을 바뀐 코드에 맞게 고친다.
+
+### 7.9 이번에 하지 않는 것
+
+- **`SourceConfig`를 원본 뒤로 숨기기.** 지금은 배포의 애플리케이션 계층이 `SourceConfig`를 직접 꺼낸다. 비밀번호가 든 객체가 배포 쪽까지 온다. 컨텍스트 맵대로라면 배포는 "원본 저장소 ID와 문서 ID를 주면 `Curriculum`을 준다"는 포트 하나만 알아야 한다. 범위가 커서 따로 한다.
+- **`SourceConfig`의 ID가 비어 있는 것.** `SourceDataAccessMapper.entityToSourceConfig`가 `id`를 옮기지 않는다. 위 작업 때 함께 고친다.
 
 ## 8. 모듈 지도
 
