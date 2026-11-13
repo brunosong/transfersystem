@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.handler;
 
+import com.brunosong.deployment.system.deployment.service.entity.Chunk;
 import com.brunosong.deployment.system.domain.DomainConstants;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.DeploymentPersistHelper;
@@ -32,16 +33,18 @@ public class DeploymentExecutionHandler {
     @Transactional
     public Deployment acceptDeployment(Deployment deployment, List<ChunkContent> chunks) {
 
-        // 1. 배포와 모든 청크 내용을 저장한다
+        // 1. 도메인에 접수를 맡긴다. 뼈대는 SENT, 과목은 WAITING, 배포는 IN_PROGRESS 가 되고
+        //    지금 보낼 청크(뼈대 하나)를 돌려받는다. 과목 수 = 전체 청크 - 뼈대 1
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
+        List<Chunk> toSend = deployment.accept(chunks.size() - 1, now.toInstant());
+
+        // 2. 배포와 모든 청크 내용을 저장한다
         deploymentPersistHelper.persistDeployment(deployment, chunks);
 
-        // 2. 청크마다 아웃박스 행을 하나씩 적는다. 목록의 순서가 청크 번호다
-        ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
-        for (int chunkOffset = 0; chunkOffset < chunks.size(); chunkOffset++) {
-
+        // 3. 도메인이 보내라고 한 청크만 아웃박스에 넣는다. 과목은 뼈대 결과가 온 뒤에 넣는다(불변식 3)
+        for (Chunk chunk : toSend) {
             DeploymentEventPayload deploymentEventPayload = deploymentDataMapper.toDeploymentEventPayload(
-                    deployment, chunkOffset, chunks.get(chunkOffset), now);
-
+                    deployment, chunk.getNo(), chunks.get(chunk.getNo()), now);
             deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload);
         }
 
