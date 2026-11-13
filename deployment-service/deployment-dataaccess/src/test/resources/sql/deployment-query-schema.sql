@@ -3,6 +3,7 @@
 -- deployment-container 의 init-schema.sql(테이블)로 나뉘어 있다.
 -- Phase 2 에서 Flyway 마이그레이션으로 합치면 이 파일 대신 그것을 쓴다.
 
+DROP TABLE IF EXISTS deployment_chunk_payload CASCADE;
 DROP TABLE IF EXISTS deployment_chunk CASCADE;
 DROP TABLE IF EXISTS deployment_chunks CASCADE;
 DROP TABLE IF EXISTS deployment CASCADE;
@@ -61,6 +62,13 @@ CREATE TABLE deployment_chunk (
   failure_kind    VARCHAR(20),
   failure_message VARCHAR(1000),
   failed_at       TIMESTAMP WITH TIME ZONE,
+  PRIMARY KEY (deployment_id, chunk_no)
+);
+
+CREATE TABLE deployment_chunk_payload (
+  deployment_id UUID    NOT NULL REFERENCES deployment (id) ON DELETE CASCADE,
+  chunk_no      INTEGER NOT NULL,
+  content       JSONB   NOT NULL,
   PRIMARY KEY (deployment_id, chunk_no)
 );
 
