@@ -24,35 +24,32 @@ public class DeploymentExecutionHandler {
     private final DeploymentDataMapper deploymentDataMapper;
 
 
+    /**
+     * 배포를 접수한다. 배포를 저장하고, 보낼 청크를 아웃박스에 적는다.
+     * 여기서는 아무것도 보내지 않는다. 아웃박스 스케줄러가 나중에 꺼내서 보낸다.
+     * 두 저장을 한 트랜잭션에 묶어서, 배포는 저장됐는데 보낼 것이 없는 일이 생기지 않게 한다(ADR 0004).
+     */
     @Transactional
-    public Deployment sendData(Deployment deployment, SourceConfig sourceConfig,
-                               String curriculumId, List<ChunkContent> chunks) {
+    public Deployment acceptDeployment(Deployment deployment, SourceConfig sourceConfig,
+                                       String curriculumId, List<ChunkContent> chunks) {
 
-        // 1. 데이터 배포 전 로그 저장
+        // 1. 배포를 시작 상태로 저장하고, 청크마다 이벤트를 하나씩 만든다
         List<DeploymentRequestEvent> deploymentRequestEvents =
                 deploymentPersistHelper.persistDeployment(deployment, sourceConfig, curriculumId, chunks);
 
+        // 2. 청크마다 아웃박스 행을 하나씩 적는다
         for (DeploymentRequestEvent deploymentRequestEvent : deploymentRequestEvents) {
 
-            // 데이터 배포 이벤트 페이로드 생성
+            // 이벤트를 아웃박스에 적을 모양(페이로드)으로 바꾼다
             DeploymentEventPayload deploymentEventPayload =
                     deploymentDataMapper.deploymentRequestEventToDeploymentEventPayload(deploymentRequestEvent);
 
-            // 데이터 배포 아웃박스 메시지 저장
             deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload,
                     UUID.randomUUID());
 
         }
 
-        // 2. 데이터 배포 결과 업데이트
-        updateDeploymentSendResult(deployment);
-
         return deployment;
-    }
-
-
-    public void updateDeploymentSendResult(Deployment deployment) {
-        deploymentPersistHelper.updateDeploymentSendResult(deployment);
     }
 
 }

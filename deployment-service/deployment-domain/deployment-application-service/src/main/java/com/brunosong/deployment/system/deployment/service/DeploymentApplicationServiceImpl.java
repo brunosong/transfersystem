@@ -45,9 +45,9 @@ public class DeploymentApplicationServiceImpl implements DeploymentApplicationSe
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
 
         // 4. 배포를 접수하고 청크를 아웃박스에 넣는다
-        Deployment sent = deploymentExecutionHandler.sendData(deployment, sourceConfig,
+        Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, sourceConfig,
                 curriculum.curriculumId(), chunks);
 
-        return deploymentDataMapper.deploymentToCreateDeploymentResponse(sent);
+        return deploymentDataMapper.deploymentToCreateDeploymentResponse(accepted);
     }
 }
