@@ -32,14 +32,16 @@ public class DeploymentExecutionHandler {
     @Transactional
     public Deployment acceptDeployment(Deployment deployment, String curriculumId, List<ChunkContent> chunks) {
 
-        // 1. 배포를 저장한다
-        deploymentPersistHelper.persistDeployment(deployment);
+        // 1. 배포와 모든 청크 내용을 저장한다
+        deploymentPersistHelper.persistDeployment(deployment, chunks);
 
         // 2. 청크마다 아웃박스 행을 하나씩 적는다. 목록의 순서가 청크 번호다
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
         for (int chunkOffset = 0; chunkOffset < chunks.size(); chunkOffset++) {
+
             DeploymentEventPayload deploymentEventPayload = deploymentDataMapper.toDeploymentEventPayload(
                     deployment, curriculumId, chunkOffset, chunks.get(chunkOffset), now);
+
             deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload);
         }
 
