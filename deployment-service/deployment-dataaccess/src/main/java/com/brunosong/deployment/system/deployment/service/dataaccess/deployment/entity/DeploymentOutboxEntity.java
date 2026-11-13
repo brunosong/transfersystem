@@ -42,6 +42,10 @@ public class DeploymentOutboxEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     private String payload;
 
+    // Kafka 메시지 키. 꺼내는 쪽이 같은 키의 행을 순서대로 다루려면 JSON 밖에 있어야 해서 칸으로 뺐다
+    @Column(name = "message_key", nullable = false)
+    private String messageKey;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "outbox_status", nullable = false)
     private OutboxStatus outboxStatus;

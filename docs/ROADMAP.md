@@ -109,7 +109,7 @@
 - [x] `SourceContentData`를 `SourceDocument`(꺼낸 문서), `Curriculum`(트리 값 객체), 청크로 나누고, 청크로 나누는 일을 배포로 옮기기 ([원본 읽기 7장](system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
-- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번과 키 저장, 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
+- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번 저장, ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))

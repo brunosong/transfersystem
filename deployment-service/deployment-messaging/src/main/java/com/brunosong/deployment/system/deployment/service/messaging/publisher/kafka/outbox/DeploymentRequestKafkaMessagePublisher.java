@@ -57,7 +57,8 @@ public class DeploymentRequestKafkaMessagePublisher implements DeploymentRequest
 
             ApplyChunkCommand command = deploymentMessagingDataMapper.toApplyChunkCommand(payload);
 
-            kafkaTemplate.send(topicName, id, command)
+            // 키는 행을 넣을 때 정했다. 같은 커리큘럼 × 대상은 같은 파티션으로 간다
+            kafkaTemplate.send(topicName, deploymentOutboxMessage.getMessageKey(), command)
                     .whenComplete(getKafkaCallback(topicName,
                                                    command,
                                                    deploymentOutboxMessage,

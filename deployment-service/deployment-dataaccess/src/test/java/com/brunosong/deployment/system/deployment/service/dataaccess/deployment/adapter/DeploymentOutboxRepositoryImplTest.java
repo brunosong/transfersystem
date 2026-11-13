@@ -39,6 +39,7 @@ class DeploymentOutboxRepositoryImplTest {
         assertEquals(DEPLOYMENT_SAGA_NAME, saved.getType());
         assertEquals(OutboxStatus.STARTED, saved.getOutboxStatus());
         assertEquals(TransType.MESSAGING, saved.getTransType());
+        assertEquals("ONLINE_CAMPUS:PROD:CUR01", saved.getMessageKey());
     }
 
     /** 스케줄러가 집어 가는 조건 그대로 찾아본다 */
@@ -74,6 +75,7 @@ class DeploymentOutboxRepositoryImplTest {
                 .type(DEPLOYMENT_SAGA_NAME)
                 .transType(TransType.MESSAGING)
                 .payload("{\"deploymentId\":\"" + UUID.randomUUID() + "\"}")
+                .messageKey("ONLINE_CAMPUS:PROD:CUR01")
                 .createdAt(ZonedDateTime.now(ZoneId.of("UTC")))
                 .outboxStatus(OutboxStatus.STARTED)
                 .build();

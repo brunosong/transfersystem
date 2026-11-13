@@ -59,4 +59,15 @@ public class DeploymentEventPayload {
     public ChunkContent getContent() {
         return skeleton != null ? skeleton : subjectChunk;
     }
+
+    /**
+     * Kafka 메시지 키. "대상 시스템:환경:커리큘럼 ID" (도메인 모델 7절).
+     * 대상에서 서로 덮어쓰면 안 되는 단위가 "커리큘럼 × 대상"이라 이것으로 순서를 지킨다.
+     * 같은 배포의 청크도, 같은 커리큘럼의 옛 배포와 새 배포도 같은 파티션에 들어간다.
+     * 원본 문서 ID(sourceId)가 아니라 커리큘럼 ID를 쓴다. 고쳐 다시 올린 원본은 문서 ID가 바뀔 수 있다.
+     * 숫자 대상 ID 대신 이름을 쓴다. 숫자는 임시 목록(TargetCatalog)의 순서라 바뀔 수 있다.
+     */
+    public String messageKey() {
+        return targetSystem + ":" + environment + ":" + curriculumId;
+    }
 }

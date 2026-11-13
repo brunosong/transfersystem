@@ -52,6 +52,7 @@ public class DeploymentOutboxHelper {
                 .type(DEPLOYMENT_SAGA_NAME)
                 .transType(deploymentEventPayload.getTransType())
                 .payload(createPayload(deploymentEventPayload))
+                .messageKey(deploymentEventPayload.messageKey())
                 .createdAt(deploymentEventPayload.getCreatedAt())
                 .outboxStatus(OutboxStatus.STARTED)
                 .build());
