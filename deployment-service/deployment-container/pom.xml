@@ -73,10 +73,6 @@
             <artifactId>deployment-cache</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.brunosong.deployment.system</groupId>
-            <artifactId>saga</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>

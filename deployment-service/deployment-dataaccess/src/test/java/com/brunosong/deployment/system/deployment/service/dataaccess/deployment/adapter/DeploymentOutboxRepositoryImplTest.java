@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.brunosong.deployment.system.saga.deployment.SagaConstants.DEPLOYMENT_SAGA_NAME;
+import static com.brunosong.deployment.system.deployment.service.outbox.model.OutboxMessageType.APPLY_CHUNK_COMMAND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,7 +36,7 @@ class DeploymentOutboxRepositoryImplTest {
     void save() {
         DeploymentOutboxMessage saved = deploymentOutboxRepository.save(outboxMessage());
 
-        assertEquals(DEPLOYMENT_SAGA_NAME, saved.getType());
+        assertEquals(APPLY_CHUNK_COMMAND, saved.getType());
         assertEquals(OutboxStatus.STARTED, saved.getOutboxStatus());
         assertEquals(TransType.MESSAGING, saved.getTransType());
         assertEquals("ONLINE_CAMPUS:PROD:CUR01", saved.getMessageKey());
@@ -49,7 +49,7 @@ class DeploymentOutboxRepositoryImplTest {
         deploymentOutboxRepository.save(message);
 
         Optional<List<DeploymentOutboxMessage>> found =
-                deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, OutboxStatus.STARTED);
+                deploymentOutboxRepository.findByTypeAndOutboxStatus(APPLY_CHUNK_COMMAND, OutboxStatus.STARTED);
 
         assertTrue(found.isPresent());
         assertEquals(1, found.get().size());
@@ -64,7 +64,7 @@ class DeploymentOutboxRepositoryImplTest {
         deploymentOutboxRepository.save(message);
 
         Optional<List<DeploymentOutboxMessage>> found =
-                deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, OutboxStatus.STARTED);
+                deploymentOutboxRepository.findByTypeAndOutboxStatus(APPLY_CHUNK_COMMAND, OutboxStatus.STARTED);
 
         assertTrue(found.isEmpty() || found.get().isEmpty());
     }
@@ -72,7 +72,7 @@ class DeploymentOutboxRepositoryImplTest {
     private DeploymentOutboxMessage outboxMessage() {
         return DeploymentOutboxMessage.builder()
                 .id(UUID.randomUUID())
-                .type(DEPLOYMENT_SAGA_NAME)
+                .type(APPLY_CHUNK_COMMAND)
                 .transType(TransType.MESSAGING)
                 .payload("{\"deploymentId\":\"" + UUID.randomUUID() + "\"}")
                 .messageKey("ONLINE_CAMPUS:PROD:CUR01")

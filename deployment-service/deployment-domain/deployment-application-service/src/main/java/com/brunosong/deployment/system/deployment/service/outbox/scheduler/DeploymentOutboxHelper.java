@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static com.brunosong.deployment.system.saga.deployment.SagaConstants.DEPLOYMENT_SAGA_NAME;
+import static com.brunosong.deployment.system.deployment.service.outbox.model.OutboxMessageType.APPLY_CHUNK_COMMAND;
 
 @Slf4j
 @Component
@@ -28,7 +28,7 @@ public class DeploymentOutboxHelper {
 
     @Transactional(readOnly = true)
     public Optional<List<DeploymentOutboxMessage>> getDeploymentOutboxMessageByOutboxStatus(OutboxStatus outboxStatus) {
-        return deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, outboxStatus);
+        return deploymentOutboxRepository.findByTypeAndOutboxStatus(APPLY_CHUNK_COMMAND, outboxStatus);
     }
 
     @Transactional
@@ -49,7 +49,7 @@ public class DeploymentOutboxHelper {
     public void saveDeploymentOutboxMessage(DeploymentEventPayload deploymentEventPayload) {
         save(DeploymentOutboxMessage.builder()
                 .id(UUID.randomUUID())
-                .type(DEPLOYMENT_SAGA_NAME)
+                .type(APPLY_CHUNK_COMMAND)
                 .transType(deploymentEventPayload.getTransType())
                 .payload(createPayload(deploymentEventPayload))
                 .messageKey(deploymentEventPayload.messageKey())

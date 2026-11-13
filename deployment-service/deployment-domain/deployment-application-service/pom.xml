@@ -38,10 +38,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.brunosong.deployment.system</groupId>
-            <artifactId>saga</artifactId>
-        </dependency>
 
     </dependencies>
 
