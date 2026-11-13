@@ -25,6 +25,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     private DeploymentStatus deploymentStatus;
     private TransType transType;
     private SourceConfigId sourceConfigId;
+    private String curriculumId;
     private LocalDateTime createdAt;
     private String createUserId;
     private LocalDateTime updatedAt;
@@ -45,7 +46,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     @Builder
     private Deployment(DeploymentId id, SourceId sourceId, SourceType sourceType, DbType dbType, TargetId targetId,
                        DeploymentStatus deploymentStatus, TransType transType, SourceConfigId sourceConfigId,
-                       LocalDateTime createdAt, String createUserId, LocalDateTime updatedAt,
+                       String curriculumId, LocalDateTime createdAt, String createUserId, LocalDateTime updatedAt,
                        String resultMessage, int totalChunkSize, List<Chunk> chunks) {
         setId(id);
         this.sourceId = sourceId;
@@ -55,6 +56,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         this.deploymentStatus = deploymentStatus;
         this.transType = transType;
         this.sourceConfigId = sourceConfigId;
+        this.curriculumId = curriculumId;
         this.createdAt = createdAt;
         this.createUserId = createUserId;
         this.updatedAt = updatedAt;
@@ -65,56 +67,13 @@ public class Deployment extends AggregateRoot<DeploymentId> {
         }
     }
 
-    /** 상태를 그대로 덮어쓴다. 규칙을 거치지 않으므로 연결 단계에서 지운다. */
-    @Deprecated(forRemoval = true)
-    public void updateDeploymentStatus(DeploymentStatus deploymentStatus) {
-        this.deploymentStatus = deploymentStatus;
-    }
-
-    /** 옛 상태 기계(PENDING → SENT). 새 상태 기계로 바꾸면서 연결 단계에서 지운다. */
-    @Deprecated(forRemoval = true)
-    public void markSent() {
-        if (this.deploymentStatus != DeploymentStatus.PENDING) {
-            throw new IllegalStateException("Cannot mark sent from " + this.deploymentStatus);
-        }
-        this.deploymentStatus = DeploymentStatus.SENT;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    /** 옛 상태 기계(SENT → PROCESSED). 연결 단계에서 지운다. */
-    @Deprecated(forRemoval = true)
-    public void markProcessed() {
-        if (this.deploymentStatus != DeploymentStatus.SENT) {
-            throw new IllegalStateException("Cannot mark processed from " + this.deploymentStatus);
-        }
-        this.deploymentStatus = DeploymentStatus.PROCESSED;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    /** 옛 상태 기계(PROCESSED → SUCCESS). 연결 단계에서 지운다. */
-    @Deprecated(forRemoval = true)
-    public void markSuccess() {
-        if (this.deploymentStatus != DeploymentStatus.PROCESSED) {
-            throw new IllegalStateException("Cannot mark success from " + this.deploymentStatus);
-        }
-        this.deploymentStatus = DeploymentStatus.SUCCESS;
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    /** 옛 상태 기계의 실패. 연결 단계에서 지운다. */
-    @Deprecated(forRemoval = true)
-    public void markFailed() {
-        this.deploymentStatus = DeploymentStatus.FAILED;
-        this.updatedAt = LocalDateTime.now();
-    }
-
     /**
      * 새 배포를 다 갖춘 상태로 한 번에 만든다. ID, 시작 상태(PENDING), 생성 시각은 여기서 정한다.
      * 새 배포는 이것으로만 만든다. 빌더는 저장소에서 되살릴 때 쓴다.
      * 청크 내용은 들고 있지 않는다. 내용은 아웃박스로 따로 나간다(도메인 모델: 청크 내용은 애그리거트에 넣지 않는다).
      * 청크는 뼈대 하나가 늘 있으므로 하나 이상이어야 한다.
      */
-    public static Deployment create(SourceId sourceId, SourceConfigId sourceConfigId, TargetId targetId,
+    public static Deployment create(SourceId sourceId, SourceConfigId sourceConfigId, String curriculumId, TargetId targetId,
                                     TransType transType, SourceType sourceType, DbType dbType,
                                     int totalChunkSize) {
         if (totalChunkSize < 1) {
@@ -124,6 +83,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
                 .id(new DeploymentId(UUID.randomUUID()))
                 .sourceId(sourceId)
                 .sourceConfigId(sourceConfigId)
+                .curriculumId(curriculumId)
                 .targetId(targetId)
                 .transType(transType)
                 .sourceType(sourceType)

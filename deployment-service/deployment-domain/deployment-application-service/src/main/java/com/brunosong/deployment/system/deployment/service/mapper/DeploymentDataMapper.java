@@ -19,10 +19,12 @@ import java.time.ZonedDateTime;
 public class DeploymentDataMapper {
 
     /** 요청과 원본 설정, 청크 수로 새 배포를 만든다. 값이 다 모인 뒤에 한 번에 만든다 */
-    public Deployment toDeployment(DeploymentRequest request, SourceConfig sourceConfig, int totalChunkSize) {
+    public Deployment toDeployment(DeploymentRequest request, SourceConfig sourceConfig,
+                                   String curriculumId, int totalChunkSize) {
         return Deployment.create(
                 toSourceId(request),
                 toSourceConfigId(request),
+                curriculumId,
                 new TargetId(request.targetId()),
                 request.transType(),
                 sourceConfig.getSourceType(),
@@ -52,20 +54,19 @@ public class DeploymentDataMapper {
     }
 
     /** 청크 하나를 아웃박스에 적을 페이로드로 바꾼다 */
-    public DeploymentEventPayload toDeploymentEventPayload(Deployment deployment, String curriculumId,
-                                                           int chunkOffset, ChunkContent content,
-                                                           ZonedDateTime createdAt) {
+    public DeploymentEventPayload toDeploymentEventPayload(Deployment deployment, int chunkOffset,
+                                                           ChunkContent content, ZonedDateTime createdAt) {
         TargetCatalog.Target target = TargetCatalog.find(deployment.getTargetId().getValue());
-        return DeploymentEventPayload.builder()
-                .deploymentId(deployment.getId().getValue())
-                .targetSystem(target.system())
-                .environment(target.environment())
-                .transType(deployment.getTransType())
-                .curriculumId(curriculumId)
-                .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
-                .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
-                .chunkOffset(chunkOffset)
-                .createdAt(createdAt)
-                .build();
+            return DeploymentEventPayload.builder()
+                    .deploymentId(deployment.getId().getValue())
+                    .targetSystem(target.system())
+                    .environment(target.environment())
+                    .transType(deployment.getTransType())
+                    .curriculumId(deployment.getCurriculumId())
+                    .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
+                    .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
+                    .chunkOffset(chunkOffset)
+                    .createdAt(createdAt)
+                    .build();
     }
 }

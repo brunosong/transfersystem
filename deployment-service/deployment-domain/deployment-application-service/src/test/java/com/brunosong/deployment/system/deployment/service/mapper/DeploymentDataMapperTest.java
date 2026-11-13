@@ -32,7 +32,7 @@ class DeploymentDataMapperTest {
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
         Deployment deployment = deployment(1L, chunks.size());
 
-        List<String> keys = payloads(deployment, curriculum, chunks).stream()
+        List<String> keys = payloads(deployment, chunks).stream()
                 .map(DeploymentEventPayload::messageKey)
                 .distinct()
                 .toList();
@@ -46,8 +46,8 @@ class DeploymentDataMapperTest {
         Curriculum curriculum = curriculum("CUR01");
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
 
-        String first = payloads(deployment(1L, chunks.size()), curriculum, chunks).get(0).messageKey();
-        String second = payloads(deployment(1L, chunks.size()), curriculum, chunks).get(0).messageKey();
+        String first = payloads(deployment(1L, chunks.size()), chunks).get(0).messageKey();
+        String second = payloads(deployment(1L, chunks.size()), chunks).get(0).messageKey();
 
         assertEquals(first, second);
     }
@@ -58,23 +58,22 @@ class DeploymentDataMapperTest {
         Curriculum curriculum = curriculum("CUR01");
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
 
-        String prod = payloads(deployment(1L, chunks.size()), curriculum, chunks).get(0).messageKey();
-        String dev = payloads(deployment(3L, chunks.size()), curriculum, chunks).get(0).messageKey();
+        String prod = payloads(deployment(1L, chunks.size()), chunks).get(0).messageKey();
+        String dev = payloads(deployment(3L, chunks.size()), chunks).get(0).messageKey();
 
         assertNotEquals(prod, dev);
         assertEquals("ONLINE_CAMPUS:DEV:CUR01", dev);
     }
 
-    private List<DeploymentEventPayload> payloads(Deployment deployment, Curriculum curriculum,
-                                                  List<ChunkContent> chunks) {
+    private List<DeploymentEventPayload> payloads(Deployment deployment, List<ChunkContent> chunks) {
         return java.util.stream.IntStream.range(0, chunks.size())
-                .mapToObj(i -> mapper.toDeploymentEventPayload(deployment, curriculum.curriculumId(), i,
+                .mapToObj(i -> mapper.toDeploymentEventPayload(deployment, i,
                         chunks.get(i), NOW))
                 .toList();
     }
 
     private Deployment deployment(long targetId, int totalChunkSize) {
-        return Deployment.create(new SourceId("6731a2b4c5d6e7f801234567"), new SourceConfigId(1L),
+        return Deployment.create(new SourceId("6731a2b4c5d6e7f801234567"), new SourceConfigId(1L), "CUR01",
                 new TargetId(targetId), TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, totalChunkSize);
     }
 

@@ -24,14 +24,16 @@ class DeploymentTest {
     @Test
     @DisplayName("새 배포는 ID, PENDING 상태, 생성 시각, 청크 수를 갖춘 채로 만들어진다")
     void createBuildsCompleteDeployment() {
-        Deployment deployment = Deployment.create(new SourceId("CUR01"), new SourceConfigId(1L), new TargetId(2L),
+        Deployment deployment = Deployment.create(new SourceId("6731a2b4c5d6e7f801234567"), new SourceConfigId(1L),
+                "CUR01", new TargetId(2L),
                 TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 4);
 
         assertNotNull(deployment.getId());
         assertEquals(DeploymentStatus.PENDING, deployment.getDeploymentStatus());
         assertNotNull(deployment.getCreatedAt());
         assertEquals(4, deployment.getTotalChunkSize());
-        assertEquals("CUR01", deployment.getSourceId().getValue());
+        assertEquals("6731a2b4c5d6e7f801234567", deployment.getSourceId().getValue());
+        assertEquals("CUR01", deployment.getCurriculumId());
         assertEquals(SourceType.CURRICULUM, deployment.getSourceType());
         assertEquals(DbType.MONGO, deployment.getDbType());
         assertTrue(deployment.getChunks().isEmpty());
@@ -40,8 +42,8 @@ class DeploymentTest {
     @Test
     @DisplayName("청크가 하나도 없으면 배포를 만들 수 없다")
     void createRejectsZeroChunks() {
-        assertThrows(DeploymentDomainException.class, () -> Deployment.create(new SourceId("CUR01"),
-                new SourceConfigId(1L), new TargetId(2L), TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 0));
+        assertThrows(DeploymentDomainException.class, () -> Deployment.create(new SourceId("6731a2b4c5d6e7f801234567"),
+                new SourceConfigId(1L), "CUR01", new TargetId(2L), TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 0));
     }
 
     @Test

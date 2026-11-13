@@ -663,7 +663,7 @@ static List<ChunkContent> split(Curriculum curriculum)
 
 | 계획 | 실제 | 이유 |
 |---|---|---|
-| 커리큘럼 ID를 `Deployment`가 받는다 | 청크마다 아웃박스 페이로드에 싣는다 (처음에는 `DeploymentRequestEvent`에 실었고, 이벤트는 뒤에 지웠다) | 배포 표에 커리큘럼 ID 칸이 없다. `Deployment`에만 두면 DB에서 되살린 배포는 그 값이 늘 빈다. 저장은 [도메인 모델](../domain/model.md#6-값-객체)의 `CurriculumRef` 작업 때 마이그레이션과 함께 한다 |
+| 커리큘럼 ID를 `Deployment`가 받는다 | 청크마다 아웃박스 페이로드에 싣는다 (처음에는 `DeploymentRequestEvent`에 실었고, 이벤트는 뒤에 지웠다) | 배포 표에 커리큘럼 ID 칸이 없다. `Deployment`에만 두면 DB에서 되살린 배포는 그 값이 늘 빈다. 저장은 [도메인 모델](../domain/model.md#6-값-객체)의 `CurriculumRef` 작업 때 마이그레이션과 함께 한다. (2026-11-13: 결과 처리에서 과목을 보낼 때 필요해져 V10으로 배포에 `curriculum_id`를 두었다) |
 | `Deployment`는 커리큘럼 ID와 청크 수만 받는다 | `sourceType`, `dbType`도 칸으로 가진다 | 배포 표의 두 칸이 `NOT NULL`이다. 전에는 `SourceContentData`가 대신 들고 있었다 |
 | 원본 설정은 핸들러 안에서 찾는다 | 애플리케이션 서비스가 찾는다 | 배포 쪽이 원본 설정(위 줄)을 써야 해서, 핸들러가 설정과 커리큘럼을 함께 돌려주는 모양을 피했다. 대신 배포 쪽이 `SourceConfig`를 더 본다. 7.9절에서 푼다 |
 

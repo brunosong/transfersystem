@@ -39,6 +39,9 @@ public class DeploymentEntity implements Persistable<UUID> {
     @Column(name = "sourceconfig_id", nullable = false)
     private Long sourceconfigId;
 
+    @Column(name = "curriculum_id")
+    private String curriculumId;
+
     @Enumerated(EnumType.STRING)
     //@JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private SourceType sourceType;

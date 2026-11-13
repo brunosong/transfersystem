@@ -44,11 +44,11 @@ public class DeploymentApplicationServiceImpl implements DeploymentApplicationSe
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
 
         // 4. 값이 다 모였으니 배포를 한 번에 만든다
-        Deployment deployment = deploymentDataMapper.toDeployment(deploymentRequest, sourceConfig, chunks.size());
+        Deployment deployment = deploymentDataMapper.toDeployment(deploymentRequest, sourceConfig,
+                curriculum.curriculumId(), chunks.size());
 
         // 5. 배포를 접수하고 청크를 아웃박스에 넣는다
-        Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment,
-                curriculum.curriculumId(), chunks);
+        Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, chunks);
 
         return deploymentDataMapper.deploymentToCreateDeploymentResponse(accepted);
     }

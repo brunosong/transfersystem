@@ -8,6 +8,7 @@ CREATE TABLE deployment (
     id                UUID PRIMARY KEY,
     source_id         VARCHAR(100) NOT NULL,
     sourceconfig_id   BIGINT       NOT NULL,
+    curriculum_id     VARCHAR(100),
     source_type       VARCHAR(50)  NOT NULL,
     target_id         BIGINT       NOT NULL,
     db_type           VARCHAR(50)  NOT NULL,

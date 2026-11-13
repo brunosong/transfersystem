@@ -111,7 +111,7 @@
   - [x] 1. 결정 기록
   - [x] 2. 내용 표 만들기 (`V9` `deployment_chunk_payload`, 포트, 어댑터, `jsonb`)
   - [x] 3. 접수 때 모든 청크 내용 저장 (아웃박스에는 아직 전부 넣음)
-  - [ ] 4. 결과 처리의 새 길 준비 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 연결은 아직
+  - [ ] 4. 결과 처리의 새 길 준비. 먼저 4-1 ~~배포에 커리큘럼 ID 두기~~(V10), 4-2 결과 메시지에 시도 번호 싣기. 그다음 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 연결은 아직
   - [ ] 5. 전환: 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
   - [ ] 6. 옛 길 정리: 콘솔 조회를 `deployment_chunk`로 옮기고 `deployment_chunks`, `saveChunk`, 캐시 경로 삭제
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거

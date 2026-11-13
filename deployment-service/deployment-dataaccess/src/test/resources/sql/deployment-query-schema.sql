@@ -30,6 +30,7 @@ CREATE TABLE deployment (
     id UUID PRIMARY KEY,
     source_id VARCHAR(100) NOT NULL,
     sourceconfig_id BIGINT NOT NULL,
+    curriculum_id VARCHAR(100),
     source_type source_type NOT NULL,
     target_id BIGINT NOT NULL,
     db_type db_type NOT NULL,

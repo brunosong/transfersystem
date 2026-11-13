@@ -92,6 +92,7 @@ class DeploymentRepositoryImplTest {
         Deployment found = find();
 
         assertEquals(DeploymentStatus.IN_PROGRESS, found.getDeploymentStatus());
+        assertEquals("CUR01", found.getCurriculumId());
 
         List<Chunk> chunks = found.getChunks();
         assertEquals(3, chunks.size());
@@ -162,6 +163,7 @@ class DeploymentRepositoryImplTest {
                 .id(new DeploymentId(DEPLOYMENT_ID))
                 .sourceId(new SourceId("curriculum-001"))
                 .sourceConfigId(new SourceConfigId(1L))
+                .curriculumId("CUR01")
                 .targetId(new TargetId(1L))
                 .transType(TransType.MESSAGING)
                 .sourceType(SourceType.CURRICULUM)
