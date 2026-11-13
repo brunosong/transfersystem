@@ -118,7 +118,7 @@
 - [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`)
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
-- [ ] 사가 흔적 정리: ~~`sagaId`, `saga_status`~~(V6), ~~아웃박스 `type` 값~~(V8, `ApplyChunkCommand`), ~~deployment-service의 `saga` 모듈 의존~~. 남은 것: 아무도 쓰지 않는 `infrastructure/saga` 모듈 자체
+- [x] 사가 흔적 정리: `sagaId`, `saga_status`(V6), 아웃박스 `type` 값(V8, `ApplyChunkCommand`), deployment-service의 `saga` 모듈 의존, `infrastructure/saga` 모듈(`SagaStatus`, `SagaStep`, `SagaConstants`)을 지웠다. 사가를 다시 시작하면 새로 만든다([ADR 0003](adr/0003-defer-saga.md))
 
 ## Phase 4. 테스트
 - [ ] 배포 애그리거트 상태 기계 단위 테스트

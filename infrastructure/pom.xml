@@ -14,7 +14,6 @@
     <modules>
         <module>message-contracts</module>
         <module>kafka</module>
-        <module>saga</module>
         <module>outbox</module>
     </modules>
 

@@ -89,7 +89,6 @@
 - **`kafka/kafka-support`**: Kafka 에러 처리(재시도·DLT 등) 스프링 부트 자동 설정.
 - **`message-contracts`**: 서비스 간 메시지 계약(Avro 스키마). 각 messaging 모듈이 아티팩트에서 스키마를 꺼내 자기 클래스를 만듭니다. ([ADR 0001](docs/adr/0001-message-contract-distribution.md))
 - **`outbox`**: Transactional Outbox 상태 및 스케줄러.
-- **`saga`**: Saga 상태·단계 정의. 사가를 미뤄서 지금은 아웃박스 조회 조건에만 쓰이며, 정리할 예정입니다.
 - **`docker-compose`**: 로컬 개발용 Kafka, Zookeeper, MongoDB, MySQL, PostgreSQL, Redis 설정.
 - **`k8s`**: Kubernetes 매니페스트(Kafka, MongoDB, MySQL, PostgreSQL, 서비스, Argo CD).
 - **`jenkins`**: Jenkins Helm values 및 Maven 캐시 PVC.
