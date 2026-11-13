@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity;
 
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,9 +22,6 @@ public class DeploymentOutboxEntity {
     @Id
     private UUID id;
 
-    @Column(name = "saga_id", nullable = false)
-    private UUID sagaId;
-
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     private ZonedDateTime createdAt;
@@ -45,10 +41,6 @@ public class DeploymentOutboxEntity {
     @Column(name = "payload", nullable = false)
     @JdbcTypeCode(SqlTypes.JSON)
     private String payload;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "saga_status", nullable = false)
-    private SagaStatus sagaStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "outbox_status", nullable = false)

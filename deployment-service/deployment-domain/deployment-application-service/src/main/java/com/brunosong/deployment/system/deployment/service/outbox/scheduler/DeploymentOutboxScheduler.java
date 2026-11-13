@@ -3,7 +3,6 @@ package com.brunosong.deployment.system.deployment.service.outbox.scheduler;
 import com.brunosong.deployment.system.domain.DomainConstants;
 import com.brunosong.deployment.system.outbox.OutboxScheduler;
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentOutboxMessage;
 import com.brunosong.deployment.system.deployment.service.ports.output.message.publisher.DeploymentRequestMessagePublisher;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +30,11 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
     @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay}",
             initialDelayString = "${deployment-service.outbox-scheduler.initial-delay}")
     public void processOutboxMessages() {
-        Optional<List<DeploymentOutboxMessage>> outboxMessagesResponse = deploymentOutboxHelper.getDeploymentOutboxMessageByOutboxStatusAndSagaStatus(OutboxStatus.STARTED,
-                        SagaStatus.STARTED, SagaStatus.COMPENSATED);
+        Optional<List<DeploymentOutboxMessage>> outboxMessagesResponse = deploymentOutboxHelper.getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED);
 
         if (outboxMessagesResponse.isPresent() && !outboxMessagesResponse.get().isEmpty()) {
             List<DeploymentOutboxMessage> outboxMessages = outboxMessagesResponse.get();
+
             log.info("Received {} DeploymentOutboxMessages with ids : {}, sending to message bus!", outboxMessages.size(),
                     outboxMessages.stream().map(outboxMessage ->
                             outboxMessage.getId().toString()).collect(Collectors.joining()));

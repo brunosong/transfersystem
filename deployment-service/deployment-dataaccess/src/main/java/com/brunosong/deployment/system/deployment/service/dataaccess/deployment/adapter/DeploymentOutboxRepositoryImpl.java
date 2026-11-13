@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.deployment.adapter;
 
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentOutboxEntity;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.mapper.DeploymentOutboxDataAccessMapper;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentOutboxJpaRepository;
@@ -11,10 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -32,28 +29,16 @@ public class DeploymentOutboxRepositoryImpl implements DeploymentOutboxRepositor
     }
 
     @Override
-    public Optional<List<DeploymentOutboxMessage>> findByTypeAndOutboxStatusAndSagaStatus(String type,
-                                                                                            OutboxStatus outboxStatus,
-                                                                                            SagaStatus... sagaStatus) {
+    public Optional<List<DeploymentOutboxMessage>> findByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus) {
         return deploymentOutboxJpaRepository
-                .findByTypeAndOutboxStatusAndSagaStatusIn(type, outboxStatus, Arrays.asList(sagaStatus))
+                .findByTypeAndOutboxStatus(type, outboxStatus)
                 .map(entities -> entities.stream()
                         .map(deploymentOutboxDataAccessMapper::toDeploymentOutboxMessage)
                         .toList());
     }
 
     @Override
-    public Optional<DeploymentOutboxMessage> findByTypeSagaIdAndSagaStatus(String type, UUID sagaId,
-                                                                             SagaStatus... sagaStatus) {
-        return deploymentOutboxJpaRepository
-                .findByTypeAndSagaIdAndSagaStatusIn(type, sagaId, Arrays.asList(sagaStatus))
-                .map(deploymentOutboxDataAccessMapper::toDeploymentOutboxMessage);
-    }
-
-    @Override
-    public void deleteByTypeAndOutboxStatusAndSagaStatus(String type,
-                                                         OutboxStatus outboxStatus,
-                                                         SagaStatus... sagaStatus) {
-        deploymentOutboxJpaRepository.deleteByTypeAndOutboxStatusAndSagaStatusIn(type, outboxStatus, Arrays.asList(sagaStatus));
+    public void deleteByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus) {
+        deploymentOutboxJpaRepository.deleteByTypeAndOutboxStatus(type, outboxStatus);
     }
 }

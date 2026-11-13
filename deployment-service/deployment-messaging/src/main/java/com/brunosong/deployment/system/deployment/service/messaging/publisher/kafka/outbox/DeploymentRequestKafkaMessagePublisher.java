@@ -50,25 +50,25 @@ public class DeploymentRequestKafkaMessagePublisher implements DeploymentRequest
             return;
         }
 
-        String sagaId = deploymentOutboxMessage.getSagaId().toString();
+        String id = deploymentOutboxMessage.getId().toString();
         String topicName = deploymentServiceConfigData.getDataMigrationRequestTopicName();
 
         try {
 
             ApplyChunkCommand command = deploymentMessagingDataMapper.toApplyChunkCommand(payload);
 
-            kafkaTemplate.send(topicName, sagaId, command)
+            kafkaTemplate.send(topicName, id, command)
                     .whenComplete(getKafkaCallback(topicName,
                                                    command,
                                                    deploymentOutboxMessage,
                                                    outboxCallback,
                                       "ApplyChunkCommand"));
 
-            log.info("ApplyChunkCommand sent to kafka for saga id: {}", sagaId);
+            log.info("ApplyChunkCommand sent to kafka for outbox id: {}", id);
         } catch (Exception e) {
             log.error("Error while sending ApplyChunkCommand message" +
-                            " to kafka with saga id: {} and error: {}",
-                    sagaId, e.getMessage());
+                            " to kafka with outbox id: {} and error: {}",
+                    id, e.getMessage());
             outboxCallback.accept(deploymentOutboxMessage, OutboxStatus.FAILED);
         }
     }
@@ -102,9 +102,9 @@ public class DeploymentRequestKafkaMessagePublisher implements DeploymentRequest
                 outboxCallback.accept(deploymentOutboxMessage, OutboxStatus.FAILED);
             } else {
                 RecordMetadata metadata = result.getRecordMetadata();
-                log.info("Received successful response from Kafka for saga id: {}" +
+                log.info("Received successful response from Kafka for outbox id: {}" +
                                 " Topic: {} Partition: {} Offset: {} Timestamp: {}",
-                        deploymentOutboxMessage.getSagaId(),
+                        deploymentOutboxMessage.getId(),
                         metadata.topic(),
                         metadata.partition(),
                         metadata.offset(),

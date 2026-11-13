@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.deployment.adapter;
 
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.dataaccess.TestJpaConfiguration;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.mapper.DeploymentOutboxDataAccessMapperImpl;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentOutboxJpaRepository;
@@ -35,7 +34,7 @@ class DeploymentOutboxRepositoryImplTest {
 
     @Test
     void save() {
-        DeploymentOutboxMessage saved = deploymentOutboxRepository.save(outboxMessage(UUID.randomUUID()));
+        DeploymentOutboxMessage saved = deploymentOutboxRepository.save(outboxMessage());
 
         assertEquals(DEPLOYMENT_SAGA_NAME, saved.getType());
         assertEquals(OutboxStatus.STARTED, saved.getOutboxStatus());
@@ -44,42 +43,38 @@ class DeploymentOutboxRepositoryImplTest {
 
     /** 스케줄러가 집어 가는 조건 그대로 찾아본다 */
     @Test
-    void findByTypeAndOutboxStatusAndSagaStatus() {
-        UUID sagaId = UUID.randomUUID();
-        deploymentOutboxRepository.save(outboxMessage(sagaId));
+    void findByTypeAndOutboxStatus() {
+        DeploymentOutboxMessage message = outboxMessage();
+        deploymentOutboxRepository.save(message);
 
         Optional<List<DeploymentOutboxMessage>> found =
-                deploymentOutboxRepository.findByTypeAndOutboxStatusAndSagaStatus(DEPLOYMENT_SAGA_NAME,
-                        OutboxStatus.STARTED, SagaStatus.STARTED, SagaStatus.COMPENSATED);
+                deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, OutboxStatus.STARTED);
 
         assertTrue(found.isPresent());
         assertEquals(1, found.get().size());
-        assertEquals(sagaId, found.get().get(0).getSagaId());
+        assertEquals(message.getId(), found.get().get(0).getId());
     }
 
     /** 이미 나간 건은 다음 주기에 다시 집히면 안 된다 */
     @Test
     void completedMessageIsNotPickedUpAgain() {
-        DeploymentOutboxMessage message = outboxMessage(UUID.randomUUID());
+        DeploymentOutboxMessage message = outboxMessage();
         message.setOutboxStatus(OutboxStatus.COMPLETED);
         deploymentOutboxRepository.save(message);
 
         Optional<List<DeploymentOutboxMessage>> found =
-                deploymentOutboxRepository.findByTypeAndOutboxStatusAndSagaStatus(DEPLOYMENT_SAGA_NAME,
-                        OutboxStatus.STARTED, SagaStatus.STARTED, SagaStatus.COMPENSATED);
+                deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, OutboxStatus.STARTED);
 
         assertTrue(found.isEmpty() || found.get().isEmpty());
     }
 
-    private DeploymentOutboxMessage outboxMessage(UUID sagaId) {
+    private DeploymentOutboxMessage outboxMessage() {
         return DeploymentOutboxMessage.builder()
                 .id(UUID.randomUUID())
-                .sagaId(sagaId)
                 .type(DEPLOYMENT_SAGA_NAME)
                 .transType(TransType.MESSAGING)
                 .payload("{\"deploymentId\":\"" + UUID.randomUUID() + "\"}")
                 .createdAt(ZonedDateTime.now(ZoneId.of("UTC")))
-                .sagaStatus(SagaStatus.STARTED)
                 .outboxStatus(OutboxStatus.STARTED)
                 .build();
     }

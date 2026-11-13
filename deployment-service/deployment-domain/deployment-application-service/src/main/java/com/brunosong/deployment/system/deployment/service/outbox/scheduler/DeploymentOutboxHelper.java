@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.outbox.scheduler;
 
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentOutboxMessage;
@@ -28,14 +27,8 @@ public class DeploymentOutboxHelper {
     private final ObjectMapper objectMapper;
 
     @Transactional(readOnly = true)
-    public Optional<List<DeploymentOutboxMessage>> getDeploymentOutboxMessageByOutboxStatusAndSagaStatus(OutboxStatus outboxStatus,
-                                                                                         SagaStatus... sagaStatus) {
-        return deploymentOutboxRepository.findByTypeAndOutboxStatusAndSagaStatus(DEPLOYMENT_SAGA_NAME, outboxStatus, sagaStatus);
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<DeploymentOutboxMessage> getDeploymentOutboxMessageBySagaIdAndSagaStatus(UUID sagaId, SagaStatus... sagaStatus) {
-        return deploymentOutboxRepository.findByTypeSagaIdAndSagaStatus(DEPLOYMENT_SAGA_NAME, sagaId, sagaStatus);
+    public Optional<List<DeploymentOutboxMessage>> getDeploymentOutboxMessageByOutboxStatus(OutboxStatus outboxStatus) {
+        return deploymentOutboxRepository.findByTypeAndOutboxStatus(DEPLOYMENT_SAGA_NAME, outboxStatus);
     }
 
     @Transactional
@@ -53,15 +46,13 @@ public class DeploymentOutboxHelper {
     }
 
     @Transactional
-    public void saveDeploymentOutboxMessage(DeploymentEventPayload deploymentEventPayload, UUID sagaId) {
+    public void saveDeploymentOutboxMessage(DeploymentEventPayload deploymentEventPayload) {
         save(DeploymentOutboxMessage.builder()
                 .id(UUID.randomUUID())
                 .type(DEPLOYMENT_SAGA_NAME)
                 .transType(deploymentEventPayload.getTransType())
-                .sagaId(sagaId)
                 .payload(createPayload(deploymentEventPayload))
                 .createdAt(deploymentEventPayload.getCreatedAt())
-                .sagaStatus(SagaStatus.STARTED)
                 .outboxStatus(OutboxStatus.STARTED)
                 .build());
     }

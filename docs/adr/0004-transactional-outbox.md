@@ -39,7 +39,7 @@
 | 실패한 행을 `FAILED`로 적지만 스케줄러는 `STARTED`만 읽는다 | 일시적 오류로 실패한 행이 다시 나가지 않는 것으로 보인다 | 일시적 실패는 상태를 그대로 두어 다음 주기에 다시 보낸다. `FAILED`는 다시 보내도 소용없는 행에만 쓴다 |
 | 청크 키가 `UUID.randomUUID()`다 | 순서 보장 단위가 없다 | 행에 키(대상 + 커리큘럼 ID)를 저장한다 |
 | 내용 전체를 `payload`(jsonb)에 복사한다 | 재전송용 `ChunkPayload`와 내용이 두 곳에 있다. `byte[]`가 JSON 안에 Base64로 들어가 더 커진다 | 행에는 배포 ID, 청크 번호, 시도 번호만 두고, 발행할 때 `ChunkPayload`에서 내용을 읽는다 |
-| `saga_id`, `saga_status`, `trans_type` 칸이 있다 | 지금은 쓰임새가 없다([ADR 0003](0003-defer-saga.md)) | 지운다 |
+| `saga_id`, `saga_status`, `trans_type` 칸이 있다 | 지금은 쓰임새가 없다([ADR 0003](0003-defer-saga.md)) | 지운다. **`saga_id`, `saga_status`는 지웠다**(V6). `trans_type`은 발행 경로를 고르는 데 아직 쓴다 |
 | 발행이 끝난 행을 지우지 않는다 | 표가 계속 커진다 | 보관 기간이 지난 행을 지운다. 기간은 시스템 설계 단계에서 정한다 |
 
 ### 행에는 내용 대신 참조를 둔다

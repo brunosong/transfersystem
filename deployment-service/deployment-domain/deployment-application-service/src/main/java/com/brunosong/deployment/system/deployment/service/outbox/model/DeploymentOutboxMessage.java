@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.outbox.model;
 
 import com.brunosong.deployment.system.outbox.OutboxStatus;
-import com.brunosong.deployment.system.saga.SagaStatus;
 import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
 import lombok.*;
 
@@ -14,7 +13,6 @@ import java.util.UUID;
 public class DeploymentOutboxMessage {
 
     private UUID id;
-    private UUID sagaId;
     private ZonedDateTime createdAt;
 
     @Setter
@@ -23,8 +21,6 @@ public class DeploymentOutboxMessage {
     private String type;
     private String payload;
 
-    @Setter
-    private SagaStatus sagaStatus;
     private TransType transType;
 
     @Setter

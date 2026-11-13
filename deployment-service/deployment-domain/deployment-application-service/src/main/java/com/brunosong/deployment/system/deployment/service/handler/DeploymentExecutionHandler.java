@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -41,7 +40,7 @@ public class DeploymentExecutionHandler {
         for (int chunkOffset = 0; chunkOffset < chunks.size(); chunkOffset++) {
             DeploymentEventPayload deploymentEventPayload = deploymentDataMapper.toDeploymentEventPayload(
                     deployment, curriculumId, chunkOffset, chunks.get(chunkOffset), now);
-            deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload, UUID.randomUUID());
+            deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload);
         }
 
         return deployment;
