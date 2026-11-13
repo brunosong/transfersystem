@@ -44,10 +44,11 @@ flowchart TD
 
 ```java
 // DeploymentApplicationServiceImpl
-SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(deployment.getSourceConfigId());   // 2장
-Curriculum curriculum = sourceFindDataHandler.findCurriculum(deployment.getSourceId(), sourceConfig);   // 3장, 4장 앞
+SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(mapper.toSourceConfigId(request));  // 2장
+Curriculum curriculum = sourceFindDataHandler.findCurriculum(mapper.toSourceId(request), sourceConfig);  // 3장, 4장 앞
 List<ChunkContent> chunks = ChunkContent.split(curriculum);                                            // 4장 뒤
-Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, sourceConfig, curriculum.curriculumId(), chunks);
+Deployment deployment = mapper.toDeployment(request, sourceConfig, chunks.size());                      // 값이 다 모인 뒤 한 번에 만든다
+Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, curriculum.curriculumId(), chunks);
 ```
 
 ### 객체가 바뀌는 순서
@@ -56,7 +57,7 @@ Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, so
 
 ```mermaid
 flowchart LR
-  A["DeploymentRequest<br/>sourceConfigId: Long<br/>sourceId: String"] --> B["Deployment<br/>SourceConfigId, SourceId"]
+  A["DeploymentRequest<br/>sourceConfigId: Long<br/>sourceId: String"] --> B["SourceConfigId, SourceId<br/>값 객체"]
   B --> C["SourceConfig<br/>접속 정보"]
   C --> D["Mongo Document"]
   D --> E["SourceDocument<br/>sourceId, sourceType, json"]
@@ -68,7 +69,7 @@ flowchart LR
 | 단계 | 객체 | 있는 모듈 | 누가 만드나 |
 |---|---|---|---|
 | 요청 | `DeploymentRequest` | application-service (`dto/create`) | Spring이 JSON 본문으로 만든다 |
-| 배포 | `Deployment` | domain-core | `DeploymentDataMapper` |
+| 원본 키 | `SourceConfigId`, `SourceId` | domain-core | `DeploymentDataMapper.toSourceConfigId`, `toSourceId` |
 | 원본 설정 | `SourceConfigEntity` → `SourceConfig` | dataaccess → domain-core | JPA, `SourceDataAccessMapper` |
 | 원본 문서 | `Document` → `byte[]` | dataaccess | Mongo 드라이버, `MongoConnectHelper.toJson` |
 | 꺼낸 문서 | `SourceDocument` | application-service (`ports/output/repository`) | `SourceDataAccessMapper` |
@@ -91,14 +92,16 @@ sequenceDiagram
   OP->>C: POST /api/v1/deployments<br/>{targetId, transType, sourceId, sourceConfigId}
   C->>C: @Valid 검사 (네 칸 모두 @NotNull)
   C->>S: executeDeployment(request)
-  S->>M: deploymentRequestToDeployment(request)
-  M-->>S: Deployment (SourceConfigId, SourceId 값 객체)
+  S->>M: toSourceConfigId(request), toSourceId(request)
+  M-->>S: SourceConfigId, SourceId 값 객체
   S->>CH: findSourceConfigInfo(sourceConfigId)
   CH-->>S: SourceConfig
   S->>H: findCurriculum(sourceId, sourceConfig)
   H-->>S: Curriculum
   S->>S: ChunkContent.split(curriculum) — 4장
-  S->>S: acceptDeployment(deployment, sourceConfig, curriculumId, chunks) — 이 문서 밖
+  S->>M: toDeployment(request, sourceConfig, 청크 수)
+  M-->>S: Deployment (Deployment.create로 한 번에 완성)
+  S->>S: acceptDeployment(deployment, curriculumId, chunks) — 이 문서 밖
   S-->>C: CreateDeploymentResponse(deploymentId, 청크 수)
   C-->>OP: 202 Accepted + Location
 ```
@@ -647,10 +650,10 @@ static List<ChunkContent> split(Curriculum curriculum)
 | `CurriculumSourceConverter` | `toCurriculumId`, `toSkeleton`, `toSubjectChunks` | `toCurriculum(JsonNode)` 하나 |
 | `DeploymentDataConvertHelper` | JSON을 읽고 청크를 돌려주며, 인자를 고친다 | `toCurriculum(SourceDocument)`가 `Curriculum`을 돌려준다. 인자는 건드리지 않는다 |
 | `SourceFindDataHandler` | 원본 설정을 찾고, 문서를 꺼내고, 청크로 나눠 `SourceContentData`를 돌려준다 | `findCurriculum(SourceId, SourceConfig)`가 문서를 꺼내 `Curriculum`을 돌려준다 |
-| `DeploymentApplicationServiceImpl` | 핸들러 하나를 부른다 | 원본 설정 찾기 → `findCurriculum` → `ChunkContent.split` → `acceptDeployment(deployment, sourceConfig, curriculumId, chunks)`. 유스케이스 한 곳에서 흐름이 다 보인다 |
+| `DeploymentApplicationServiceImpl` | 핸들러 하나를 부른다 | 원본 설정 찾기 → `findCurriculum` → `ChunkContent.split` → `toDeployment` → `acceptDeployment(deployment, curriculumId, chunks)`. 유스케이스 한 곳에서 흐름이 다 보인다 |
 | `ChunkContent` | 나누는 일은 밖에 있다 | `split(Curriculum)`을 가진다 |
 | `DeploymentDomainService(Impl)` | `SourceContentData`에서 청크 목록을 꺼내 배포를 시작 상태로 만들고 이벤트를 만든다 | 지웠다. 하는 일이 배포 메서드 두 개를 부르고 이벤트 목록을 만드는 것뿐이라 지금은 따로 둘 이유가 없다. 그 일은 `DeploymentPersistHelper`가 한다. 쓰지 않던 `markSent` 같은 위임 메서드와 이 빈 하나만 등록하던 `BeanConfiguration`도 함께 지웠다 |
-| `Deployment` | `sourceContentData` 칸 | 칸을 지웠다. `initializeDeployment(sourceType, dbType, 청크 수)` |
+| `Deployment` | `sourceContentData` 칸 | 칸을 지웠다. 처음에는 `initializeDeployment(sourceType, dbType, 청크 수)`로 반쪽 배포를 나중에 채웠다. 그 뒤 정적 팩토리 `Deployment.create(...)`로 바꿨다. 원본을 읽고 청크를 나눈 **뒤에**, 값이 다 모였을 때 한 번에 만든다. 반쪽 배포가 없으니 "비었나?" 검사(`validateInitialDeployment`)도 지웠다. 빌더는 저장소에서 되살릴 때만 쓴다 |
 | `DeploymentRequestEvent` | 커리큘럼 ID는 `Deployment.sourceContentData`에서 읽었다 | `curriculumId` 칸을 가졌다. 그 뒤 이벤트 자체를 지웠다. 만든 바로 다음 줄에서 페이로드로 바뀌고 다른 곳에서 쓰지 않아서, 매퍼가 배포와 청크에서 페이로드를 바로 만든다 |
 | `DeploymentDataAccessMapper`, `DeploymentRepositoryImpl` | `totalChunkSize`에 늘 0인 `chunkOffset`을 넣었다 | 청크 수를 넣는다 |
 | 결과 처리(`DeploymentDataMapper`) | 결과의 청크 번호를 `SourceContentData`에 담았다. 읽는 곳은 없었다 | 그 줄을 지웠다 |

@@ -7,6 +7,7 @@ import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResult
 import com.brunosong.deployment.system.deployment.service.dto.create.CreateDeploymentResponse;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
+import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
@@ -17,13 +18,20 @@ import java.time.ZonedDateTime;
 @Component
 public class DeploymentDataMapper {
 
-    public Deployment deploymentRequestToDeployment(DeploymentRequest request) {
-        return Deployment.builder()
-                .sourceId(new SourceId(request.sourceId()))
-                .sourceConfigId(new SourceConfigId(request.sourceConfigId()))
-                .targetId(new TargetId(request.targetId()))
-                .transType(request.transType())
-                .build();
+    /** 요청과 원본 설정, 청크 수로 새 배포를 만든다. 값이 다 모인 뒤에 한 번에 만든다 */
+    public Deployment toDeployment(DeploymentRequest request, SourceConfig sourceConfig, int totalChunkSize) {
+        return Deployment.create(
+                toSourceId(request),
+                toSourceConfigId(request),
+                new TargetId(request.targetId()),
+                request.transType(),
+                sourceConfig.getSourceType(),
+                sourceConfig.getDbType(),
+                totalChunkSize);
+    }
+
+    public SourceId toSourceId(DeploymentRequest request) {
+        return new SourceId(request.sourceId());
     }
 
     /** 접수한 배포를 응답으로 바꾼다. 도메인 객체가 컨트롤러로 나가지 않게 여기서 끊는다 */

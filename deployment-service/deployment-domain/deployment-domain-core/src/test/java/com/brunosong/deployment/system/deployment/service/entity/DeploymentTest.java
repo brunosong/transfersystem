@@ -2,7 +2,13 @@ package com.brunosong.deployment.system.deployment.service.entity;
 
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkStatus;
+import com.brunosong.deployment.system.deployment.service.valueobject.DbType;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
+import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
+import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +20,29 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeploymentTest {
 
     private static final Instant NOW = Instant.parse("2026-11-08T10:00:00Z");
+
+    @Test
+    @DisplayName("새 배포는 ID, PENDING 상태, 생성 시각, 청크 수를 갖춘 채로 만들어진다")
+    void createBuildsCompleteDeployment() {
+        Deployment deployment = Deployment.create(new SourceId("CUR01"), new SourceConfigId(1L), new TargetId(2L),
+                TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 4);
+
+        assertNotNull(deployment.getId());
+        assertEquals(DeploymentStatus.PENDING, deployment.getDeploymentStatus());
+        assertNotNull(deployment.getCreatedAt());
+        assertEquals(4, deployment.getTotalChunkSize());
+        assertEquals("CUR01", deployment.getSourceId().getValue());
+        assertEquals(SourceType.CURRICULUM, deployment.getSourceType());
+        assertEquals(DbType.MONGO, deployment.getDbType());
+        assertTrue(deployment.getChunks().isEmpty());
+    }
+
+    @Test
+    @DisplayName("청크가 하나도 없으면 배포를 만들 수 없다")
+    void createRejectsZeroChunks() {
+        assertThrows(DeploymentDomainException.class, () -> Deployment.create(new SourceId("CUR01"),
+                new SourceConfigId(1L), new TargetId(2L), TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 0));
+    }
 
     @Test
     @DisplayName("접수하면 뼈대는 SENT, 과목은 WAITING 이고 배포는 IN_PROGRESS 다")

@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment;
 
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
-import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +16,11 @@ public class DeploymentPersistHelper {
     private final DeploymentRepository deploymentRepository;
 
     /**
-     * 새 배포인지 확인하고 시작 상태로 만들어 저장한다.
+     * 새 배포를 저장한다. 배포는 Deployment.create 로 이미 다 갖춰져 있다.
      * 배포는 청크 수만 기억한다. 청크 내용과 커리큘럼 ID는 아웃박스 페이로드에 싣는다.
      */
     @Transactional
-    public void persistDeployment(Deployment deployment, SourceConfig sourceConfig, int totalChunkSize) {
-        deployment.validateInitialDeployment();
-        deployment.initializeDeployment(sourceConfig.getSourceType(), sourceConfig.getDbType(), totalChunkSize);
+    public void persistDeployment(Deployment deployment) {
         saveDeployment(deployment);
     }
 

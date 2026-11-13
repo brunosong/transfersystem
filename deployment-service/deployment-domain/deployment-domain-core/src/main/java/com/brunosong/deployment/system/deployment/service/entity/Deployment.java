@@ -32,6 +32,13 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     private int totalChunkSize;
 
     private static final int SKELETON_NO = 0;
+
+    /**
+     * 청크마다의 상태(번호, WAITING/SENT/APPLIED/FAILED, 시도 번호). 내용은 담지 않는다.
+     * 아직 연결 전이라 실제 앱에서는 늘 비어 있다. 접수 때 accept() 로 채우고,
+     * 결과가 오면 recordSuccess()/recordFailure() 로 바꾸게 할 것이다.
+     * 지금 결과 처리는 옛 표(deployment_chunks)를 따로 쓴다. 이 목록은 새 표(deployment_chunk)에 저장된다.
+     */
     private final List<Chunk> chunks = new ArrayList<>();
 
     /** id 는 부모(BaseEntity)의 필드라 클래스에 붙인 @Builder 로는 받을 수 없어 생성자에 붙인다 */
@@ -102,23 +109,29 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     }
 
     /**
-     * 새 배포에 ID, 시작 상태, 생성 시각, 원본 종류와 청크 수를 채운다.
+     * 새 배포를 다 갖춘 상태로 한 번에 만든다. ID, 시작 상태(PENDING), 생성 시각은 여기서 정한다.
+     * 새 배포는 이것으로만 만든다. 빌더는 저장소에서 되살릴 때 쓴다.
      * 청크 내용은 들고 있지 않는다. 내용은 아웃박스로 따로 나간다(도메인 모델: 청크 내용은 애그리거트에 넣지 않는다).
+     * 청크는 뼈대 하나가 늘 있으므로 하나 이상이어야 한다.
      */
-    public void initializeDeployment(SourceType sourceType, DbType dbType, int totalChunkSize) {
-        setId(new DeploymentId(UUID.randomUUID()));
-        this.deploymentStatus = DeploymentStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
-        this.sourceType = sourceType;
-        this.dbType = dbType;
-        this.totalChunkSize = totalChunkSize;
-    }
-
-    /** 아직 아무것도 채워지지 않은 새 배포인지 확인한다. */
-    public void validateInitialDeployment() {
-        if (deploymentStatus != null || getCreatedAt() != null || totalChunkSize != 0) {
-            throw new DeploymentDomainException("Deployment is not in correct state for initialization!");
+    public static Deployment create(SourceId sourceId, SourceConfigId sourceConfigId, TargetId targetId,
+                                    TransType transType, SourceType sourceType, DbType dbType,
+                                    int totalChunkSize) {
+        if (totalChunkSize < 1) {
+            throw new DeploymentDomainException("청크는 하나 이상이어야 한다: " + totalChunkSize);
         }
+        return Deployment.builder()
+                .id(new DeploymentId(UUID.randomUUID()))
+                .sourceId(sourceId)
+                .sourceConfigId(sourceConfigId)
+                .targetId(targetId)
+                .transType(transType)
+                .sourceType(sourceType)
+                .dbType(dbType)
+                .deploymentStatus(DeploymentStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .totalChunkSize(totalChunkSize)
+                .build();
     }
 
     /**

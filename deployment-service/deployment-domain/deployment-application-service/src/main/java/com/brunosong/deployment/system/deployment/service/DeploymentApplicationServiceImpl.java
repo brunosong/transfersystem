@@ -32,20 +32,22 @@ public class DeploymentApplicationServiceImpl implements DeploymentApplicationSe
     @Override
     public CreateDeploymentResponse executeDeployment(DeploymentRequest deploymentRequest) {
 
-        Deployment deployment =
-                deploymentDataMapper.deploymentRequestToDeployment(deploymentRequest);
-
         // 1. 어느 원본 저장소에서 읽을지 찾는다
-        SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(deployment.getSourceConfigId());
+        SourceConfig sourceConfig = sourceConfigHelper.findSourceConfigInfo(
+                deploymentDataMapper.toSourceConfigId(deploymentRequest));
 
         // 2. 원본 문서를 꺼내 커리큘럼으로 바꾼다
-        Curriculum curriculum = sourceFindDataHandler.findCurriculum(deployment.getSourceId(), sourceConfig);
+        Curriculum curriculum = sourceFindDataHandler.findCurriculum(
+                deploymentDataMapper.toSourceId(deploymentRequest), sourceConfig);
 
         // 3. 커리큘럼을 청크로 나눈다 (0번 뼈대, 1번부터 과목)
         List<ChunkContent> chunks = ChunkContent.split(curriculum);
 
-        // 4. 배포를 접수하고 청크를 아웃박스에 넣는다
-        Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment, sourceConfig,
+        // 4. 값이 다 모였으니 배포를 한 번에 만든다
+        Deployment deployment = deploymentDataMapper.toDeployment(deploymentRequest, sourceConfig, chunks.size());
+
+        // 5. 배포를 접수하고 청크를 아웃박스에 넣는다
+        Deployment accepted = deploymentExecutionHandler.acceptDeployment(deployment,
                 curriculum.curriculumId(), chunks);
 
         return deploymentDataMapper.deploymentToCreateDeploymentResponse(accepted);

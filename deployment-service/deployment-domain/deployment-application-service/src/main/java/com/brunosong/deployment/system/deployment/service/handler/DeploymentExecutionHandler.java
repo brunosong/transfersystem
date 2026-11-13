@@ -2,7 +2,6 @@ package com.brunosong.deployment.system.deployment.service.handler;
 
 import com.brunosong.deployment.system.domain.DomainConstants;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
-import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.DeploymentPersistHelper;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
@@ -32,11 +31,10 @@ public class DeploymentExecutionHandler {
      * 두 저장을 한 트랜잭션에 묶어서, 배포는 저장됐는데 보낼 것이 없는 일이 생기지 않게 한다(ADR 0004).
      */
     @Transactional
-    public Deployment acceptDeployment(Deployment deployment, SourceConfig sourceConfig,
-                                       String curriculumId, List<ChunkContent> chunks) {
+    public Deployment acceptDeployment(Deployment deployment, String curriculumId, List<ChunkContent> chunks) {
 
-        // 1. 배포를 시작 상태로 저장한다
-        deploymentPersistHelper.persistDeployment(deployment, sourceConfig, chunks.size());
+        // 1. 배포를 저장한다
+        deploymentPersistHelper.persistDeployment(deployment);
 
         // 2. 청크마다 아웃박스 행을 하나씩 적는다. 목록의 순서가 청크 번호다
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
