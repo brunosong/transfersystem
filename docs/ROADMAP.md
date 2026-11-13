@@ -107,7 +107,13 @@
 - [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
 - [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
 - [x] `SourceContentData`를 `SourceDocument`(꺼낸 문서), `Curriculum`(트리 값 객체), 청크로 나누고, 청크로 나누는 일을 배포로 옮기기 ([원본 읽기 7장](system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
-- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다
+- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다. 내용을 어디에 둘지는 A'(내용 표 + 아웃박스는 당분간 전체)로 정했다([시스템 설계 6장](system/architecture.md#청크-내용은-어디에-두나))
+  - [x] 1. 결정 기록
+  - [ ] 2. 내용 표 만들기 (`V9` `deployment_chunk_payload`, 포트, 어댑터, `jsonb`)
+  - [ ] 3. 접수 때 모든 청크 내용 저장 (아웃박스에는 아직 전부 넣음)
+  - [ ] 4. 결과 처리의 새 길 준비 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 연결은 아직
+  - [ ] 5. 전환: 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
+  - [ ] 6. 옛 길 정리: 콘솔 조회를 `deployment_chunk`로 옮기고 `deployment_chunks`, `saveChunk`, 캐시 경로 삭제
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): 순번 저장, ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기

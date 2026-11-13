@@ -200,7 +200,7 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 |---|---|---|
 | `deployment` | `deployment` | `version`, `uk_deployment_in_progress`([규칙 A](../domain/model.md#규칙-a-커리큘럼--대상마다-진행-중인-배포는-하나)) |
 | `deployment_chunk` | `deployment_chunks` | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
-| `deployment_chunk_payload` | 없음 | `(deployment_id, chunk_no)` 기본 키. `content bytea`(Avro 직렬화 값) |
+| `deployment_chunk_payload` | 없음 | `(deployment_id, chunk_no)` 기본 키. `content bytea`(Avro 직렬화 값). 처음에는 `jsonb`로 만든다([아래](#청크-내용은-어디에-두나)) |
 | `outbox` | `deployment_outbox` | `seq`, 토픽, 키, 배포 ID, 청크 번호, 시도, 상태, 발행 시각 |
 | `target` | agent의 `targets` | `(system, environment)` 유일, `deployment_allowed` |
 
@@ -210,6 +210,38 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | `deployment_chunk (sent_at) WHERE status = 'SENT'` | 응답 기한 스케줄러 |
 | `deployment (curriculum_id, target_id, created_at DESC)` | 규칙 B, 대상별 최근 배포 |
 | `deployment (status, created_at DESC)` | 배포 이력, 대시보드 |
+
+### 청크 내용은 어디에 두나
+
+[불변식 3](../domain/model.md#3-불변식) 때문에 과목은 뼈대 결과가 온 **뒤에** 아웃박스에 들어간다. 그 결과는 접수 요청이 끝나고 한참 뒤에 오므로, 과목 내용을 그때까지 어딘가에 둬야 한다. 재전송도 같은 내용을 다시 보내야 한다([불변식 4](../domain/model.md#3-불변식)).
+
+| 안 | 방법 | 평가 |
+|---|---|---|
+| A. 내용 표 + 아웃박스는 참조만 | 접수 때 모든 청크 내용을 `deployment_chunk_payload`에 둔다. 아웃박스 행에는 배포 ID와 청크 번호만 두고 발행기가 내용을 읽는다 | 최종 모양이다([ADR 0004](../adr/0004-transactional-outbox.md#행에는-내용-대신-참조를-둔다)). 아웃박스 페이로드와 발행기까지 함께 바뀌어 한 번에 하기에는 크다 |
+| **A'. 내용 표 + 아웃박스는 지금처럼 전체** | 내용 표는 A와 같다. 아웃박스 행은 지금처럼 내용 전체를 담는다. 뼈대가 성공하면 내용 표에서 과목을 읽어 아웃박스 행을 만든다 | **지금 고른다.** 발행기를 건드리지 않고 불변식 3을 동작하게 만든다. 아웃박스를 참조만 담게 바꾸면 A가 된다 |
+| B. 아웃박스에 보류 행 | 과목 행도 접수 때 넣되 `HOLD`로 두고, 뼈대가 성공하면 푼다 | 버린다. "기다린다"가 청크 `WAITING`과 아웃박스 `HOLD` 두 곳에 생긴다. 보낸 행을 지우면 재전송할 내용이 없다 |
+| C. 원본을 다시 읽기 | 뼈대가 성공하면 저작 DB를 다시 읽어 나눈다 | 버린다. 그사이 원본이 바뀌면 한 배포 안에 두 시점의 내용이 섞인다(불변식 4). 결과 처리가 저작 DB에 기댄다 |
+
+A'로 하면 아웃박스 행이 남아 있는 동안 내용이 두 곳에 있다. 아웃박스 행은 보내고 나면 정리할 것이라 잠깐이다. 아웃박스를 참조만 담게 바꾸는 일은 [ADR 0004의 아웃박스 고치기](../adr/0004-transactional-outbox.md#다만-지금-구현은-고친다)와 함께 한다.
+
+**내용은 우선 JSON(`jsonb`)으로 저장한다.** 위 표는 Avro로 직렬화한 `bytea`를 정했지만, Avro 클래스는 메시징 모듈에만 있어서 접수와 결과 처리(애플리케이션 서비스)에서 바로 만들 수 없다. 모양은 지금 아웃박스 페이로드처럼 `skeleton`과 `subjectChunk` 칸을 나눈다. `ChunkContent`에 Jackson 다형성 표시를 달면 도메인 모듈이 Jackson을 알게 되기 때문이다. 아웃박스를 참조만 담게 바꿀 때, 발행기가 내용을 읽게 되므로 그때 Avro `bytea`로 바꿀지 다시 본다.
+
+흐름은 이렇게 된다.
+
+```
+접수 (한 트랜잭션)
+  Deployment.accept()            → 뼈대 SENT, 과목 WAITING, 배포 IN_PROGRESS
+  배포 + 청크 상태 저장
+  모든 청크 내용 → deployment_chunk_payload
+  뼈대만 → 아웃박스
+
+뼈대 성공 결과 (한 트랜잭션)
+  배포를 읽는다 → recordSuccess(0) → 보낼 과목 1..N을 돌려받는다
+  배포 + 청크 상태 저장
+  내용 표에서 과목 1..N을 읽는다 → 아웃박스
+```
+
+옮겨 가는 순서는 [ROADMAP](../ROADMAP.md)에 있다. 커밋마다 앱이 지금처럼 돌아가도록, 새 길을 먼저 만들고 테스트한 뒤 접수와 결과 처리를 한 번에 바꾼다.
 
 ### 청크 내용은 언제까지 두나
 
