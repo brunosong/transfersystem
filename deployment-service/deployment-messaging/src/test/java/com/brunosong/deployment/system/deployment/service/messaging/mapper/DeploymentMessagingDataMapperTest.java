@@ -94,6 +94,7 @@ class DeploymentMessagingDataMapperTest {
 
         assertEquals(DeploymentStatus.FAILED, response.getDeploymentStatus());
         assertEquals("학기를 찾을 수 없습니다", response.getMessage());
+        assertEquals(2, response.getAttempt());
     }
 
     @Test
@@ -108,7 +109,7 @@ class DeploymentMessagingDataMapperTest {
         return ApplyResult.newBuilder()
                 .setDeploymentId(DEPLOYMENT_ID.toString())
                 .setChunkNo(chunkNo)
-                .setAttempt(1)
+                .setAttempt(2)   // 기본값 0, 1과 다른 값이라 옮겨졌는지 구별된다
                 .setOutcome(outcome)
                 .setOccurredAt(CREATED_AT.toInstant())
                 .build();

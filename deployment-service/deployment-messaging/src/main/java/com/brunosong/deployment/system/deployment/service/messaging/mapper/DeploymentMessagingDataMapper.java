@@ -110,6 +110,7 @@ public class DeploymentMessagingDataMapper {
     public ApplyResultMessage toApplyResultMessage(ApplyResult result) {
         ApplyResultMessage.ApplyResultMessageBuilder response = ApplyResultMessage.builder()
                 .chunkOffset(result.getChunkNo())
+                .attempt(result.getAttempt())
                 .deploymentId(new DeploymentId(UUID.fromString(result.getDeploymentId())));
 
         // 유니온은 생성 코드에서 Object 로 나온다. 모르는 타입은 예외로 올려 DLT 로 보낸다
