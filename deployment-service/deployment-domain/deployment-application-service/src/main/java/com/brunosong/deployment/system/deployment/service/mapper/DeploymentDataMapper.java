@@ -7,11 +7,12 @@ import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResult
 import com.brunosong.deployment.system.deployment.service.dto.create.CreateDeploymentResponse;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
-import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
 import org.springframework.stereotype.Component;
+
+import java.time.ZonedDateTime;
 
 @Component
 public class DeploymentDataMapper {
@@ -42,19 +43,21 @@ public class DeploymentDataMapper {
                 .build();
     }
 
-    public DeploymentEventPayload deploymentRequestEventToDeploymentEventPayload(DeploymentRequestEvent deploymentRequestEvent) {
-        TargetCatalog.Target target = TargetCatalog.find(deploymentRequestEvent.getDeployment().getTargetId().getValue());
-        ChunkContent content = deploymentRequestEvent.getContent();
+    /** 청크 하나를 아웃박스에 적을 페이로드로 바꾼다 */
+    public DeploymentEventPayload toDeploymentEventPayload(Deployment deployment, String curriculumId,
+                                                           int chunkOffset, ChunkContent content,
+                                                           ZonedDateTime createdAt) {
+        TargetCatalog.Target target = TargetCatalog.find(deployment.getTargetId().getValue());
         return DeploymentEventPayload.builder()
-                .deploymentId(deploymentRequestEvent.getDeployment().getId().getValue())
+                .deploymentId(deployment.getId().getValue())
                 .targetSystem(target.system())
                 .environment(target.environment())
-                .transType(deploymentRequestEvent.getDeployment().getTransType())
-                .curriculumId(deploymentRequestEvent.getCurriculumId())
+                .transType(deployment.getTransType())
+                .curriculumId(curriculumId)
                 .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
                 .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
-                .chunkOffset(deploymentRequestEvent.getChunkOffset())
-                .createdAt(deploymentRequestEvent.getCreatedAt())
+                .chunkOffset(chunkOffset)
+                .createdAt(createdAt)
                 .build();
     }
 }

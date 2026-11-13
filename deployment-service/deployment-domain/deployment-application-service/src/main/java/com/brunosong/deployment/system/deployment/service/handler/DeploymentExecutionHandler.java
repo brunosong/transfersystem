@@ -1,8 +1,8 @@
 package com.brunosong.deployment.system.deployment.service.handler;
 
+import com.brunosong.deployment.system.domain.DomainConstants;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
-import com.brunosong.deployment.system.deployment.service.event.DeploymentRequestEvent;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.DeploymentPersistHelper;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,20 +35,15 @@ public class DeploymentExecutionHandler {
     public Deployment acceptDeployment(Deployment deployment, SourceConfig sourceConfig,
                                        String curriculumId, List<ChunkContent> chunks) {
 
-        // 1. 배포를 시작 상태로 저장하고, 청크마다 이벤트를 하나씩 만든다
-        List<DeploymentRequestEvent> deploymentRequestEvents =
-                deploymentPersistHelper.persistDeployment(deployment, sourceConfig, curriculumId, chunks);
+        // 1. 배포를 시작 상태로 저장한다
+        deploymentPersistHelper.persistDeployment(deployment, sourceConfig, chunks.size());
 
-        // 2. 청크마다 아웃박스 행을 하나씩 적는다
-        for (DeploymentRequestEvent deploymentRequestEvent : deploymentRequestEvents) {
-
-            // 이벤트를 아웃박스에 적을 모양(페이로드)으로 바꾼다
-            DeploymentEventPayload deploymentEventPayload =
-                    deploymentDataMapper.deploymentRequestEventToDeploymentEventPayload(deploymentRequestEvent);
-
-            deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload,
-                    UUID.randomUUID());
-
+        // 2. 청크마다 아웃박스 행을 하나씩 적는다. 목록의 순서가 청크 번호다
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
+        for (int chunkOffset = 0; chunkOffset < chunks.size(); chunkOffset++) {
+            DeploymentEventPayload deploymentEventPayload = deploymentDataMapper.toDeploymentEventPayload(
+                    deployment, curriculumId, chunkOffset, chunks.get(chunkOffset), now);
+            deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload, UUID.randomUUID());
         }
 
         return deployment;

@@ -294,11 +294,11 @@ flowchart TD
     B --> C["rootNode.path(curriculum)<br/>→ curriculumNode"]
     C --> F["CurriculumSourceConverter.toCurriculum<br/>→ Curriculum (값 객체)"]
   end
-  subgraph DEP["배포 쪽: DeploymentApplicationServiceImpl → DeploymentPersistHelper"]
+  subgraph DEP["배포 쪽: DeploymentApplicationServiceImpl → DeploymentExecutionHandler"]
     F --> G["ChunkContent.split(curriculum)"]
     G --> H["0번: Skeleton"]
     G --> I["1번부터: SubjectChunk"]
-    H --> J["청크 수 → Deployment.totalChunkSize<br/>커리큘럼 ID + 청크 → DeploymentRequestEvent"]
+    H --> J["청크 수 → Deployment.totalChunkSize<br/>커리큘럼 ID + 청크 → 아웃박스 페이로드"]
     I --> J
   end
 ```
@@ -427,7 +427,7 @@ classDiagram
 
 | 원본 칸 | 필수? | 어디로 |
 |---|---|---|
-| `curriculum.curriculumId` | 필수 | `Curriculum.curriculumId`. 청크 안에는 없고, 청크마다 만드는 `DeploymentRequestEvent`에 실린다 |
+| `curriculum.curriculumId` | 필수 | `Curriculum.curriculumId`. 청크 안에는 없고, 청크마다 만드는 아웃박스 페이로드(`DeploymentEventPayload`)에 실린다 |
 | 모든 단계의 `id`, `title` | 필수 | 같은 이름의 칸 |
 | 모든 단계의 `description` | 없어도 됨 | 같은 이름의 칸, 없으면 `null` |
 | 차시 `lessonNumber` | 필수 (정수) | `Lesson.lessonNumber` |
@@ -651,7 +651,7 @@ static List<ChunkContent> split(Curriculum curriculum)
 | `ChunkContent` | 나누는 일은 밖에 있다 | `split(Curriculum)`을 가진다 |
 | `DeploymentDomainService(Impl)` | `SourceContentData`에서 청크 목록을 꺼내 배포를 시작 상태로 만들고 이벤트를 만든다 | 지웠다. 하는 일이 배포 메서드 두 개를 부르고 이벤트 목록을 만드는 것뿐이라 지금은 따로 둘 이유가 없다. 그 일은 `DeploymentPersistHelper`가 한다. 쓰지 않던 `markSent` 같은 위임 메서드와 이 빈 하나만 등록하던 `BeanConfiguration`도 함께 지웠다 |
 | `Deployment` | `sourceContentData` 칸 | 칸을 지웠다. `initializeDeployment(sourceType, dbType, 청크 수)` |
-| `DeploymentRequestEvent` | 커리큘럼 ID는 `Deployment.sourceContentData`에서 읽었다 | `curriculumId` 칸을 가진다 |
+| `DeploymentRequestEvent` | 커리큘럼 ID는 `Deployment.sourceContentData`에서 읽었다 | `curriculumId` 칸을 가졌다. 그 뒤 이벤트 자체를 지웠다. 만든 바로 다음 줄에서 페이로드로 바뀌고 다른 곳에서 쓰지 않아서, 매퍼가 배포와 청크에서 페이로드를 바로 만든다 |
 | `DeploymentDataAccessMapper`, `DeploymentRepositoryImpl` | `totalChunkSize`에 늘 0인 `chunkOffset`을 넣었다 | 청크 수를 넣는다 |
 | 결과 처리(`DeploymentDataMapper`) | 결과의 청크 번호를 `SourceContentData`에 담았다. 읽는 곳은 없었다 | 그 줄을 지웠다 |
 | `SourceContentData` | | 지웠다 |
@@ -660,7 +660,7 @@ static List<ChunkContent> split(Curriculum curriculum)
 
 | 계획 | 실제 | 이유 |
 |---|---|---|
-| 커리큘럼 ID를 `Deployment`가 받는다 | 청크 이벤트(`DeploymentRequestEvent`)에 싣는다 | 배포 표에 커리큘럼 ID 칸이 없다. `Deployment`에만 두면 DB에서 되살린 배포는 그 값이 늘 빈다. 저장은 [도메인 모델](../domain/model.md#6-값-객체)의 `CurriculumRef` 작업 때 마이그레이션과 함께 한다 |
+| 커리큘럼 ID를 `Deployment`가 받는다 | 청크마다 아웃박스 페이로드에 싣는다 (처음에는 `DeploymentRequestEvent`에 실었고, 이벤트는 뒤에 지웠다) | 배포 표에 커리큘럼 ID 칸이 없다. `Deployment`에만 두면 DB에서 되살린 배포는 그 값이 늘 빈다. 저장은 [도메인 모델](../domain/model.md#6-값-객체)의 `CurriculumRef` 작업 때 마이그레이션과 함께 한다 |
 | `Deployment`는 커리큘럼 ID와 청크 수만 받는다 | `sourceType`, `dbType`도 칸으로 가진다 | 배포 표의 두 칸이 `NOT NULL`이다. 전에는 `SourceContentData`가 대신 들고 있었다 |
 | 원본 설정은 핸들러 안에서 찾는다 | 애플리케이션 서비스가 찾는다 | 배포 쪽이 원본 설정(위 줄)을 써야 해서, 핸들러가 설정과 커리큘럼을 함께 돌려주는 모양을 피했다. 대신 배포 쪽이 `SourceConfig`를 더 본다. 7.9절에서 푼다 |
 
