@@ -120,7 +120,7 @@
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
   - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
   - [x] 가-2. 기한이 지난 `SENT` 청크가 있는 배포 찾기 (V5의 부분 인덱스를 쓰도록 상태를 글자 그대로 적음)
-  - [ ] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리
+  - [x] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리 (`ResponseDeadlineScheduler`, `DeploymentDeadlineHandler`. 기한 `deployment-service.response-deadline.duration` 기본 10m, 주기 `...check-interval` 기본 60000ms)
   - [ ] 가-4. 로컬 확인: 응답 없음 → `FAILED(NO_REPLY)` → 늦은 성공으로 `SUCCEEDED`
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
