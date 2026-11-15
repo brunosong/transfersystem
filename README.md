@@ -66,8 +66,14 @@
 | `POST` | `/api/v1/deployments` | 배포 접수. 아웃박스에 저장까지 하고 `202 Accepted` + `Location` 을 돌려줍니다 |
 | `GET` | `/api/v1/deployments?status=&page=&size=` | 배포 목록(최신순, 청크 진행률 포함) |
 | `GET` | `/api/v1/deployments/stats` | 상태별 배포 수 |
-| `GET` | `/api/v1/deployments/{id}` | 배포 상세. 사가 단계(`steps`)와 청크 결과를 담습니다 |
+| `GET` | `/api/v1/deployments/{id}` | 배포 상세. 대상과 청크 결과를 담습니다 |
 | `GET` | `/api/v1/source-configs` | 원본 저장소 설정 목록(접속 계정 제외) |
+| `GET` | `/api/v1/source-configs/{id}/curriculums?q=&page=&size=` | 원본의 커리큘럼 목록(커리큘럼 ID나 제목으로 검색) |
+| `GET` | `/api/v1/source-configs/{id}/curriculums/{curriculumId}` | 커리큘럼 트리(과목까지), 단계별 개수, 예상 청크 수 |
+| `GET` | `/api/v1/curriculums/{curriculumId}/deployments` | 대상별 마지막 배포. 아직 빈 목록을 돌려줍니다 |
+| `GET` | `/api/v1/targets` | 대상 목록. 지금은 임시 목록(`TargetCatalog`)으로 답합니다 |
+
+접수(`POST`)의 `sourceId`에는 **커리큘럼 ID**(예: `CUR123`)를 보냅니다. 접수하면 뼈대 청크만 아웃박스에 들어가고, 대상이 뼈대를 반영했다는 결과가 오면 과목 청크들이 이어서 나갑니다.
 
 ### 4. `deployment-console`
 콘텐츠 운영자가 저작 DB의 커리큘럼을 서비스 시스템에 배포하는 화면입니다. Maven 빌드와 분리된 npm 프로젝트입니다. 기획은 [`docs/console-plan.md`](docs/console-plan.md)에 있습니다.
@@ -80,7 +86,7 @@
 - **대상 데이터 확인**: 대상에 실제로 들어간 트리를 원본과 개수·과목 단위로 비교
 - **모의 데이터 모드**: 백엔드 없이 브라우저 안에서 위 흐름이 모두 돕니다. 만든 데이터는 브라우저에 남고 사이드바에서 초기화합니다. `CUR-FAIL-01` 을 배포하면 청크 두 개가 실패하고, 호스트에 `down` 이 들어간 원본은 연결에 실패합니다.
 
-> 실제 모드로 쓰려면 화면이 정한 API를 백엔드에 만들어야 합니다(기획 문서 4장). 지금 백엔드에는 배포 목록·상세·집계·접수와 원본 목록만 있습니다.
+> 실제 모드에서는 새 배포(원본·커리큘럼·대상 고르기, 접수)와 배포 이력·상세가 돕니다(2026-11-15). 원본 저장소 추가·수정·연결 테스트, 대상 연결 확인·켜기/끄기, 재전송, 대상 데이터 확인은 아직 백엔드에 API가 없습니다(기획 문서 4장).
 
 ### 5. `config-service`
 - Spring Cloud Config 서버. 각 서비스의 설정 파일을 중앙에서 제공합니다.
@@ -136,7 +142,18 @@
    docker-compose -f redis.yml up -d
    ```
 
-5. **화면(deployment-console) 실행**
+5. **서비스 실행 (로컬)**
+   IntelliJ에서 각 `*-container` 모듈의 애플리케이션을 `local` 프로파일로 띄우거나, 메이븐으로 띄웁니다.
+   ```bash
+   # deployment-service (http://localhost:8080)
+   ./mvnw -pl deployment-service/deployment-container org.springframework.boot:spring-boot-maven-plugin:3.3.5:run -Dspring-boot.run.profiles=local
+   # target-agent (http://localhost:8001). local 프로파일은 대상 DB로 메모리 H2 를 써서, 끄면 반영된 데이터가 사라집니다
+   ./mvnw -pl target-agent/target-agent-container org.springframework.boot:spring-boot-maven-plugin:3.3.5:run -Dspring-boot.run.profiles=local
+   ```
+   - Kafka는 Zookeeper가 다 뜬 뒤에 띄웁니다. 함께 띄우면 브로커가 Zookeeper에 붙지 못하고 꺼질 수 있습니다.
+   - 아웃박스에 쌓이기만 하고 Kafka로 나가지 않게 보려면 실행 인자에 `--deployment-service.outbox-scheduler.initial-delay=86400000`(첫 실행을 하루 뒤로)을 넣습니다.
+
+6. **화면(deployment-console) 실행**
    ```bash
    cd deployment-console
    npm install
@@ -145,13 +162,13 @@
    ```
    개발 서버가 `/api` 와 `/healthcheck` 를 모두 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 대상 목록(`/api/v1/targets`)도 deployment-service 가 답합니다. 다른 주소를 쓰려면 `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
 
-   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
+   컨테이너 이미지는 nginx 가 정적 파일을 내보내고 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다. nginx 는 아직 `/api/v1/targets` 를 target-agent 로 보내므로, 대상 목록을 쓰려면 개발 서버와 같게 맞춰야 합니다(ROADMAP).
    ```bash
    docker build -t deployment-console deployment-console                         # 실제 API용
    docker build -t deployment-console:demo --build-arg API_MODE=mock deployment-console  # 시연용
    ```
 
-6. **Kubernetes 설정**
+7. **Kubernetes 설정**
    - Kubernetes 클러스터에 배포하려면 `infrastructure/k8s` 디렉토리의 설정 파일을 사용합니다.
    - 인프라 리소스는 `kubectl apply -f infrastructure/k8s/<리소스>/` 명령어로 배포합니다.
    - 서비스는 Argo CD가 `infrastructure/k8s/services`의 Kustomize 설정을 기준으로 배포합니다.

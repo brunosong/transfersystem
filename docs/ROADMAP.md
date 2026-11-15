@@ -97,7 +97,7 @@
 - [ ] 안 쓰는 Mongo 코드 정리: `spring.data.mongodb.uri`와 k8s `MONGODB_*`, `MongoConfiguration`, `LearningMaterialMongoRepository`와 엔티티, 테스트, `MongoDBExamDataGenerator` 삭제, Mongo 자동 설정 끄기. 원본을 읽는 `MongoConnectHelper`와 MongoDB는 유지
 
 ## Phase 3. 배포 모델 구현
-*목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 지금은 0번 청크의 결과가 배포 결과가 된다.*
+*목표: [도메인 모델](domain/model.md)대로 배포가 끝났는지 판단한다. 2026-11-15에 정상 흐름(접수 → 뼈대 → 결과 → 과목 → `SUCCEEDED`)이 로컬에서 끝까지 돌았다. 실패 흐름(응답 기한, 재전송, 규칙 A)이 남았다.*
 
 - [x] 메시지 계약 ([이벤트와 메시지](domain/events.md)): `ApplyChunkCommand`, `ApplyResult`, Avro 타입 내용, namespace 통일, 호환성 `FULL`. 시도 번호는 항상 1, 반영 내용은 아직 버림(모델 작업에서)
 - [ ] 원본에서 지운 과목 빼기 ([이벤트와 메시지](domain/events.md#6-원본에서-지운-과목은-대상에서도-뺀다))
@@ -105,33 +105,36 @@
 - [x] 이름 바꾸기 2: 모듈과 서비스 이름(`transfer-service` → `deployment-service`), 루트 패키지, 설정 키, 이미지, k8s
 - [x] 이름 바꾸기 3: `data-migration-service` → `target-agent`, `DataMigration*` 코드 이름, 표 `targets`
 - [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
-- [ ] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`
+- [x] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`. 2026-11-15에 접수(`accept`)와 결과 처리(`recordSuccess`/`recordFailure`)에 연결했다. 새 배포는 `Deployment.create`로만 만든다
 - [x] `SourceContentData`를 `SourceDocument`(꺼낸 문서), `Curriculum`(트리 값 객체), 청크로 나누고, 청크로 나누는 일을 배포로 옮기기 ([원본 읽기 7장](system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
 - [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다. 내용을 어디에 둘지는 A'(내용 표 + 아웃박스는 당분간 전체)로 정했다([시스템 설계 6장](system/architecture.md#청크-내용은-어디에-두나))
   - [x] 1. 결정 기록
   - [x] 2. 내용 표 만들기 (`V9` `deployment_chunk_payload`, 포트, 어댑터, `jsonb`)
   - [x] 3. 접수 때 모든 청크 내용 저장 (아웃박스에는 아직 전부 넣음)
-  - [x] 4. 결과 처리의 새 길 준비. 먼저 4-1 ~~배포에 커리큘럼 ID 두기~~(V10), 4-2 ~~결과 메시지에 시도 번호 싣기~~. 그다음 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 연결은 아직
+  - [x] 4. 결과 처리의 새 길 준비. 먼저 4-1 ~~배포에 커리큘럼 ID 두기~~(V10), 4-2 ~~결과 메시지에 시도 번호 싣기~~. 그다음 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 5에서 연결했다
   - [x] 5-1. 접수는 `Deployment.accept()` + 뼈대만 아웃박스 (2026-11-13. 과목은 아직 나가지 않는다)
   - [x] 5. 전환 (2026-11-15. 결과 리스너가 `DeploymentResultHandler`를 부른다. 옛 결과 표에도 함께 적는다): 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
   - [ ] 6. 옛 길 정리: 콘솔 조회를 `deployment_chunk`로 옮기고 `deployment_chunks`, `saveChunk`, 캐시 경로 삭제
-- [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
-- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
+- [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
+- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 쓰지 않는 `version` 칸 지우기, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리, 프로듀서 `max.block.ms` 줄이기(브로커가 죽으면 `send()`가 60초까지 막힌다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
-- [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`)
+- [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`). 결과 리스너는 2026-11-15부터 캐시를 쓰지 않는다
+- [ ] target-agent: 같은 커리큘럼을 다른 대상에 보내면 중복 오류(`CURRICULUM_ID` 유일 제약 위반)가 난다. 대상마다 다른 DB에 들어가야 하는데 같은 DB를 고르는 것으로 보인다(2026-11-15 로컬, CUR123을 대상 1과 3에)
+- [ ] 콘솔 nginx 설정(`nginx/default.conf.template`)도 대상 목록(`/api/v1/targets`)을 deployment-service로 보내게 맞추기. 개발 서버(Vite)는 2026-11-15에 바꿨다
 - [ ] 커리큘럼별 배포 이력 조회 (`GET /api/v1/curriculums/{id}/deployments`). 지금은 빈 목록을 돌려준다. 배포 표의 `curriculum_id`(V10)로 대상별 마지막 배포를 모은다
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [x] 사가 흔적 정리: `sagaId`, `saga_status`(V6), 아웃박스 `type` 값(V8, `ApplyChunkCommand`), deployment-service의 `saga` 모듈 의존, `infrastructure/saga` 모듈(`SagaStatus`, `SagaStep`, `SagaConstants`)을 지웠다. 사가를 다시 시작하면 새로 만든다([ADR 0003](adr/0003-defer-saga.md))
 
 ## Phase 4. 테스트
-- [ ] 배포 애그리거트 상태 기계 단위 테스트
+- [x] 배포 애그리거트 상태 기계 단위 테스트 (`DeploymentTest`, `ChunkTest`)
+- [ ] 결과 처리를 실제 Postgres로 확인하는 테스트: 결과 하나를 처리하면 청크 상태, 과목 아웃박스 행, 옛 결과 표가 한 트랜잭션에 저장된다. 2026-11-15의 `saveChunk` 버그(배포 ID가 빔)는 가짜 저장소를 쓴 단위 테스트로는 잡히지 않았다
 - [ ] 서비스별 Testcontainers 통합 테스트
-- [ ] E2E 시나리오: 정상 / 뼈대 실패 후 재전송 / 과목 실패 후 재전송 / 중복 전달 / 응답 유실 후 재전송 / 동시 요청 409 / 오래된 배포 재전송 거절
+- [ ] E2E 시나리오: 정상(2026-11-15에 손으로 확인, 자동화는 아직) / 뼈대 실패 후 재전송 / 과목 실패 후 재전송 / 중복 전달 / 응답 유실 후 재전송 / 동시 요청 409 / 오래된 배포 재전송 거절
 - [ ] GitHub Actions: PR마다 빌드와 테스트 (Maven + console 의 `npm run typecheck`, `npm test`)
 
 ## Phase 5. k8s 배포

@@ -81,6 +81,8 @@
 
 `offset` 은 바이트 위치처럼 읽혀서 **순번(`chunkNo`)**으로 바꾼다.
 
+청크의 순번과 **아웃박스 행의 `seq`는 다르다.** `seq`는 아웃박스에 행을 넣은 순서대로 DB가 매기는 번호이고, 여러 배포에 걸쳐 계속 커진다. 스케줄러는 이 번호 순서로 행을 꺼낸다([ADR 0004](../adr/0004-transactional-outbox.md)). 청크 상태를 담는 새 표는 `ChunkEntity`(`deployment_chunk`)이고, 위의 `deployment_chunks`는 화면 조회를 옮기면 지울 옛 결과 표다.
+
 ### 반영 (Apply)
 | | |
 |---|---|
