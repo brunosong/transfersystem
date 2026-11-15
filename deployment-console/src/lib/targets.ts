@@ -3,8 +3,8 @@
 import type { Target } from '../api/types'
 
 const SYSTEM_LABELS: Record<string, string> = {
-  BRUNOSONG_ONLINE_CAMPUS: '온라인캠퍼스',
-  BRUNOSONG_BOOTCAMP: '부트캠프',
+  ONLINE_CAMPUS: '온라인캠퍼스',
+  BOOTCAMP: '부트캠프',
 }
 
 export function systemLabel(system: string | null | undefined): string {

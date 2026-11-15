@@ -3,6 +3,8 @@ package com.brunosong.deployment.system.deployment.service.helper.deployment;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
 
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * 요청의 숫자 대상 ID 를 계약의 시스템, 환경 이름으로 바꾼다.
@@ -22,6 +24,11 @@ public final class TargetCatalog {
             4L, new Target("BOOTCAMP", "DEV"));
 
     private TargetCatalog() {
+    }
+
+    /** 모든 대상을 ID 순으로 돌려준다. 화면의 대상 목록이 쓴다 */
+    public static SortedMap<Long, Target> all() {
+        return new TreeMap<>(TARGETS);
     }
 
     public static Target find(long targetId) {

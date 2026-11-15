@@ -143,7 +143,7 @@
    npm run dev:mock   # 백엔드 없이 모의 데이터로 실행 (http://localhost:5173)
    npm run dev        # 실제 서비스에 붙어서 실행
    ```
-   개발 서버가 `/api/v1/targets` 는 target-agent(기본 http://localhost:8001)로, 나머지 `/api` 와 `/healthcheck` 는 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 다른 주소를 쓰려면 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
+   개발 서버가 `/api` 와 `/healthcheck` 를 모두 deployment-service(기본 http://localhost:8080)로 넘기므로 CORS 설정은 필요 없습니다. 대상 목록(`/api/v1/targets`)도 deployment-service 가 답합니다. 다른 주소를 쓰려면 `DEPLOYMENT_SERVICE_URL` 환경 변수를 지정합니다.
 
    컨테이너 이미지는 nginx 가 정적 파일을 내보내고 같은 규칙으로 `TARGET_AGENT_URL`, `DEPLOYMENT_SERVICE_URL` 로 프록시합니다.
    ```bash

@@ -125,7 +125,8 @@ export interface CurriculumDeployment {
 
 // ─── 대상 시스템 (target-agent) ─────────────────────────────────
 
-export type TargetSystem = 'BRUNOSONG_ONLINE_CAMPUS' | 'BRUNOSONG_BOOTCAMP'
+/** 메시지 계약(ApplyChunkCommand.targetSystem)과 같은 이름 */
+export type TargetSystem = 'ONLINE_CAMPUS' | 'BOOTCAMP'
 export type TargetEnvironment = 'PROD' | 'DEV'
 
 export interface Target {

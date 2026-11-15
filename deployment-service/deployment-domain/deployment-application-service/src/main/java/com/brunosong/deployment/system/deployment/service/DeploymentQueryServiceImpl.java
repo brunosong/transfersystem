@@ -4,6 +4,8 @@ import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.dto.query.ChunkRecord;
 import com.brunosong.deployment.system.deployment.service.dto.query.PageView;
 import com.brunosong.deployment.system.deployment.service.dto.query.SourceConfigView;
+import com.brunosong.deployment.system.deployment.service.dto.query.TargetView;
+import com.brunosong.deployment.system.deployment.service.helper.deployment.TargetCatalog;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentDetailView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentProgressView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentRecord;
@@ -79,6 +81,14 @@ public class DeploymentQueryServiceImpl implements DeploymentQueryService {
     @Override
     public List<SourceConfigView> findSourceConfigs() {
         return deploymentQueryRepository.findSourceConfigs();
+    }
+
+    @Override
+    public List<TargetView> findTargets() {
+        return TargetCatalog.all().entrySet().stream()
+                .map(entry -> new TargetView(entry.getKey(), entry.getValue().system(),
+                        entry.getValue().environment(), true))
+                .toList();
     }
 
     @Override

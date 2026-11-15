@@ -70,10 +70,10 @@ function seed(now: number): MockState {
   ]
 
   const targets: Target[] = [
-    { targetId: 1, system: 'BRUNOSONG_ONLINE_CAMPUS', environment: 'PROD', dbUrl: 'mysql://onlinecampus-prod-db:3306/onlinecampus', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
-    { targetId: 2, system: 'BRUNOSONG_BOOTCAMP', environment: 'PROD', dbUrl: 'mysql://bootcamp-prod-db:3306/bootcamp', enabled: false, lastCheck: check(false, 'Communications link failure: Connection refused', now - 20 * MINUTE) },
-    { targetId: 3, system: 'BRUNOSONG_ONLINE_CAMPUS', environment: 'DEV', dbUrl: 'mysql://onlinecampus-dev-db:3306/onlinecampus', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
-    { targetId: 4, system: 'BRUNOSONG_BOOTCAMP', environment: 'DEV', dbUrl: 'mysql://bootcamp-dev-db:3306/bootcamp', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
+    { targetId: 1, system: 'ONLINE_CAMPUS', environment: 'PROD', dbUrl: 'mysql://onlinecampus-prod-db:3306/onlinecampus', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
+    { targetId: 2, system: 'BOOTCAMP', environment: 'PROD', dbUrl: 'mysql://bootcamp-prod-db:3306/bootcamp', enabled: false, lastCheck: check(false, 'Communications link failure: Connection refused', now - 20 * MINUTE) },
+    { targetId: 3, system: 'ONLINE_CAMPUS', environment: 'DEV', dbUrl: 'mysql://onlinecampus-dev-db:3306/onlinecampus', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
+    { targetId: 4, system: 'BOOTCAMP', environment: 'DEV', dbUrl: 'mysql://bootcamp-dev-db:3306/bootcamp', enabled: true, lastCheck: check(true, '연결됨', now - 20 * MINUTE) },
   ]
 
   const DUPLICATE = "Duplicate entry 'U0101031' for key 'unit.UK_unit_id'"

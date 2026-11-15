@@ -6,6 +6,7 @@ import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentDe
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentProgressView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentRecord;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentStepView;
+import com.brunosong.deployment.system.deployment.service.dto.query.TargetView;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentNotFoundException;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentQueryRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class DeploymentQueryServiceImplTest {
+
+    @Test
+    @DisplayName("대상 목록은 임시 목록의 대상을 ID 순으로, 메시지 계약과 같은 이름으로 돌려준다")
+    void targetsInIdOrder() {
+        DeploymentQueryServiceImpl service = new DeploymentQueryServiceImpl(mock(DeploymentQueryRepository.class));
+
+        assertThat(service.findTargets())
+                .extracting(TargetView::targetId, TargetView::system, TargetView::environment)
+                .containsExactly(
+                        org.assertj.core.groups.Tuple.tuple(1L, "ONLINE_CAMPUS", "PROD"),
+                        org.assertj.core.groups.Tuple.tuple(2L, "BOOTCAMP", "PROD"),
+                        org.assertj.core.groups.Tuple.tuple(3L, "ONLINE_CAMPUS", "DEV"),
+                        org.assertj.core.groups.Tuple.tuple(4L, "BOOTCAMP", "DEV"));
+    }
 
     private final DeploymentQueryRepository repository = mock(DeploymentQueryRepository.class);
     private final DeploymentQueryServiceImpl service = new DeploymentQueryServiceImpl(repository);

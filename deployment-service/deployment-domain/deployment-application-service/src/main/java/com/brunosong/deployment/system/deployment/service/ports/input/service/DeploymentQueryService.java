@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.deployment.service.ports.input.service;
 
 import com.brunosong.deployment.system.deployment.service.dto.query.PageView;
 import com.brunosong.deployment.system.deployment.service.dto.query.SourceConfigView;
+import com.brunosong.deployment.system.deployment.service.dto.query.TargetView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentDetailView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentSearchCondition;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentSummaryView;
@@ -20,6 +21,9 @@ public interface DeploymentQueryService {
     DeploymentDetailView findDeployment(UUID deploymentId);
 
     List<SourceConfigView> findSourceConfigs();
+
+    /** 배포할 수 있는 대상 목록. ID 순이다 */
+    List<TargetView> findTargets();
 
     /** 상태별 배포 수. 모든 상태가 키로 들어가며 없는 상태는 0 이다. */
     Map<String, Long> countByStatus();
