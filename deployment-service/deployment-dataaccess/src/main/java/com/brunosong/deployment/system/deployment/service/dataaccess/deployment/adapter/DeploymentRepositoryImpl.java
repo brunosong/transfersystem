@@ -68,9 +68,7 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
             return;
         }
 
-        DeploymentEntity deploymentEntity = DeploymentEntity.builder()
-                .id(deploymentId)
-                .build();
+        DeploymentEntity deploymentEntity = deploymentJpaRepository.getReferenceById(deploymentId);
 
         DeploymentChunkEntity deploymentChunkEntity =
                 deploymentDataAccessMapper.applyResultMessageToChunkEntity(applyResultMessage, deploymentEntity);
