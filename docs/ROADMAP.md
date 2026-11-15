@@ -123,6 +123,7 @@
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
 - [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`)
+- [ ] 커리큘럼별 배포 이력 조회 (`GET /api/v1/curriculums/{id}/deployments`). 지금은 빈 목록을 돌려준다. 배포 표의 `curriculum_id`(V10)로 대상별 마지막 배포를 모은다
 - [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [x] 사가 흔적 정리: `sagaId`, `saga_status`(V6), 아웃박스 `type` 값(V8, `ApplyChunkCommand`), deployment-service의 `saga` 모듈 의존, `infrastructure/saga` 모듈(`SagaStatus`, `SagaStep`, `SagaConstants`)을 지웠다. 사가를 다시 시작하면 새로 만든다([ADR 0003](adr/0003-defer-saga.md))
