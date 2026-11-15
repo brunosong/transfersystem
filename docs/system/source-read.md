@@ -111,7 +111,9 @@ sequenceDiagram
 | 칸 | 뜻 | 예 |
 |---|---|---|
 | `sourceConfigId` | **어느 원본 저장소**에서 읽을지. `sourceconfig` 표의 키 | `1` |
-| `sourceId` | 그 저장소 안의 **어느 문서**인지. Mongo면 `_id`(24자리 16진수) | `"6731a2b4c5d6e7f801234567"` |
+| `sourceId` | 그 저장소 안의 **어느 문서**인지. 커리큘럼 원본이면 **커리큘럼 ID**(문서의 `curriculum.curriculumId`), 그 밖의 Mongo 원본이면 `_id`(24자리 16진수) | `"CUR123"` |
+
+> 2026-11-15에 바꿨다. 전에는 커리큘럼도 문서의 `_id`로 찾았다. 화면(콘솔)이 커리큘럼 ID를 보내고, 운영자와 대상과 Kafka 키가 모두 커리큘럼 ID로 이야기해서 맞췄다. 원본 문서 하나에 커리큘럼이 하나라 둘은 1:1이다. 어느 칸으로 찾는지는 `MongoConnectHelper.keyCriteria`가 원본 종류를 보고 정한다.
 
 이름이 비슷해서 헷갈린다. `sourceConfigId`는 "어디서", `sourceId`는 "무엇을"이다([용어집](../domain/glossary.md)의 원본 저장소).
 
@@ -171,7 +173,7 @@ sequenceDiagram
   SR->>DC: query(sourceConfig, sourceId)
   DC->>MG: queryMongo(sourceConfig, sourceId)  [dbType = MONGO]
   MG->>MG: clientFor(sourceConfig) — 3.3
-  MG->>DB: findOne({_id: ObjectId(sourceId)}) in tableOrCollection
+  MG->>DB: findOne(keyCriteria) in tableOrCollection — 커리큘럼이면 {curriculum.curriculumId: sourceId}, 아니면 {_id: ObjectId(sourceId)}
   DB-->>MG: Document 또는 null
   MG->>MG: toJson(Document) — 3.4
   MG-->>DC: JSON 바이트 (없으면 빈 Optional)
@@ -437,7 +439,7 @@ classDiagram
 | 차시 `learningLevel` | 필수 (정수) | `Lesson.learningLevel`과 `Lesson.attributes` 둘 다. 받는 쪽이 옮겨 가면 `attributes`에만 남는다 |
 | 단원, 차시의 **나머지 칸 전부** | 검사 안 함 | `attributes` (JSON 객체 문자열, 원본 순서 그대로) |
 | 학년, 학기, 과목의 나머지 칸 | | 버린다 |
-| 문서의 `_id` | | 버린다 (`sourceId`로 이미 안다) |
+| 문서의 `_id` | | 버린다 (문서는 커리큘럼 ID로 찾는다) |
 
 위 예의 차시 `L1`은 이렇게 된다.
 
@@ -466,7 +468,7 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 |---|---|---|---|
 | 1장 | 요청 칸이 비었다 | `MethodArgumentNotValidException` | 400, 어느 칸인지 |
 | 2장 | `sourceConfigId`에 맞는 설정이 없다 | `MaterialNotFoundException` | 400 |
-| 3장 | `sourceId`가 ObjectId 모양(24자리 16진수)이 아니다 | `IllegalArgumentException` | 500 |
+| 3장 | 커리큘럼이 아닌 원본에서 `sourceId`가 ObjectId 모양(24자리 16진수)이 아니다 | `IllegalArgumentException` | 500 |
 | 3장 | 지원하지 않는 DB 종류다 | `UnsupportedOperationException` | 500 |
 | 3장 | Mongo에 붙지 못한다 | `MongoTimeoutException` (서버 선택 30초 뒤) | 500 |
 | 3장 | 문서가 없다 | `MaterialNotFoundException` | 400 |
@@ -482,7 +484,7 @@ Lesson(id="L1", title="차시 1", description=null, lessonNumber=1, learningLeve
 | # | 문제 | 고칠 방향 |
 |---|---|---|
 | 1 | 4장의 필수 칸 오류가 500이 된다. 이제 감싸지는 않지만 `IllegalArgumentException`을 받는 처리기가 없다 | 원본 문서 오류용 예외를 두고 422로 돌려준다. 어느 차시의 어느 칸인지 운영자가 봐야 한다 |
-| 2 | `sourceId`가 ObjectId 모양이 아니면 500이 된다 | 400으로 돌려준다 |
+| 2 | 커리큘럼이 아닌 원본에서 `sourceId`가 ObjectId 모양이 아니면 500이 된다. 커리큘럼은 커리큘럼 ID로 찾으므로 해당하지 않는다 | 400으로 돌려준다 |
 | 3 | 원본 설정이 없을 때 메시지가 "Not found sourceContentData"다 | "원본 저장소가 없다"로 고친다 |
 | 4 | MySQL 원본은 행 하나를 평평한 Map으로 읽는다. 변환기는 `curriculum` 아래 트리를 기대하므로 MySQL 원본으로는 커리큘럼을 나눌 수 없다 | MySQL 원본을 계속 둘지 정한다. 둔다면 행을 트리로 바꾸는 방법이 따로 있어야 한다 |
 | 7 | 캐시를 비우는 `DataSourceCacheEvent`를 보내는 곳이 없다 | 원본 설정 수정 기능을 만들 때 보낸다 |

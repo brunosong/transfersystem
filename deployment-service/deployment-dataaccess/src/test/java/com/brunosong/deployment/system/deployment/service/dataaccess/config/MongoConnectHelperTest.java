@@ -5,6 +5,7 @@ import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.mongodb.client.MongoClient;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -58,6 +59,15 @@ class MongoConnectHelperTest {
 
         Mockito.verify(client).close();
         Mockito.verify(helper, Mockito.times(2)).createClient(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("커리큘럼 원본은 커리큘럼 ID 칸으로, 그 밖의 원본은 _id 로 문서를 찾는다")
+    void keyCriteriaDependsOnSourceType() {
+        assertEquals(new Document("curriculum.curriculumId", "CUR123"),
+                MongoConnectHelper.keyCriteria(SourceType.CURRICULUM, "CUR123").getCriteriaObject());
+        assertEquals(new Document("_id", new ObjectId("6731a2b4c5d6e7f801234567")),
+                MongoConnectHelper.keyCriteria(SourceType.EXAM_RESULT_DATA, "6731a2b4c5d6e7f801234567").getCriteriaObject());
     }
 
     /** 테스트용 원본 설정 */

@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.deployment.service.dataaccess.config;
 
 import com.brunosong.deployment.system.deployment.service.dto.event.DataSourceCacheEvent;
 import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
+import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -36,6 +37,9 @@ public class MongoConnectHelper {
     /** 원본 설정마다 하나씩 두는 클라이언트. MongoClient는 안에 연결 풀을 가지므로 만들어 두고 다시 쓴다 */
     private final Map<String, MongoClient> clients = new ConcurrentHashMap<>();
 
+    /** 커리큘럼 원본 문서에서 커리큘럼 ID가 있는 칸 */
+    static final String CURRICULUM_ID_FIELD = "curriculum.curriculumId";
+
     /** 날짜는 ISO-8601(UTC) 문자열, ObjectId는 16진 문자열로 쓴다. 대상이 Mongo 전용 모양을 몰라도 되게 하려고 정한다 */
     private static final JsonWriterSettings JSON_SETTINGS = JsonWriterSettings.builder()
             .outputMode(JsonMode.RELAXED)
@@ -44,14 +48,26 @@ public class MongoConnectHelper {
             .build();
 
     /**
-     * 원본 문서 하나를 _id로 찾아 JSON 바이트로 돌려준다.
+     * 원본 문서 하나를 찾아 JSON 바이트로 돌려준다. 어느 칸으로 찾는지는 keyCriteria 가 정한다.
      * Map을 거치지 않고 드라이버가 바로 JSON을 쓰게 해서 Mongo 전용 타입이 정해 둔 모양으로 나가게 한다.
      */
     public Optional<byte[]> queryMongo(SourceConfig sourceConfig, String sourceId) {
         MongoTemplate mongoTemplate = new MongoTemplate(clientFor(sourceConfig), sourceConfig.getDatabase());
-        Query query = new Query(Criteria.where("_id").is(new ObjectId(sourceId)));
+        Query query = new Query(keyCriteria(sourceConfig.getSourceType(), sourceId));
         Document doc = mongoTemplate.findOne(query, Document.class, sourceConfig.getTableOrCollection());
         return Optional.ofNullable(doc).map(MongoConnectHelper::toJson);
+    }
+
+    /**
+     * 원본 종류마다 문서를 가리키는 칸이 다르다.
+     * 커리큘럼은 운영자와 대상이 모두 커리큘럼 ID로 이야기하므로 그 칸으로 찾는다. 원본 문서 하나에 커리큘럼이 하나다.
+     * 그 밖의 원본은 지금까지처럼 문서의 _id 로 찾는다.
+     */
+    static Criteria keyCriteria(SourceType sourceType, String sourceId) {
+        if (sourceType == SourceType.CURRICULUM) {
+            return Criteria.where(CURRICULUM_ID_FIELD).is(sourceId);
+        }
+        return Criteria.where("_id").is(new ObjectId(sourceId));
     }
 
     /** 원본 설정에 맞는 클라이언트를 캐시에서 꺼내고, 없으면 하나만 만든다. 동시에 와도 하나만 만들려고 computeIfAbsent를 쓴다 */
