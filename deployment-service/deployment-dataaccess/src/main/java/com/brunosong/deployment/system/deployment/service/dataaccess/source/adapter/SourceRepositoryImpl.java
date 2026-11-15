@@ -1,14 +1,17 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.source.adapter;
 
 import com.brunosong.deployment.system.deployment.service.dataaccess.config.DynamicDataSourceConnector;
+import com.brunosong.deployment.system.deployment.service.dataaccess.config.MongoConnectHelper;
 import com.brunosong.deployment.system.deployment.service.dataaccess.source.mapper.SourceDataAccessMapper;
 import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceDocument;
+import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceDocumentPage;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.SourceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -27,5 +30,14 @@ public class SourceRepositoryImpl implements SourceRepository {
 
         return dynamicConnector.query(sourceConfig, sourceId)
                 .map(json -> sourceDataAccessMapper.toSourceDocument(json, sourceId, sourceConfig));
+    }
+
+    @Override
+    public SourceDocumentPage findPage(SourceConfig sourceConfig, String keyword, int page, int size) {
+        MongoConnectHelper.MongoPage found = dynamicConnector.findPage(sourceConfig, keyword, page, size);
+        List<SourceDocument> documents = found.items().stream()
+                .map(item -> sourceDataAccessMapper.toSourceDocument(item.json(), item.key(), sourceConfig))
+                .toList();
+        return new SourceDocumentPage(documents, found.total());
     }
 }

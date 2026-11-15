@@ -30,7 +30,8 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
     @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay}",
             initialDelayString = "${deployment-service.outbox-scheduler.initial-delay}")
     public void processOutboxMessages() {
-        Optional<List<DeploymentOutboxMessage>> outboxMessagesResponse = deploymentOutboxHelper.getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED);
+        Optional<List<DeploymentOutboxMessage>> outboxMessagesResponse =
+                deploymentOutboxHelper.getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED);
 
         if (outboxMessagesResponse.isPresent() && !outboxMessagesResponse.get().isEmpty()) {
             List<DeploymentOutboxMessage> outboxMessages = outboxMessagesResponse.get();

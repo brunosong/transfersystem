@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.config;
 
 import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
+import com.brunosong.deployment.system.deployment.service.valueobject.DbType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,14 @@ public class DynamicDataSourceConnector {
             case POSTGRESQL,ORACLE,H2 ->
                     throw new UnsupportedOperationException("지원하지 않는 원본 DB: " + sourceConfig.getDbType());
         };
+    }
+
+    /** 화면 목록용으로 원본 문서를 한 쪽 읽는다. 지금은 Mongo 원본만 지원한다 */
+    public MongoConnectHelper.MongoPage findPage(SourceConfig sourceConfig, String keyword, int page, int size) {
+        if (sourceConfig.getDbType() != DbType.MONGO) {
+            throw new UnsupportedOperationException("목록은 Mongo 원본만 지원한다: " + sourceConfig.getDbType());
+        }
+        return mongoConnectHelper.findMongoPage(sourceConfig, keyword, page, size);
     }
 
     /**

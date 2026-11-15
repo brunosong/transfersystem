@@ -5,6 +5,9 @@ import com.brunosong.deployment.system.deployment.service.entity.SourceConfig;
 import com.mongodb.client.MongoClient;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.bson.BsonRegularExpression;
+import java.util.List;
+import java.util.regex.Pattern;
 import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -68,6 +71,23 @@ class MongoConnectHelperTest {
                 MongoConnectHelper.keyCriteria(SourceType.CURRICULUM, "CUR123").getCriteriaObject());
         assertEquals(new Document("_id", new ObjectId("6731a2b4c5d6e7f801234567")),
                 MongoConnectHelper.keyCriteria(SourceType.EXAM_RESULT_DATA, "6731a2b4c5d6e7f801234567").getCriteriaObject());
+    }
+
+    @Test
+    @DisplayName("목록 검색어가 없으면 조건이 없고, 있으면 커리큘럼 ID나 제목을 글자 그대로 대소문자 없이 찾는다")
+    void listCriteriaMatchesIdOrTitle() {
+        assertEquals(new Document(), MongoConnectHelper.listCriteria(" ").getCriteriaObject());
+
+        List<?> or = (List<?>) MongoConnectHelper.listCriteria("cur.1").getCriteriaObject().get("$or");
+        assertEquals(2, or.size());
+        // 점(.)이 "아무 글자"가 아니라 글자 그대로 쓰이도록 감싼다
+        assertEquals(Pattern.quote("cur.1"), regexOf(((Document) or.get(0)).get("curriculum.curriculumId")));
+        assertEquals(Pattern.quote("cur.1"), regexOf(((Document) or.get(1)).get("curriculum.title")));
+    }
+
+    /** 드라이버 버전에 따라 정규식이 Pattern 이나 BsonRegularExpression 으로 담긴다 */
+    private static String regexOf(Object value) {
+        return value instanceof Pattern pattern ? pattern.pattern() : ((BsonRegularExpression) value).getPattern();
     }
 
     /** 테스트용 원본 설정 */
