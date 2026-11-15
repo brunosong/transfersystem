@@ -49,6 +49,9 @@ class ChunkJpaRepositoryTest {
 
     /** 스키마 파일이 미리 넣어 둔 배포. 청크는 배포가 있어야 저장된다(외래 키) */
     private static final UUID DEPLOYMENT_ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+    private static final UUID OTHER_DEPLOYMENT_ID = UUID.fromString("22222222-2222-2222-2222-222222222222");
+    private static final UUID THIRD_DEPLOYMENT_ID = UUID.fromString("33333333-3333-3333-3333-333333333333");
+
     private static final Instant SENT_AT = Instant.parse("2026-11-10T10:00:00Z");
 
     @Autowired
@@ -96,6 +99,35 @@ class ChunkJpaRepositoryTest {
         assertEquals(1, chunks.size());
         assertEquals(ChunkStatus.APPLIED, chunks.getFirst().getStatus());
 
+    }
+
+    @Test
+    @DisplayName("기한 전에 보낸 뒤 아직 응답을 기다리는 청크가 있는 배포만, 한 번씩 찾는다")
+    void findsDeploymentsWaitingForReplyTooLong() {
+        Instant cutoff = SENT_AT;   // 이 시각 전에 보낸 SENT 청크가 기한을 넘긴 것이다
+        chunkJpaRepository.saveAll(List.of(
+                // 배포 1: 기한을 넘긴 SENT 청크가 둘 → 배포 ID는 한 번만 나와야 한다
+                chunk(DEPLOYMENT_ID, 1, ChunkStatus.SENT, SENT_AT.minusSeconds(60)),
+                chunk(DEPLOYMENT_ID, 2, ChunkStatus.SENT, SENT_AT.minusSeconds(30)),
+                // 배포 2: SENT 지만 기한 안에 보냈다
+                chunk(OTHER_DEPLOYMENT_ID, 0, ChunkStatus.SENT, SENT_AT.plusSeconds(10)),
+                // 배포 3: 오래됐지만 이미 결과를 받았다
+                chunk(THIRD_DEPLOYMENT_ID, 0, ChunkStatus.APPLIED, SENT_AT.minusSeconds(600)),
+                chunk(THIRD_DEPLOYMENT_ID, 1, ChunkStatus.FAILED, SENT_AT.minusSeconds(600))
+        ));
+        em.flush();
+        em.clear();
+
+        assertEquals(List.of(DEPLOYMENT_ID), chunkJpaRepository.findDeploymentIdsWaitingForReplySentBefore(cutoff));
+    }
+
+    private static ChunkEntity chunk(UUID deploymentId, int no, ChunkStatus status, Instant sentAt) {
+        return ChunkEntity.builder()
+                .id(new ChunkEntityId(deploymentId, no))
+                .status(status)
+                .attempt(1)
+                .sentAt(sentAt)
+                .build();
     }
 
     private static ChunkEntity chunk(int no, ChunkStatus status, int attempt, Instant sentAt,

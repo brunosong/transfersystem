@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -82,6 +83,11 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
         return deploymentJpaRepository.findById(deploymentId)
                 .map(entity -> deploymentDataAccessMapper.deploymentEntityToDeployment(entity,
                         chunkJpaRepository.findAllById_DeploymentIdOrderById_ChunkNoAsc(deploymentId)));
+    }
+
+    @Override
+    public List<UUID> findIdsWithChunksSentBefore(Instant sentBefore) {
+        return chunkJpaRepository.findDeploymentIdsWaitingForReplySentBefore(sentBefore);
     }
 
     @Override
