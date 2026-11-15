@@ -109,6 +109,8 @@ class DeploymentQueryRepositoryImplTest {
         assertThat(configs).extracting(SourceConfigView::sourceType)
                 .containsExactly("CURRICULUM", "LEARNING_MATERIAL");
         assertThat(configs.get(0).tableOrCollection()).isEqualTo("CurriculumData");
+        assertThat(configs.get(0).name()).isEqualTo("learningDB.CurriculumData");
+        assertThat(configs).allMatch(SourceConfigView::enabled);
     }
 
     @Test

@@ -71,7 +71,9 @@ public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository 
     @Override
     public List<SourceConfigView> findSourceConfigs() {
         return sourceConfigJpaRepository.findAllSummaries().stream()
-                .map(s -> new SourceConfigView(s.getSourceConfigId(), s.getSourceType(), s.getDbType(),
+                .map(s -> new SourceConfigView(s.getSourceConfigId(),
+                        s.getDatabaseName() + "." + s.getTableOrCollection(), true,
+                        s.getSourceType(), s.getDbType(),
                         s.getHost(), s.getPort(), s.getDatabaseName(), s.getTableOrCollection()))
                 .toList();
     }
