@@ -7,6 +7,6 @@ import java.util.function.BiConsumer;
 
 public interface DeploymentRequestMessagePublisher {
 
-    void publish(DeploymentOutboxMessage deploymentOutboxMessage,
-                 BiConsumer<DeploymentOutboxMessage, OutboxStatus> outboxCallback);
+    /** 행 하나를 보내고 브로커 응답까지 기다린 뒤 결과를 돌려준다 */
+    PublishResult publish(DeploymentOutboxMessage deploymentOutboxMessage);
 }

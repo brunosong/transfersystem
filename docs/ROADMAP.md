@@ -116,7 +116,7 @@
   - [ ] 5. 전환: 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
   - [ ] 6. 옛 길 정리: 콘솔 조회를 `deployment_chunk`로 옮기고 `deployment_chunks`, `saveChunk`, 캐시 경로 삭제
 - [ ] 명령 키를 대상 + 커리큘럼 ID로, 결과 키를 배포 ID로. 대상 쪽 `Thread.sleep(1000)` 제거
-- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), 행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행, 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
+- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 어드바이저리 락, 발행 주기 단축, 오래된 행 정리
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))

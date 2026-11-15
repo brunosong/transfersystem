@@ -13,8 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,22 +28,33 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
     private final DeploymentOutboxPublisherHelper deploymentOutboxPublisherHelper;
 
     @Override
-    @Transactional
     @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay}",
             initialDelayString = "${deployment-service.outbox-scheduler.initial-delay}")
     public void processOutboxMessages() {
-        Optional<List<DeploymentOutboxMessage>> outboxMessagesResponse =
-                deploymentOutboxHelper.getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED);
+        List<DeploymentOutboxMessage> outboxMessages = deploymentOutboxHelper
+                .getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED)
+                .orElse(List.of());
+        if (outboxMessages.isEmpty()) {
+            return;
+        }
+        log.info("보낼 아웃박스 행 {}개", outboxMessages.size());
 
-        if (outboxMessagesResponse.isPresent() && !outboxMessagesResponse.get().isEmpty()) {
-            List<DeploymentOutboxMessage> outboxMessages = outboxMessagesResponse.get();
+        // 이번 주기에 앞 행을 보내지 못한 키. 같은 키의 뒤 행이 먼저 나가면 순서가 뒤집히므로 건너뛴다
+        Set<String> blockedKeys = new HashSet<>();
 
-            log.info("Received {} DeploymentOutboxMessages with ids : {}, sending to message bus!", outboxMessages.size(),
-                    outboxMessages.stream().map(outboxMessage ->
-                            outboxMessage.getId().toString()).collect(Collectors.joining()));
-
-            for (DeploymentOutboxMessage outboxMessage : outboxMessages) {
-                deploymentOutboxPublisherHelper.publish(outboxMessage, this::updateOutboxStatus);
+        for (DeploymentOutboxMessage outboxMessage : outboxMessages) {
+            if (blockedKeys.contains(outboxMessage.getMessageKey())) {
+                continue;
+            }
+            switch (deploymentOutboxPublisherHelper.publish(outboxMessage)) {
+                case PUBLISHED -> updateOutboxStatus(outboxMessage, OutboxStatus.COMPLETED);
+                case GIVE_UP -> updateOutboxStatus(outboxMessage, OutboxStatus.FAILED);
+                case RETRY_LATER -> {
+                    // 행은 STARTED 그대로 둔다. 다음 주기에 이 행부터 다시 보낸다
+                    blockedKeys.add(outboxMessage.getMessageKey());
+                    log.warn("다음 주기에 다시 보낸다. 같은 키의 뒤 행도 기다린다. outbox id: {}, key: {}",
+                            outboxMessage.getId(), outboxMessage.getMessageKey());
+                }
             }
         }
     }
