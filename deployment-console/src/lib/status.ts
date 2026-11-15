@@ -9,13 +9,13 @@ export interface StatusMeta {
   active: boolean
 }
 
-/** 운영자에게 보여 주는 네 묶음. deployment 상태 여섯 개를 묶는다. */
+/** 운영자에게 보여 주는 네 묶음. deployment 상태 일곱 개를 묶는다. */
 export type StatusGroup = 'waiting' | 'running' | 'done' | 'failed'
 
 export const STATUS_GROUPS: Record<StatusGroup, { label: string; statuses: DeploymentStatus[] }> = {
   waiting: { label: '대기', statuses: ['PENDING'] },
   running: { label: '진행 중', statuses: ['SENT', 'PROCESSED', 'IN_PROGRESS'] },
-  done: { label: '완료', statuses: ['SUCCESS'] },
+  done: { label: '완료', statuses: ['SUCCESS', 'SUCCEEDED'] },
   failed: { label: '실패', statuses: ['FAILED'] },
 }
 
@@ -31,6 +31,7 @@ const DEPLOYMENT: Record<DeploymentStatus, StatusMeta> = {
   PROCESSED: { label: '진행 중', tone: 'info', active: true },
   IN_PROGRESS: { label: '진행 중', tone: 'info', active: true },
   SUCCESS: { label: '완료', tone: 'success', active: false },
+  SUCCEEDED: { label: '완료', tone: 'success', active: false },
   FAILED: { label: '실패', tone: 'danger', active: false },
 }
 
