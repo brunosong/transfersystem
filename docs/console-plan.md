@@ -252,20 +252,20 @@
 |---|---|---|---|
 | ✅ | `GET /api/v1/deployments` | 1, 3, 6 | 🔧 상태 여러 개(`status=SENT&status=PROCESSED`), 대상·기간(`from`, `to`)·커리큘럼 ID·요청자 조건 추가. 응답에 `targetId`, `sourceTitle` 추가 |
 | ✅ | `GET /api/v1/deployments/stats` | 1, 6 | 🔧 기간 조건(`from`, `to`) 추가 |
-| ✅ | `GET /api/v1/deployments/{id}` | 6 | 🔧 사가 `steps` 대신 `chunks` 를 바로 담는다. 청크마다 `label`(뼈대 / 과목명), `errorMessage`, `retryCount` 추가 |
+| ✅ | `GET /api/v1/deployments/{id}` | 6 | ~~사가 `steps` 대신 `chunks` 를 바로 담는다~~(2026-11-15, `targetId`도 맨 위에). 청크마다 `label`(지금은 "뼈대" / "과목 N"), `errorMessage`, `retryCount` 칸은 있으나 실패 사유와 재시도 횟수는 아직 비어 있다. `sourceTitle`은 아직 null |
 | ✅ | `POST /api/v1/deployments` | 5 | 🔧 요청자를 `X-Requested-By` 헤더(URL 인코딩)로 받는다(지금은 `admin` 하드코딩). 같은 커리큘럼·대상으로 진행 중이면 409, 배포 허용이 꺼진 대상이면 422 |
 | 🆕 | `POST /api/v1/deployments/{id}/retry` | 6 | 실패한 청크만 다시 보냄 |
-| ✅ | `GET /api/v1/source-configs` | 2, 4, 5 | 🔧 이름, 사용 여부 추가 |
+| ✅ | `GET /api/v1/source-configs` | 2, 4, 5 | ~~이름, 사용 여부 추가~~(2026-11-15. 이름은 "DB.컬렉션", 사용 여부는 늘 true) |
 | 🆕 | `POST · PUT · DELETE /api/v1/source-configs[/{id}]` | 2 | 비밀번호는 응답에 넣지 않음 |
 | 🆕 | `POST /api/v1/source-configs/{id}/connection-test` | 1, 2 | 접속 확인, 컬렉션 존재 여부, 문서 수 |
-| 🆕 | `GET /api/v1/source-configs/{id}/curriculums?q=&page=` | 4, 5 | 원본의 커리큘럼 목록(ID, 제목, 과목 수, 성공한 대상 수, 마지막 배포) |
-| 🆕 | `GET /api/v1/source-configs/{id}/curriculums/{curriculumId}` | 4, 5, 7 | 트리(과목까지)와 수준별 개수, 예상 청크 수 |
-| 🆕 | `GET /api/v1/curriculums/{curriculumId}/deployments` | 4, 5 | 대상별 마지막 배포 결과 |
+| ✅ | `GET /api/v1/source-configs/{id}/curriculums?q=&page=` | 4, 5 | 원본의 커리큘럼 목록(ID, 제목, 과목 수). 성공한 대상 수와 마지막 배포는 아직 없다 |
+| ✅ | `GET /api/v1/source-configs/{id}/curriculums/{curriculumId}` | 4, 5, 7 | 트리(과목까지)와 수준별 개수, 예상 청크 수 |
+| 🔧 | `GET /api/v1/curriculums/{curriculumId}/deployments` | 4, 5 | 대상별 마지막 배포 결과. 지금은 빈 목록만 돌려준다 |
 
 ### target-agent
 | | API | 쓰는 화면 | 비고 |
 |---|---|---|---|
-| 🆕 | `GET /api/v1/targets` | 1, 3, 5, 6 | 대상 목록(시스템, 환경, DB 위치, 배포 허용 여부). 화면의 하드코딩 표(`lib/targets.ts`)를 대신함 |
+| ✅ | `GET /api/v1/targets` | 1, 3, 5, 6 | 대상 목록. **2026-11-15에 deployment-service가 임시 목록(`TargetCatalog`)으로 답하게 했다**(ADR 0002 방향). DB 위치와 연결 확인 결과는 아직 없다 |
 | 🆕 | `POST /api/v1/targets/{id}/connection-test` | 1, 3 | |
 | 🆕 | `PATCH /api/v1/targets/{id}` | 3 | 배포 허용 켜기/끄기 |
 | 🆕 | `GET /api/v1/targets/{id}/curriculums` | 3 | 대상에 들어 있는 커리큘럼 목록 |
@@ -273,6 +273,7 @@
 
 ### API 경로
 - 화면은 두 서비스를 모두 부른다. 개발 서버와 nginx 프록시에서 `/api/v1/targets`는 target-agent로, 나머지 `/api`는 deployment-service로 넘긴다(`TARGET_AGENT_URL` 추가).
+- 2026-11-15: 대상 목록을 deployment-service가 답하게 바꾸면서 **개발 서버(Vite)는 `/api` 전부를 deployment-service로** 넘긴다. nginx 설정(`nginx/default.conf.template`)은 아직 `/api/v1/targets`를 target-agent로 넘기므로 컨테이너로 띄울 때는 맞춰야 한다.
 - 배포 허용이 꺼진 대상으로 오는 요청은 deployment-service가 막는다. 그러려면 deployment-service가 대상 정보를 알아야 한다. 처음엔 target-agent를 조회하고, 나중에 이벤트로 캐시하는 방식을 검토한다.
 
 ### 저장소 변경
