@@ -6,7 +6,6 @@ import { useCurrentUser } from '../lib/user'
 
 /** 진행 중인 배포가 있을 때만 짧게 다시 읽는다. 끝난 화면은 조용히 둔다. */
 const LIVE_INTERVAL = 1500
-const IDLE_INTERVAL = 15_000
 
 export const keys = {
   health: ['health'] as const,
@@ -136,7 +135,7 @@ export function useDeployments(query: DeploymentQuery, options: { enabled?: bool
     queryFn: () => api.listDeployments(query),
     placeholderData: keepPreviousData,
     enabled: options.enabled ?? true,
-    refetchInterval: (q) => (q.state.data?.items.some((t) => isActiveDeployment(t.status)) ? LIVE_INTERVAL : IDLE_INTERVAL),
+    // 배포 이력은 저절로 다시 불러오지 않는다. 화면을 다시 열거나 조건을 바꾸면 새로 읽는다
   })
 }
 
