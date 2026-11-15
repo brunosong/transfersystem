@@ -93,13 +93,6 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
     }
 
     @Override
-    public void updateDeploymentStatus(Deployment deployment) {
-        Optional<DeploymentEntity> result = deploymentJpaRepository.findById(deployment.getId().getValue());
-        result.ifPresent(entity -> entity.updateResult( deployment.getDeploymentStatus(),
-                                                        deployment.getResultMessage() ));
-    }
-
-    @Override
     public void updateDeploymentSendResult(Deployment deployment) {
         Optional<DeploymentEntity> result = deploymentJpaRepository.findById(deployment.getId().getValue());
         result.ifPresent(entity -> entity.updateSendResult( deployment.getDeploymentStatus(),

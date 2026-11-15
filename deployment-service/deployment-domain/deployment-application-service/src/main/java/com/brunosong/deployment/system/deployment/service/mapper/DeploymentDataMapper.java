@@ -3,7 +3,6 @@ package com.brunosong.deployment.system.deployment.service.mapper;
 import com.brunosong.deployment.system.deployment.service.helper.deployment.TargetCatalog;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.domain.valueobject.TargetId;
-import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.dto.create.CreateDeploymentResponse;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
@@ -43,14 +42,6 @@ public class DeploymentDataMapper {
 
     public SourceConfigId toSourceConfigId(DeploymentRequest request) {
         return new SourceConfigId(request.sourceConfigId());
-    }
-
-    public Deployment applyResultMessageToDeployment(ApplyResultMessage applyResultMessage) {
-        return Deployment.builder()
-                .id(applyResultMessage.getDeploymentId())
-                .deploymentStatus(applyResultMessage.getDeploymentStatus())
-                .resultMessage(applyResultMessage.getMessage())
-                .build();
     }
 
     /** 청크 하나를 아웃박스에 적을 페이로드로 바꾼다 */

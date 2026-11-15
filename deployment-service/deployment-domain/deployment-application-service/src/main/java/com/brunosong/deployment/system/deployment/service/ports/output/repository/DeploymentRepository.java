@@ -17,8 +17,6 @@ public interface DeploymentRepository {
 
     Optional<List<Deployment>> findAll();
 
-    void updateDeploymentStatus(Deployment deployment);
-
     void updateDeploymentSendResult(Deployment deployment);
 
 }

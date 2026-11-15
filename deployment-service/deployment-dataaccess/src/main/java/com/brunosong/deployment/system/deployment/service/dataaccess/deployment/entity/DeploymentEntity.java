@@ -86,11 +86,6 @@ public class DeploymentEntity implements Persistable<UUID> {
     @Version
     private Long version;
 
-    public void updateResult(DeploymentStatus status, String resultMessage) {
-        this.deploymentStatus = status;
-        this.resultMessage = resultMessage;
-    }
-
     public void updateSendResult(DeploymentStatus status, int totalChunkSize) {
         this.deploymentStatus = status;
         this.totalChunkSize = totalChunkSize;
