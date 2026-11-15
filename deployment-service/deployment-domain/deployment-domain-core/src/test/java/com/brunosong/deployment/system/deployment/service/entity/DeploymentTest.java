@@ -1,17 +1,13 @@
 package com.brunosong.deployment.system.deployment.service.entity;
 
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentDomainException;
-import com.brunosong.deployment.system.deployment.service.valueobject.ChunkStatus;
-import com.brunosong.deployment.system.deployment.service.valueobject.DbType;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceConfigId;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceId;
-import com.brunosong.deployment.system.deployment.service.valueobject.SourceType;
-import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
+import com.brunosong.deployment.system.deployment.service.valueobject.*;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
@@ -20,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeploymentTest {
 
     private static final Instant NOW = Instant.parse("2026-11-08T10:00:00Z");
+    private static final Duration DEADLINE = Duration.ofMinutes(10);
 
     @Test
     @DisplayName("새 배포는 ID, PENDING 상태, 생성 시각, 청크 수를 갖춘 채로 만들어진다")
@@ -236,6 +233,45 @@ class DeploymentTest {
         Deployment deployment = restored();
 
         assertThrows(DeploymentDomainException.class, () -> deployment.accept(2, NOW));
+    }
+
+    @Test
+    @DisplayName("뼈대가 기한 안에 응답이 없으면 NO_REPLY 로 실패하고, 기다릴 청크가 없으니 배포도 실패한다")
+    void overdueSkeletonFailsDeployment() {
+        Deployment deployment = accepted(2);
+
+        deployment.expireOverdue(NOW.plus(DEADLINE).plusSeconds(1), DEADLINE);
+
+        Chunk skeleton = deployment.getChunks().get(0);
+        assertEquals(ChunkStatus.FAILED, skeleton.getStatus());
+        assertEquals(FailureKind.NO_REPLY, skeleton.getFailure().kind());
+        // 보내지 않은 과목은 기다릴 응답이 없으므로 그대로다
+        assertEquals(ChunkStatus.WAITING, deployment.getChunks().get(1).getStatus());
+        assertEquals(DeploymentStatus.FAILED, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("기한과 같은 시각이면 아직 지나지 않은 것으로 보고 아무것도 바꾸지 않는다")
+    void notYetOverdueChangesNothing() {
+        Deployment deployment = accepted(2);
+
+        deployment.expireOverdue(NOW.plus(DEADLINE), DEADLINE);
+
+        assertEquals(ChunkStatus.SENT, deployment.getChunks().get(0).getStatus());
+        assertEquals(DeploymentStatus.IN_PROGRESS, deployment.getDeploymentStatus());
+    }
+
+    @Test
+    @DisplayName("응답 없음으로 실패한 뒤 늦게 성공이 오면 바로잡혀 배포가 완료된다")
+    void lateSuccessAfterNoReplyCompletes() {
+        Deployment deployment = accepted(0);   // 과목이 없어 뼈대 하나뿐
+        deployment.expireOverdue(NOW.plus(DEADLINE).plusSeconds(1), DEADLINE);
+        assertEquals(DeploymentStatus.FAILED, deployment.getDeploymentStatus());
+
+        deployment.recordSuccess(0, NOW.plus(DEADLINE).plusSeconds(5));
+
+        assertEquals(ChunkStatus.APPLIED, deployment.getChunks().get(0).getStatus());
+        assertEquals(DeploymentStatus.SUCCEEDED, deployment.getDeploymentStatus());
     }
 
     private Deployment accepted(int subjectCount) {

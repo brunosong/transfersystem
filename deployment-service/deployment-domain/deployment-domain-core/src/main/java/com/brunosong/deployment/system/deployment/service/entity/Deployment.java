@@ -9,6 +9,7 @@ import com.brunosong.deployment.system.deployment.service.valueobject.*;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -139,6 +140,16 @@ public class Deployment extends AggregateRoot<DeploymentId> {
     /** 청크 하나가 실패했다는 결과를 기록한다. 어느 시도의 결과인지는 청크가 판단한다. */
     public void recordFailure(int chunkNo, int attempt, String message, Instant now) {
         chunk(chunkNo).recordFailure(attempt, message, now);
+        updateStatus();
+    }
+
+    /**
+     * 보낸 뒤 기한이 지나도록 응답이 없는 청크를 FAILED(NO_REPLY) 로 바꾸고 배포 상태를 다시 정한다.
+     * 결과 메시지가 사라져도 배포가 영원히 진행 중으로 남지 않게 한다.
+     * 응답이 없다는 것이지 반영되지 않았다는 뜻은 아니다. 늦게 성공이 오면 APPLIED 로 바로잡힌다.
+     */
+    public void expireOverdue(Instant now, Duration deadline) {
+        chunks.forEach(chunk -> chunk.expireIfOverdue(now, deadline));
         updateStatus();
     }
 

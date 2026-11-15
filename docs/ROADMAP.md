@@ -118,6 +118,10 @@
 - [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 쓰지 않는 `version` 칸 지우기, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리, 프로듀서 `max.block.ms` 줄이기(브로커가 죽으면 `send()`가 60초까지 막힌다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
 - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
+  - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
+  - [ ] 가-2. 기한이 지난 `SENT` 청크가 있는 배포 찾기
+  - [ ] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리
+  - [ ] 가-4. 로컬 확인: 응답 없음 → `FAILED(NO_REPLY)` → 늦은 성공으로 `SUCCEEDED`
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
