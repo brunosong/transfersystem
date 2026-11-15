@@ -155,9 +155,12 @@ export interface TargetCurriculumTree extends CurriculumTree {
 
 // ─── 배포 (deployment-service) ─────────────────────────────────────────────
 
-/** deployment 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다. */
-export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'SUCCESS' | 'FAILED'
-export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'SUCCESS', 'FAILED']
+/**
+ * deployment 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다.
+ * IN_PROGRESS 는 새 상태 기계의 "진행 중"이다. 접수하면 이 상태로 시작한다(Deployment.accept).
+ */
+export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'IN_PROGRESS' | 'SUCCESS' | 'FAILED'
+export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'IN_PROGRESS', 'SUCCESS', 'FAILED']
 
 export type ChunkStatus = 'PENDING' | 'SUCCESS' | 'FAILED'
 
