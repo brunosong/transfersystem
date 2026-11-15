@@ -22,6 +22,10 @@ public class DeploymentOutboxEntity {
     @Id
     private UUID id;
 
+    // 넣은 순서대로 커지는 번호. DB가 매기므로 넣을 때도 고칠 때도 JPA가 쓰지 않는다(V11)
+    @Column(name = "seq", insertable = false, updatable = false)
+    private Long seq;
+
     @CreatedDate
     @Column(name = "created_at", nullable = false)
     private ZonedDateTime createdAt;

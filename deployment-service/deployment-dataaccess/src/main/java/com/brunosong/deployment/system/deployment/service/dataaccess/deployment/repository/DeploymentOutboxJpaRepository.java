@@ -12,7 +12,8 @@ import java.util.UUID;
 @Repository
 public interface DeploymentOutboxJpaRepository extends JpaRepository<DeploymentOutboxEntity, UUID> {
 
-    Optional<List<DeploymentOutboxEntity>> findByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus);
+    /** 보낼 행을 넣은 순서(seq)대로, 한 번에 100개까지 읽는다 */
+    Optional<List<DeploymentOutboxEntity>> findTop100ByTypeAndOutboxStatusOrderBySeqAsc(String type, OutboxStatus outboxStatus);
 
     void deleteByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus);
 }

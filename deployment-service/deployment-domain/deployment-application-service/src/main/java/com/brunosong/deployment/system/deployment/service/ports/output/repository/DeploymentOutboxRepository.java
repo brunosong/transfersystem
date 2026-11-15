@@ -10,6 +10,7 @@ public interface DeploymentOutboxRepository {
 
     DeploymentOutboxMessage save(DeploymentOutboxMessage deploymentOutboxMessage);
 
+    /** 넣은 순서(seq)대로, 한 번에 100개까지 */
     Optional<List<DeploymentOutboxMessage>> findByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus);
 
     void deleteByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus);

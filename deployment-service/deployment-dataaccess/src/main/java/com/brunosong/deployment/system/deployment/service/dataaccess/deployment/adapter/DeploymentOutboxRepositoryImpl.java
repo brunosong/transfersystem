@@ -31,7 +31,7 @@ public class DeploymentOutboxRepositoryImpl implements DeploymentOutboxRepositor
     @Override
     public Optional<List<DeploymentOutboxMessage>> findByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus) {
         return deploymentOutboxJpaRepository
-                .findByTypeAndOutboxStatus(type, outboxStatus)
+                .findTop100ByTypeAndOutboxStatusOrderBySeqAsc(type, outboxStatus)
                 .map(entities -> entities.stream()
                         .map(deploymentOutboxDataAccessMapper::toDeploymentOutboxMessage)
                         .toList());
