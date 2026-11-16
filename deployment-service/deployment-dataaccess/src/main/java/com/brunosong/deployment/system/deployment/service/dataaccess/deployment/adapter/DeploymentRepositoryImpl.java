@@ -2,18 +2,14 @@ package com.brunosong.deployment.system.deployment.service.dataaccess.deployment
 
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.ChunkJpaRepository;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
-import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentChunkEntity;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentEntity;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.mapper.DeploymentDataAccessMapper;
-import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentChunksJpaRepository;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentJpaRepository;
-import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,13 +19,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DeploymentRepositoryImpl implements DeploymentRepository {
 
     private final DeploymentJpaRepository deploymentJpaRepository;
-    private final DeploymentChunksJpaRepository deploymentChunksJpaRepository;
     private final DeploymentDataAccessMapper deploymentDataAccessMapper;
 
     private final ChunkJpaRepository chunkJpaRepository;
@@ -54,27 +48,6 @@ public class DeploymentRepositoryImpl implements DeploymentRepository {
         }
         chunkJpaRepository.saveAll(deploymentDataAccessMapper.chunksToChunkEntities(id, deployment.getChunks()));
         return deployment;
-    }
-
-    @Override
-    public void saveChunk(ApplyResultMessage applyResultMessage) {
-
-        UUID deploymentId = applyResultMessage.getDeploymentId().getValue();
-        int chunkOffset = applyResultMessage.getChunkOffset();
-
-        // 메시지는 최소 한 번 전달된다. 아웃박스가 보내고 상태를 닫기 전에 죽으면
-        // 다음 주기가 같은 것을 다시 보낸다. 중복은 사고가 아니라 정상 경로다
-        if (deploymentChunksJpaRepository.existsByLog_IdAndChunkOffset(deploymentId, chunkOffset)) {
-            log.info("이미 저장된 청크라 건너뜁니다. deploymentId={} chunkOffset={}", deploymentId, chunkOffset);
-            return;
-        }
-
-        DeploymentEntity deploymentEntity = deploymentJpaRepository.getReferenceById(deploymentId);
-
-        DeploymentChunkEntity deploymentChunkEntity =
-                deploymentDataAccessMapper.applyResultMessageToChunkEntity(applyResultMessage, deploymentEntity);
-
-        deploymentChunksJpaRepository.save(deploymentChunkEntity);
     }
 
     /** 배포를 청크와 함께 되살린다. 청크가 없으면 결과를 처리할 수 없어서 늘 함께 읽는다. */

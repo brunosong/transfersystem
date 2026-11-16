@@ -60,9 +60,5 @@ public class DeploymentResultHandler {
                         deployment, payload.chunkNo(), payload.content(), now));
             }
         }
-
-        // 4. 옛 결과 표에도 적는다. 배포 상세 화면이 아직 이 표를 읽는다. 콘솔 조회를 새 표로 옮길 때 지운다
-        result.updateTotalChunkSize(deployment.getTotalChunkSize());
-        deploymentRepository.saveChunk(result);
     }
 }

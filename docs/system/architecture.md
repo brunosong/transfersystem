@@ -199,7 +199,7 @@ Avro는 필드 이름을 싣지 않아 절반 정도로 줄었다. 시드의 설
 | 표 | 지금 | 주요 칸과 제약 |
 |---|---|---|
 | `deployment` | `deployment` | `version`, `uk_deployment_in_progress`([규칙 A](../domain/model.md#규칙-a-커리큘럼--대상마다-진행-중인-배포는-하나)) |
-| `deployment_chunk` | `deployment_chunks` | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
+| `deployment_chunk` | `deployment_chunk`(V5). 옛 `deployment_chunks`는 V12에서 지웠다 | `(deployment_id, chunk_no)` 유일. 상태, 시도, `sent_at`, 실패, 반영 내용 |
 | `deployment_chunk_payload` | 없음 | `(deployment_id, chunk_no)` 기본 키. `content bytea`(Avro 직렬화 값). 처음에는 `jsonb`로 만든다([아래](#청크-내용은-어디에-두나)) |
 | `outbox` | `deployment_outbox` | `seq`, 토픽, 키, 배포 ID, 청크 번호, 시도, 상태, 발행 시각 |
 | `target` | agent의 `targets` | `(system, environment)` 유일, `deployment_allowed` |

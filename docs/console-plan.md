@@ -20,7 +20,7 @@
 | 원본 저장소 | `sourceconfig` (deployment-service) | 읽어 올 DB 접속 정보와 컬렉션 |
 | 콘텐츠 | 원본 컬렉션의 커리큘럼 문서 | 커리큘럼 → 학년 → 학기 → 과목 → 단원 → 차시 트리. 시드 기준 커리큘럼 하나에 차시 20,000개 |
 | 대상 시스템 | `targets` (target-agent) | 온라인캠퍼스·부트캠프 × PROD·DEV, 4개 |
-| 전송(배포) | `deployment`, `deployment_chunks` | 커리큘럼 하나를 대상 하나로 보내는 작업 |
+| 전송(배포) | `deployment`, `deployment_chunk` | 커리큘럼 하나를 대상 하나로 보내는 작업 |
 | 청크 | Kafka 메시지 하나 | 첫 청크는 커리큘럼·학년·학기 뼈대, 나머지는 과목마다 하나 (시드 기준 1 + 40개) |
 
 ### 사용자
@@ -280,7 +280,7 @@
 - `sourceconfig`: `name`, `enabled` 컬럼 추가. 시드의 `source_type` 값(`LEARNING_MATERIAL`, `USER_DATA`)이 enum(`CURRICULUM`, `EXAM_RESULT_DATA`)과 안 맞으니 맞춘다.
 - `targets`: `enabled` 컬럼 추가.
 - `deployment`: 요청자, 대상 ID를 조회 조건으로 쓰므로 인덱스 추가.
-- `deployment_chunks`: `label`(뼈대 / 과목명), `error_message`, `retry_count` 추가.
+- ~~`deployment_chunks`: `label`(뼈대 / 과목명), `error_message`, `retry_count` 추가.~~ 새 청크 표 `deployment_chunk`의 `failure_message`, `attempt`로 대신한다. 옛 표는 지웠다(V12). `label`은 아직 번호로 만든다.
 
 ---
 

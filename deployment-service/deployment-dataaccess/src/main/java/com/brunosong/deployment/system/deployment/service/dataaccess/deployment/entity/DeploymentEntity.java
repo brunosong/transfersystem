@@ -13,8 +13,6 @@ import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -79,9 +77,6 @@ public class DeploymentEntity implements Persistable<UUID> {
     @Column(name = "total_chunk_size")
     private int totalChunkSize;
 
-    @OneToMany(mappedBy = "log", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DeploymentChunkEntity> chunks = new ArrayList<>();
-
     /** 같은 배포에 결과가 동시에 와서 서로의 변경을 덮어쓰지 않게 막는다(낙관적 락) */
     @Version
     private Long version;
@@ -89,11 +84,6 @@ public class DeploymentEntity implements Persistable<UUID> {
     public void updateSendResult(DeploymentStatus status, int totalChunkSize) {
         this.deploymentStatus = status;
         this.totalChunkSize = totalChunkSize;
-    }
-
-    public void addChunk(DeploymentChunkEntity chunk) {
-        chunks.add(chunk);
-        chunk.setLog(this);
     }
 
     public void updateDeploymentStatus(DeploymentStatus deploymentStatus) {

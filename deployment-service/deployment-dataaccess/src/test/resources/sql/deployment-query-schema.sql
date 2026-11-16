@@ -5,7 +5,6 @@
 
 DROP TABLE IF EXISTS deployment_chunk_payload CASCADE;
 DROP TABLE IF EXISTS deployment_chunk CASCADE;
-DROP TABLE IF EXISTS deployment_chunks CASCADE;
 DROP TABLE IF EXISTS deployment CASCADE;
 DROP TABLE IF EXISTS sourceconfig CASCADE;
 DROP TYPE IF EXISTS source_type;
@@ -44,16 +43,6 @@ CREATE TABLE deployment (
     version BIGINT NOT NULL DEFAULT 0
 );
 
-CREATE TABLE deployment_chunks (
-    id BIGSERIAL PRIMARY KEY,
-    deployment_id UUID NOT NULL REFERENCES deployment (id) ON DELETE CASCADE,
-    chunk_offset BIGINT NOT NULL,
-    size INTEGER NOT NULL,
-    status VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_deployment_chunk UNIQUE (deployment_id, chunk_offset)
-);
-
 CREATE TABLE deployment_chunk (
   deployment_id   UUID          NOT NULL REFERENCES deployment (id) ON DELETE CASCADE,
   chunk_no        INTEGER       NOT NULL,
@@ -88,10 +77,3 @@ INSERT INTO deployment (id, source_id, sourceconfig_id, source_type, target_id, 
      'FAILED', 'brunosong', '2026-11-01 11:00:00', '2026-11-01 11:00:09', 3),
     ('33333333-3333-3333-3333-333333333333', 'curriculum-003', 1, 'CURRICULUM', 1, 'MONGO', 'MESSAGING',
      'SUCCESS', 'brunosong', '2026-11-01 12:00:00', '2026-11-01 12:00:03', 2);
-
-INSERT INTO deployment_chunks (deployment_id, chunk_offset, size, status) VALUES
-    ('11111111-1111-1111-1111-111111111111', 2, 5, 'Success'),
-    ('11111111-1111-1111-1111-111111111111', 1, 5, 'Success'),
-    ('22222222-2222-2222-2222-222222222222', 1, 3, 'Failed'),
-    ('33333333-3333-3333-3333-333333333333', 1, 2, 'Success'),
-    ('33333333-3333-3333-3333-333333333333', 2, 2, 'Success');

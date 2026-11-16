@@ -71,7 +71,7 @@
 |---|---|
 | 뜻 | 배포를 나눈 조각. 대상에 한 번에 반영되는 단위이고, 실패하면 이 단위로 다시 보낸다. |
 | 코드 | **`Chunk`**, 순번은 **`chunkNo`** |
-| 지금 이름 | `DeploymentChunkEntity`(`deployment_chunks`), `chunkOffset` |
+| 지금 이름 | `ChunkEntity`(`deployment_chunk`). 메시지와 화면 API는 아직 `chunkOffset` |
 | 비고 | 커리큘럼 하나 = **뼈대 청크 1개 + 과목 청크 N개**. 문서 전체를 메시지 하나로 보내면 Kafka 기본 제한(1MB)을 넘고, 실패했을 때 전부 다시 보내야 한다. 크기는 [시스템 설계](../system/architecture.md#3-메시지-크기)에 있다. |
 
 | 종류 | 코드 | 담는 것 |

@@ -46,11 +46,11 @@ class DeploymentResultHandlerTest {
 
         ArgumentCaptor<DeploymentEventPayload> payloads = ArgumentCaptor.forClass(DeploymentEventPayload.class);
         verify(outboxHelper, times(2)).saveDeploymentOutboxMessage(payloads.capture());
+
         assertThat(payloads.getAllValues()).extracting(DeploymentEventPayload::getChunkOffset).containsExactly(1, 2);
         assertThat(deployment.getChunks()).extracting(Chunk::getStatus)
                 .containsExactly(ChunkStatus.APPLIED, ChunkStatus.SENT, ChunkStatus.SENT);
         verify(deploymentRepository).save(deployment);
-        verify(deploymentRepository).saveChunk(any());   // 옛 표에도 적는다
     }
 
     @Test

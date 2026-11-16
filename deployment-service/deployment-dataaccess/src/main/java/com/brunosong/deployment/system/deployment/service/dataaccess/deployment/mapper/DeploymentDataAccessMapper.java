@@ -6,9 +6,7 @@ import com.brunosong.deployment.system.deployment.service.entity.Chunk;
 import com.brunosong.deployment.system.deployment.service.valueobject.Failure;
 import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
-import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentChunkEntity;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentEntity;
-import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import org.springframework.stereotype.Component;
 
@@ -32,15 +30,6 @@ public class DeploymentDataAccessMapper {
                 .dbType(deployment.getDbType())
                 .totalChunkSize(deployment.getTotalChunkSize())
                 .createAdminId("BrunoSong")
-                .build();
-    }
-
-    public DeploymentChunkEntity applyResultMessageToChunkEntity(ApplyResultMessage applyResultMessage, DeploymentEntity deploymentEntity) {
-        return DeploymentChunkEntity.builder()
-                .status(applyResultMessage.getDeploymentStatus().getDescription())
-                .chunkOffset(applyResultMessage.getChunkOffset())
-                .size(applyResultMessage.getTotalChunkSize())
-                .log(deploymentEntity)
                 .build();
     }
 

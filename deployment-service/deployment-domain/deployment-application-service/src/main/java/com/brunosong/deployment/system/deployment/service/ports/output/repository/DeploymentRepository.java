@@ -1,6 +1,5 @@
 package com.brunosong.deployment.system.deployment.service.ports.output.repository;
 
-import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 
 import java.time.Instant;
@@ -11,8 +10,6 @@ import java.util.UUID;
 public interface DeploymentRepository {
 
     Deployment save(Deployment deployment);
-
-    void saveChunk(ApplyResultMessage applyResultMessage);
 
     Optional<Deployment> findById(UUID deploymentId);
 
