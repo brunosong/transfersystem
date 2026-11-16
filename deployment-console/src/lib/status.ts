@@ -54,14 +54,30 @@ export const TONE_CLASSES: Record<Tone, { badge: string; dot: string; bar: strin
   warning: { badge: 'bg-amber-50 text-amber-800 ring-amber-200', dot: 'bg-amber-500', bar: 'bg-amber-500', soft: 'bg-amber-50', text: 'text-amber-800' },
 }
 
-/** 청크 한 칸의 색 */
+/** 청크 한 칸의 색. 반영은 초록, 실패는 빨강, 결과를 기다리면 파랑, 아직 안 보냈으면 회색 */
 export function chunkClass(status: ChunkStatus | string): string {
   switch (status) {
-    case 'SUCCESS':
+    case 'APPLIED':
       return 'bg-emerald-500'
     case 'FAILED':
       return 'bg-rose-500'
+    case 'SENT':
+      return 'bg-sky-300'
     default:
       return 'bg-slate-200'
+  }
+}
+
+/** 운영자에게 보여 주는 청크 상태 이름. 다시 보낸 청크가 결과를 기다리면 "재전송 중"이다 */
+export function chunkStatusLabel(chunk: { status: ChunkStatus | string; retryCount: number }): string {
+  switch (chunk.status) {
+    case 'APPLIED':
+      return '반영됨'
+    case 'FAILED':
+      return '실패'
+    case 'SENT':
+      return chunk.retryCount > 0 ? '재전송 중' : '응답 기다림'
+    default:
+      return '대기'
   }
 }

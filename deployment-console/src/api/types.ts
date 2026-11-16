@@ -163,7 +163,11 @@ export interface TargetCurriculumTree extends CurriculumTree {
 export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'IN_PROGRESS' | 'SUCCESS' | 'SUCCEEDED' | 'FAILED'
 export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'IN_PROGRESS', 'SUCCESS', 'SUCCEEDED', 'FAILED']
 
-export type ChunkStatus = 'PENDING' | 'SUCCESS' | 'FAILED'
+/**
+ * 청크 상태. 서버의 청크 표(deployment_chunk)와 같은 이름이다(용어집).
+ * WAITING 은 뼈대가 반영되기를 기다려 아직 안 보낸 것, SENT 는 보낸 뒤 결과를 기다리는 것이다.
+ */
+export type ChunkStatus = 'WAITING' | 'SENT' | 'APPLIED' | 'FAILED'
 
 export interface Progress {
   total: number

@@ -4,6 +4,9 @@
 //
 //   접수(PENDING) ─ 아웃박스가 집어 감 ─▶ 반영 중(SENT) ─ 청크가 하나씩 처리됨 ─▶ 완료(SUCCESS) / 실패(FAILED)
 //                                                                              실패 청크 재전송 ─▶ 다시 반영 중
+//
+// 청크 상태는 서버와 같은 이름(SENT, APPLIED, FAILED)을 쓴다. mock 은 뼈대를 먼저 보내는 순서를 흉내 내지 않아서
+// 모든 청크를 처음부터 보낸 것(SENT)으로 둔다. 그래서 WAITING 은 나오지 않는다.
 
 import type { Chunk, ChunkStatus, CurriculumTree, Progress, DeploymentDetail, DeploymentStatus } from '../types'
 import { planChunks } from './content'
@@ -66,8 +69,8 @@ function chunkState(chunk: MockChunk, now: number): ChunkState {
   const done = chunk.attempts.filter((a) => a.at <= now)
   const last = done.at(-1)
   const waiting = chunk.attempts.some((a) => a.at > now)
-  if (!last || waiting) return { status: 'PENDING', processedAt: last?.at ?? null, error: null }
-  return { status: last.ok ? 'SUCCESS' : 'FAILED', processedAt: last.at, error: last.ok ? null : (last.error ?? null) }
+  if (!last || waiting) return { status: 'SENT', processedAt: last?.at ?? null, error: null }
+  return { status: last.ok ? 'APPLIED' : 'FAILED', processedAt: last.at, error: last.ok ? null : (last.error ?? null) }
 }
 
 /** 이 청크가 now 시점까지 한 번이라도 성공했는지. 대상 데이터를 계산할 때 쓴다. */
@@ -81,7 +84,7 @@ const iso = (ms: number) => new Date(ms).toISOString()
 export function statusOf(t: MockDeployment, now: number): DeploymentStatus {
   if (now < t.createdAt + ACCEPT_DELAY) return 'PENDING'
   const states = t.chunks.map((c) => chunkState(c, now).status)
-  if (states.includes('PENDING')) return 'SENT'
+  if (states.includes('SENT')) return 'SENT'
   return states.includes('FAILED') ? 'FAILED' : 'SUCCESS'
 }
 
@@ -100,7 +103,7 @@ export function simulate(t: MockDeployment, now: number): DeploymentDetail {
 
   const progress: Progress = {
     total: chunks.length,
-    succeeded: chunks.filter((c) => c.status === 'SUCCESS').length,
+    succeeded: chunks.filter((c) => c.status === 'APPLIED').length,
     failed: chunks.filter((c) => c.status === 'FAILED').length,
   }
 

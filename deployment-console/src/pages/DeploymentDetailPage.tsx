@@ -8,7 +8,7 @@ import { ChunkGrid, TargetName, DeploymentStatusBadge } from '../components/doma
 import { Button, Card, CardHeader, CopyButton, EmptyState, ErrorState, Mono, Notice, ProgressBar, Skeleton } from '../components/ui'
 import { useRetryDeployment, useSources, useTargets, useDeployment } from '../hooks/queries'
 import { formatDateTime, formatDuration, formatTime, shortId } from '../lib/format'
-import { isActiveDeployment } from '../lib/status'
+import { chunkStatusLabel, isActiveDeployment } from '../lib/status'
 
 export function DeploymentDetailPage() {
   const { deploymentId = '' } = useParams()
@@ -193,7 +193,7 @@ function Legend({ className, label }: { className: string; label: string }) {
 }
 
 function ChunkInfo({ chunk }: { chunk: Chunk }) {
-  const status = chunk.status === 'SUCCESS' ? '성공' : chunk.status === 'FAILED' ? '실패' : chunk.retryCount > 0 ? '재전송 중' : '대기'
+  const status = chunkStatusLabel(chunk)
   return (
     <div className="grid gap-x-6 gap-y-1 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm sm:grid-cols-[auto_1fr]">
       <span className="text-slate-500">청크</span>
@@ -201,7 +201,7 @@ function ChunkInfo({ chunk }: { chunk: Chunk }) {
         <Mono>#{chunk.chunkOffset}</Mono> {chunk.label}
       </span>
       <span className="text-slate-500">상태</span>
-      <span className={clsx(chunk.status === 'FAILED' && 'text-rose-700', chunk.status === 'SUCCESS' && 'text-emerald-700')}>{status}</span>
+      <span className={clsx(chunk.status === 'FAILED' && 'text-rose-700', chunk.status === 'APPLIED' && 'text-emerald-700')}>{status}</span>
       <span className="text-slate-500">처리 시각</span>
       <span>{formatTime(chunk.processedAt)}</span>
       {chunk.retryCount > 0 && (

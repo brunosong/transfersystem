@@ -37,7 +37,7 @@ describe('simulate', () => {
     const d = simulate(t, t.createdAt + ACCEPT_DELAY + CHUNK_TICK * 3)
     expect(d.status).toBe('SENT')
     expect(d.progress.succeeded).toBe(3)
-    expect(d.chunks[3].status).toBe('PENDING')
+    expect(d.chunks[3].status).toBe('SENT')
   })
 
   it('모두 성공하면 완료다', () => {
@@ -63,12 +63,12 @@ describe('simulate', () => {
 
     const during = simulate(t, done + 1)
     expect(during.status).toBe('SENT')
-    expect(during.chunks[3]).toMatchObject({ status: 'PENDING', retryCount: 1 })
-    expect(during.chunks[4].status).toBe('SUCCESS')
+    expect(during.chunks[3]).toMatchObject({ status: 'SENT', retryCount: 1 })
+    expect(during.chunks[4].status).toBe('APPLIED')
 
     const after = simulate(t, finishesAt(t))
     expect(after.status).toBe('SUCCESS')
-    expect(after.chunks[7]).toMatchObject({ status: 'SUCCESS', retryCount: 1, errorMessage: null })
+    expect(after.chunks[7]).toMatchObject({ status: 'APPLIED', retryCount: 1, errorMessage: null })
     expect(after.resultMessage).toContain('재전송')
   })
 

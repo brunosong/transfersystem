@@ -5,7 +5,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 import type { Chunk, CurriculumTree, Target } from '../api/types'
 import { formatNumber, formatTime } from '../lib/format'
-import { chunkClass, deploymentStatusMeta } from '../lib/status'
+import { chunkClass, chunkStatusLabel, deploymentStatusMeta } from '../lib/status'
 import { systemLabel } from '../lib/targets'
 import { EnvBadge, StatusBadge } from './ui'
 
@@ -34,12 +34,12 @@ export function ChunkGrid({ chunks, selected, onSelect }: { chunks: Chunk[]; sel
           key={chunk.chunkOffset}
           type="button"
           onClick={() => onSelect?.(chunk.chunkOffset)}
-          title={`#${chunk.chunkOffset} ${chunk.label} · ${chunk.status === 'SUCCESS' ? '성공' : chunk.status === 'FAILED' ? '실패' : '대기'}${chunk.processedAt ? ` · ${formatTime(chunk.processedAt)}` : ''}${chunk.retryCount ? ` · 재전송 ${chunk.retryCount}회` : ''}`}
+          title={`#${chunk.chunkOffset} ${chunk.label} · ${chunkStatusLabel(chunk)}${chunk.processedAt ? ` · ${formatTime(chunk.processedAt)}` : ''}${chunk.retryCount ? ` · 재전송 ${chunk.retryCount}회` : ''}`}
           className={clsx(
             'relative size-5 rounded-[4px] transition',
             chunkClass(chunk.status),
             chunk.chunkOffset === 0 && 'ring-2 ring-slate-400 ring-offset-1',
-            chunk.status === 'PENDING' && chunk.retryCount > 0 && 'animate-pulse bg-amber-300',
+            chunk.status === 'SENT' && chunk.retryCount > 0 && 'animate-pulse bg-amber-300',
             selected === chunk.chunkOffset && 'outline-2 outline-offset-2 outline-brand-600',
             onSelect && 'hover:scale-110',
           )}
