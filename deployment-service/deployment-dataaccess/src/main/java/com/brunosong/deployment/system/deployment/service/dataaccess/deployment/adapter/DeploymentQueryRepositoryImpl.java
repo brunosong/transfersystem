@@ -1,17 +1,18 @@
 package com.brunosong.deployment.system.deployment.service.dataaccess.deployment.adapter;
 
-import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
-import com.brunosong.deployment.system.deployment.service.dataaccess.source.repository.SourceConfigJpaRepository;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.entity.DeploymentEntity;
-import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentChunksJpaRepository;
-import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentChunksJpaRepository.ChunkStatusCount;
+import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.ChunkJpaRepository;
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentJpaRepository;
+import com.brunosong.deployment.system.deployment.service.dataaccess.source.repository.SourceConfigJpaRepository;
+import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.ChunkJpaRepository.ChunkStatusCount;
+import com.brunosong.deployment.system.deployment.service.valueobject.ChunkStatus;
 import com.brunosong.deployment.system.deployment.service.dto.query.ChunkRecord;
 import com.brunosong.deployment.system.deployment.service.dto.query.PageView;
 import com.brunosong.deployment.system.deployment.service.dto.query.SourceConfigView;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentRecord;
 import com.brunosong.deployment.system.deployment.service.dto.query.DeploymentSearchCondition;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentQueryRepository;
+import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Component;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -30,11 +30,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository {
 
-    private static final String SUCCESS = "SUCCESS";
-    private static final String FAILED = "FAILED";
-
     private final DeploymentJpaRepository deploymentJpaRepository;
-    private final DeploymentChunksJpaRepository deploymentChunksJpaRepository;
+    private final ChunkJpaRepository chunkJpaRepository;
     private final SourceConfigJpaRepository sourceConfigJpaRepository;
 
     @Override
@@ -61,10 +58,13 @@ public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository 
 
     @Override
     public List<ChunkRecord> findChunks(UUID deploymentId) {
-        return deploymentChunksJpaRepository.findAllByLog_IdOrderByChunkOffsetAsc(deploymentId).stream()
-                .map(chunk -> new ChunkRecord(chunk.getChunkOffset(),
-                        chunk.getStatus().toUpperCase(Locale.ROOT),
-                        chunk.getCreatedAt()))
+        return chunkJpaRepository.findAllById_DeploymentIdOrderById_ChunkNoAsc(deploymentId).stream()
+                .map(chunk -> new ChunkRecord(chunk.getId().getChunkNo(),
+                        chunk.getStatus().name(),
+                        // 실패했으면 실패한 시각, 아니면 보낸 시각. 반영된 시각은 기록하지 않는다
+                        chunk.getFailedAt() != null ? chunk.getFailedAt() : chunk.getSentAt(),
+                        chunk.getFailureMessage(),
+                        chunk.getAttempt()))
                 .toList();
     }
 
@@ -90,7 +90,7 @@ public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository 
         if (deploymentIds.isEmpty()) {
             return result;
         }
-        for (ChunkStatusCount row : deploymentChunksJpaRepository.countByStatus(deploymentIds)) {
+        for (ChunkStatusCount row : chunkJpaRepository.countByStatus(deploymentIds)) {
             ChunkCounts current = result.getOrDefault(row.getDeploymentId(), ChunkCounts.EMPTY);
             result.put(row.getDeploymentId(), current.add(row.getStatus(), row.getTotal()));
         }
@@ -117,9 +117,9 @@ public class DeploymentQueryRepositoryImpl implements DeploymentQueryRepository 
     private record ChunkCounts(long succeeded, long failed) {
         static final ChunkCounts EMPTY = new ChunkCounts(0, 0);
 
-        ChunkCounts add(String status, long total) {
+        ChunkCounts add(ChunkStatus status, long total) {
             return switch (status) {
-                case SUCCESS -> new ChunkCounts(succeeded + total, failed);
+                case APPLIED -> new ChunkCounts(succeeded + total, failed);
                 case FAILED -> new ChunkCounts(succeeded, failed + total);
                 default -> this;
             };

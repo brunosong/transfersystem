@@ -24,6 +24,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = DeploymentQueryRepositoryImplTest.Config.class)
-@Sql("/sql/deployment-query-schema.sql")
+@Sql({"/sql/deployment-query-schema.sql", "/sql/deployment-query-chunks.sql"})
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=none")
 class DeploymentQueryRepositoryImplTest {
 
@@ -91,14 +92,25 @@ class DeploymentQueryRepositoryImplTest {
         assertThat(firstPage.totalPages()).isEqualTo(2);
     }
 
+    /**
+     * 확인하는 것: 상세 화면의 청크는 새 청크 표에서, 번호 순서대로, 새 상태 이름으로 온다.
+     *
+     * 옛 표는 결과가 와야 행이 생겨 응답을 기다리는 청크가 화면에서 빠졌다.
+     * 새 표는 접수할 때 모든 청크를 만들므로 SENT 인 과목 2~4도 보여야 한다.
+     */
     @Test
-    @DisplayName("청크는 순서대로, 상태는 대문자로 돌려준다")
+    @DisplayName("청크는 새 표에서 번호 순서대로, 새 상태 이름으로 돌려준다")
     void chunksInOrder() {
+        // 실행: 진행 중인 배포(1111)의 청크를 읽는다
         List<ChunkRecord> chunks = repository.findChunks(IN_PROGRESS);
 
-        assertThat(chunks).extracting(ChunkRecord::chunkOffset).containsExactly(1, 2);
-        assertThat(chunks).extracting(ChunkRecord::status).containsOnly("SUCCESS");
-        assertThat(chunks).allSatisfy(c -> assertThat(c.processedAt()).isNotNull());
+        // 확인 1: 결과가 안 온 청크까지 다섯 개가 모두, 번호 순서대로 온다
+        assertThat(chunks).extracting(ChunkRecord::chunkOffset).containsExactly(0, 1, 2, 3, 4);
+        // 확인 2: 상태는 옛 "SUCCESS"가 아니라 새 표의 이름 그대로다
+        assertThat(chunks).extracting(ChunkRecord::status)
+                .containsExactly("APPLIED", "APPLIED", "SENT", "SENT", "SENT");
+        // 확인 3: 실패하지 않은 청크의 시각은 보낸 시각이다
+        assertThat(chunks.get(2).processedAt()).isEqualTo(Instant.parse("2026-11-01T10:00:02Z"));
     }
 
     @Test
@@ -127,4 +139,31 @@ class DeploymentQueryRepositoryImplTest {
     void notFound() {
         assertThat(repository.findDeployment(UUID.randomUUID())).isEmpty();
     }
+
+    /**
+     * 확인하는 것: 실패한 청크는 실패 사유와 실패 시각을, 안 보낸 청크는 시각 없이 시도 0을 돌려준다.
+     *
+     * 옛 표에는 실패 사유 칸이 없어 화면의 오류 메시지가 늘 비어 있었다.
+     * 시도 번호는 화면의 재전송 횟수(시도 - 1)를 만드는 데 쓴다.
+     */
+    @Test
+    @DisplayName("실패한 청크는 사유와 실패 시각을, 안 보낸 청크는 시각 없이 돌려준다")
+    void failedAndWaitingChunks() {
+        // 실행: 뼈대가 거절된 배포(2222)의 청크를 읽는다
+        List<ChunkRecord> chunks = repository.findChunks(FAILED);
+
+        // 확인 1: 뼈대는 실패이고, 대상이 보낸 사유와 실패한 시각이 함께 온다
+        ChunkRecord skeleton = chunks.get(0);
+        assertThat(skeleton.status()).isEqualTo("FAILED");
+        assertThat(skeleton.errorMessage()).isEqualTo("Duplicate entry");
+        assertThat(skeleton.processedAt()).isEqualTo(Instant.parse("2026-11-01T11:00:09Z"));
+        assertThat(skeleton.attempt()).isEqualTo(1);
+
+        // 확인 2: 뼈대가 반영되지 않아 과목은 아직 안 보냈다. 시각이 없고 시도 번호는 0이다
+        ChunkRecord subject = chunks.get(1);
+        assertThat(subject.status()).isEqualTo("WAITING");
+        assertThat(subject.processedAt()).isNull();
+        assertThat(subject.attempt()).isZero();
+    }
+
 }

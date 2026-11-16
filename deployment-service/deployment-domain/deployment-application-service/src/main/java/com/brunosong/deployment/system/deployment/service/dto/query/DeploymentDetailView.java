@@ -26,15 +26,16 @@ public record DeploymentDetailView(
         List<ChunkView> chunks) {
 
     /**
-     * 청크 하나. label 은 운영자가 알아볼 이름이다. 과목 이름은 결과 표에 없어서 번호로 보여 준다.
-     * 실패 사유와 재시도 횟수는 아직 기록하지 않아 비어 있다.
+     * 청크 하나. label 은 운영자가 알아볼 이름이다. 과목 이름은 청크 표에 없어서 번호로 보여 준다.
+     * retryCount 는 재전송 횟수다. 첫 시도가 1이므로 시도 번호에서 1을 뺀다. 아직 안 보낸 청크는 시도 번호가 0이라 0으로 둔다.
      */
     public record ChunkView(int chunkOffset, String label, String status, Instant processedAt,
                             String errorMessage, int retryCount) {
 
         public static ChunkView from(ChunkRecord chunk) {
             String label = chunk.chunkOffset() == 0 ? "뼈대" : "과목 " + chunk.chunkOffset();
-            return new ChunkView(chunk.chunkOffset(), label, chunk.status(), chunk.processedAt(), null, 0);
+            return new ChunkView(chunk.chunkOffset(), label, chunk.status(), chunk.processedAt(),
+                    chunk.errorMessage(), Math.max(0, chunk.attempt() - 1));
         }
     }
 }

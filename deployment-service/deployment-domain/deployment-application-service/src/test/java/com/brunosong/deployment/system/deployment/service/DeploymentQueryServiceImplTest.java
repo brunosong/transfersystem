@@ -47,18 +47,20 @@ class DeploymentQueryServiceImplTest {
         UUID id = UUID.randomUUID();
         when(repository.findDeployment(id)).thenReturn(Optional.of(record(id, DeploymentStatus.SENT, 3, 1, 0)));
         Instant processedAt = Instant.now();
+        // 준비: 뼈대는 재전송 끝에 반영됐고(시도 2), 과목 2는 대상이 거절했다(시도 1)
         when(repository.findChunks(id)).thenReturn(List.of(
-                new ChunkRecord(0, "SUCCESS", processedAt),
-                new ChunkRecord(2, "FAILED", processedAt)));
+                new ChunkRecord(0, "APPLIED", processedAt, null, 2),
+                new ChunkRecord(2, "FAILED", processedAt, "Duplicate entry", 1)));
 
         DeploymentDetailView detail = service.findDeployment(id);
 
         assertThat(detail.status()).isEqualTo("SENT");
         assertThat(detail.targetId()).isEqualTo(1L);
         assertThat(detail.progress().pending()).isEqualTo(2);
+        // 확인: 청크마다 이름이 붙고, 실패 사유가 그대로 오고, 재전송 횟수는 시도 번호 - 1 이다
         assertThat(detail.chunks()).containsExactly(
-                new DeploymentDetailView.ChunkView(0, "뼈대", "SUCCESS", processedAt, null, 0),
-                new DeploymentDetailView.ChunkView(2, "과목 2", "FAILED", processedAt, null, 0));
+                new DeploymentDetailView.ChunkView(0, "뼈대", "APPLIED", processedAt, null, 1),
+                new DeploymentDetailView.ChunkView(2, "과목 2", "FAILED", processedAt, "Duplicate entry", 0));
     }
 
     @Test
