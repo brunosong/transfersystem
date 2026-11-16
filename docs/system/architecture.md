@@ -346,7 +346,7 @@ A'로 하면 아웃박스 행이 남아 있는 동안 내용이 두 곳에 있�
 | 토픽 `data-migration-request`, `data-migration-response` (파티션 3) | 4절의 토픽 |
 | `max.request.size: 15000000`, `KAFKA_MESSAGE_MAX_BYTES: 15728640` | 1MB |
 | 압축 없음 | `lz4` |
-| 발행 주기 10초 | 1초 |
+| ~~발행 주기 10초~~ | 1초. 코드 기본값으로 두었다(2026-11-16). 로컬은 흐름을 눈으로 보려고 30초로 늘려 둔다 |
 | 대상 쪽 `Thread.sleep(1000)` | 삭제 |
 | 공통 에러 핸들러: 모든 오류를 30초 재시도 후 DLT | 일시적 오류는 대상은 `Rejected`, 결과 소비자는 계속 재시도 |
 | 배포마다 `TargetHandler`로 대상 표 조회 | 메시지 값으로 어댑터와 DB 선택 |

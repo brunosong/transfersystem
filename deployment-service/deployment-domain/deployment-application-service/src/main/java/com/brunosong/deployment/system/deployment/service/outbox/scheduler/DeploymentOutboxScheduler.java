@@ -27,9 +27,14 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
     private final DeploymentOutboxHelper deploymentOutboxHelper;
     private final DeploymentOutboxPublisherHelper deploymentOutboxPublisherHelper;
 
+    /**
+     * 기본은 1초마다 돈다. 뼈대 결과가 온 뒤 과목이 나가기까지의 지연이 이 주기만큼 늘기 때문이다.
+     * 보낼 행이 없으면 seq 순서 조회 한 번으로 끝나서 짧게 돌려도 부담이 적다.
+     * 로컬은 흐름을 천천히 보려고 application-local.yml 에서 늘려 둔다. 첫 실행은 앱이 다 뜬 뒤로 미룬다(기본 10초).
+     */
     @Override
-    @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay}",
-            initialDelayString = "${deployment-service.outbox-scheduler.initial-delay}")
+    @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay:1000}",
+            initialDelayString = "${deployment-service.outbox-scheduler.initial-delay:10000}")
     public void processOutboxMessages() {
         List<DeploymentOutboxMessage> outboxMessages = deploymentOutboxHelper
                 .getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED)

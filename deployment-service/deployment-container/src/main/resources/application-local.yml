@@ -90,6 +90,8 @@ logging:
 deployment-service:
   data-migration-request-topic-name: data-migration-request
   data-migration-response-topic-name: data-migration-response
+  # 로컬은 흐름을 천천히 보려고 30초로 늘렸다(코드 기본값 1초). 빠르게 볼 때는 실행 인자로
+  # --deployment-service.outbox-scheduler.fixed-delay=1000 을 넘긴다
   outbox-scheduler:
     initial-delay: 30000
     fixed-delay: 30000
