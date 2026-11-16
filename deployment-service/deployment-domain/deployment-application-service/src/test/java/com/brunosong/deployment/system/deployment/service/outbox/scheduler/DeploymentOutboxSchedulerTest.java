@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.deployment.service.outbox.scheduler;
 
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentOutboxMessage;
+import com.brunosong.deployment.system.deployment.service.ports.output.lock.PublishLock;
 import com.brunosong.deployment.system.deployment.service.ports.output.message.publisher.PublishResult;
 import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
 import com.brunosong.deployment.system.outbox.OutboxStatus;
@@ -21,7 +22,12 @@ class DeploymentOutboxSchedulerTest {
 
     private final DeploymentOutboxHelper outboxHelper = mock(DeploymentOutboxHelper.class);
     private final DeploymentOutboxPublisherHelper publisherHelper = mock(DeploymentOutboxPublisherHelper.class);
-    private final DeploymentOutboxScheduler scheduler = new DeploymentOutboxScheduler(outboxHelper, publisherHelper);
+    // 가짜 락: 늘 잡히고, 받은 작업을 그 자리에서 돌린다. 락이 실제로 막는지는 PostgresPublishLockTest 가 본다
+    private final PublishLock alwaysFree = task -> {
+        task.run();
+        return true;
+    };
+    private final DeploymentOutboxScheduler scheduler = new DeploymentOutboxScheduler(outboxHelper, publisherHelper, alwaysFree);
 
     @Test
     @DisplayName("같은 키의 앞 행을 못 보내면 뒤 행은 건너뛰고, 다른 키는 그대로 보낸다")
@@ -74,6 +80,25 @@ class DeploymentOutboxSchedulerTest {
         order.verify(publisherHelper).publish(a1);
         order.verify(publisherHelper).publish(b1);
         order.verify(publisherHelper).publish(a2);
+    }
+
+    /**
+     * 확인하는 것: 다른 인스턴스가 락을 쥐고 있으면 이번 주기에는 아무것도 하지 않는다.
+     *
+     * 락을 못 잡았는데 행을 읽거나 보내면, 두 인스턴스가 같은 행을 보내 메시지가 두 번 나가고
+     * 같은 키의 행이 두 곳에서 나가 순서가 뒤집힐 수 있다.
+     */
+    @Test
+    @DisplayName("다른 인스턴스가 발행 중이면 행을 읽지도 보내지도 않는다")
+    void skipsWhenAnotherInstanceHoldsLock() {
+        // 준비: 락이 늘 잡혀 있는 상황을 흉내 낸다(작업을 돌리지 않고 false)
+        DeploymentOutboxScheduler other = new DeploymentOutboxScheduler(outboxHelper, publisherHelper, task -> false);
+
+        // 실행
+        other.processOutboxMessages();
+
+        // 확인: 아웃박스 표를 읽지도 않았고(행 조회 없음), Kafka 로 보내지도 않았다
+        verifyNoInteractions(outboxHelper, publisherHelper);
     }
 
     private void rowsToSend(DeploymentOutboxMessage... rows) {

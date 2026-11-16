@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.outbox.scheduler;
 
+import com.brunosong.deployment.system.deployment.service.ports.output.lock.PublishLock;
 import com.brunosong.deployment.system.domain.DomainConstants;
 import com.brunosong.deployment.system.outbox.OutboxScheduler;
 import com.brunosong.deployment.system.outbox.OutboxStatus;
@@ -26,6 +27,7 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
 
     private final DeploymentOutboxHelper deploymentOutboxHelper;
     private final DeploymentOutboxPublisherHelper deploymentOutboxPublisherHelper;
+    private final PublishLock publishLock;
 
     /**
      * 기본은 1초마다 돈다. 뼈대 결과가 온 뒤 과목이 나가기까지의 지연이 이 주기만큼 늘기 때문이다.
@@ -36,6 +38,14 @@ public class DeploymentOutboxScheduler implements OutboxScheduler {
     @Scheduled(fixedDelayString = "${deployment-service.outbox-scheduler.fixed-delay:1000}",
             initialDelayString = "${deployment-service.outbox-scheduler.initial-delay:10000}")
     public void processOutboxMessages() {
+        // 여러 대를 띄워도 한 대만 발행한다. 락을 못 잡으면 이번 주기는 건너뛰고 다음 주기에 다시 시도한다
+        if (!publishLock.runIfFree(this::publishStartedRows)) {
+            log.debug("다른 인스턴스가 발행 중이라 이번 주기는 건너뛴다");
+        }
+    }
+
+    /** STARTED 행을 seq 순서로 보낸다. 락을 쥔 인스턴스에서만 돈다 */
+    private void publishStartedRows() {
         List<DeploymentOutboxMessage> outboxMessages = deploymentOutboxHelper
                 .getDeploymentOutboxMessageByOutboxStatus(OutboxStatus.STARTED)
                 .orElse(List.of());

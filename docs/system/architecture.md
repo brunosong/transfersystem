@@ -261,7 +261,7 @@ A'로 하면 아웃박스 행이 남아 있는 동안 내용이 두 곳에 있�
 
 | 일 | 방법 |
 |---|---|
-| 발행 스케줄러 | Postgres 어드바이저리 락으로 하나만 돈다 ([ADR 0004](../adr/0004-transactional-outbox.md)) |
+| 발행 스케줄러 | Postgres 세션 어드바이저리 락으로 하나만 돈다 ([ADR 0004](../adr/0004-transactional-outbox.md)). 2026-11-16에 넣었다: `PublishLock` 포트, `PostgresPublishLock`(커넥션 하나에서 `pg_try_advisory_lock` → 발행 → `pg_advisory_unlock`). 못 잡으면 그 주기를 건너뛴다. 쥔 인스턴스가 죽으면 연결이 끊기며 풀린다 |
 | 응답 기한, 정리 작업 | 같은 방법. 겹쳐 돌아도 `version`이 막지만 헛일을 줄인다 |
 | 결과 처리 | 키가 배포 ID라 같은 배포는 소비자 하나가 처리한다. 리밸런스 때의 겹침은 `version` 충돌 후 재시도로 처리한다 |
 | API | 상태가 없어 여러 대 띄울 수 있다 |
