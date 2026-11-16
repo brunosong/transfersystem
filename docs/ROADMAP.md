@@ -117,11 +117,15 @@
   - [ ] 6. 옛 길 정리: 콘솔 조회를 `deployment_chunk`로 옮기고 `deployment_chunks`, `saveChunk`, 캐시 경로 삭제
 - [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 쓰지 않는 `version` 칸 지우기, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리, 프로듀서 `max.block.ms` 줄이기(브로커가 죽으면 `send()`가 60초까지 막힌다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
-- [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
-  - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
-  - [x] 가-2. 기한이 지난 `SENT` 청크가 있는 배포 찾기 (V5의 부분 인덱스를 쓰도록 상태를 글자 그대로 적음)
-  - [x] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리 (`ResponseDeadlineScheduler`, `DeploymentDeadlineHandler`. 기한 `deployment-service.response-deadline.duration` 기본 10m, 주기 `...check-interval` 기본 60000ms)
-  - [ ] 가-4. 로컬 확인: 응답 없음 → `FAILED(NO_REPLY)` → 늦은 성공으로 `SUCCEEDED`
+- [ ] 가. 실패 흐름. 결과가 오지 않거나 실패로 와도 배포가 끝나고, 운영자가 이어서 보낼 수 있게 한다
+  - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
+    - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
+    - [x] 가-2. 기한이 지난 `SENT` 청크가 있는 배포 찾기 (V5의 부분 인덱스를 쓰도록 상태를 글자 그대로 적음)
+    - [x] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리 (`ResponseDeadlineScheduler`, `DeploymentDeadlineHandler`. 기한 `deployment-service.response-deadline.duration` 기본 10m, 주기 `...check-interval` 기본 60000ms)
+    - [ ] 가-4. 로컬 확인: 대상을 끄고 접수하면 기한이 지나 뼈대와 배포가 `FAILED`(`NO_REPLY`)가 된다. 대상을 켜서 늦은 성공이 오면 뼈대만 `APPLIED`가 되고, 배포는 `FAILED`, 과목은 `WAITING`으로 남는다. 과목은 운영자가 재전송해야 나간다([도메인 모델](domain/model.md#재전송과-늦은-결과))
+  - [ ] 가-5. 실패 결과 확인: 대상이 실패 결과를 보내면 그 청크와 배포가 `FAILED`가 된다
+  - [ ] 가-6. 재전송 API (`POST /api/v1/deployments/{id}/retry`): `FAILED` 청크를 시도 번호 +1로 다시 보낸다. 뼈대가 반영돼 있으면 `WAITING` 과목도 함께 보낸다. 내용은 저장해 둔 청크 내용을 쓴다
+  - [ ] 가-7. 규칙 A: 커리큘럼 × 대상마다 진행 중인 배포는 하나 (부분 유니크 인덱스, 어기면 409)
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
@@ -130,7 +134,7 @@
 - [ ] target-agent: 같은 커리큘럼을 다른 대상에 보내면 중복 오류(`CURRICULUM_ID` 유일 제약 위반)가 난다. 대상마다 다른 DB에 들어가야 하는데 같은 DB를 고르는 것으로 보인다(2026-11-15 로컬, CUR123을 대상 1과 3에)
 - [ ] 콘솔 nginx 설정(`nginx/default.conf.template`)도 대상 목록(`/api/v1/targets`)을 deployment-service로 보내게 맞추기. 개발 서버(Vite)는 2026-11-15에 바꿨다
 - [ ] 커리큘럼별 배포 이력 조회 (`GET /api/v1/curriculums/{id}/deployments`). 지금은 빈 목록을 돌려준다. 배포 표의 `curriculum_id`(V10)로 대상별 마지막 배포를 모은다
-- [ ] 규칙 A(진행 중 배포 하나, 부분 유니크 인덱스), 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용)
+- [ ] 규칙 B(최근 배포만 재전송), 규칙 C(배포 허용). 규칙 A는 가-7
 - [ ] 대상의 멱등한 반영과 오류 구분 ([대상 규칙](domain/events.md#5-대상이-지켜야-할-규칙)): 잠깐의 오류는 그 자리에서 재시도하고 끝내 안 되면 실패 결과, 해석할 수 없는 명령은 DLT
 - [x] 사가 흔적 정리: `sagaId`, `saga_status`(V6), 아웃박스 `type` 값(V8, `ApplyChunkCommand`), deployment-service의 `saga` 모듈 의존, `infrastructure/saga` 모듈(`SagaStatus`, `SagaStep`, `SagaConstants`)을 지웠다. 사가를 다시 시작하면 새로 만든다([ADR 0003](adr/0003-defer-saga.md))
 
