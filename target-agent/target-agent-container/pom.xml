@@ -56,10 +56,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bus-kafka</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.brunosong.deployment.system</groupId>
-            <artifactId>target-agent-cache</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.flywaydb</groupId>

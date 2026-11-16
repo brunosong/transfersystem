@@ -55,7 +55,7 @@ class DataPersistHandlerTest {
     @DisplayName("어댑터가 프록시로 감싸져 있어도 대상 시스템을 찾는다")
     void testSupportsProxiedAdapter() {
         // @Transactional 때문에 실행 환경에서는 어댑터가 CGLIB 프록시가 된다. Mock 으로는 이 상황이 재현되지 않는다
-        ProxyFactory factory = new ProxyFactory(new OnlineCampusDataPersistHelper(null, null));
+        ProxyFactory factory = new ProxyFactory(new OnlineCampusDataPersistHelper(null));
         factory.setProxyTargetClass(true);
         DataPersistService proxied = (DataPersistService) factory.getProxy();
 

@@ -17,7 +17,6 @@
         <module>deployment-dataaccess</module>
         <module>deployment-messaging</module>
         <module>deployment-application</module>
-        <module>deployment-cache</module>
     </modules>
 
 </project>

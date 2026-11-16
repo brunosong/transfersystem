@@ -1,7 +1,7 @@
 # Deployment System 프로젝트
 
 ## 개요
-`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `target-agent`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, Redis 등의 인프라를 활용합니다.
+`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `target-agent`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, PostgreSQL 등의 인프라를 활용합니다.
 
 서비스 간 통신은 **Transactional Outbox** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
 
@@ -25,7 +25,6 @@
 - **프레임워크**: Spring Boot 3.3, Spring Cloud Config
 - **메시징**: Kafka, Schema Registry
 - **데이터베이스**: MongoDB, MariaDB/MySQL, PostgreSQL
-- **캐시**: Redis
 - **컨테이너**: Docker (Docker Compose 사용)
 - **배포**: Kubernetes, Argo CD (Kustomize, Image Updater), Jenkins
 - **이미지 빌드**: Jib (`eclipse-temurin:21-jre` 베이스)
@@ -44,7 +43,6 @@
 ### 2. `target-agent`
 - **`target-agent-container`**: 메인 설정(어노테이션, AOP, 데이터소스 라우팅).
 - **`target-agent-dataaccess`**: 챕터, 코스, 마이그레이션 정보 관리.
-- **`target-agent-cache`**: Redis 기반 마이그레이션 정보·커리큘럼 캐시.
 - **`target-agent-domain`**
   - **`target-agent-domain-core`**: 도메인 모델 및 핵심 로직.
   - **`target-agent-application-service`**: 유스케이스 및 포트 정의.
@@ -54,7 +52,6 @@
 - **`deployment-application`**: REST API. 전송 접수와 조회 API(아래 표)를 제공합니다.
 - **`deployment-container`**: 메인 설정 및 서비스.
 - **`deployment-dataaccess`**: 전송 및 자재 데이터 관리.
-- **`deployment-cache`**: Redis 기반 전송 로그·데이터소스 캐시.
 - **`deployment-domain`**
   - **`deployment-domain-core`**: 전송 관련 도메인 모델 및 핵심 로직.
   - **`deployment-application-service`**: 유스케이스, 포트, Outbox 처리.
@@ -95,7 +92,7 @@
 - **`kafka/kafka-support`**: Kafka 에러 처리(재시도·DLT 등) 스프링 부트 자동 설정.
 - **`message-contracts`**: 서비스 간 메시지 계약(Avro 스키마). 각 messaging 모듈이 아티팩트에서 스키마를 꺼내 자기 클래스를 만듭니다. ([ADR 0001](docs/adr/0001-message-contract-distribution.md))
 - **`outbox`**: Transactional Outbox 상태 및 스케줄러.
-- **`docker-compose`**: 로컬 개발용 Kafka, Zookeeper, MongoDB, MySQL, PostgreSQL, Redis 설정.
+- **`docker-compose`**: 로컬 개발용 Kafka, Zookeeper, MongoDB, MySQL, PostgreSQL 설정.
 - **`k8s`**: Kubernetes 매니페스트(Kafka, MongoDB, MySQL, PostgreSQL, 서비스, Argo CD).
 - **`jenkins`**: Jenkins Helm values 및 Maven 캐시 PVC.
 
@@ -135,11 +132,10 @@
    docker-compose -f common.yml -f kafka_cluster.yml up -d
    # 카프카 토픽 초기화
    docker-compose -f common.yml -f init-kafka.yml up -d
-   # 데이터베이스 및 캐시 (필요한 것만 실행)
+   # 데이터베이스 (필요한 것만 실행)
    docker-compose -f mongodb.yml up -d
    docker-compose -f mysql.yml up -d
    docker-compose -f postgres.yml up -d
-   docker-compose -f redis.yml up -d
    ```
 
 5. **서비스 실행 (로컬)**

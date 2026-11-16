@@ -8,7 +8,6 @@ import com.brunosong.deployment.system.targetagent.service.domain.valueobject.Ch
 import com.brunosong.deployment.system.targetagent.service.domain.valueobject.DataSourceType;
 import com.brunosong.deployment.system.targetagent.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.deployment.system.targetagent.service.dto.message.ApplyOutcome;
-import com.brunosong.deployment.system.targetagent.service.ports.output.cache.CurriculumCachePort;
 import com.brunosong.deployment.system.targetagent.service.ports.output.repository.CurriculumRepository;
 import com.brunosong.deployment.system.domain.valueobject.BrunoSongServiceType;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class OnlineCampusDataPersistHelper implements DataPersistService {
 
     private final CurriculumRepository curriculumRepository;
-    private final CurriculumCachePort curriculumCachePort;
 
     @Override
     public AppliedContent dataPersist(TargetSystemEnvironment targetSystemEnvironment, String curriculumId, ChunkContent content) {
@@ -49,9 +47,6 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
     public AppliedContent applyToOnlineCampus(String curriculumId, ChunkContent content) {
         ApplyOutcome applyOutcome = curriculumRepository.saveOrUpdate(curriculumId, content);
         log.info("Successfully saved content with id: {}", applyOutcome.id());
-
-        curriculumCachePort.save(applyOutcome.id(), applyOutcome.curriculumId());
-        log.info("Successfully cached content with id: {}", applyOutcome.id());
 
         return applyOutcome.applied();
     }

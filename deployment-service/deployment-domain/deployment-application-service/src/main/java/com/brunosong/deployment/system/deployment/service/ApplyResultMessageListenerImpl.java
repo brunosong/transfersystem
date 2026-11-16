@@ -6,7 +6,6 @@ import com.brunosong.deployment.system.deployment.service.exception.DeploymentNo
 import com.brunosong.deployment.system.deployment.service.handler.DeploymentResultHandler;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.ports.input.message.listener.ApplyResultMessageListener;
-import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentCachePort;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -165,11 +165,6 @@
                 <artifactId>target-agent-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>target-agent-cache</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
@@ -199,11 +194,6 @@
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>deployment-application</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.brunosong.deployment.system</groupId>
-                <artifactId>deployment-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

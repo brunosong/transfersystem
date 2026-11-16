@@ -17,7 +17,6 @@
         <module>target-agent-container</module>
         <module>target-agent-dataaccess</module>
         <module>target-agent-messaging</module>
-        <module>target-agent-cache</module>
     </modules>
 
 </project>

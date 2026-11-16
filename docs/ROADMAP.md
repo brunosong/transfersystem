@@ -114,7 +114,7 @@
   - [x] 4. 결과 처리의 새 길 준비. 먼저 4-1 ~~배포에 커리큘럼 ID 두기~~(V10), 4-2 ~~결과 메시지에 시도 번호 싣기~~. 그다음 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 5에서 연결했다
   - [x] 5-1. 접수는 `Deployment.accept()` + 뼈대만 아웃박스 (2026-11-13. 과목은 아직 나가지 않는다)
   - [x] 5. 전환 (2026-11-15. 결과 리스너가 `DeploymentResultHandler`를 부른다. 옛 결과 표에도 함께 적는다): 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
-  - [ ] 6. 옛 길 정리: ~~콘솔 조회를 `deployment_chunk`로 옮기기~~(나-1, 2026-11-16. 청크 상태도 `WAITING`/`SENT`/`APPLIED`/`FAILED`로), ~~`deployment_chunks`, `saveChunk` 삭제~~(나-2, V12), 캐시 경로 삭제(나-3), 결과 메시지의 옛 상태 값 정리(나-4)
+  - [ ] 6. 옛 길 정리: ~~콘솔 조회를 `deployment_chunk`로 옮기기~~(나-1, 2026-11-16. 청크 상태도 `WAITING`/`SENT`/`APPLIED`/`FAILED`로), ~~`deployment_chunks`, `saveChunk` 삭제~~(나-2, V12), ~~캐시 경로 삭제~~(나-3), 결과 메시지의 옛 상태 값 정리(나-4)
 - [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 쓰지 않는 `version` 칸 지우기, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리, 프로듀서 `max.block.ms` 줄이기(브로커가 죽으면 `send()`가 60초까지 막힌다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
 - [ ] 가. 실패 흐름. 결과가 오지 않거나 실패로 와도 배포가 끝나고, 운영자가 이어서 보낼 수 있게 한다
@@ -131,7 +131,7 @@
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 오류 처리 나누기: 결과 소비자는 일시적 오류에서 계속 재시도, 대상은 재시도 후 실패 결과 ([시스템 설계](system/architecture.md#7-일이-잘못됐을-때))
 - [ ] 청크 내용 정리 작업, 아웃박스 행 정리
-- [ ] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`). 결과 리스너는 2026-11-15부터 캐시를 쓰지 않는다
+- [x] Redis 모듈 삭제 (`deployment-cache`, `target-agent-cache`, 2026-11-16 나-3). 포트, 에이전트 `RedisConfig`, 쓰는 곳이 없던 `TargetHandler`, `redis.yml`도 지웠다
 - [ ] target-agent: 같은 커리큘럼을 다른 대상에 보내면 중복 오류(`CURRICULUM_ID` 유일 제약 위반)가 난다. 대상마다 다른 DB에 들어가야 하는데 같은 DB를 고르는 것으로 보인다(2026-11-15 로컬, CUR123을 대상 1과 3에)
 - [ ] 콘솔 nginx 설정(`nginx/default.conf.template`)도 대상 목록(`/api/v1/targets`)을 deployment-service로 보내게 맞추기. 개발 서버(Vite)는 2026-11-15에 바꿨다
 - [ ] 커리큘럼별 배포 이력 조회 (`GET /api/v1/curriculums/{id}/deployments`). 지금은 빈 목록을 돌려준다. 배포 표의 `curriculum_id`(V10)로 대상별 마지막 배포를 모은다
