@@ -74,7 +74,7 @@ class DeploymentResultHandlerTest {
         Deployment deployment = accepted();
 
         handler.applyResult(ApplyResultMessage.builder()
-                .deploymentId(deployment.getId()).deploymentStatus(DeploymentStatus.FAILED)
+                .deploymentId(deployment.getId()).applied(false)
                 .chunkOffset(0).attempt(1).message("학기 표가 없습니다").build());
 
         assertThat(deployment.getChunks().get(0).getStatus()).isEqualTo(ChunkStatus.FAILED);
@@ -92,8 +92,8 @@ class DeploymentResultHandlerTest {
 
     private static ApplyResultMessage success(Deployment deployment, int chunkNo) {
         return ApplyResultMessage.builder()
-                .deploymentId(deployment.getId()).deploymentStatus(DeploymentStatus.SUCCESS)
-                .chunkOffset(chunkNo).attempt(1).message("SUCCESS").build();
+                .deploymentId(deployment.getId()).applied(true)
+                .chunkOffset(chunkNo).attempt(1).build();
     }
 
     /** 학년 하나, 학기 하나, 과목 둘 */

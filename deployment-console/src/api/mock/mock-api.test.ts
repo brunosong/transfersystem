@@ -61,7 +61,7 @@ describe('mockApi 배포', () => {
 
     await expect(mockApi.retryDeployment(deploymentId, '이배포')).resolves.toEqual({ retriedChunks: 2 })
     vi.setSystemTime(finishesAt(deployment))
-    expect((await mockApi.getDeployment(deploymentId)).status).toBe('SUCCESS')
+    expect((await mockApi.getDeployment(deploymentId)).status).toBe('SUCCEEDED')
     const full = await mockApi.getTargetCurriculum(4, FAILING_CURRICULUM_ID)
     expect(full.counts.subjects).toBe(failed.chunks.length - 1)
   })
@@ -87,7 +87,7 @@ describe('mockApi 대상 데이터', () => {
   it('대상별 배포 현황에 마지막 배포와 마지막 성공을 담는다', async () => {
     const deployments = await mockApi.listCurriculumDeployments('CUR001')
     const prod = deployments.find((d) => d.targetId === 1)!
-    expect(prod.last?.status).toBe('SUCCESS')
+    expect(prod.last?.status).toBe('SUCCEEDED')
     expect(prod.lastSucceededAt).not.toBeNull()
     expect(deployments.find((d) => d.targetId === 4)?.last).toBeNull()
   })

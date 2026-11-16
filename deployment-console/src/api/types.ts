@@ -156,12 +156,12 @@ export interface TargetCurriculumTree extends CurriculumTree {
 // ─── 배포 (deployment-service) ─────────────────────────────────────────────
 
 /**
- * deployment 상태. 화면에서는 대기·진행 중·완료·실패 네 묶음으로 보여 준다.
- * IN_PROGRESS 는 새 상태 기계의 "진행 중"이다. 접수하면 이 상태로 시작한다(Deployment.accept).
- * SUCCEEDED 는 새 상태 기계의 "완료"다. 모든 청크가 반영되면 이 상태가 된다.
+ * deployment 상태. 서버의 상태 기계와 같다(docs/domain/model.md 4장).
+ * IN_PROGRESS 는 응답을 기다리는 청크가 있는 것이다. 접수하면 이 상태로 시작한다(Deployment.accept).
+ * SUCCEEDED 는 모든 청크가 반영된 것, FAILED 는 기다릴 청크가 없는데 반영되지 않은 청크가 있는 것이다.
  */
-export type DeploymentStatus = 'PENDING' | 'SENT' | 'PROCESSED' | 'IN_PROGRESS' | 'SUCCESS' | 'SUCCEEDED' | 'FAILED'
-export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['PENDING', 'SENT', 'PROCESSED', 'IN_PROGRESS', 'SUCCESS', 'SUCCEEDED', 'FAILED']
+export type DeploymentStatus = 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED'
+export const DEPLOYMENT_STATUSES: DeploymentStatus[] = ['IN_PROGRESS', 'SUCCEEDED', 'FAILED']
 
 /**
  * 청크 상태. 서버의 청크 표(deployment_chunk)와 같은 이름이다(용어집).

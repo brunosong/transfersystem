@@ -86,7 +86,7 @@ function Detail({ deployment: t }: { deployment: DeploymentDetail }) {
       </div>
 
       {t.resultMessage && (
-        <Notice tone={t.status === 'SUCCESS' ? 'success' : 'danger'} title={t.status === 'SUCCESS' ? '배포를 마쳤습니다' : '일부 청크가 반영되지 않았습니다'}>
+        <Notice tone={t.status === 'SUCCEEDED' ? 'success' : 'danger'} title={t.status === 'SUCCEEDED' ? '배포를 마쳤습니다' : '일부 청크가 반영되지 않았습니다'}>
           {t.resultMessage}
         </Notice>
       )}
@@ -148,7 +148,7 @@ function Detail({ deployment: t }: { deployment: DeploymentDetail }) {
         <p className="text-sm text-slate-600">
           {active ? (
             '배포가 끝나면 대상에 실제로 들어간 데이터를 원본과 비교할 수 있습니다.'
-          ) : t.status === 'SUCCESS' ? (
+          ) : t.status === 'SUCCEEDED' ? (
             <span className="inline-flex items-center gap-1.5">
               <CheckCircle2 className="size-4 text-emerald-500" /> 대상에 원본과 똑같이 들어갔는지 확인해 보세요.
             </span>

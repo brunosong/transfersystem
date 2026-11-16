@@ -7,7 +7,6 @@ import com.brunosong.deployment.contract.ApplyResult;
 import com.brunosong.deployment.contract.Rejected;
 import com.brunosong.deployment.contract.SkeletonContent;
 import com.brunosong.deployment.contract.SubjectContent;
-import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
@@ -20,8 +19,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeploymentMessagingDataMapperTest {
 
@@ -73,7 +75,7 @@ class DeploymentMessagingDataMapperTest {
     }
 
     @Test
-    @DisplayName("성공 결과는 청크 번호와 SUCCESS 로 옮긴다")
+    @DisplayName("성공 결과는 청크 번호와 반영됨(applied=true)으로 옮기고, 사유는 비운다")
     void appliedResult() {
         Applied applied = Applied.newBuilder()
                 .setContent(AppliedSubject.newBuilder().setSubjectId("SUB1").setTitle("수학").setUnitCount(5).setLessonCount(500).build())
@@ -83,16 +85,17 @@ class DeploymentMessagingDataMapperTest {
 
         assertEquals(DEPLOYMENT_ID, response.getDeploymentId().getValue());
         assertEquals(3, response.getChunkOffset());
-        assertEquals(DeploymentStatus.SUCCESS, response.getDeploymentStatus());
+        assertTrue(response.isApplied());
+        assertNull(response.getMessage());
     }
 
     @Test
-    @DisplayName("실패 결과는 FAILED 와 대상이 보낸 사유로 옮긴다")
+    @DisplayName("실패 결과는 거절(applied=false)과 대상이 보낸 사유로 옮긴다")
     void rejectedResult() {
         ApplyResultMessage response = mapper.toApplyResultMessage(
                 result(3, Rejected.newBuilder().setMessage("학기를 찾을 수 없습니다").build()));
 
-        assertEquals(DeploymentStatus.FAILED, response.getDeploymentStatus());
+        assertFalse(response.isApplied());
         assertEquals("학기를 찾을 수 없습니다", response.getMessage());
         assertEquals(2, response.getAttempt());
     }

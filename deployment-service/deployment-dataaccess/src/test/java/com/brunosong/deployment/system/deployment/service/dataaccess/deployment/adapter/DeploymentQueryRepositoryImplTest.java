@@ -129,9 +129,9 @@ class DeploymentQueryRepositoryImplTest {
     @DisplayName("상태별 배포 수를 센다")
     void countByStatus() {
         assertThat(repository.countByStatus()).containsOnly(
-                Map.entry(DeploymentStatus.SENT, 1L),
+                Map.entry(DeploymentStatus.IN_PROGRESS, 1L),
                 Map.entry(DeploymentStatus.FAILED, 1L),
-                Map.entry(DeploymentStatus.SUCCESS, 1L));
+                Map.entry(DeploymentStatus.SUCCEEDED, 1L));
     }
 
     @Test

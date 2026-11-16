@@ -19,14 +19,15 @@ class DeploymentTest {
     private static final Duration DEADLINE = Duration.ofMinutes(10);
 
     @Test
-    @DisplayName("새 배포는 ID, PENDING 상태, 생성 시각, 청크 수를 갖춘 채로 만들어진다")
+    @DisplayName("새 배포는 ID, 생성 시각, 청크 수를 갖추고, 상태는 접수 전이라 비어 있다")
     void createBuildsCompleteDeployment() {
         Deployment deployment = Deployment.create(new SourceId("6731a2b4c5d6e7f801234567"), new SourceConfigId(1L),
                 "CUR01", new TargetId(2L),
                 TransType.MESSAGING, SourceType.CURRICULUM, DbType.MONGO, 4);
 
         assertNotNull(deployment.getId());
-        assertEquals(DeploymentStatus.PENDING, deployment.getDeploymentStatus());
+        // 상태는 accept 가 IN_PROGRESS 로 정한다. 옛 PENDING 같은 "접수 전" 상태는 두지 않는다(model.md 4장)
+        assertNull(deployment.getDeploymentStatus());
         assertNotNull(deployment.getCreatedAt());
         assertEquals(4, deployment.getTotalChunkSize());
         assertEquals("6731a2b4c5d6e7f801234567", deployment.getSourceId().getValue());

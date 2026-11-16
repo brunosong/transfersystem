@@ -89,7 +89,7 @@ public class Deployment extends AggregateRoot<DeploymentId> {
                 .transType(transType)
                 .sourceType(sourceType)
                 .dbType(dbType)
-                .deploymentStatus(DeploymentStatus.PENDING)
+                // 상태는 접수(accept)할 때 IN_PROGRESS 로 정한다. 접수 전 배포는 저장하지 않으므로 상태가 없다
                 .createdAt(LocalDateTime.now())
                 .totalChunkSize(totalChunkSize)
                 .build();

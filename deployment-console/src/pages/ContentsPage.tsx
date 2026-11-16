@@ -145,7 +145,7 @@ function CurriculumItem({ curriculum: c, selected, onSelect }: { curriculum: Cur
               </p>
               {c.lastDeployment.status === 'FAILED' ? (
                 <p className="text-rose-600">마지막 배포 실패</p>
-              ) : c.lastDeployment.status === 'SENT' || c.lastDeployment.status === 'PENDING' ? (
+              ) : c.lastDeployment.status === 'IN_PROGRESS' ? (
                 <p className="text-sky-600">배포 중</p>
               ) : null}
             </>

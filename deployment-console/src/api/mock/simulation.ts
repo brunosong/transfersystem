@@ -2,7 +2,7 @@
 // 청크마다 "언제 처리되고 결과가 어떤지"를 시도(attempt) 목록으로 미리 정해 두고,
 // 화면이 물어볼 때마다 지금 시각을 기준으로 상태를 계산한다. 그래서 새로 고침해도 같은 결과가 나온다.
 //
-//   접수(PENDING) ─ 아웃박스가 집어 감 ─▶ 반영 중(SENT) ─ 청크가 하나씩 처리됨 ─▶ 완료(SUCCESS) / 실패(FAILED)
+//   접수(IN_PROGRESS) ─ 아웃박스가 집어 감 ─ 청크가 하나씩 처리됨 ─▶ 완료(SUCCEEDED) / 실패(FAILED)
 //                                                                              실패 청크 재전송 ─▶ 다시 반영 중
 //
 // 청크 상태는 서버와 같은 이름(SENT, APPLIED, FAILED)을 쓴다. mock 은 뼈대를 먼저 보내는 순서를 흉내 내지 않아서
@@ -82,10 +82,10 @@ export function succeededBy(chunk: MockChunk, now: number): number | null {
 const iso = (ms: number) => new Date(ms).toISOString()
 
 export function statusOf(t: MockDeployment, now: number): DeploymentStatus {
-  if (now < t.createdAt + ACCEPT_DELAY) return 'PENDING'
+  if (now < t.createdAt + ACCEPT_DELAY) return 'IN_PROGRESS'
   const states = t.chunks.map((c) => chunkState(c, now).status)
-  if (states.includes('SENT')) return 'SENT'
-  return states.includes('FAILED') ? 'FAILED' : 'SUCCESS'
+  if (states.includes('SENT')) return 'IN_PROGRESS'
+  return states.includes('FAILED') ? 'FAILED' : 'SUCCEEDED'
 }
 
 export function simulate(t: MockDeployment, now: number): DeploymentDetail {
@@ -110,7 +110,7 @@ export function simulate(t: MockDeployment, now: number): DeploymentDetail {
   const status = statusOf(t, now)
   const retried = chunks.some((c) => c.retryCount > 0)
   let resultMessage: string | null = null
-  if (status === 'SUCCESS') {
+  if (status === 'SUCCEEDED') {
     resultMessage = `과목 ${chunks.length - 1}개를 포함해 청크 ${chunks.length}개를 모두 반영했습니다.${retried ? ' (재전송 포함)' : ''}`
   } else if (status === 'FAILED') {
     resultMessage = `청크 ${progress.failed}개가 반영되지 않았습니다. 실패한 청크만 다시 보낼 수 있습니다.`

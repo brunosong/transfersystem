@@ -14,7 +14,6 @@ import com.brunosong.deployment.contract.Unit;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentId;
-import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import com.brunosong.deployment.system.deployment.service.dto.create.ApplyResultMessage;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import org.springframework.stereotype.Component;
@@ -116,11 +115,10 @@ public class DeploymentMessagingDataMapper {
         // 유니온은 생성 코드에서 Object 로 나온다. 모르는 타입은 예외로 올려 DLT 로 보낸다
         return switch (result.getOutcome()) {
             case Applied applied -> response
-                    .deploymentStatus(DeploymentStatus.SUCCESS)
-                    .message("SUCCESS")
+                    .applied(true)
                     .build();
             case Rejected rejected -> response
-                    .deploymentStatus(DeploymentStatus.FAILED)
+                    .applied(false)
                     .message(rejected.getMessage())
                     .build();
             default -> throw new IllegalArgumentException("모르는 결과 타입입니다: " + result.getOutcome().getClass().getName());

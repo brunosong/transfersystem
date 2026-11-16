@@ -24,7 +24,7 @@ export function DashboardPage() {
   const week = useDeployments({ from: weekAgo, size: 200 })
   const targets = useTargets()
 
-  const running = allCounts.data ? allCounts.data.PENDING + allCounts.data.SENT + allCounts.data.PROCESSED : 0
+  const running = allCounts.data ? allCounts.data.IN_PROGRESS : 0
   const needsAttention = week.data ? unresolvedFailures(week.data.items) : []
   const diff = total(todayCounts.data) - total(yesterdayCounts.data)
 

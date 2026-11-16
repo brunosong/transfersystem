@@ -9,28 +9,23 @@ export interface StatusMeta {
   active: boolean
 }
 
-/** 운영자에게 보여 주는 네 묶음. deployment 상태 일곱 개를 묶는다. */
-export type StatusGroup = 'waiting' | 'running' | 'done' | 'failed'
+/** 운영자에게 보여 주는 묶음. 지금은 배포 상태 하나가 묶음 하나다. 목록 탭과 필터가 이 표를 쓴다 */
+export type StatusGroup = 'running' | 'done' | 'failed'
 
 export const STATUS_GROUPS: Record<StatusGroup, { label: string; statuses: DeploymentStatus[] }> = {
-  waiting: { label: '대기', statuses: ['PENDING'] },
-  running: { label: '진행 중', statuses: ['SENT', 'PROCESSED', 'IN_PROGRESS'] },
-  done: { label: '완료', statuses: ['SUCCESS', 'SUCCEEDED'] },
+  running: { label: '진행 중', statuses: ['IN_PROGRESS'] },
+  done: { label: '완료', statuses: ['SUCCEEDED'] },
   failed: { label: '실패', statuses: ['FAILED'] },
 }
 
-export const STATUS_GROUP_ORDER: StatusGroup[] = ['waiting', 'running', 'done', 'failed']
+export const STATUS_GROUP_ORDER: StatusGroup[] = ['running', 'done', 'failed']
 
 export function isStatusGroup(value: string | null): value is StatusGroup {
   return value !== null && value in STATUS_GROUPS
 }
 
 const DEPLOYMENT: Record<DeploymentStatus, StatusMeta> = {
-  PENDING: { label: '대기', tone: 'neutral', active: true },
-  SENT: { label: '진행 중', tone: 'info', active: true },
-  PROCESSED: { label: '진행 중', tone: 'info', active: true },
   IN_PROGRESS: { label: '진행 중', tone: 'info', active: true },
-  SUCCESS: { label: '완료', tone: 'success', active: false },
   SUCCEEDED: { label: '완료', tone: 'success', active: false },
   FAILED: { label: '실패', tone: 'danger', active: false },
 }

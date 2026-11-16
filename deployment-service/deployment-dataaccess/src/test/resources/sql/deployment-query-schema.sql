@@ -72,8 +72,8 @@ INSERT INTO sourceconfig (source_type, db_type, host, port, database, username, 
 INSERT INTO deployment (id, source_id, sourceconfig_id, source_type, target_id, db_type, trans_type,
                           deployment_status, create_admin_id, created_at, updated_at, total_chunk_size) VALUES
     ('11111111-1111-1111-1111-111111111111', 'curriculum-001', 1, 'CURRICULUM', 1, 'MONGO', 'MESSAGING',
-     'SENT', 'brunosong', '2026-11-01 10:00:00', '2026-11-01 10:00:05', 5),
+     'IN_PROGRESS', 'brunosong', '2026-11-01 10:00:00', '2026-11-01 10:00:05', 5),
     ('22222222-2222-2222-2222-222222222222', 'curriculum-002', 1, 'CURRICULUM', 2, 'MONGO', 'MESSAGING',
      'FAILED', 'brunosong', '2026-11-01 11:00:00', '2026-11-01 11:00:09', 3),
     ('33333333-3333-3333-3333-333333333333', 'curriculum-003', 1, 'CURRICULUM', 1, 'MONGO', 'MESSAGING',
-     'SUCCESS', 'brunosong', '2026-11-01 12:00:00', '2026-11-01 12:00:03', 2);
+     'SUCCEEDED', 'brunosong', '2026-11-01 12:00:00', '2026-11-01 12:00:03', 2);

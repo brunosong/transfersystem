@@ -25,17 +25,17 @@ describe('청크 나누기', () => {
 })
 
 describe('simulate', () => {
-  it('아웃박스가 집어 가기 전에는 대기다', () => {
+  it('아웃박스가 집어 가기 전에도 진행 중이다. 접수하면 바로 진행 중이다', () => {
     const t = createMockDeployment(base)
     const d = simulate(t, t.createdAt + 100)
-    expect(d.status).toBe('PENDING')
+    expect(d.status).toBe('IN_PROGRESS')
     expect(d.progress).toEqual({ total: 41, succeeded: 0, failed: 0 })
   })
 
   it('청크가 순서대로 처리되는 동안 진행 중이다', () => {
     const t = createMockDeployment(base)
     const d = simulate(t, t.createdAt + ACCEPT_DELAY + CHUNK_TICK * 3)
-    expect(d.status).toBe('SENT')
+    expect(d.status).toBe('IN_PROGRESS')
     expect(d.progress.succeeded).toBe(3)
     expect(d.chunks[3].status).toBe('SENT')
   })
@@ -43,7 +43,7 @@ describe('simulate', () => {
   it('모두 성공하면 완료다', () => {
     const t = createMockDeployment(base)
     const d = simulate(t, finishesAt(t))
-    expect(d.status).toBe('SUCCESS')
+    expect(d.status).toBe('SUCCEEDED')
     expect(d.progress).toEqual({ total: 41, succeeded: 41, failed: 0 })
     expect(d.resultMessage).toContain('모두 반영')
   })
@@ -62,12 +62,12 @@ describe('simulate', () => {
     expect(retryFailed(t, done)).toBe(2)
 
     const during = simulate(t, done + 1)
-    expect(during.status).toBe('SENT')
+    expect(during.status).toBe('IN_PROGRESS')
     expect(during.chunks[3]).toMatchObject({ status: 'SENT', retryCount: 1 })
     expect(during.chunks[4].status).toBe('APPLIED')
 
     const after = simulate(t, finishesAt(t))
-    expect(after.status).toBe('SUCCESS')
+    expect(after.status).toBe('SUCCEEDED')
     expect(after.chunks[7]).toMatchObject({ status: 'APPLIED', retryCount: 1, errorMessage: null })
     expect(after.resultMessage).toContain('재전송')
   })

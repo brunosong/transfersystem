@@ -114,7 +114,7 @@
   - [x] 4. 결과 처리의 새 길 준비. 먼저 4-1 ~~배포에 커리큘럼 ID 두기~~(V10), 4-2 ~~결과 메시지에 시도 번호 싣기~~. 그다음 (`recordSuccess`/`recordFailure` → 저장 → 돌려받은 청크를 내용 표에서 읽어 아웃박스로). 5에서 연결했다
   - [x] 5-1. 접수는 `Deployment.accept()` + 뼈대만 아웃박스 (2026-11-13. 과목은 아직 나가지 않는다)
   - [x] 5. 전환 (2026-11-15. 결과 리스너가 `DeploymentResultHandler`를 부른다. 옛 결과 표에도 함께 적는다): 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
-  - [ ] 6. 옛 길 정리: ~~콘솔 조회를 `deployment_chunk`로 옮기기~~(나-1, 2026-11-16. 청크 상태도 `WAITING`/`SENT`/`APPLIED`/`FAILED`로), ~~`deployment_chunks`, `saveChunk` 삭제~~(나-2, V12), ~~캐시 경로 삭제~~(나-3), 결과 메시지의 옛 상태 값 정리(나-4)
+  - [x] 6. 옛 길 정리: ~~콘솔 조회를 `deployment_chunk`로 옮기기~~(나-1, 2026-11-16. 청크 상태도 `WAITING`/`SENT`/`APPLIED`/`FAILED`로), ~~`deployment_chunks`, `saveChunk` 삭제~~(나-2, V12), ~~캐시 경로 삭제~~(나-3), ~~결과 메시지의 옛 상태 값 정리~~(나-4, V13. 배포 상태는 `IN_PROGRESS`/`SUCCEEDED`/`FAILED`만, 결과는 `applied` 하나)
 - [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
 - [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), 쓰지 않는 `version` 칸 지우기, 어드바이저리 락, 발행 주기 단축, 오래된 행 정리, 프로듀서 `max.block.ms` 줄이기(브로커가 죽으면 `send()`가 60초까지 막힌다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
 - [ ] 가. 실패 흐름. 결과가 오지 않거나 실패로 와도 배포가 끝나고, 운영자가 이어서 보낼 수 있게 한다

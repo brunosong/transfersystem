@@ -46,7 +46,7 @@ function findSource(id: number): MockSource | undefined {
 
 function isActive(t: MockDeployment, now: number): boolean {
   const status = statusOf(t, now)
-  return status === 'PENDING' || status === 'SENT' || status === 'PROCESSED'
+  return status === 'IN_PROGRESS'
 }
 
 function summaryOf(t: MockDeployment, now: number): DeploymentSummary {
@@ -62,7 +62,7 @@ function deploymentsOf(curriculumId: string, now: number): CurriculumDeployment[
   return state.targets.map((target) => {
     const history = state.deployments.filter((t) => t.sourceId === curriculumId && t.targetId === target.targetId).sort(byNewest)
     const last = history[0]
-    const lastSuccess = history.map((t) => simulate(t, now)).find((d) => d.status === 'SUCCESS')
+    const lastSuccess = history.map((t) => simulate(t, now)).find((d) => d.status === 'SUCCEEDED')
     return {
       targetId: target.targetId,
       last: last ? { deploymentId: last.deploymentId, status: statusOf(last, now), at: iso(last.createdAt) } : null,

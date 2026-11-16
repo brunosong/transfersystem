@@ -45,7 +45,7 @@ class DeploymentQueryServiceImplTest {
     @DisplayName("상세는 대상과 청크들을 바로 담고, 청크마다 운영자가 알아볼 이름을 붙인다")
     void detailHasTargetAndChunks() {
         UUID id = UUID.randomUUID();
-        when(repository.findDeployment(id)).thenReturn(Optional.of(record(id, DeploymentStatus.SENT, 3, 1, 0)));
+        when(repository.findDeployment(id)).thenReturn(Optional.of(record(id, DeploymentStatus.IN_PROGRESS, 3, 1, 0)));
         Instant processedAt = Instant.now();
         // 준비: 뼈대는 재전송 끝에 반영됐고(시도 2), 과목 2는 대상이 거절했다(시도 1)
         when(repository.findChunks(id)).thenReturn(List.of(
@@ -54,7 +54,7 @@ class DeploymentQueryServiceImplTest {
 
         DeploymentDetailView detail = service.findDeployment(id);
 
-        assertThat(detail.status()).isEqualTo("SENT");
+        assertThat(detail.status()).isEqualTo("IN_PROGRESS");
         assertThat(detail.targetId()).isEqualTo(1L);
         assertThat(detail.progress().pending()).isEqualTo(2);
         // 확인: 청크마다 이름이 붙고, 실패 사유가 그대로 오고, 재전송 횟수는 시도 번호 - 1 이다
@@ -69,9 +69,9 @@ class DeploymentQueryServiceImplTest {
         when(repository.countByStatus()).thenReturn(Map.of(DeploymentStatus.FAILED, 2L));
 
         assertThat(service.countByStatus())
-                .containsOnlyKeys("PENDING", "SENT", "PROCESSED", "SUCCESS", "IN_PROGRESS", "SUCCEEDED", "FAILED")
+                .containsOnlyKeys("IN_PROGRESS", "SUCCEEDED", "FAILED")
                 .containsEntry("FAILED", 2L)
-                .containsEntry("SUCCESS", 0L);
+                .containsEntry("SUCCEEDED", 0L);
     }
 
     @Test

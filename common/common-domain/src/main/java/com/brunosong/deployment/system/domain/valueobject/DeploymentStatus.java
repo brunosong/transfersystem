@@ -1,13 +1,13 @@
 package com.brunosong.deployment.system.domain.valueobject;
 
+/**
+ * 배포 상태. 대상이 알려 준 결과를 보고 배포가 정한다(docs/domain/model.md 4장).
+ * 옛 처리 단계 값(PENDING, SENT, PROCESSED, SUCCESS)은 지웠다. 남아 있던 행은 V13 이 바꿨다.
+ */
 public enum DeploymentStatus {
-    PENDING("Pending"),           // 초기 상태 (보내기 전)
-    SENT("Sent"),                 // 보낸 상태 (API 요청 보냄 or Kafka로 메시지 발행)
-    PROCESSED("Processed"),       // 처리 완료 상태 (API 응답 받음 or Messaging 처리 확인)
-    SUCCESS("Success"),           // 저장까지 완료된 최종 성공 상태
     IN_PROGRESS("In progress"),   // 응답을 기다리는 청크가 있다
     SUCCEEDED("Succeeded"),       // 모든 청크가 대상에 반영됐다
-    FAILED("Failed");             // 실패 상태 (어떤 단계에서든 오류 발생)
+    FAILED("Failed");             // 기다릴 청크가 없는데 반영되지 않은 청크가 있다
 
     private final String description;
 

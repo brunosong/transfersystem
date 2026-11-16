@@ -99,7 +99,7 @@ classDiagram
 
 ## 4. 상태 기계
 
-지금의 `PENDING / SENT / PROCESSED / SUCCESS / FAILED`는 업무 상태가 아니라 처리 단계를 기록한 것이다. 업무에서 묻는 것은 "끝났나, 성공했나"이므로 상태를 줄인다.
+옛 `PENDING / SENT / PROCESSED / SUCCESS / FAILED`는 업무 상태가 아니라 처리 단계를 기록한 것이었다. 업무에서 묻는 것은 "끝났나, 성공했나"이므로 상태를 줄였다. 옛 값은 2026-11-16에 코드에서 지웠고, 남아 있던 행은 V13이 바꿨다(`SUCCESS`는 `SUCCEEDED`, 끝나지 않은 것은 `FAILED`). 결과 메시지도 배포 상태 대신 반영 여부(`applied`)만 싣는다.
 
 ### 배포 (DeploymentStatus)
 
@@ -253,12 +253,12 @@ Kafka는 같은 키의 메시지를 같은 파티션에 넣고, 파티션 안에
 
 | 어긋남 | 어디 | 고칠 방향 |
 |---|---|---|
-| "대기" 상태와 탭이 있다 | `lib/status.ts`, 배포 이력 탭 | 진행 중·완료·실패 셋으로 줄인다 |
+| ~~"대기" 상태와 탭이 있다~~ | `lib/status.ts`, 배포 이력 탭 | 진행 중·완료·실패 셋으로 줄였다(2026-11-16) |
 | 모든 청크가 한꺼번에 나간다. 뼈대 실패가 과목을 막지 않는다 | `api/mock/simulation.ts` | 불변식 3을 따른다. 뼈대가 실패하면 과목은 `WAITING`으로 남는다 |
 | 오래된 실패 배포도 재전송된다 (예: 시드의 `CUR011`) | `retryDeployment`, 상세 화면 버튼 | 규칙 B를 따른다. 더 최근 배포가 있으면 버튼 대신 안내를 보여 준다 |
 | 허용이 꺼진 대상에도 재전송된다 | `retryDeployment` | 규칙 C를 따른다 |
 | 응답 없음(`NO_REPLY`)을 볼 수 없다 | 모의 시뮬레이션, 상세 화면 | 응답이 오지 않는 시나리오를 추가한다 |
-| 청크 상태가 `PENDING / SUCCESS / FAILED` 셋이다 | `api/types.ts` | `WAITING / SENT / APPLIED / FAILED`로 바꾼다 |
+| ~~청크 상태가 `PENDING / SUCCESS / FAILED` 셋이다~~ | `api/types.ts` | `WAITING / SENT / APPLIED / FAILED`로 바꿨다(2026-11-16). 모의 시뮬레이션은 뼈대를 먼저 보내지 않아 `WAITING`이 나오지 않는다 |
 
 ## 9. 다음 단계
 - [이벤트와 메시지](events.md): 명령과 결과의 이름·내용, 시도 번호, 반영 내용

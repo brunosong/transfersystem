@@ -10,7 +10,6 @@ import com.brunosong.deployment.system.deployment.service.ports.output.repositor
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.ChunkPayloadRepository;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import com.brunosong.deployment.system.domain.DomainConstants;
-import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +42,7 @@ public class DeploymentResultHandler {
         // 1. 도메인에 결과를 알린다. 성공이면 이제 보낼 청크를 돌려받는다(뼈대면 과목 전부, 과목이면 없음)
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of(DomainConstants.UTC));
         List<Chunk> toSend = List.of();
-        if (result.getDeploymentStatus() == DeploymentStatus.SUCCESS) {
+        if (result.isApplied()) {
             toSend = deployment.recordSuccess(result.getChunkOffset(), now.toInstant());
         } else {
             deployment.recordFailure(result.getChunkOffset(), result.getAttempt(), result.getMessage(), now.toInstant());
