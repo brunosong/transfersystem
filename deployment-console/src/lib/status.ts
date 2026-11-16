@@ -68,7 +68,7 @@ export function chunkClass(status: ChunkStatus | string): string {
   }
 }
 
-/** 운영자에게 보여 주는 청크 상태 이름. 다시 보낸 청크가 결과를 기다리면 "재전송 중"이다 */
+/** 운영자에게 보여 주는 청크 상태 이름. 문구는 화면 설계(docs/ui/screens.md 청크 표)를 따른다 */
 export function chunkStatusLabel(chunk: { status: ChunkStatus | string; retryCount: number }): string {
   switch (chunk.status) {
     case 'APPLIED':
@@ -76,8 +76,8 @@ export function chunkStatusLabel(chunk: { status: ChunkStatus | string; retryCou
     case 'FAILED':
       return '실패'
     case 'SENT':
-      return chunk.retryCount > 0 ? '재전송 중' : '응답 기다림'
+      return chunk.retryCount > 0 ? '재전송 중' : '응답 기다리는 중'
     default:
-      return '대기'
+      return '보내기 전'
   }
 }
