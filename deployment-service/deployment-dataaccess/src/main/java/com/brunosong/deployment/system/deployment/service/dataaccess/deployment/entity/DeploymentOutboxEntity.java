@@ -53,7 +53,4 @@ public class DeploymentOutboxEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "outbox_status", nullable = false)
     private OutboxStatus outboxStatus;
-
-    @Column(name = "version", nullable = false)
-    private int version;
 }

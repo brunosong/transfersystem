@@ -28,6 +28,4 @@ public class DeploymentOutboxMessage {
 
     @Setter
     private OutboxStatus outboxStatus;
-    private int version;
-
 }
