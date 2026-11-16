@@ -125,6 +125,7 @@
     - [ ] 가-4. 로컬 확인: 대상을 끄고 접수하면 기한이 지나 뼈대와 배포가 `FAILED`(`NO_REPLY`)가 된다. 대상을 켜서 늦은 성공이 오면 뼈대만 `APPLIED`가 되고, 배포는 `FAILED`, 과목은 `WAITING`으로 남는다. 과목은 운영자가 재전송해야 나간다([도메인 모델](domain/model.md#재전송과-늦은-결과))
   - [ ] 가-5. 실패 결과 확인: 대상이 실패 결과를 보내면 그 청크와 배포가 `FAILED`가 된다
   - [ ] 가-6. 재전송 API (`POST /api/v1/deployments/{id}/retry`): `FAILED` 청크를 시도 번호 +1로 다시 보낸다. 뼈대가 반영돼 있으면 `WAITING` 과목도 함께 보낸다. 내용은 저장해 둔 청크 내용을 쓴다
+    - [ ] 화면도 [화면 설계 청크 표](ui/screens.md#청크)대로 맞춘다: 실패를 `REJECTED`(대상이 거절함)와 `NO_REPLY`(응답 없음, 반영됐을 수도 있음)로 나눠 보여 준다(상세 API에 실패 종류를 싣는다). 재전송 중인 칸은 파랑으로 깜박인다(지금은 주황)
   - [ ] 가-7. 규칙 A: 커리큘럼 × 대상마다 진행 중인 배포는 하나 (부분 유니크 인덱스, 어기면 409)
 - [ ] 메시지 크기: 1MB 제한, 접수할 때 900KB 초과 거절, `lz4` ([ADR 0005](adr/0005-chunks-on-kafka.md))
 - [ ] 청크 내용 계약 바꾸기: 단원과 차시에 `attributes`(JSON 문자열), `learningLevel`을 `attributes`로 ([ADR 0006](adr/0006-chunk-content-contract.md))
