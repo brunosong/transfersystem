@@ -107,7 +107,7 @@
 - [ ] 토픽 이름(`data-migration-request`, `data-migration-response`)은 아웃박스를 바꿀 때 대상별 토픽으로 함께 바꾼다
 - [x] `Deployment` 애그리거트: 상태 기계(`IN_PROGRESS`, `SUCCEEDED`, `FAILED`), 청크 상태와 시도 번호, 결과 처리 규칙, `@Version`. 2026-11-15에 접수(`accept`)와 결과 처리(`recordSuccess`/`recordFailure`)에 연결했다. 새 배포는 `Deployment.create`로만 만든다
 - [x] `SourceContentData`를 `SourceDocument`(꺼낸 문서), `Curriculum`(트리 값 객체), 청크로 나누고, 청크로 나누는 일을 배포로 옮기기 ([원본 읽기 7장](system/source-read.md#7-원본-문서-커리큘럼-청크를-나눈다)). `totalChunkSize` 0 버그도 함께 풀린다
-- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다. 내용을 어디에 둘지는 A'(내용 표 + 아웃박스는 당분간 전체)로 정했다([시스템 설계 6장](system/architecture.md#청크-내용은-어디에-두나))
+- [ ] 뼈대 성공 후 과목 발행 (불변식 3), 청크 내용 보관 (불변식 4). 지금 접수 코드는 뼈대와 과목을 한꺼번에 아웃박스에 넣는다. 이를 대신할 방식은 [ADR 0007](adr/0007-independent-chunks.md)에서 검토하고 기각했다. 내용을 어디에 둘지는 A'(내용 표 + 아웃박스는 당분간 전체)로 시작해 2026-11-17에 A(아웃박스는 참조만)로 옮겼다([시스템 설계 6장](system/architecture.md#청크-내용은-어디에-두나))
   - [x] 1. 결정 기록
   - [x] 2. 내용 표 만들기 (`V9` `deployment_chunk_payload`, 포트, 어댑터, `jsonb`)
   - [x] 3. 접수 때 모든 청크 내용 저장 (아웃박스에는 아직 전부 넣음)
@@ -116,7 +116,7 @@
   - [x] 5. 전환 (2026-11-15. 결과 리스너가 `DeploymentResultHandler`를 부른다. 옛 결과 표에도 함께 적는다): 접수는 `Deployment.accept()` + 뼈대만 아웃박스, 결과 리스너는 새 길. 옛 표에도 함께 적는다. 로컬에서 실제로 한 번 돌려 본다
   - [x] 6. 옛 길 정리: ~~콘솔 조회를 `deployment_chunk`로 옮기기~~(나-1, 2026-11-16. 청크 상태도 `WAITING`/`SENT`/`APPLIED`/`FAILED`로), ~~`deployment_chunks`, `saveChunk` 삭제~~(나-2, V12), ~~캐시 경로 삭제~~(나-3), ~~결과 메시지의 옛 상태 값 정리~~(나-4, V13. 배포 상태는 `IN_PROGRESS`/`SUCCEEDED`/`FAILED`만, 결과는 `applied` 하나)
 - [ ] ~~명령 키를 대상 + 커리큘럼 ID로~~(V7), ~~결과 키를 배포 ID로~~(target-agent가 이미 배포 ID로 보낸다). 남은 것: 대상 쪽 `Thread.sleep(1000)` 제거
-- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), 내용 대신 참조 저장, ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), ~~쓰지 않는 `version` 칸 지우기~~(V14), ~~어드바이저리 락~~(세션 락, `PublishLock`), ~~발행 주기 단축~~(코드 기본값 1초, 로컬은 천천히 보려고 30초), 오래된 행 정리, ~~프로듀서 `max.block.ms` 줄이기~~(로컬 10초. dev는 config-service에서 맞춘다. 브로커가 죽으면 `send()`가 60초까지 막혔다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
+- [ ] 아웃박스 고치기 ([ADR 0004](adr/0004-transactional-outbox.md)): ~~순번 저장~~(V11 `seq`, 순번대로 한 번에 100개씩 읽기), ~~키 저장~~(V7 `message_key`, `시스템:환경:커리큘럼 ID`), ~~행마다 브로커 응답 확인, 일시적 실패는 다음 주기에 재발행~~(같은 키의 뒤 행은 기다림), ~~내용 대신 참조 저장~~(2026-11-17. 행에는 배포 ID, 청크 번호, 시도와 대상 이름 같은 작은 값만, 발행할 때 내용 표에서 읽음), ~~사가 칸 제거~~(V6에서 `saga_id`, `saga_status` 지움), ~~쓰지 않는 `version` 칸 지우기~~(V14), ~~어드바이저리 락~~(세션 락, `PublishLock`), ~~발행 주기 단축~~(코드 기본값 1초, 로컬은 천천히 보려고 30초), 오래된 행 정리, ~~프로듀서 `max.block.ms` 줄이기~~(로컬 10초. dev는 config-service에서 맞춘다. 브로커가 죽으면 `send()`가 60초까지 막혔다, [시스템 설계 10장](system/architecture.md#10-재-봐야-할-것))
 - [ ] 가. 실패 흐름. 결과가 오지 않거나 실패로 와도 배포가 끝나고, 운영자가 이어서 보낼 수 있게 한다
   - [ ] 응답 기한 스케줄러 (`NO_REPLY`), 기한 10분은 재서 고치기
     - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
