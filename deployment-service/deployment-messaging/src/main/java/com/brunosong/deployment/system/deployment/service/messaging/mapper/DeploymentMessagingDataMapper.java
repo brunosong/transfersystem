@@ -23,14 +23,12 @@ import java.util.UUID;
 @Component
 public class DeploymentMessagingDataMapper {
 
-    private static final int FIRST_ATTEMPT = 1;
-
-    /** 아웃박스 행의 페이로드와 내용 표에서 읽은 내용으로 발행 모델을 만든다. 재전송이 아직 없어 시도는 항상 1이다 */
+    /** 아웃박스 행의 페이로드와 내용 표에서 읽은 내용으로 발행 모델을 만든다 */
     public ApplyChunkCommand toApplyChunkCommand(DeploymentEventPayload payload, ChunkContent content) {
         return ApplyChunkCommand.newBuilder()
                 .setDeploymentId(payload.getDeploymentId().toString())
                 .setChunkNo(payload.getChunkOffset())
-                .setAttempt(FIRST_ATTEMPT)
+                .setAttempt(payload.getAttempt())
                 .setTargetSystem(payload.getTargetSystem())
                 .setEnvironment(payload.getEnvironment())
                 .setCurriculumId(payload.getCurriculumId())

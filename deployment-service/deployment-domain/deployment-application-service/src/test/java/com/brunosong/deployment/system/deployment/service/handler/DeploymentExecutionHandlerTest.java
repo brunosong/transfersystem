@@ -40,10 +40,11 @@ class DeploymentExecutionHandlerTest {
         ArgumentCaptor<DeploymentEventPayload> payload = ArgumentCaptor.forClass(DeploymentEventPayload.class);
         verify(outboxHelper, times(1)).saveDeploymentOutboxMessage(payload.capture());
 
+        // 행은 뼈대(0번)의 첫 시도를 가리킨다. 내용은 행에 없고 내용 표에 있다
         assertThat(payload.getValue().getChunkOffset()).isZero();
-        assertThat(payload.getValue().getContent()).isInstanceOf(ChunkContent.Skeleton.class);
+        assertThat(payload.getValue().getAttempt()).isEqualTo(1);
 
-        // 내용은 전부 저장한다. 과목은 나중에 이 내용으로 보낸다
+        // 내용은 전부 저장한다. 발행할 때 이 내용을 읽어 보낸다
         verify(persistHelper).persistDeployment(deployment, chunks);
 
         // 도메인 상태: 배포 진행 중, 뼈대 SENT, 과목 WAITING

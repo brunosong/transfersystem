@@ -67,8 +67,7 @@ class DeploymentDataMapperTest {
 
     private List<DeploymentEventPayload> payloads(Deployment deployment, List<ChunkContent> chunks) {
         return java.util.stream.IntStream.range(0, chunks.size())
-                .mapToObj(i -> mapper.toDeploymentEventPayload(deployment, i,
-                        chunks.get(i), NOW))
+                .mapToObj(i -> mapper.toDeploymentEventPayload(deployment, i, 1, NOW))
                 .toList();
     }
 

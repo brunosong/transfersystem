@@ -43,8 +43,9 @@ public class DeploymentExecutionHandler {
 
         // 3. 도메인이 보내라고 한 청크만 아웃박스에 넣는다. 과목은 뼈대 결과가 온 뒤에 넣는다(불변식 3)
         for (Chunk chunk : toSend) {
+            // 행에는 번호와 시도만 적는다. 내용은 2에서 저장한 내용 표에서 발행할 때 읽는다
             DeploymentEventPayload deploymentEventPayload = deploymentDataMapper.toDeploymentEventPayload(
-                    deployment, chunk.getNo(), chunks.get(chunk.getNo()), now);
+                    deployment, chunk.getNo(), chunk.getAttempt(), now);
             deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentEventPayload);
         }
 

@@ -125,6 +125,7 @@ class DeploymentMessagingDataMapperTest {
                 .environment("DEV")
                 .curriculumId("CUR001")
                 .chunkOffset(chunkNo)
+                .attempt(1)
                 .createdAt(CREATED_AT);
     }
 }

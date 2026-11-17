@@ -6,8 +6,6 @@ import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.outbox.scheduler.DeploymentOutboxHelper;
-import com.brunosong.deployment.system.deployment.service.ports.output.repository.ChunkPayload;
-import com.brunosong.deployment.system.deployment.service.ports.output.repository.ChunkPayloadRepository;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import com.brunosong.deployment.system.deployment.service.valueobject.*;
 import com.brunosong.deployment.system.domain.valueobject.DeploymentStatus;
@@ -27,11 +25,10 @@ import static org.mockito.Mockito.*;
 class DeploymentResultHandlerTest {
 
     private final DeploymentRepository deploymentRepository = mock(DeploymentRepository.class);
-    private final ChunkPayloadRepository chunkPayloadRepository = mock(ChunkPayloadRepository.class);
     private final DeploymentOutboxHelper outboxHelper = mock(DeploymentOutboxHelper.class);
     // 매퍼는 진짜를 쓴다. 과목 페이로드가 실제로 어떻게 만들어지는지까지 본다
     private final DeploymentResultHandler handler = new DeploymentResultHandler(
-            deploymentRepository, chunkPayloadRepository, outboxHelper, new DeploymentDataMapper());
+            deploymentRepository, outboxHelper, new DeploymentDataMapper());
 
     private final List<ChunkContent> chunks = ChunkContent.split(curriculum());   // 뼈대 1 + 과목 2
 
@@ -39,8 +36,6 @@ class DeploymentResultHandlerTest {
     @DisplayName("뼈대가 반영되면 기다리던 과목들을 번호 순서대로 아웃박스에 넣는다")
     void skeletonSuccessPutsSubjectsIntoOutbox() {
         Deployment deployment = accepted();
-        when(chunkPayloadRepository.findAll(deployment.getId().getValue(), List.of(1, 2)))
-                .thenReturn(List.of(new ChunkPayload(1, chunks.get(1)), new ChunkPayload(2, chunks.get(2))));
 
         handler.applyResult(success(deployment, 0));
 
@@ -48,6 +43,8 @@ class DeploymentResultHandlerTest {
         verify(outboxHelper, times(2)).saveDeploymentOutboxMessage(payloads.capture());
 
         assertThat(payloads.getAllValues()).extracting(DeploymentEventPayload::getChunkOffset).containsExactly(1, 2);
+        // 과목은 이번이 첫 전송이라 시도는 1이다. 내용은 행에 없고 발행할 때 내용 표에서 읽는다
+        assertThat(payloads.getAllValues()).extracting(DeploymentEventPayload::getAttempt).containsExactly(1, 1);
         assertThat(deployment.getChunks()).extracting(Chunk::getStatus)
                 .containsExactly(ChunkStatus.APPLIED, ChunkStatus.SENT, ChunkStatus.SENT);
         verify(deploymentRepository).save(deployment);

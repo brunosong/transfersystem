@@ -1,7 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.mapper;
 
 import com.brunosong.deployment.system.deployment.service.helper.deployment.TargetCatalog;
-import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.domain.valueobject.TargetId;
 import com.brunosong.deployment.system.deployment.service.dto.create.CreateDeploymentResponse;
 import com.brunosong.deployment.system.deployment.service.dto.create.DeploymentRequest;
@@ -44,9 +43,9 @@ public class DeploymentDataMapper {
         return new SourceConfigId(request.sourceConfigId());
     }
 
-    /** 청크 하나를 아웃박스에 적을 페이로드로 바꾼다 */
+    /** 청크 하나를 아웃박스에 적을 페이로드로 바꾼다. 내용은 담지 않고 번호와 시도로 가리킨다 */
     public DeploymentEventPayload toDeploymentEventPayload(Deployment deployment, int chunkOffset,
-                                                           ChunkContent content, ZonedDateTime createdAt) {
+                                                           int attempt, ZonedDateTime createdAt) {
         TargetCatalog.Target target = TargetCatalog.find(deployment.getTargetId().getValue());
             return DeploymentEventPayload.builder()
                     .deploymentId(deployment.getId().getValue())
@@ -54,9 +53,8 @@ public class DeploymentDataMapper {
                     .environment(target.environment())
                     .transType(deployment.getTransType())
                     .curriculumId(deployment.getCurriculumId())
-                    .skeleton(content instanceof ChunkContent.Skeleton skeleton ? skeleton : null)
-                    .subjectChunk(content instanceof ChunkContent.SubjectChunk chunk ? chunk : null)
                     .chunkOffset(chunkOffset)
+                    .attempt(attempt)
                     .createdAt(createdAt)
                     .build();
     }

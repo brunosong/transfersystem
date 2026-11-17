@@ -1,6 +1,5 @@
 package com.brunosong.deployment.system.deployment.service.helper.deployment.curriculum;
 
-import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.deployment.service.valueobject.Curriculum;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -88,27 +86,4 @@ class CurriculumSourceConverterTest {
         assertTrue(e.getMessage().contains("lessonNumber"));
         assertTrue(e.getMessage().contains("L1"));
     }
-
-    @Test
-    // createdAt 은 뺐다. 이 모듈의 테스트에는 시간 모듈이 없고, 실행할 때는 스프링의 ObjectMapper 가 다룬다
-    @DisplayName("아웃박스 페이로드는 JSON 으로 저장했다가 읽어도 내용이 같다")
-    void payloadRoundTrip() throws Exception {
-        ChunkContent.SubjectChunk chunk = (ChunkContent.SubjectChunk)
-                ChunkContent.split(converter.toCurriculum(objectMapper.readTree(DOCUMENT))).get(1);
-        DeploymentEventPayload payload = DeploymentEventPayload.builder()
-                .deploymentId(UUID.randomUUID())
-                .targetSystem("ONLINE_CAMPUS")
-                .environment("DEV")
-                .curriculumId("CUR001")
-                .subjectChunk(chunk)
-                .chunkOffset(1)
-                .build();
-
-        DeploymentEventPayload read = objectMapper.readValue(objectMapper.writeValueAsString(payload), DeploymentEventPayload.class);
-
-        ChunkContent content = read.getContent();
-        assertEquals(chunk, assertInstanceOf(ChunkContent.SubjectChunk.class, content));
-        assertEquals("ONLINE_CAMPUS", read.getTargetSystem());
-    }
-
 }

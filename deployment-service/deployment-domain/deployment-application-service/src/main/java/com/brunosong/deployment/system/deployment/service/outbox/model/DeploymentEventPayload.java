@@ -1,8 +1,6 @@
 package com.brunosong.deployment.system.deployment.service.outbox.model;
 
-import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +17,8 @@ import java.util.UUID;
  * 그렇다고 common-domain 에 Jackson 을 넣으면 의존성이 하나도 없는 도메인 모듈이 깨진다.
  * 페이로드는 도메인 모델이 아니라 저장되는 계약이므로 이쪽이 맞다.
  *
- * 내용은 둘 중 하나만 채운다. ChunkContent 에 Jackson 다형성 표시를 달면 도메인 모듈이 Jackson 을 알게 된다.
- * 아웃박스가 참조만 담게 되면(ADR 0004) 이 칸들은 없어진다.
+ * 청크 내용은 담지 않는다. 배포 ID와 청크 번호로 가리키기만 하고, 발행할 때 내용 표(deployment_chunk_payload)에서 읽는다(ADR 0004).
+ * 대상 이름, 환경, 커리큘럼 ID는 작고 접수한 뒤 바뀌지 않아 함께 둔다. 발행할 때 배포를 다시 읽지 않아도 된다.
  */
 @Getter
 @Builder
@@ -44,21 +42,14 @@ public class DeploymentEventPayload {
     private String curriculumId;
 
     @JsonProperty
-    private ChunkContent.Skeleton skeleton;
-
-    @JsonProperty
-    private ChunkContent.SubjectChunk subjectChunk;
-
-    @JsonProperty
     private int chunkOffset;
+
+    /** 몇 번째 시도인지. 첫 전송은 1, 재전송하면 늘어난다 */
+    @JsonProperty
+    private int attempt;
 
     @JsonProperty
     private ZonedDateTime createdAt;
-
-    @JsonIgnore
-    public ChunkContent getContent() {
-        return skeleton != null ? skeleton : subjectChunk;
-    }
 
     /**
      * Kafka 메시지 키. "대상 시스템:환경:커리큘럼 ID" (도메인 모델 7절).

@@ -6,8 +6,6 @@ import com.brunosong.deployment.system.deployment.service.entity.Deployment;
 import com.brunosong.deployment.system.deployment.service.exception.DeploymentNotFoundException;
 import com.brunosong.deployment.system.deployment.service.mapper.DeploymentDataMapper;
 import com.brunosong.deployment.system.deployment.service.outbox.scheduler.DeploymentOutboxHelper;
-import com.brunosong.deployment.system.deployment.service.ports.output.repository.ChunkPayload;
-import com.brunosong.deployment.system.deployment.service.ports.output.repository.ChunkPayloadRepository;
 import com.brunosong.deployment.system.deployment.service.ports.output.repository.DeploymentRepository;
 import com.brunosong.deployment.system.domain.DomainConstants;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +22,6 @@ import java.util.UUID;
 public class DeploymentResultHandler {
 
     private final DeploymentRepository deploymentRepository;
-    private final ChunkPayloadRepository chunkPayloadRepository;
     private final DeploymentOutboxHelper deploymentOutboxHelper;
     private final DeploymentDataMapper deploymentDataMapper;
 
@@ -51,13 +48,11 @@ public class DeploymentResultHandler {
         // 2. 배포와 청크 상태를 저장한다
         deploymentRepository.save(deployment);
 
-        // 3. 도메인이 보내라고 한 청크를 내용 표에서 꺼내 아웃박스에 넣는다. 번호 순으로 넣으므로 seq 도 번호 순이다
-        if (!toSend.isEmpty()) {
-            List<Integer> chunkNos = toSend.stream().map(Chunk::getNo).toList();
-            for (ChunkPayload payload : chunkPayloadRepository.findAll(deploymentId, chunkNos)) {
-                deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentDataMapper.toDeploymentEventPayload(
-                        deployment, payload.chunkNo(), payload.content(), now));
-            }
+        // 3. 도메인이 보내라고 한 청크를 아웃박스에 넣는다. 번호 순으로 넣으므로 seq 도 번호 순이다.
+        //    행에는 번호와 시도만 적는다. 내용은 접수 때 넣어 둔 내용 표에서 발행할 때 읽는다
+        for (Chunk chunk : toSend) {
+            deploymentOutboxHelper.saveDeploymentOutboxMessage(deploymentDataMapper.toDeploymentEventPayload(
+                    deployment, chunk.getNo(), chunk.getAttempt(), now));
         }
     }
 }
