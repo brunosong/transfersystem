@@ -43,6 +43,11 @@ public class ChunkPayloadRepositoryImpl implements ChunkPayloadRepository {
 
     }
 
+    @Override
+    public int deleteNotRetryable() {
+        return chunkPayloadJpaRepository.deleteNotRetryable();
+    }
+
     /**
      * 저장하는 JSON 모양. 종류마다 칸을 나눈다.
      * ChunkContent(sealed interface)를 그대로 쓰면 어느 종류인지 적는 Jackson 표시를 도메인에 달아야 한다.

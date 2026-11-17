@@ -14,4 +14,11 @@ public interface ChunkPayloadRepository {
 
     /** 고른 번호의 청크를 번호 순서로 돌려준다 */
     List<ChunkPayload> findAll(UUID deploymentId, Collection<Integer> chunkNos);
+
+    /**
+     * 다시 보낼 일이 없는 배포의 내용을 지우고 지운 행 수를 돌려준다(시스템 설계 6장 "청크 내용은 언제까지 두나").
+     * SUCCEEDED 배포, 그리고 같은 커리큘럼 × 대상에 더 최근 배포가 있는 FAILED 배포다.
+     * 진행 중인 배포와 가장 최근의 FAILED 배포는 재전송할 수 있어 남긴다
+     */
+    int deleteNotRetryable();
 }

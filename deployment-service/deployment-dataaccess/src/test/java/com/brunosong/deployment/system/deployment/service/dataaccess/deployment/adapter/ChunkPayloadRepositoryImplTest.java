@@ -95,6 +95,67 @@ class ChunkPayloadRepositoryImplTest {
     }
 
 
+    @Test
+    @DisplayName("성공한 배포와 더 최근 배포가 있는 실패 배포의 내용만 지운다")
+    void deleteNotRetryableRemovesOnlyContentThatCannotBeResent() {
+        // 확인하는 것: 재전송할 수 없는 배포의 내용만 지우고, 재전송할 수 있는 배포의 내용은 남기는지
+
+        // 준비: 배포를 상태, 커리큘럼, 대상, 만든 시각을 바꿔 가며 넣고, 배포마다 내용 한 줄씩 넣는다
+        UUID succeeded = deployment("SUCCEEDED", "CUR-A", 1, "10:00");        // 지운다: 끝났다
+        UUID olderFailed = deployment("FAILED", "CUR-B", 1, "10:00");         // 지운다: 같은 커리큘럼 × 대상에 더 최근 배포가 있다
+        UUID latestFailed = deployment("FAILED", "CUR-B", 1, "11:00");        // 남긴다: 가장 최근이라 재전송할 수 있다
+        UUID otherTargetFailed = deployment("FAILED", "CUR-B", 2, "09:00");   // 남긴다: 더 최근 배포는 다른 대상의 것이다
+        UUID inProgress = deployment("IN_PROGRESS", "CUR-C", 1, "10:00");     // 남긴다: 아직 진행 중이다
+        UUID legacyFailed = deployment("FAILED", null, 3, "10:00");           // 남긴다: 커리큘럼 ID가 없는 옛 배포는 판단하지 않는다
+        deployment("FAILED", null, 3, "11:00");                                // 위 옛 배포보다 최근인 옛 배포. 내용은 넣지 않는다
+        List.of(succeeded, olderFailed, latestFailed, otherTargetFailed, inProgress, legacyFailed)
+                .forEach(this::payload);
+
+        // 실행
+        int deleted = chunkPayloadRepository.deleteNotRetryable();
+
+        // 확인: 두 배포의 내용이 지워졌고, 나머지 네 배포의 내용은 남았다
+        assertEquals(2, deleted);
+        assertEquals(java.util.Set.of(latestFailed, otherTargetFailed, inProgress, legacyFailed), remainingDeploymentIds());
+    }
+
+    /**
+     * 배포 한 건을 SQL 로 바로 넣는다. 도메인 객체로 만들면 상태를 마음대로 정할 수 없다.
+     * 열거형 칸(source_type, db_type)은 바인딩한 문자열이 열거형으로 바뀌지 않아 SQL 에 글자로 적는다
+     */
+    private UUID deployment(String status, String curriculumId, long targetId, String createdAtTime) {
+        UUID id = UUID.randomUUID();
+        em.getEntityManager().createNativeQuery("""
+                        INSERT INTO deployment (id, source_id, sourceconfig_id, curriculum_id, source_type, target_id,
+                                                db_type, trans_type, deployment_status, create_admin_id, created_at)
+                        VALUES (CAST(:id AS uuid), 'source', 1, :curriculumId, 'CURRICULUM', :targetId,
+                                'MONGO', 'MESSAGING', :status, 'tester', CAST(:createdAt AS timestamp))
+                        """)
+                .setParameter("id", id.toString())
+                .setParameter("curriculumId", curriculumId)
+                .setParameter("targetId", targetId)
+                .setParameter("status", status)
+                .setParameter("createdAt", "2026-11-10 " + createdAtTime + ":00")
+                .executeUpdate();
+        return id;
+    }
+
+    /** 배포에 내용 한 줄(0번 청크)을 넣는다. 지우는 쿼리는 내용을 보지 않아 빈 JSON 이면 된다 */
+    private void payload(UUID deploymentId) {
+        em.getEntityManager().createNativeQuery(
+                        "INSERT INTO deployment_chunk_payload (deployment_id, chunk_no, content) VALUES (CAST(:id AS uuid), 0, CAST('{}' AS jsonb))")
+                .setParameter("id", deploymentId.toString())
+                .executeUpdate();
+    }
+
+    /** 내용이 남아 있는 배포 ID 들 */
+    private java.util.Set<UUID> remainingDeploymentIds() {
+        List<?> rows = em.getEntityManager()
+                .createNativeQuery("SELECT CAST(deployment_id AS varchar) FROM deployment_chunk_payload")
+                .getResultList();
+        return rows.stream().map(row -> UUID.fromString((String) row)).collect(java.util.stream.Collectors.toSet());
+    }
+
         /** 학년 하나, 학기 하나, 과목 둘. 뼈대 1개 + 과목 2개로 나뉜다 */
     private static Curriculum curriculum() {
         Curriculum.Lesson lesson = new Curriculum.Lesson("L1", "덧셈", null, 1, 1, "{\"level\":1}");

@@ -6,6 +6,7 @@ import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.
 import com.brunosong.deployment.system.deployment.service.dataaccess.deployment.repository.DeploymentOutboxJpaRepository;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentOutboxMessage;
 import com.brunosong.deployment.system.deployment.service.valueobject.TransType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -44,6 +45,9 @@ class DeploymentOutboxRepositoryImplTest {
 
     @Autowired
     private DeploymentOutboxRepositoryImpl deploymentOutboxRepository;
+
+    @Autowired
+    private DeploymentOutboxJpaRepository deploymentOutboxJpaRepository;
 
     @Test
     void save() {
@@ -108,6 +112,41 @@ class DeploymentOutboxRepositoryImplTest {
 
         assertEquals(100, deploymentOutboxRepository
                 .findByTypeAndOutboxStatus(APPLY_CHUNK_COMMAND, OutboxStatus.STARTED).orElseThrow().size());
+    }
+
+    @Test
+    @DisplayName("처리가 끝나고 기준 시각보다 오래된 COMPLETED, FAILED 행만 지우고, STARTED 와 최근 행은 남긴다")
+    void deleteProcessedBeforeRemovesOnlyOldFinishedRows() {
+        // 확인하는 것: 정리 작업이 지울 행을 상태와 처리 시각 둘 다로 고르는지
+
+        // 준비: 기준은 "지금 - 7일". 그보다 하루 이른 8일 전과, 하루 전을 쓴다
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC"));
+        ZonedDateTime before = now.minusDays(7);
+        ZonedDateTime old = now.minusDays(8);
+        ZonedDateTime recent = now.minusDays(1);
+
+        DeploymentOutboxMessage oldCompleted = processed(OutboxStatus.COMPLETED, old);     // 지운다
+        DeploymentOutboxMessage oldFailed = processed(OutboxStatus.FAILED, old);           // 지운다
+        DeploymentOutboxMessage recentCompleted = processed(OutboxStatus.COMPLETED, recent); // 남긴다: 아직 7일이 안 됐다
+        // 남긴다: 아직 보내지 않은 행. 평소엔 처리 시각이 없지만, 상태로도 걸러지는지 보려고 일부러 옛 시각을 넣는다
+        DeploymentOutboxMessage oldStarted = processed(OutboxStatus.STARTED, old);
+        List.of(oldCompleted, oldFailed, recentCompleted, oldStarted).forEach(deploymentOutboxRepository::save);
+
+        // 실행
+        int deleted = deploymentOutboxRepository.deleteProcessedBefore(before);
+
+        // 확인: 두 행이 지워졌고, 남은 것은 최근 COMPLETED 와 STARTED 다
+        assertEquals(2, deleted);
+        List<UUID> remaining = deploymentOutboxJpaRepository.findAll().stream().map(e -> e.getId()).toList();
+        assertEquals(java.util.Set.of(recentCompleted.getId(), oldStarted.getId()), java.util.Set.copyOf(remaining));
+    }
+
+    /** 상태와 처리 시각을 정한 행. 처리 시각은 스케줄러가 행을 닫을 때 찍는 값이다 */
+    private DeploymentOutboxMessage processed(OutboxStatus status, ZonedDateTime processedAt) {
+        DeploymentOutboxMessage message = outboxMessage();
+        message.setOutboxStatus(status);
+        message.setProcessedAt(processedAt);
+        return message;
     }
 
     private DeploymentOutboxMessage outboxMessage() {

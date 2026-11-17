@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,5 +41,11 @@ public class DeploymentOutboxRepositoryImpl implements DeploymentOutboxRepositor
     @Override
     public void deleteByTypeAndOutboxStatus(String type, OutboxStatus outboxStatus) {
         deploymentOutboxJpaRepository.deleteByTypeAndOutboxStatus(type, outboxStatus);
+    }
+
+    @Override
+    public int deleteProcessedBefore(ZonedDateTime before) {
+        return deploymentOutboxJpaRepository.deleteByOutboxStatusInAndProcessedAtBefore(
+                List.of(OutboxStatus.COMPLETED, OutboxStatus.FAILED), before);
     }
 }
