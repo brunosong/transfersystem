@@ -39,7 +39,7 @@ class DeploymentMessagingDataMapperTest {
         ChunkContent.Skeleton skeleton = new ChunkContent.Skeleton("중등", "중등 과정",
                 List.of(new ChunkContent.Grade("G1", "1학년", null, List.of(semester))));
 
-        ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(0).skeleton(skeleton).build());
+        ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(0).build(), skeleton);
 
         assertEquals(DEPLOYMENT_ID.toString(), command.getDeploymentId());
         assertEquals(0, command.getChunkNo());
@@ -62,7 +62,7 @@ class DeploymentMessagingDataMapperTest {
                 List.of(new Curriculum.Unit("U1", "단원 1", null, null, List.of(lesson))));
         ChunkContent.SubjectChunk chunk = new ChunkContent.SubjectChunk("G1", "S1", subject);
 
-        ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(1).subjectChunk(chunk).build());
+        ApplyChunkCommand command = mapper.toApplyChunkCommand(payload(1).build(), chunk);
 
         SubjectContent content = assertInstanceOf(SubjectContent.class, command.getContent());
         assertEquals("S1", content.getSemesterId());

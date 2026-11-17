@@ -7,8 +7,7 @@ import com.brunosong.deployment.system.deployment.service.config.DeploymentServi
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentEventPayload;
 import com.brunosong.deployment.system.deployment.service.outbox.model.DeploymentOutboxMessage;
 import com.brunosong.deployment.system.deployment.service.ports.output.message.publisher.DeploymentRequestMessagePublisher;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.brunosong.deployment.system.deployment.service.valueobject.ChunkContent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -42,20 +41,14 @@ public class DeploymentRequestKafkaMessagePublisher implements DeploymentRequest
     // 전에는 이것을 감싼 KafkaProducer 인터페이스와 구현이 따로 있었는데,
     // send 한 줄을 감싸는 것뿐이라 걷어냈다
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final ObjectMapper objectMapper;
 
     @Override
-    public PublishResult publish(DeploymentOutboxMessage deploymentOutboxMessage) {
-
-        DeploymentEventPayload payload = readPayload(deploymentOutboxMessage);
-        if (payload == null) {
-            // 페이로드를 못 읽으면 다시 읽어도 같은 결과다
-            return PublishResult.GIVE_UP;
-        }
+    public PublishResult publish(DeploymentOutboxMessage deploymentOutboxMessage, DeploymentEventPayload payload,
+                                 ChunkContent content) {
 
         ApplyChunkCommand command;
         try {
-            command = deploymentMessagingDataMapper.toApplyChunkCommand(payload);
+            command = deploymentMessagingDataMapper.toApplyChunkCommand(payload, content);
         } catch (RuntimeException e) {
             // 계약 모양으로 못 바꾸면 다시 해도 같다
             log.error("ApplyChunkCommand 로 바꾸지 못했다. outbox id: {}", deploymentOutboxMessage.getId(), e);
@@ -100,16 +93,6 @@ public class DeploymentRequestKafkaMessagePublisher implements DeploymentRequest
             }
         }
         return PublishResult.RETRY_LATER;
-    }
-
-    private DeploymentEventPayload readPayload(DeploymentOutboxMessage deploymentOutboxMessage) {
-        try {
-            return objectMapper.readValue(deploymentOutboxMessage.getPayload(), DeploymentEventPayload.class);
-        } catch (JsonProcessingException e) {
-            log.error("Could not read DeploymentEventPayload for outbox id: {}",
-                    deploymentOutboxMessage.getId(), e);
-            return null;
-        }
     }
 
 }
