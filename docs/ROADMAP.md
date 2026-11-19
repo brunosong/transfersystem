@@ -122,7 +122,7 @@
     - [x] 가-1. 도메인: `Deployment.expireOverdue(now, 기한)` (2026-11-15)
     - [x] 가-2. 기한이 지난 `SENT` 청크가 있는 배포 찾기 (V5의 부분 인덱스를 쓰도록 상태를 글자 그대로 적음)
     - [x] 가-3. 스케줄러: 1분마다, 배포마다 따로 처리 (`ResponseDeadlineScheduler`, `DeploymentDeadlineHandler`. 기한 `deployment-service.response-deadline.duration` 기본 10m, 주기 `...check-interval` 기본 60000ms)
-    - [ ] 가-4. 로컬 확인: 대상을 끄고 접수하면 기한이 지나 뼈대와 배포가 `FAILED`(`NO_REPLY`)가 된다. 대상을 켜서 늦은 성공이 오면 뼈대만 `APPLIED`가 되고, 배포는 `FAILED`, 과목은 `WAITING`으로 남는다. 과목은 운영자가 재전송해야 나간다([도메인 모델](domain/model.md#재전송과-늦은-결과))
+    - [x] 가-4. 로컬 확인(2026-11-19): 대상을 끄고 접수하면 기한이 지나 뼈대와 배포가 `FAILED`(`NO_REPLY`)가 된다. 대상을 켜서 늦은 성공이 오면 뼈대만 `APPLIED`가 되고, 배포는 `FAILED`, 과목은 `WAITING`으로 남는다. 과목은 운영자가 재전송해야 나간다([도메인 모델](domain/model.md#재전송과-늦은-결과))
   - [ ] 가-5. 실패 결과 확인: 대상이 실패 결과를 보내면 그 청크와 배포가 `FAILED`가 된다
   - [ ] 가-6. 재전송 API (`POST /api/v1/deployments/{id}/retry`): `FAILED` 청크를 시도 번호 +1로 다시 보낸다. 뼈대가 반영돼 있으면 `WAITING` 과목도 함께 보낸다. 내용은 저장해 둔 청크 내용을 쓴다. 내용이 지워진 배포(성공, 더 최근 배포가 있는 실패)는 재전송을 거절한다(규칙 B)
     - [ ] 화면도 [화면 설계 청크 표](ui/screens.md#청크)대로 맞춘다: 실패를 `REJECTED`(대상이 거절함)와 `NO_REPLY`(응답 없음, 반영됐을 수도 있음)로 나눠 보여 준다(상세 API에 실패 종류를 싣는다). 재전송 중인 칸은 파랑으로 깜박인다(지금은 주황)
