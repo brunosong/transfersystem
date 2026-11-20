@@ -1,8 +1,8 @@
 package com.brunosong.deployment.system.authoring.service;
 
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
-import com.brunosong.deployment.system.authoring.service.ports.output.CurriculumNumberIssuer;
-import com.brunosong.deployment.system.authoring.service.ports.output.SkeletonDraftRepository;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.CurriculumNumberIssuer;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
