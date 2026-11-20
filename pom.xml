@@ -6,6 +6,7 @@
     <modules>
         <module>target-agent</module>
         <module>deployment-service</module>
+        <module>authoring-service</module>
         <module>common</module>
 <!--        <module>dataupload-service</module>-->
         <module>infrastructure</module>
@@ -194,6 +195,26 @@
             <dependency>
                 <groupId>com.brunosong.deployment.system</groupId>
                 <artifactId>deployment-application</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>authoring-domain-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>authoring-application-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>authoring-dataaccess</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.brunosong.deployment.system</groupId>
+                <artifactId>authoring-application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: authoring-service
+  data:
+    mongodb:
+      # 배포가 읽는 learningDB 를 같이 쓴다(docs/system/authoring.md 1절).
+      # Mongo 는 단일 노드 레플리카 셋(rs0)이다. 공개를 트랜잭션으로 묶는다
+      uri: mongodb://root:example@localhost:27017/learningDB?authSource=admin
+
+server:
+  port: 8002
