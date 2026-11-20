@@ -1,7 +1,7 @@
 # Deployment System 프로젝트
 
 ## 개요
-`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `target-agent`, `config-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, PostgreSQL 등의 인프라를 활용합니다.
+`Deployment System`은 원본 저장소(MongoDB, MySQL)의 학습 데이터(커리큘럼)를 대상 시스템(온라인캠퍼스, 부트캠프)으로 배포하는 모듈화된 애플리케이션입니다. 서비스(`deployment-service`, `target-agent`, `config-service`, 만드는 중인 `authoring-service`)와 공통 모듈(`common`), 공용 인프라 모듈(`infrastructure`)로 구성되어 있으며, Kafka, MongoDB, PostgreSQL 등의 인프라를 활용합니다.
 
 서비스 간 통신은 **Transactional Outbox** 패턴을 기반으로 하며, 메시지 계약(Avro 스키마)은 별도 모듈로 분리해 서비스들이 아티팩트로 공유합니다.
 
@@ -95,6 +95,10 @@
 - **`docker-compose`**: 로컬 개발용 Kafka, Zookeeper, MongoDB, MySQL, PostgreSQL 설정.
 - **`k8s`**: Kubernetes 매니페스트(Kafka, MongoDB, MySQL, PostgreSQL, 서비스, Argo CD).
 - **`jenkins`**: Jenkins Helm values 및 Maven 캐시 PVC.
+
+### 7. `authoring-service` (설계 중, 아직 코드 없음)
+- 콘텐츠팀 대신 만든 저작 서비스. 커리큘럼을 초안에서 고치고, 공개하면 판으로 고정합니다. 배포는 공개본만 읽습니다. ([ADR 0008](docs/adr/0008-authoring-service.md))
+- 모듈은 deployment-service를 따릅니다: `authoring-container`, `authoring-domain`(`authoring-domain-core`, `authoring-application-service`), `authoring-dataaccess`(Mongo), `authoring-application`(REST API).
 
 ## 설치 및 실행 방법
 1. **필수 소프트웨어 설치**
