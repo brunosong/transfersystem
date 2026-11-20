@@ -10,6 +10,27 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    # 트랜잭션을 쓰려고 단일 노드 레플리카 셋으로 띄운다(docs/system/authoring.md 3절).
+    # 인증을 켠 레플리카 셋은 멤버끼리 확인할 키 파일이 있어야 한다. 멤버가 하나뿐이라 띄울 때마다 새로 만든다.
+    # 키 파일은 mongod 사용자(999)만 읽을 수 있어야 해서, 윈도 폴더를 붙이지 않고 컨테이너 안에 만든다
+    entrypoint:
+      - bash
+      - -c
+      - |
+        openssl rand -base64 756 > /etc/mongo-keyfile
+        chmod 400 /etc/mongo-keyfile
+        chown 999:999 /etc/mongo-keyfile
+        exec docker-entrypoint.sh mongod --replSet rs0 --keyFile /etc/mongo-keyfile --bind_ip_all
+    # 레플리카 셋은 처음 한 번 rs.initiate() 를 해야 쓸 수 있다. 헬스체크가 안 됐으면 대신 해 준다.
+    # 멤버 주소를 localhost 로 둔다. 서비스는 호스트(IntelliJ)에서 localhost:27017 로 붙는다
+    healthcheck:
+      test: >
+        mongosh --quiet -u root -p example --authenticationDatabase admin --eval
+        "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27017'}]}).ok }"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
     volumes:
       - ./volumes/mongodb/:/data/db
       - ./mongo-scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
