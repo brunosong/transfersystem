@@ -43,5 +43,16 @@ public class SkeletonDraft {
         return new SkeletonDraft(curriculumId,title,description,revision);
     }
 
+    /**
+     * 제목과 설명을 고친 새 초안을 돌려준다. revision은 1 오른다.
+     * 자기 자신은 바꾸지 않는다. 저장이 실패하면 (누가 먼저 고쳤으면) 고친 것을 그냥 버리면 된다.
+     */
+    public SkeletonDraft edit(String title, String description) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("커리큘럼 제목이 비어 있다.");
+        }
+        return new SkeletonDraft(curriculumId, title, description, revision + 1);
+    }
+
 
 }

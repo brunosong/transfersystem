@@ -3,8 +3,12 @@ package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapt
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
+import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -43,5 +47,22 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                         e.getDescription(),
                         e.getRevision()));
 
+    }
+
+    @Override
+    public boolean update(SkeletonDraft edited, int expectedRevision) {
+        UpdateResult result = mongoTemplate.updateFirst(
+                // 조건 : 이 커리큘럼이고, revision 이 내가 본 값일 때만
+                Query.query(Criteria.where("_id").is(edited.getCurriculumId())
+                        .and("revision").is(expectedRevision)),
+                // 고친 내용과 새 revision을 넣는다.
+                new Update()
+                        .set("title", edited.getTitle())
+                        .set("description", edited.getDescription())
+                        .set("revision", edited.getRevision()),
+                SkeletonDraftEntity.class);
+
+        // 조건에 맞는 문서가 없었다. = revision이 이미 바뀌었다.
+        return result.getMatchedCount() == 1;
     }
 }
