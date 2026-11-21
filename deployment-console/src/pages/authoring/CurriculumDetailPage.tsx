@@ -160,22 +160,30 @@ function StructureTab({ draft, locked, handlers }: { draft: SkeletonDraft; locke
 
   return (
     <div className="space-y-4">
+      {/* 학년 추가는 맨 위에 둔다. 학년이 많아져도 스크롤하지 않고 찾을 수 있다 */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <p className="pt-2 text-sm text-slate-500">
+          학년 {draft.grades.length}개 · 학년 안에 학기, 학기 안에 과목이 들어갑니다
+        </p>
+        <AddInline
+          label="학년 추가"
+          placeholder="학년 이름 (예: 1학년)"
+          variant="primary"
+          disabled={locked}
+          pending={addGrade.isPending}
+          error={addGrade.error && !isConflict(addGrade.error) ? addGrade.error.message : null}
+          onSubmit={(title) => addGrade.mutate(title)}
+        />
+      </div>
+
       {draft.grades.length === 0 && (
         <Card>
-          <EmptyState title="아직 학년이 없습니다" description="학년을 추가하고, 학년 안에 학기를, 학기 안에 과목을 만듭니다." />
+          <EmptyState title="아직 학년이 없습니다" description="오른쪽 위 [학년 추가]로 첫 학년을 만드세요." />
         </Card>
       )}
       {draft.grades.map((grade) => (
         <GradeCard key={grade.id} draft={draft} grade={grade} locked={locked} handlers={handlers} />
       ))}
-      <AddInline
-        label="학년 추가"
-        placeholder="학년 이름 (예: 1학년)"
-        disabled={locked}
-        pending={addGrade.isPending}
-        error={addGrade.error && !isConflict(addGrade.error) ? addGrade.error.message : null}
-        onSubmit={(title) => addGrade.mutate(title)}
-      />
     </div>
   )
 }
@@ -244,7 +252,7 @@ function AddInline({
 }: {
   label: string
   placeholder: string
-  variant?: 'secondary' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'ghost'
   disabled: boolean
   pending: boolean
   error: string | null
