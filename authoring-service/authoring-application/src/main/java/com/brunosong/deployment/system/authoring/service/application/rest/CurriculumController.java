@@ -5,6 +5,7 @@ import com.brunosong.deployment.system.authoring.service.CurriculumEditService;
 import com.brunosong.deployment.system.authoring.service.CurriculumQueryService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
+import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -69,6 +70,19 @@ public class CurriculumController {
         return new AddGradeResponse(added.grade().id(), added.revision());
     }
 
+    /**
+     * 학년 하나에 학기를 붙인다. 학기도 뼈대 초안 안에 있어서 revision 이 필요하다.
+     * 그사이 누가 먼저 고쳤으면 409, 커리큘럼이나 학년이 없으면 404
+     */
+    @PostMapping("/{curriculumId}/grades/{gradeId}/semesters")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddSemesterResponse addSemester(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                           @Valid @RequestBody AddSemesterRequest request) {
+        CurriculumEditService.AddedSemester added = curriculumEditService.addSemester(
+                curriculumId, gradeId, request.title(), request.description(), request.revision());
+        return new AddSemesterResponse(added.semester().id(), added.revision());
+    }
+
     public record CreateCurriculumRequest(@NotBlank String title, String description) {
     }
 
@@ -80,6 +94,12 @@ public class CurriculumController {
     }
 
     public record AddGradeResponse(String gradeId, int revision) {
+    }
+
+    public record AddSemesterRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
+    public record AddSemesterResponse(String semesterId, int revision) {
     }
 
     public record CreateCurriculumResponse(String curriculumId, int revision) {
@@ -94,10 +114,18 @@ public class CurriculumController {
         }
     }
 
-    public record GradeResponse(String id, String title, String description) {
+    public record GradeResponse(String id, String title, String description, List<SemesterResponse> semesters) {
 
         static GradeResponse from(Grade grade) {
-            return new GradeResponse(grade.id(), grade.title(), grade.description());
+            List<SemesterResponse> semesters = grade.semesters().stream().map(SemesterResponse::from).toList();
+            return new GradeResponse(grade.id(), grade.title(), grade.description(), semesters);
+        }
+    }
+
+    public record SemesterResponse(String id, String title, String description) {
+
+        static SemesterResponse from(Semester semester) {
+            return new SemesterResponse(semester.id(), semester.title(), semester.description());
         }
     }
 }

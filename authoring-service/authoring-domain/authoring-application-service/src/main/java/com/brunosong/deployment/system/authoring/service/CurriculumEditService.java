@@ -5,10 +5,11 @@ import com.brunosong.deployment.system.authoring.service.exception.CurriculumNot
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
+import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-/** 커리큘럼 제목과 설명 고치기. 낙관적 락으로 남의 수정을 덮어쓰지 않는다 */
+/** 뼈대 초안 고치기(제목·설명, 학년 추가, 학기 추가). 낙관적 락으로 남의 수정을 덮어쓰지 않는다 */
 @Service
 @RequiredArgsConstructor
 public class CurriculumEditService {
@@ -54,5 +55,30 @@ public class CurriculumEditService {
 
     /** 학년 추가의 결과. 새 학년과 저장된 뒤의 revision */
     public record AddedGrade(Grade grade, int revision) {
+    }
+
+    /**
+     * 학년 하나에 학기를 붙인다. 학기도 뼈대 안에 있어서 같은 낙관적 락을 쓴다.
+     * 학년이 없으면 도메인이 GradeNotFoundException 을 던진다(404)
+     */
+    public AddedSemester addSemester(String curriculumId, String gradeId, String title, String description,
+                                     int expectedRevision) {
+        // 1. 지금 초안을 읽는다. 없으면 404
+        SkeletonDraft current = skeletonDraftRepository.findById(curriculumId)
+                .orElseThrow(() -> new CurriculumNotFoundException(curriculumId));
+
+        // 2. 학기를 만들고 그 학년에 붙인다. 학년이 있는지는 도메인이 본다
+        Semester semester = Semester.create(title, description);
+        SkeletonDraft edited = current.addSemester(gradeId, semester);
+
+        // 3. 화면이 본 revision 일 때만 저장한다. 아니면 409
+        if (!skeletonDraftRepository.update(edited, expectedRevision)) {
+            throw new RevisionConflictException(curriculumId, expectedRevision);
+        }
+        return new AddedSemester(semester, edited.getRevision());
+    }
+
+    /** 학기 추가의 결과. 새 학기와 저장된 뒤의 revision */
+    public record AddedSemester(Semester semester, int revision) {
     }
 }

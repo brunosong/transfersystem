@@ -1,10 +1,12 @@
 package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapter;
 
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.GradeEntity;
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SemesterEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
+import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -74,7 +76,10 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
     private static List<GradeEntity> toGradeEntities(List<Grade> grades) {
         return grades.stream()
-                .map(g -> new GradeEntity(g.id(), g.title(), g.description()))
+                .map(g -> new GradeEntity(g.id(), g.title(), g.description(),
+                        g.semesters().stream()
+                                .map(s -> new SemesterEntity(s.id(), s.title(), s.description()))
+                                .toList()))
                 .toList();
     }
 
@@ -84,7 +89,17 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
             return List.of();
         }
         return entities.stream()
-                .map(e -> new Grade(e.id(), e.title(), e.description()))
+                .map(e -> new Grade(e.id(), e.title(), e.description(), toSemesters(e.semesters())))
+                .toList();
+    }
+
+    private static List<Semester> toSemesters(List<SemesterEntity> entities) {
+        // 학기 칸이 생기기 전에 넣은 학년(CUR001 의 Grade 1)에는 semesters 가 없어서 null 로 온다
+        if (entities == null) {
+            return List.of();
+        }
+        return entities.stream()
+                .map(e -> new Semester(e.id(), e.title(), e.description()))
                 .toList();
     }
 }

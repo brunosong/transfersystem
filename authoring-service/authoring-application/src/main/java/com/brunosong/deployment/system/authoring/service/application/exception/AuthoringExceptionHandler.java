@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.authoring.service.application.exception;
 
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
+import com.brunosong.deployment.system.authoring.service.exception.GradeNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -11,8 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class AuthoringExceptionHandler {
 
-    @ExceptionHandler(CurriculumNotFoundException.class)
-    public ProblemDetail handleNotFound(CurriculumNotFoundException e) {
+    @ExceptionHandler({CurriculumNotFoundException.class, GradeNotFoundException.class})
+    public ProblemDetail handleNotFound(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
