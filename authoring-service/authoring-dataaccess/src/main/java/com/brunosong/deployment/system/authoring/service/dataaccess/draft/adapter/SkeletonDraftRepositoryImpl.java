@@ -4,11 +4,13 @@ import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SemesterEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
 import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /** 뼈대 초안을 skeleton_drafts 컬렉션에 넣는다 */
 @Component
@@ -42,18 +45,33 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
     @Override
     public Optional<SkeletonDraft> findById(String curriculumId) {
-        // _id로 문서 하나를 읽는다. 없으면 null 이 온다.
         SkeletonDraftEntity entity = mongoTemplate.findById(curriculumId, SkeletonDraftEntity.class);
+        return Optional.ofNullable(entity).map(SkeletonDraftRepositoryImpl::toDomain);
+    }
 
-        // 문서를 도메인 객체로 되돌린다. 저장된 revision 을 그대로 쓴다.
-        return Optional.ofNullable(entity)
-                .map(e -> SkeletonDraft.restore(
-                        e.getCurriculumId(),
-                        e.getTitle(),
-                        e.getDescription(),
-                        toGrades(e.getGrades()),
-                        e.getRevision()));
+    @Override
+    public SkeletonDraftPage findPage(String keyword, int page, int size) {
+        // 1. 조건: keyword 가 ID(_id)나 제목에 들어 있으면, 비었으면 조건 없이 전부
+        Query query = new Query();
+        if (keyword != null && !keyword.isBlank()) {
+            // 사람이 친 글자를 정규식 기호로 읽지 않게 감싼다. "i"는 대소문자를 가리지 않는다.
+            String pattern = Pattern.quote(keyword.trim());
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("_id").regex(pattern, "i"),
+                    Criteria.where("title").regex(pattern, "i")
+            ));
+        }
 
+        // 2. 전체 개수를 먼저 센다. 쪽을 자르기 전에 세야 전체가 나온다.
+        long total = mongoTemplate.count(query, SkeletonDraftEntity.class);
+
+        // 3. ID 순으로 그 쪽만 읽는다.
+        query.with(Sort.by("_id")).skip((long) page * size).limit(size);
+        List<SkeletonDraft> items = mongoTemplate.find(query, SkeletonDraftEntity.class).stream()
+                .map(SkeletonDraftRepositoryImpl::toDomain)
+                .toList();
+
+        return new SkeletonDraftPage(items, total);
     }
 
     @Override
@@ -81,6 +99,12 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                                 .map(s -> new SemesterEntity(s.id(), s.title(), s.description()))
                                 .toList()))
                 .toList();
+    }
+
+    // 문서를 도메인 객체로 되돌린다. 저장된 revision 을 그대로 쓴다
+    private static SkeletonDraft toDomain(SkeletonDraftEntity e) {
+        return SkeletonDraft.restore(e.getCurriculumId(), e.getTitle(), e.getDescription(),
+                toGrades(e.getGrades()), e.getRevision());
     }
 
     private static List<Grade> toGrades(List<GradeEntity> entities) {

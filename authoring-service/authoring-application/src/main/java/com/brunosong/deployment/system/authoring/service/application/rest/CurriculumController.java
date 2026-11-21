@@ -4,6 +4,7 @@ import com.brunosong.deployment.system.authoring.service.CurriculumCreateService
 import com.brunosong.deployment.system.authoring.service.CurriculumEditService;
 import com.brunosong.deployment.system.authoring.service.CurriculumQueryService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
 import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import jakarta.validation.Valid;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,6 +42,18 @@ public class CurriculumController {
     public CreateCurriculumResponse create(@Valid @RequestBody CreateCurriculumRequest request) {
         SkeletonDraft draft = curriculumCreateService.create(request.title(), request.description());
         return new CreateCurriculumResponse(draft.getCurriculumId(), draft.getRevision());
+    }
+
+    /** 커리큘럼 목록. q 는 ID나 제목의 일부(비면 전부), page 는 0부터. ID 순이다 */
+    @GetMapping
+    public CurriculumListResponse findPage(@RequestParam(defaultValue = "") String q,
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "20") int size) {
+        SkeletonDraftPage found = curriculumQueryService.findPage(q, page, size);
+        List<CurriculumListItem> items = found.items().stream()
+                .map(d -> new CurriculumListItem(d.getCurriculumId(), d.getTitle(), d.getGrades().size(), d.getRevision()))
+                .toList();
+        return new CurriculumListResponse(items, found.total());
     }
 
     /** 커리큘럼 하나. 편집 화면은 여기서 받은 revision 을 들고 있다가 고칠 때 함께 보낸다. 없으면 404 */
@@ -81,6 +95,12 @@ public class CurriculumController {
         CurriculumEditService.AddedSemester added = curriculumEditService.addSemester(
                 curriculumId, gradeId, request.title(), request.description(), request.revision());
         return new AddSemesterResponse(added.semester().id(), added.revision());
+    }
+
+    public record CurriculumListResponse(List<CurriculumListItem> items, long total) {
+    }
+
+    public record CurriculumListItem(String curriculumId, String title, int gradeCount, int revision) {
     }
 
     public record CreateCurriculumRequest(@NotBlank String title, String description) {

@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.authoring.service;
 
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,11 @@ public class CurriculumQueryService {
         // 없으면 예외로 바꾼다. 컨트롤러 쪽에서 404 로 돌려준다
         return skeletonDraftRepository.findById(curriculumId)
                 .orElseThrow(() -> new CurriculumNotFoundException(curriculumId));
+    }
+
+    /** 목록 한 쪽. keyword 가 비면 전부, page 는 0부터 */
+    public SkeletonDraftPage findPage(String keyword, int page, int size) {
+        return skeletonDraftRepository.findPage(keyword, page, size);
     }
 
 }
