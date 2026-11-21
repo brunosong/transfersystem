@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { BookOpen, Database, FilePenLine, FlaskConical, History, LayoutDashboard, Library, Plus, RotateCcw, Server, UserRound } from 'lucide-react'
-import { Link, NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { api } from '../api'
 import { resetMockData } from '../api/mock/store'
 import { useHealth } from '../hooks/queries'
@@ -9,27 +9,49 @@ import { Button } from './ui'
 
 type Icon = typeof Plus
 
-const NAV: { title: string; items: { to: string; label: string; icon: Icon; end?: boolean }[] }[] = [
+type NavGroup = { title: string; items: { to: string; label: string; icon: Icon; end?: boolean }[] }
+
+/**
+ * 서비스마다 탭 하나. 배포와 저작은 서로 다른 도메인(서비스)이라 메뉴를 섞지 않는다(ADR 0008).
+ * 어느 탭인지는 주소로 정한다. /authoring 으로 시작하면 저작, 나머지는 배포다
+ */
+const SERVICES: { key: 'deployment' | 'authoring'; label: string; home: string; subtitle: string; groups: NavGroup[] }[] = [
   {
-    title: '배포',
-    items: [
-      { to: '/', label: '대시보드', icon: LayoutDashboard, end: true },
-      { to: '/contents', label: '콘텐츠', icon: Library },
-      { to: '/deployments', label: '배포 이력', icon: History },
+    key: 'deployment',
+    label: '배포',
+    home: '/',
+    subtitle: '공개된 콘텐츠를 서비스로',
+    groups: [
+      {
+        title: '배포',
+        items: [
+          { to: '/', label: '대시보드', icon: LayoutDashboard, end: true },
+          { to: '/contents', label: '콘텐츠', icon: Library },
+          { to: '/deployments', label: '배포 이력', icon: History },
+        ],
+      },
+      {
+        title: '설정',
+        items: [
+          { to: '/settings/sources', label: '원본 저장소', icon: Database },
+          { to: '/settings/targets', label: '대상 시스템', icon: Server },
+        ],
+      },
     ],
   },
   {
-    title: '저작',
-    items: [{ to: '/authoring', label: '커리큘럼 편집', icon: FilePenLine }],
-  },
-  {
-    title: '설정',
-    items: [
-      { to: '/settings/sources', label: '원본 저장소', icon: Database },
-      { to: '/settings/targets', label: '대상 시스템', icon: Server },
-    ],
+    key: 'authoring',
+    label: '저작',
+    home: '/authoring',
+    subtitle: '커리큘럼을 만들고 고친다',
+    groups: [{ title: '저작', items: [{ to: '/authoring', label: '커리큘럼 편집', icon: FilePenLine }] }],
   },
 ]
+
+function useCurrentService() {
+  const { pathname } = useLocation()
+  return pathname.startsWith('/authoring') ? SERVICES[1] : SERVICES[0]
+}
 
 export function Layout() {
   return (
@@ -46,20 +68,21 @@ export function Layout() {
 }
 
 function Sidebar() {
+  const service = useCurrentService()
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-60 flex-col border-r border-slate-200 bg-white lg:flex">
-      <Link to="/" className="flex h-16 items-center gap-2.5 px-5">
+      <Link to={service.home} className="flex h-16 items-center gap-2.5 px-5">
         <div className="grid size-8 place-items-center rounded-lg bg-brand-600 text-white shadow-sm shadow-brand-600/30">
           <Library className="size-4" strokeWidth={2.5} />
         </div>
         <div className="leading-tight">
-          <p className="text-[15px] font-semibold tracking-tight">콘텐츠 배포 콘솔</p>
-          <p className="text-[11px] text-slate-500">저작 콘텐츠를 서비스로</p>
+          <p className="text-[15px] font-semibold tracking-tight">콘텐츠 콘솔 · {service.label}</p>
+          <p className="text-[11px] text-slate-500">{service.subtitle}</p>
         </div>
       </Link>
 
       <nav className="mt-4 flex flex-col gap-5 px-3">
-        {NAV.map((group) => (
+        {service.groups.map((group) => (
           <div key={group.title} className="flex flex-col gap-0.5">
             <p className="px-2 pb-2 text-[11px] font-medium tracking-wide text-slate-400">{group.title}</p>
             {group.items.map((item) => (
@@ -70,7 +93,7 @@ function Sidebar() {
       </nav>
 
       <div className="mt-auto space-y-3 p-4">
-        {api.mode === 'mock' && <MockPanel />}
+        {api.mode === 'mock' && service.key === 'deployment' && <MockPanel />}
         <a
           href="https://github.com/brunosong/transfersystem"
           target="_blank"
@@ -132,10 +155,27 @@ function SideLink({ to, label, icon: Icon, end }: { to: string; label: string; i
 }
 
 function TopBar() {
+  const service = useCurrentService()
   return (
-    <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-4 border-b border-slate-200 bg-white/80 px-4 backdrop-blur sm:px-8">
-      <nav className="flex items-center gap-1 overflow-x-auto lg:hidden">
-        {NAV.flatMap((g) => g.items).map((item) => (
+    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-8">
+        <ServiceTabs current={service.key} />
+        {/* 사람과 서버 연결 표시, 새 배포는 배포 서비스의 것이라 배포 탭에서만 보인다 */}
+        {service.key === 'deployment' && (
+          <div className="flex items-center gap-3">
+            <ConnectionIndicator />
+            <UserSelect />
+            <Link to="/deployments/new" className="hidden sm:block">
+              <Button>
+                <Plus className="size-4" />새 배포
+              </Button>
+            </Link>
+          </div>
+        )}
+      </div>
+      {/* 좁은 화면에서는 사이드바 대신 지금 탭의 메뉴를 한 줄로 보인다 */}
+      <nav className="flex items-center gap-1 overflow-x-auto px-4 pb-2 lg:hidden">
+        {service.groups.flatMap((g) => g.items).map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -148,17 +188,26 @@ function TopBar() {
           </NavLink>
         ))}
       </nav>
-      <div className="hidden lg:block" />
-      <div className="flex items-center gap-3">
-        <ConnectionIndicator />
-        <UserSelect />
-        <Link to="/deployments/new" className="hidden sm:block">
-          <Button>
-            <Plus className="size-4" />새 배포
-          </Button>
-        </Link>
-      </div>
     </header>
+  )
+}
+
+function ServiceTabs({ current }: { current: string }) {
+  return (
+    <nav className="flex h-full items-end gap-1" aria-label="서비스">
+      {SERVICES.map((service) => (
+        <Link
+          key={service.key}
+          to={service.home}
+          className={clsx(
+            '-mb-px border-b-2 px-4 pb-4 text-sm font-semibold transition',
+            current === service.key ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-800',
+          )}
+        >
+          {service.label}
+        </Link>
+      ))}
+    </nav>
   )
 }
 
