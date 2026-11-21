@@ -75,17 +75,17 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
     }
 
     @Override
-    public boolean update(SkeletonDraft edited, int expectedRevision) {
+    public boolean update(SkeletonDraft draft, int expectedRevision) {
         UpdateResult result = mongoTemplate.updateFirst(
                 // 조건 : 이 커리큘럼이고, revision 이 내가 본 값일 때만
-                Query.query(Criteria.where("_id").is(edited.getCurriculumId())
+                Query.query(Criteria.where("_id").is(draft.getCurriculumId())
                         .and("revision").is(expectedRevision)),
                 // 고친 내용과 새 revision을 넣는다.
                 new Update()
-                        .set("title", edited.getTitle())
-                        .set("description", edited.getDescription())
-                        .set("grades", toGradeEntities(edited.getGrades()))
-                        .set("revision", edited.getRevision()),
+                        .set("title", draft.getTitle())
+                        .set("description", draft.getDescription())
+                        .set("grades", toGradeEntities(draft.getGrades()))
+                        .set("revision", draft.getRevision()),
                 SkeletonDraftEntity.class);
 
         // 조건에 맞는 문서가 없었다. = revision이 이미 바뀌었다.
@@ -94,9 +94,9 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
     private static List<GradeEntity> toGradeEntities(List<Grade> grades) {
         return grades.stream()
-                .map(g -> new GradeEntity(g.id(), g.title(), g.description(),
-                        g.semesters().stream()
-                                .map(s -> new SemesterEntity(s.id(), s.title(), s.description()))
+                .map(g -> new GradeEntity(g.getId(), g.getTitle(), g.getDescription(),
+                        g.getSemesters().stream()
+                                .map(s -> new SemesterEntity(s.getId(), s.getTitle(), s.getDescription()))
                                 .toList()))
                 .toList();
     }
@@ -113,7 +113,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
             return List.of();
         }
         return entities.stream()
-                .map(e -> new Grade(e.id(), e.title(), e.description(), toSemesters(e.semesters())))
+                .map(e -> Grade.restore(e.id(), e.title(), e.description(), toSemesters(e.semesters())))
                 .toList();
     }
 
@@ -123,7 +123,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
             return List.of();
         }
         return entities.stream()
-                .map(e -> new Semester(e.id(), e.title(), e.description()))
+                .map(e -> Semester.restore(e.id(), e.title(), e.description()))
                 .toList();
     }
 }

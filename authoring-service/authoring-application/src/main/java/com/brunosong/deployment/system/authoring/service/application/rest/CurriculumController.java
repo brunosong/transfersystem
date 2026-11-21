@@ -81,7 +81,7 @@ public class CurriculumController {
     public AddGradeResponse addGrade(@PathVariable String curriculumId, @Valid @RequestBody AddGradeRequest request) {
         CurriculumEditService.AddedGrade added =
                 curriculumEditService.addGrade(curriculumId, request.title(), request.description(), request.revision());
-        return new AddGradeResponse(added.grade().id(), added.revision());
+        return new AddGradeResponse(added.grade().getId(), added.revision());
     }
 
     /**
@@ -94,7 +94,7 @@ public class CurriculumController {
                                            @Valid @RequestBody AddSemesterRequest request) {
         CurriculumEditService.AddedSemester added = curriculumEditService.addSemester(
                 curriculumId, gradeId, request.title(), request.description(), request.revision());
-        return new AddSemesterResponse(added.semester().id(), added.revision());
+        return new AddSemesterResponse(added.semester().getId(), added.revision());
     }
 
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {
@@ -137,15 +137,15 @@ public class CurriculumController {
     public record GradeResponse(String id, String title, String description, List<SemesterResponse> semesters) {
 
         static GradeResponse from(Grade grade) {
-            List<SemesterResponse> semesters = grade.semesters().stream().map(SemesterResponse::from).toList();
-            return new GradeResponse(grade.id(), grade.title(), grade.description(), semesters);
+            List<SemesterResponse> semesters = grade.getSemesters().stream().map(SemesterResponse::from).toList();
+            return new GradeResponse(grade.getId(), grade.getTitle(), grade.getDescription(), semesters);
         }
     }
 
     public record SemesterResponse(String id, String title, String description) {
 
         static SemesterResponse from(Semester semester) {
-            return new SemesterResponse(semester.id(), semester.title(), semester.description());
+            return new SemesterResponse(semester.getId(), semester.getTitle(), semester.getDescription());
         }
     }
 }
