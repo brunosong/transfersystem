@@ -1,8 +1,6 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
 import com.brunosong.deployment.system.authoring.service.exception.GradeNotFoundException;
-import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
-import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
 import lombok.Getter;
 
 import java.util.ArrayList;

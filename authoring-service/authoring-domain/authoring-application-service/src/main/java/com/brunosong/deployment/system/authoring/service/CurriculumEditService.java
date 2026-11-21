@@ -4,8 +4,8 @@ import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
-import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
-import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
+import com.brunosong.deployment.system.authoring.service.entity.Grade;
+import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

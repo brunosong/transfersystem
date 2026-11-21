@@ -6,8 +6,8 @@ import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
-import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
-import com.brunosong.deployment.system.authoring.service.valueobject.Semester;
+import com.brunosong.deployment.system.authoring.service.entity.Grade;
+import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;

@@ -1,4 +1,4 @@
-package com.brunosong.deployment.system.authoring.service.valueobject;
+package com.brunosong.deployment.system.authoring.service.entity;
 
 
 import java.util.ArrayList;
