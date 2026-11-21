@@ -75,7 +75,7 @@
 - [x] [시스템 설계](system/authoring.md): 판은 기록용과 배포가 읽는 곳 두 곳, 공개는 트랜잭션(단일 노드 레플리카 셋), 낙관적 락은 조건부 갱신, 커리큘럼 ID는 번호표 (2026-11-20)
 - [ ] Mongo를 단일 노드 레플리카 셋으로: ~~로컬~~(2026-11-20, `mongodb.yml`. 트랜잭션 커밋·롤백 확인), k8s
 - [x] 모듈 뼈대 (`authoring-container`, `authoring-domain`, `authoring-dataaccess`, `authoring-application`). 로컬 8002에서 뜨고 레플리카 셋 Mongo에 붙는 것 확인 (2026-11-20)
-- [ ] 초안 API (~~만들기~~ `POST /api/v1/curricula` 2026-11-21, 읽기, 고치기)와 공개 API
+- [ ] 초안 API (~~만들기~~ `POST /api/v1/curricula` 2026-11-21, ~~읽기~~ `GET /api/v1/curricula/{id}` 2026-11-21, 고치기)와 공개 API
 - [ ] 배포의 원본 저장소가 공개본 컬렉션을 가리키게 한다. 시드 생성기 대신 저작 서비스로 시드를 넣는다
 - [ ] 화면: `deployment-console`에 저작 메뉴
 

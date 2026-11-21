@@ -35,5 +35,13 @@ public class SkeletonDraft {
         return new SkeletonDraft(curriculumId, title, description, FIRST_REVISION);
     }
 
+    /**
+     * 저장소에서 읽은 값으로 초안을 다시 만든다. 이미 있는 초안이라 revision 을 그대로 받는다.
+     * 새로 만드는 게 아니므로 검사하지 않는다. 저장할 때 이미 검사를 통과한 값이다
+     */
+    public static SkeletonDraft restore(String curriculumId, String title, String description, int revision) {
+        return new SkeletonDraft(curriculumId,title,description,revision);
+    }
+
 
 }
