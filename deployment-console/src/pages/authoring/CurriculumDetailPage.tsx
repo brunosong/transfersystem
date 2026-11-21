@@ -193,23 +193,58 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
     mutationFn: (title: string) => authoringApi.addSemester(draft.curriculumId, grade.id, title, draft.revision),
     ...handlers,
   })
+  // 연필을 누르면 머리 부분이 입력칸으로 바뀐다
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(grade.title)
+  const [description, setDescription] = useState(grade.description ?? '')
+  const editGrade = useMutation({
+    mutationFn: () => authoringApi.editGrade(draft.curriculumId, grade.id, title.trim(), description.trim(), draft.revision),
+    ...handlers,
+  })
 
   return (
     <Card>
-      <CardHeader
-        title={grade.title}
-        description={`학기 ${grade.semesters.length}개`}
-        action={
-          <div className="flex items-center gap-1">
-            <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{grade.id}</Mono>
-            <NotYetButton icon={Pencil} label="학년 수정" />
-            <NotYetButton icon={Trash2} label="학년 삭제" />
+      {editing ? (
+        <form
+          className="space-y-2 border-b border-slate-100 px-5 py-4"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault()
+            editGrade.mutate()
+          }}
+        >
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="학년 이름" aria-label="학년 이름" autoFocus disabled={locked} />
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="학년 설명" disabled={locked} />
           </div>
-        }
-      />
+          {editGrade.error && !isConflict(editGrade.error) && <Notice tone="danger">{editGrade.error.message}</Notice>}
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditing(false)}>
+              취소
+            </Button>
+            <Button type="submit" disabled={locked || !title.trim() || editGrade.isPending}>
+              {editGrade.isPending && <Loader2 className="size-4 animate-spin" />}
+              저장
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <CardHeader
+          title={grade.title}
+          description={grade.description ? `${grade.description} · 학기 ${grade.semesters.length}개` : `학기 ${grade.semesters.length}개`}
+          action={
+            <div className="flex items-center gap-1">
+              <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{grade.id}</Mono>
+              <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학년 수정" aria-label="학년 수정">
+                <Pencil className="size-4" />
+              </Button>
+              <NotYetButton icon={Trash2} label="학년 삭제" />
+            </div>
+          }
+        />
+      )}
       <div className="divide-y divide-slate-100">
         {grade.semesters.map((semester) => (
-          <SemesterRow key={semester.id} semester={semester} />
+          <SemesterRow key={semester.id} draft={draft} grade={grade} semester={semester} locked={locked} handlers={handlers} />
         ))}
       </div>
       <div className="p-4">
@@ -227,19 +262,69 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
   )
 }
 
-/** 학기 한 줄. 과목은 따로 저장하는 초안이라 아직 없다(과목 만들기는 다음 기능) */
-function SemesterRow({ semester }: { semester: Semester }) {
+/** 학기 한 줄. 연필을 누르면 이름과 설명을 고친다. 과목은 따로 저장하는 초안이라 아직 없다(과목 만들기는 다음 기능) */
+function SemesterRow({
+  draft,
+  grade,
+  semester,
+  locked,
+  handlers,
+}: {
+  draft: SkeletonDraft
+  grade: Grade
+  semester: Semester
+  locked: boolean
+  handlers: Handlers
+}) {
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(semester.title)
+  const [description, setDescription] = useState(semester.description ?? '')
+  const editSemester = useMutation({
+    mutationFn: () =>
+      authoringApi.editSemester(draft.curriculumId, grade.id, semester.id, title.trim(), description.trim(), draft.revision),
+    ...handlers,
+  })
+
+  if (editing) {
+    return (
+      <form
+        className="space-y-2 px-5 py-3"
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault()
+          editSemester.mutate()
+        }}
+      >
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="학기 이름" aria-label="학기 이름" autoFocus disabled={locked} />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="학기 설명" disabled={locked} />
+        </div>
+        {editSemester.error && !isConflict(editSemester.error) && <Notice tone="danger">{editSemester.error.message}</Notice>}
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setEditing(false)}>
+            취소
+          </Button>
+          <Button type="submit" disabled={locked || !title.trim() || editSemester.isPending}>
+            {editSemester.isPending && <Loader2 className="size-4 animate-spin" />}
+            저장
+          </Button>
+        </div>
+      </form>
+    )
+  }
+
   return (
     <div className="flex items-center justify-between gap-3 px-5 py-3">
       <div>
         <p className="text-sm font-medium text-slate-800">{semester.title}</p>
-        <p className="text-xs text-slate-500">과목 0개</p>
+        <p className="text-xs text-slate-500">{semester.description ? `${semester.description} · 과목 0개` : '과목 0개'}</p>
       </div>
-      <div className="flex items-center gap-3">
-        <Mono className="hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
-        <NotYetButton icon={Pencil} label="학기 수정" />
+      <div className="flex items-center gap-1">
+        <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
+        <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학기 수정" aria-label="학기 수정">
+          <Pencil className="size-4" />
+        </Button>
         <NotYetButton icon={Trash2} label="학기 삭제" />
-        <Button variant="secondary" disabled title="과목 만들기는 준비 중입니다">
+        <Button variant="secondary" className="ml-2" disabled title="과목 만들기는 준비 중입니다">
           <Plus className="size-4" />
           과목
         </Button>

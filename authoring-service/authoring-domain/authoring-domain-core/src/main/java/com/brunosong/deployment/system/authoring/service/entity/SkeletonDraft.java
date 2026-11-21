@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
 import com.brunosong.deployment.system.authoring.service.exception.GradeNotFoundException;
+import com.brunosong.deployment.system.authoring.service.exception.SemesterNotFoundException;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -68,11 +69,30 @@ public class SkeletonDraft {
         revision++;
     }
 
+    /** 학년의 제목과 설명을 고친다. revision 이 1 오른다. 학년이 없으면 GradeNotFoundException */
+    public void editGrade(String gradeId, String title, String description) {
+        findGrade(gradeId).edit(title, description);
+        revision++;
+    }
+
+    /** 학기의 제목과 설명을 고친다. revision 이 1 오른다. 학년이나 학기가 없으면 각각의 NotFoundException */
+    public void editSemester(String gradeId, String semesterId, String title, String description) {
+        findSemester(gradeId, semesterId).edit(title, description);
+        revision++;
+    }
+
     private Grade findGrade(String gradeId) {
         return grades.stream()
                 .filter(g -> g.getId().equals(gradeId))
                 .findFirst()
                 .orElseThrow(() -> new GradeNotFoundException(gradeId));
+    }
+
+    private Semester findSemester(String gradeId, String semesterId) {
+        return findGrade(gradeId).getSemesters().stream()
+                .filter(s -> s.getId().equals(semesterId))
+                .findFirst()
+                .orElseThrow(() -> new SemesterNotFoundException(gradeId, semesterId));
     }
 
     private static void checkTitle(String title) {

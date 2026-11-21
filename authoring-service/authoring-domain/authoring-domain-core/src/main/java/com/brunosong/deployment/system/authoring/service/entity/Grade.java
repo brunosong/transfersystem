@@ -53,4 +53,13 @@ public class Grade {
     void addSemester(Semester semester) {
         semesters.add(semester);
     }
+
+    void edit(String title, String description) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("학년 제목이 비어 있다");
+        }
+        this.title = title;
+        this.description = description;
+    }
+
 }

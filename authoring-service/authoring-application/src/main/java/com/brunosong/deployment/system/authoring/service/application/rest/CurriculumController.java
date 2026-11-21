@@ -85,6 +85,28 @@ public class CurriculumController {
     }
 
     /**
+     * 학년의 제목과 설명을 고친다. 학년도 뼈대 초안 안에 있어서 revision 이 필요하다.
+     * 그사이 누가 먼저 고쳤으면 409, 커리큘럼이나 학년이 없으면 404. 고친 커리큘럼 전체를 돌려준다
+     */
+    @PutMapping("/{curriculumId}/grades/{gradeId}")
+    public CurriculumResponse editGrade(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                        @Valid @RequestBody EditGradeRequest request) {
+        return CurriculumResponse.from(curriculumEditService.editGrade(
+                curriculumId, gradeId, request.title(), request.description(), request.revision()));
+    }
+
+    /**
+     * 학기의 제목과 설명을 고친다. 학기도 뼈대 초안 안에 있어서 revision 이 필요하다.
+     * 그사이 누가 먼저 고쳤으면 409, 커리큘럼·학년·학기가 없으면 404. 고친 커리큘럼 전체를 돌려준다
+     */
+    @PutMapping("/{curriculumId}/grades/{gradeId}/semesters/{semesterId}")
+    public CurriculumResponse editSemester(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                           @PathVariable String semesterId, @Valid @RequestBody EditSemesterRequest request) {
+        return CurriculumResponse.from(curriculumEditService.editSemester(
+                curriculumId, gradeId, semesterId, request.title(), request.description(), request.revision()));
+    }
+
+    /**
      * 학년 하나에 학기를 붙인다. 학기도 뼈대 초안 안에 있어서 revision 이 필요하다.
      * 그사이 누가 먼저 고쳤으면 409, 커리큘럼이나 학년이 없으면 404
      */
@@ -113,7 +135,13 @@ public class CurriculumController {
     public record AddGradeRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 
+    public record EditSemesterRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
     public record AddGradeResponse(String gradeId, int revision) {
+    }
+
+    public record EditGradeRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 
     public record AddSemesterRequest(@NotBlank String title, String description, @NotNull Integer revision) {

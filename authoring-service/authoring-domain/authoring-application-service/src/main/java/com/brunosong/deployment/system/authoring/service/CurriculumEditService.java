@@ -78,6 +78,46 @@ public class CurriculumEditService {
         return new AddedSemester(semester, current.getRevision());
     }
 
+    public SkeletonDraft editGrade(String curriculumId, String gradeId, String title, String description,
+                                   int expectedRevision) {
+
+        // 1. 지금 초안을 읽는다.
+        SkeletonDraft current = skeletonDraftRepository
+                .findById(curriculumId).orElseThrow(() -> new CurriculumNotFoundException(curriculumId));
+
+        // 2. 루트를 거쳐 학년을 고친다. revision 은 루트가 올린다.
+        current.editGrade(gradeId, title, description);
+
+        // 3. 화면이 본 revision 일 때만 저장한다. 아니면 409
+        if (!skeletonDraftRepository.update(current, expectedRevision)) {
+            throw new RevisionConflictException(curriculumId, expectedRevision);
+        }
+        return current;
+
+    }
+
+    /**
+     * 학기의 제목과 설명을 고친다. 학기도 뼈대 안에 있어서 같은 낙관적 락을 쓴다.
+     * 커리큘럼이 없으면 404, 학년이나 학기가 없으면 도메인이 NotFoundException(404)
+     */
+    public SkeletonDraft editSemester(String curriculumId, String gradeId, String semesterId, String title,
+                                      String description, int expectedRevision) {
+
+        // 1. 지금 초안을 읽는다.
+        SkeletonDraft current = skeletonDraftRepository
+                .findById(curriculumId).orElseThrow(() -> new CurriculumNotFoundException(curriculumId));
+
+        // 2. 루트를 거쳐 학기를 고친다. revision 은 루트가 올린다.
+        current.editSemester(gradeId, semesterId, title, description);
+
+        // 3. 화면이 본 revision 일 때만 저장한다. 아니면 409
+        if (!skeletonDraftRepository.update(current, expectedRevision)) {
+            throw new RevisionConflictException(curriculumId, expectedRevision);
+        }
+        return current;
+
+    }
+
     /** 학기 추가의 결과. 새 학기와 저장된 뒤의 revision */
     public record AddedSemester(Semester semester, int revision) {
     }

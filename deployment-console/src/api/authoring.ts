@@ -85,6 +85,16 @@ export const authoringApi = {
   addGrade: (curriculumId: string, title: string, revision: number) =>
     request<{ gradeId: string; revision: number }>(`${BASE}/${id(curriculumId)}/grades`, 'POST', { title, revision }),
 
+  editGrade: (curriculumId: string, gradeId: string, title: string, description: string, revision: number) =>
+    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}`, 'PUT', { title, description, revision }),
+
+  editSemester: (curriculumId: string, gradeId: string, semesterId: string, title: string, description: string, revision: number) =>
+    request<SkeletonDraft>(
+      `${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/semesters/${id(semesterId)}`,
+      'PUT',
+      { title, description, revision },
+    ),
+
   addSemester: (curriculumId: string, gradeId: string, title: string, revision: number) =>
     request<{ semesterId: string; revision: number }>(
       `${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/semesters`,

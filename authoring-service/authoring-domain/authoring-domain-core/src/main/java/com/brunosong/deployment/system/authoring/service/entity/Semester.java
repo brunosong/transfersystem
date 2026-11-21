@@ -33,4 +33,12 @@ public class Semester {
     public static Semester restore(String id, String title, String description) {
         return new Semester(id, title, description);
     }
+
+    void edit(String title, String description) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("학기 제목이 비어 있다");
+        }
+        this.title = title;
+        this.description = description;
+    }
 }
