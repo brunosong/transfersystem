@@ -5,7 +5,8 @@ import { createBrowserRouter, Link, Navigate, RouterProvider, useParams } from '
 import { Layout } from './components/Layout'
 import { Button, Card, EmptyState } from './components/ui'
 import './index.css'
-import { AuthoringPage } from './pages/AuthoringPage'
+import { CurriculumDetailPage } from './pages/authoring/CurriculumDetailPage'
+import { CurriculumListPage } from './pages/authoring/CurriculumListPage'
 import { ContentsPage } from './pages/ContentsPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DeploymentDetailPage } from './pages/DeploymentDetailPage'
@@ -33,7 +34,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'contents', element: <ContentsPage /> },
-      { path: 'authoring/:curriculumId?', element: <AuthoringPage /> },
+      { path: 'authoring', element: <CurriculumListPage /> },
+      { path: 'authoring/:curriculumId', element: <CurriculumDetailPage /> },
       { path: 'deployments', element: <DeploymentsPage /> },
       { path: 'deployments/new', element: <NewDeploymentPage /> },
       { path: 'deployments/:deploymentId', element: <DeploymentDetailPage /> },

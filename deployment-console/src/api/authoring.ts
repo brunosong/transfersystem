@@ -26,8 +26,26 @@ export interface SkeletonDraft {
   revision: number
 }
 
+/** 목록의 한 줄. 목록 API 는 아직 없다. 생기면 이 모양으로 받는다 */
+export interface CurriculumListItem {
+  curriculumId: string
+  title: string
+  gradeCount: number
+  revision: number
+}
+
+export interface CurriculumListPage {
+  items: CurriculumListItem[]
+  total: number
+}
+
 export function isConflict(error: unknown): boolean {
   return error instanceof ApiError && error.status === 409
+}
+
+/** 아직 서버에 없는 기능이다(목록처럼 화면만 먼저 만든 것). GET 이 없으면 405 가 온다 */
+export function isNotBuiltYet(error: unknown): boolean {
+  return error instanceof ApiError && (error.status === 404 || error.status === 405)
 }
 
 async function request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
@@ -53,6 +71,9 @@ const BASE = '/api/v1/curricula'
 const id = encodeURIComponent
 
 export const authoringApi = {
+  list: (q: string, page: number, size: number) =>
+    request<CurriculumListPage>(`${BASE}?${new URLSearchParams({ q, page: String(page), size: String(size) })}`),
+
   create: (title: string, description: string) =>
     request<{ curriculumId: string; revision: number }>(BASE, 'POST', { title, description }),
 

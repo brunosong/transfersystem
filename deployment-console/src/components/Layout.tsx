@@ -44,7 +44,7 @@ const SERVICES: { key: 'deployment' | 'authoring'; label: string; home: string; 
     label: '저작',
     home: '/authoring',
     subtitle: '커리큘럼을 만들고 고친다',
-    groups: [{ title: '저작', items: [{ to: '/authoring', label: '커리큘럼 편집', icon: FilePenLine }] }],
+    groups: [{ title: '저작', items: [{ to: '/authoring', label: '커리큘럼', icon: FilePenLine }] }],
   },
 ]
 
