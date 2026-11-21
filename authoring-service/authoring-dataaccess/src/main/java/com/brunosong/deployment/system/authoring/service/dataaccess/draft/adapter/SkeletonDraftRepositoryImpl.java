@@ -1,8 +1,10 @@
 package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapter;
 
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.GradeEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
+import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -11,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 /** 뼈대 초안을 skeleton_drafts 컬렉션에 넣는다 */
@@ -27,6 +30,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                 draft.getCurriculumId(),
                 draft.getTitle(),
                 draft.getDescription(),
+                toGradeEntities(draft.getGrades()),
                 draft.getRevision()
         );
 
@@ -45,6 +49,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                         e.getCurriculumId(),
                         e.getTitle(),
                         e.getDescription(),
+                        toGrades(e.getGrades()),
                         e.getRevision()));
 
     }
@@ -59,10 +64,27 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                 new Update()
                         .set("title", edited.getTitle())
                         .set("description", edited.getDescription())
+                        .set("grades", toGradeEntities(edited.getGrades()))
                         .set("revision", edited.getRevision()),
                 SkeletonDraftEntity.class);
 
         // 조건에 맞는 문서가 없었다. = revision이 이미 바뀌었다.
         return result.getMatchedCount() == 1;
+    }
+
+    private static List<GradeEntity> toGradeEntities(List<Grade> grades) {
+        return grades.stream()
+                .map(g -> new GradeEntity(g.id(), g.title(), g.description()))
+                .toList();
+    }
+
+    private static List<Grade> toGrades(List<GradeEntity> entities) {
+        // 학년 칸이 생기기 전에 만든 문서(CUR001, CUR002)에는 grades 가 없어서 null 로 온다
+        if (entities == null) {
+            return List.of();
+        }
+        return entities.stream()
+                .map(e -> new Grade(e.id(), e.title(), e.description()))
+                .toList();
     }
 }

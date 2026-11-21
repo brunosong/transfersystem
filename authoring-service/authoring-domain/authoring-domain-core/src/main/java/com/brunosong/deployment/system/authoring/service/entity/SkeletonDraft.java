@@ -1,8 +1,10 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
+import com.brunosong.deployment.system.authoring.service.valueobject.Grade;
 import lombok.Getter;
 
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -18,12 +20,14 @@ public class SkeletonDraft {
     private final String curriculumId;
     private final String title;
     private final String description;
+    private final List<Grade> grades;   // 새로
     private final int revision;
 
-    private SkeletonDraft(String curriculumId, String title, String description, int revision) {
+    private SkeletonDraft(String curriculumId, String title, String description, List<Grade> grades, int revision) {
         this.curriculumId = curriculumId;
         this.title = title;
         this.description = description;
+        this.grades = List.copyOf(grades);   // 새로. 밖에서 목록을 고쳐도 초안은 바뀌지 않게 복사해 둔다
         this.revision = revision;
     }
 
@@ -32,15 +36,14 @@ public class SkeletonDraft {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("커리큘럼 제목이 비어 있다.");
         }
-        return new SkeletonDraft(curriculumId, title, description, FIRST_REVISION);
+        return new SkeletonDraft(curriculumId, title, description, List.of(), FIRST_REVISION);
     }
 
-    /**
-     * 저장소에서 읽은 값으로 초안을 다시 만든다. 이미 있는 초안이라 revision 을 그대로 받는다.
-     * 새로 만드는 게 아니므로 검사하지 않는다. 저장할 때 이미 검사를 통과한 값이다
-     */
-    public static SkeletonDraft restore(String curriculumId, String title, String description, int revision) {
-        return new SkeletonDraft(curriculumId,title,description,revision);
+
+    /** 저장소에서 읽은 값으로 초안을 다시 만든다. revision 을 그대로 받는다 */
+    public static SkeletonDraft restore(String curriculumId, String title, String description,
+                                        List<Grade> grades, int revision) {   // 새로: grades
+        return new SkeletonDraft(curriculumId, title, description, grades, revision);
     }
 
     /**
@@ -51,8 +54,14 @@ public class SkeletonDraft {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("커리큘럼 제목이 비어 있다.");
         }
-        return new SkeletonDraft(curriculumId, title, description, revision + 1);
+        return new SkeletonDraft(curriculumId, title, description, grades, revision + 1);
     }
 
+    /** 새로. 학년을 맨 뒤에 붙인 새 초안. revision 은 1 오른다. */
+    public SkeletonDraft addGrade(Grade grade) {
+        List<Grade> added = new ArrayList<>(grades);
+        added.add(grade);
+        return new SkeletonDraft(curriculumId, title, description, added, revision + 1);
+    }
 
 }
