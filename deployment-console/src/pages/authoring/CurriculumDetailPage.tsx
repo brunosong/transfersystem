@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { ChevronRight, Loader2, Pencil, Plus, RotateCw, Upload } from 'lucide-react'
+import { ChevronRight, Loader2, Pencil, Plus, RotateCw, Trash2, Upload } from 'lucide-react'
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
@@ -199,7 +199,13 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
       <CardHeader
         title={grade.title}
         description={`학기 ${grade.semesters.length}개`}
-        action={<Mono className="text-xs text-slate-400">{grade.id}</Mono>}
+        action={
+          <div className="flex items-center gap-1">
+            <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{grade.id}</Mono>
+            <NotYetButton icon={Pencil} label="학년 수정" />
+            <NotYetButton icon={Trash2} label="학년 삭제" />
+          </div>
+        }
       />
       <div className="divide-y divide-slate-100">
         {grade.semesters.map((semester) => (
@@ -231,12 +237,23 @@ function SemesterRow({ semester }: { semester: Semester }) {
       </div>
       <div className="flex items-center gap-3">
         <Mono className="hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
+        <NotYetButton icon={Pencil} label="학기 수정" />
+        <NotYetButton icon={Trash2} label="학기 삭제" />
         <Button variant="secondary" disabled title="과목 만들기는 준비 중입니다">
           <Plus className="size-4" />
           과목
         </Button>
       </div>
     </div>
+  )
+}
+
+/** 아직 서버에 없는 고치기. 자리만 잡아 두고 눌리지 않게 한다 */
+function NotYetButton({ icon: Icon, label }: { icon: typeof Pencil; label: string }) {
+  return (
+    <Button variant="ghost" className="px-2" disabled title={`${label}는 준비 중입니다`} aria-label={label}>
+      <Icon className="size-4" />
+    </Button>
   )
 }
 
