@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { BookOpen, Database, FlaskConical, History, LayoutDashboard, Library, Plus, RotateCcw, Server, UserRound } from 'lucide-react'
+import { BookOpen, Database, FilePenLine, FlaskConical, History, LayoutDashboard, Library, Plus, RotateCcw, Server, UserRound } from 'lucide-react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { api } from '../api'
 import { resetMockData } from '../api/mock/store'
@@ -17,6 +17,10 @@ const NAV: { title: string; items: { to: string; label: string; icon: Icon; end?
       { to: '/contents', label: '콘텐츠', icon: Library },
       { to: '/deployments', label: '배포 이력', icon: History },
     ],
+  },
+  {
+    title: '저작',
+    items: [{ to: '/authoring', label: '커리큘럼 편집', icon: FilePenLine }],
   },
   {
     title: '설정',

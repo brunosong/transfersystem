@@ -8,11 +8,14 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const target = env.DEPLOYMENT_SERVICE_URL ?? 'http://localhost:8080'
+  // 커리큘럼 편집(저작)은 다른 서비스다(ADR 0008). 아래 '/api' 보다 먼저 와야 이 경로가 저작 서비스로 간다
+  const authoring = env.AUTHORING_SERVICE_URL ?? 'http://localhost:8002'
   return {
     plugins: [react(), tailwindcss()],
     server: {
       port: 5173,
       proxy: {
+        '/api/v1/curricula': authoring,
         '/api': target,
         '/healthcheck': target,
       },
