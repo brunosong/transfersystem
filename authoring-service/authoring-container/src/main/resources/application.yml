@@ -9,3 +9,11 @@ spring:
 
 server:
   port: 8002
+
+logging:
+  level:
+    # Mongo 에 어떤 명령이 나가는지 본다. find, insert, update 의 조건과 바꾸는 값이 찍힌다.
+    # 예) Calling update using query: { "_id" : "CUR001", "revision" : 5} and update: { "$set" : { ... } }
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    # 드라이버가 실제로 보낸 명령과 걸린 시간까지 보려면 아래를 켠다(아주 많이 찍힌다)
+    # org.mongodb.driver.protocol.command: DEBUG
