@@ -96,8 +96,8 @@
 - **`k8s`**: Kubernetes 매니페스트(Kafka, MongoDB, MySQL, PostgreSQL, 서비스, Argo CD).
 - **`jenkins`**: Jenkins Helm values 및 Maven 캐시 PVC.
 
-### 7. `authoring-service` (만드는 중, 모듈 뼈대만 있음)
-- 콘텐츠팀 대신 만든 저작 서비스. 커리큘럼을 초안에서 고치고, 공개하면 판으로 고정합니다. 배포는 공개본만 읽습니다. ([ADR 0008](docs/adr/0008-authoring-service.md))
+### 7. `authoring-service` (만드는 중)
+- 콘텐츠팀 대신 만든 저작 서비스(성격은 LCMS). 커리큘럼을 초안에서 고치고, 공개하면 판으로 고정합니다. 배포는 공개본만 읽습니다. ([ADR 0008](docs/adr/0008-authoring-service.md))
 - 모듈은 deployment-service를 따릅니다: `authoring-container`, `authoring-domain`(`authoring-domain-core`, `authoring-application-service`), `authoring-dataaccess`(Mongo), `authoring-application`(REST API).
 - 로컬 포트 8002. 메인 클래스 `AuthoringServiceApplication`. Mongo `learningDB`를 씁니다.
 
