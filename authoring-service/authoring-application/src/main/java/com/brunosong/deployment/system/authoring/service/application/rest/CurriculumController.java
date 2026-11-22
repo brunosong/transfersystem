@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -93,6 +94,17 @@ public class CurriculumController {
                                         @Valid @RequestBody EditGradeRequest request) {
         return CurriculumResponse.from(curriculumEditService.editGrade(
                 curriculumId, gradeId, request.title(), request.description(), request.revision()));
+    }
+
+    /**
+     * 학년을 지운다. 그 안의 학기도 함께 지워진다.
+     * revision 은 쿼리로 받는다. DELETE 요청의 본문은 의미가 정해져 있지 않아 버려지기도 한다.
+     * 그사이 누가 먼저 고쳤으면 409, 커리큘럼이나 학년이 없으면 404. 고친 커리큘럼 전체를 돌려준다
+     */
+    @DeleteMapping("/{curriculumId}/grades/{gradeId}")
+    public CurriculumResponse removeGrade(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                          @RequestParam int revision) {
+        return CurriculumResponse.from(curriculumEditService.removeGrade(curriculumId, gradeId, revision));
     }
 
     /**

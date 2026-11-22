@@ -100,4 +100,10 @@ public class SkeletonDraft {
             throw new IllegalArgumentException("커리큘럼 제목이 비어 있다");
         }
     }
+
+    /** 학년을 지운다. 그 안의 학기도 함께 사라진다. revision 이 1 오른다. 학년이 없으면 GradeNotFoundException */
+    public void removeGrade(String gradeId) {
+        grades.remove(findGrade(gradeId));
+        revision++;
+    }
 }

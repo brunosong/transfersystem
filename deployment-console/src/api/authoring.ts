@@ -88,6 +88,9 @@ export const authoringApi = {
   editGrade: (curriculumId: string, gradeId: string, title: string, description: string, revision: number) =>
     request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}`, 'PUT', { title, description, revision }),
 
+  removeGrade: (curriculumId: string, gradeId: string, revision: number) =>
+    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}?revision=${revision}`, 'DELETE'),
+
   editSemester: (curriculumId: string, gradeId: string, semesterId: string, title: string, description: string, revision: number) =>
     request<SkeletonDraft>(
       `${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/semesters/${id(semesterId)}`,

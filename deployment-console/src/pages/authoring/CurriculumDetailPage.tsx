@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { ChevronRight, Loader2, Pencil, Plus, RotateCw, Trash2, Upload } from 'lucide-react'
+import { CalendarRange, ChevronRight, GraduationCap, Loader2, Pencil, Plus, RotateCw, Trash2, Upload } from 'lucide-react'
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
@@ -201,6 +201,16 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
     mutationFn: () => authoringApi.editGrade(draft.curriculumId, grade.id, title.trim(), description.trim(), draft.revision),
     ...handlers,
   })
+  const removeGrade = useMutation({
+    mutationFn: () => authoringApi.removeGrade(draft.curriculumId, grade.id, draft.revision),
+    ...handlers,
+  })
+  const confirmRemove = () => {
+    // 학기는 학년 안에 있어서 함께 지워진다. 그 사실을 먼저 알린다
+    const semesters = grade.semesters.length > 0 ? `
+학기 ${grade.semesters.length}개도 함께 지워집니다.` : ''
+    if (window.confirm(`'${grade.title}' 학년을 지웁니다.${semesters}`)) removeGrade.mutate()
+  }
 
   return (
     <Card>
@@ -229,7 +239,15 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
         </form>
       ) : (
         <CardHeader
-          title={grade.title}
+          title={
+            <span className="flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-brand-50 text-brand-700">
+                <GraduationCap className="size-4" />
+              </span>
+              <LevelTag tone="grade">학년</LevelTag>
+              <span>{grade.title}</span>
+            </span>
+          }
           description={grade.description ? `${grade.description} · 학기 ${grade.semesters.length}개` : `학기 ${grade.semesters.length}개`}
           action={
             <div className="flex items-center gap-1">
@@ -237,18 +255,33 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
               <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학년 수정" aria-label="학년 수정">
                 <Pencil className="size-4" />
               </Button>
-              <NotYetButton icon={Trash2} label="학년 삭제" />
+              <Button
+                variant="ghost"
+                className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                disabled={locked || removeGrade.isPending}
+                onClick={confirmRemove}
+                title="학년 삭제"
+                aria-label="학년 삭제"
+              >
+                <Trash2 className="size-4" />
+              </Button>
             </div>
           }
         />
       )}
-      <div className="divide-y divide-slate-100">
-        {grade.semesters.map((semester) => (
-          <SemesterRow key={semester.id} draft={draft} grade={grade} semester={semester} locked={locked} handlers={handlers} />
-        ))}
-      </div>
-      <div className="p-4">
-        <AddInline
+      {removeGrade.error && !isConflict(removeGrade.error) && (
+        <Notice tone="danger" className="m-4">
+          {removeGrade.error.message}
+        </Notice>
+      )}
+      {/* 학기는 학년 안에 들어 있다. 왼쪽 선으로 안쪽 단계임을 보인다 */}
+      <div className="space-y-2 py-4 pr-4 pl-8">
+        <div className="space-y-2 border-l-2 border-brand-100 pl-4">
+          {grade.semesters.length === 0 && <p className="py-1 text-sm text-slate-400">아직 학기가 없습니다</p>}
+          {grade.semesters.map((semester) => (
+            <SemesterRow key={semester.id} draft={draft} grade={grade} semester={semester} locked={locked} handlers={handlers} />
+          ))}
+          <AddInline
           label="학기 추가"
           placeholder="학기 이름 (예: 1학기)"
           variant="ghost"
@@ -256,7 +289,8 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
           pending={addSemester.isPending}
           error={addSemester.error && !isConflict(addSemester.error) ? addSemester.error.message : null}
           onSubmit={(title) => addSemester.mutate(title)}
-        />
+          />
+        </div>
       </div>
     </Card>
   )
@@ -288,7 +322,7 @@ function SemesterRow({
   if (editing) {
     return (
       <form
-        className="space-y-2 px-5 py-3"
+        className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
         onSubmit={(e: FormEvent) => {
           e.preventDefault()
           editSemester.mutate()
@@ -313,10 +347,14 @@ function SemesterRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 px-5 py-3">
-      <div>
-        <p className="text-sm font-medium text-slate-800">{semester.title}</p>
-        <p className="text-xs text-slate-500">{semester.description ? `${semester.description} · 과목 0개` : '과목 0개'}</p>
+    <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5">
+      <div className="flex items-center gap-2.5">
+        <CalendarRange className="size-4 text-slate-400" />
+        <LevelTag tone="semester">학기</LevelTag>
+        <div>
+          <p className="text-sm font-medium text-slate-800">{semester.title}</p>
+          <p className="text-xs text-slate-500">{semester.description ? `${semester.description} · 과목 0개` : '과목 0개'}</p>
+        </div>
       </div>
       <div className="flex items-center gap-1">
         <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
@@ -330,6 +368,20 @@ function SemesterRow({
         </Button>
       </div>
     </div>
+  )
+}
+
+/** 학년·학기 같은 단계 이름표. 같은 모양의 카드가 겹쳐도 어느 단계인지 바로 보이게 한다 */
+function LevelTag({ tone, children }: { tone: 'grade' | 'semester'; children: ReactNode }) {
+  return (
+    <span
+      className={clsx(
+        'rounded px-1.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset',
+        tone === 'grade' ? 'bg-brand-50 text-brand-700 ring-brand-200' : 'bg-white text-slate-600 ring-slate-200',
+      )}
+    >
+      {children}
+    </span>
   )
 }
 

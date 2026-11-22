@@ -59,18 +59,29 @@ public class CurriculumEditService {
                 draft -> draft.editSemester(gradeId, semesterId, title, description));
     }
 
+    public SkeletonDraft removeGrade(String curriculumId, String gradeId, int expectedRevision) {
+        return change(curriculumId, expectedRevision, draft -> draft.removeGrade(gradeId));
+    }
+
 
     /**
      * 모든 고치기가 거치는 흐름.
      * 1. 지금 초안을 읽는다. 없으면 404
-     * 2. 넘겨받은 고치기를 루트에 한다. 검사와 revision + 1 은 도메인이 한다
-     * 3. 화면이 본 revision 일 때만 저장한다. 아니면 409.
+     * 2. 화면이 본 revision 과 지금 revision 이 다르면 바로 409. 도메인을 부르기 전에 본다.
+     *    안 그러면 남이 먼저 지운 학년을 다시 지울 때 409 가 아니라 404(학년이 없다)가 먼저 나온다
+     * 3. 넘겨받은 고치기를 루트에 한다. 검사와 revision + 1 은 도메인이 한다
+     * 4. 화면이 본 revision 일 때만 저장한다. 아니면 409.
+     *    2번을 지나도 읽은 뒤 저장하기 전 사이에 누가 끼어들 수 있다. 그 경우는 여기서만 막을 수 있다.
      *    방금 읽은 revision 이 아니라 화면이 보낸 revision 으로 확인한다. 화면을 연 뒤로 누가 고쳤는지가 궁금하기 때문이다
      */
     private SkeletonDraft change(String curriculumId, int expectedRevision, Consumer<SkeletonDraft> edit) {
         // 1. 지금 초안을 읽는다. 없으면 404
         SkeletonDraft draft = skeletonDraftRepository
                 .findById(curriculumId).orElseThrow(() -> new CurriculumNotFoundException(curriculumId));
+
+        if (draft.getRevision() != expectedRevision) {
+            throw new RevisionConflictException(curriculumId, expectedRevision);
+        }
 
         edit.accept(draft);
 
