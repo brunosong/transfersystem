@@ -26,6 +26,15 @@ export interface SkeletonDraft {
   revision: number
 }
 
+/** 과목 초안. 뼈대와 다른 애그리거트라 revision 을 따로 갖는다 */
+export interface SubjectDraft {
+  id: string
+  semesterId: string
+  title: string
+  description: string | null
+  revision: number
+}
+
 /** 목록의 한 줄. 목록 API 는 아직 없다. 생기면 이 모양으로 받는다 */
 export interface CurriculumListItem {
   curriculumId: string
@@ -87,6 +96,11 @@ export const authoringApi = {
 
   editGrade: (curriculumId: string, gradeId: string, title: string, description: string, revision: number) =>
     request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}`, 'PUT', { title, description, revision }),
+
+  listSubjects: (curriculumId: string) => request<SubjectDraft[]>(`${BASE}/${id(curriculumId)}/subjects`),
+
+  createSubject: (curriculumId: string, semesterId: string, title: string) =>
+    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects`, 'POST', { semesterId, title }),
 
   removeGrade: (curriculumId: string, gradeId: string, revision: number) =>
     request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}?revision=${revision}`, 'DELETE'),

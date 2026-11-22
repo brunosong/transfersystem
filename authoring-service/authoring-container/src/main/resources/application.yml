@@ -6,6 +6,9 @@ spring:
       # 배포가 읽는 learningDB 를 같이 쓴다(docs/system/authoring.md 1절).
       # Mongo 는 단일 노드 레플리카 셋(rs0)이다. 공개를 트랜잭션으로 묶는다
       uri: mongodb://root:example@localhost:27017/learningDB?authSource=admin
+      # @Indexed 를 보고 인덱스를 만든다. Spring Boot 는 기본으로 꺼 둔다(운영 DB에 모르는 사이 인덱스가 생기지 않게).
+      # 로컬에서는 켜 둔다. 운영에서는 인덱스를 따로 만들고 끈다
+      auto-index-creation: true
 
 server:
   port: 8002

@@ -25,4 +25,5 @@ public class CurriculumCreateService {
         skeletonDraftRepository.save(draft);
         return draft;
     }
+
 }

@@ -1,14 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { CalendarRange, ChevronRight, GraduationCap, Loader2, Pencil, Plus, RotateCw, Trash2, Upload } from 'lucide-react'
+import { BookOpen, CalendarRange, ChevronRight, GraduationCap, Loader2, Pencil, Plus, RotateCw, Trash2, Upload } from 'lucide-react'
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
-import { authoringApi, isConflict, type Grade, type Semester, type SkeletonDraft } from '../../api/authoring'
+import { authoringApi, isConflict, type Grade, type Semester, type SkeletonDraft, type SubjectDraft } from '../../api/authoring'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
 import { PublishBadge } from './PublishBadge'
 
 const draftKey = (curriculumId: string) => ['authoring', 'draft', curriculumId] as const
+// 과목은 뼈대와 다른 애그리거트라 따로 읽고, 따로 새로 고친다
+const subjectsKey = (curriculumId: string) => ['authoring', 'subjects', curriculumId] as const
 
 type Tab = 'structure' | 'info' | 'versions'
 const TABS: { key: Tab; label: string }[] = [
@@ -153,6 +155,11 @@ function DetailHeader({ draft }: { draft: SkeletonDraft }) {
 // ─── 구성: 학년 > 학기 > 과목 ──────────────────────────────────
 
 function StructureTab({ draft, locked, handlers }: { draft: SkeletonDraft; locked: boolean; handlers: Handlers }) {
+  const subjects = useQuery({
+    queryKey: subjectsKey(draft.curriculumId),
+    queryFn: () => authoringApi.listSubjects(draft.curriculumId),
+    refetchOnWindowFocus: false,
+  })
   const addGrade = useMutation({
     mutationFn: (title: string) => authoringApi.addGrade(draft.curriculumId, title, draft.revision),
     ...handlers,
@@ -182,13 +189,25 @@ function StructureTab({ draft, locked, handlers }: { draft: SkeletonDraft; locke
         </Card>
       )}
       {draft.grades.map((grade) => (
-        <GradeCard key={grade.id} draft={draft} grade={grade} locked={locked} handlers={handlers} />
+        <GradeCard key={grade.id} draft={draft} grade={grade} subjects={subjects.data ?? []} locked={locked} handlers={handlers} />
       ))}
     </div>
   )
 }
 
-function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; grade: Grade; locked: boolean; handlers: Handlers }) {
+function GradeCard({
+  draft,
+  grade,
+  subjects,
+  locked,
+  handlers,
+}: {
+  draft: SkeletonDraft
+  grade: Grade
+  subjects: SubjectDraft[]
+  locked: boolean
+  handlers: Handlers
+}) {
   const addSemester = useMutation({
     mutationFn: (title: string) => authoringApi.addSemester(draft.curriculumId, grade.id, title, draft.revision),
     ...handlers,
@@ -279,7 +298,15 @@ function GradeCard({ draft, grade, locked, handlers }: { draft: SkeletonDraft; g
         <div className="space-y-2 border-l-2 border-brand-100 pl-4">
           {grade.semesters.length === 0 && <p className="py-1 text-sm text-slate-400">아직 학기가 없습니다</p>}
           {grade.semesters.map((semester) => (
-            <SemesterRow key={semester.id} draft={draft} grade={grade} semester={semester} locked={locked} handlers={handlers} />
+            <SemesterRow
+              key={semester.id}
+              draft={draft}
+              grade={grade}
+              semester={semester}
+              subjects={subjects.filter((subject) => subject.semesterId === semester.id)}
+              locked={locked}
+              handlers={handlers}
+            />
           ))}
           <AddInline
           label="학기 추가"
@@ -301,15 +328,23 @@ function SemesterRow({
   draft,
   grade,
   semester,
+  subjects,
   locked,
   handlers,
 }: {
   draft: SkeletonDraft
   grade: Grade
   semester: Semester
+  subjects: SubjectDraft[]
   locked: boolean
   handlers: Handlers
 }) {
+  const client = useQueryClient()
+  // 과목 만들기는 뼈대를 고치지 않는다. 그래서 뼈대 revision 을 보내지 않고, 과목 목록만 다시 읽는다
+  const createSubject = useMutation({
+    mutationFn: (title: string) => authoringApi.createSubject(draft.curriculumId, semester.id, title),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(draft.curriculumId) }),
+  })
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(semester.title)
   const [description, setDescription] = useState(semester.description ?? '')
@@ -347,37 +382,69 @@ function SemesterRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5">
-      <div className="flex items-center gap-2.5">
-        <CalendarRange className="size-4 text-slate-400" />
-        <LevelTag tone="semester">학기</LevelTag>
-        <div>
-          <p className="text-sm font-medium text-slate-800">{semester.title}</p>
-          <p className="text-xs text-slate-500">{semester.description ? `${semester.description} · 과목 0개` : '과목 0개'}</p>
+    <div className="rounded-lg border border-slate-200 bg-slate-50">
+      <div className="flex items-center justify-between gap-3 px-4 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <CalendarRange className="size-4 text-slate-400" />
+          <LevelTag tone="semester">학기</LevelTag>
+          <div>
+            <p className="text-sm font-medium text-slate-800">{semester.title}</p>
+            <p className="text-xs text-slate-500">{semester.description ? `${semester.description} · 과목 ${subjects.length}개` : `과목 ${subjects.length}개`}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
+          <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학기 수정" aria-label="학기 수정">
+            <Pencil className="size-4" />
+          </Button>
+          <NotYetButton icon={Trash2} label="학기 삭제" />
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
-        <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학기 수정" aria-label="학기 수정">
-          <Pencil className="size-4" />
-        </Button>
-        <NotYetButton icon={Trash2} label="학기 삭제" />
-        <Button variant="secondary" className="ml-2" disabled title="과목 만들기는 준비 중입니다">
-          <Plus className="size-4" />
-          과목
-        </Button>
+
+      {/* 과목은 학기 안에 보이지만, 저장은 따로 한다(다른 애그리거트). 그래서 과목마다 자기 revision 을 보인다 */}
+      <div className="space-y-1.5 px-4 pb-3 pl-10">
+        <div className="space-y-1.5 border-l-2 border-slate-200 pl-3">
+          {subjects.map((subject) => (
+            <div key={subject.id} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-white px-3 py-2">
+              <div className="flex items-center gap-2">
+                <BookOpen className="size-4 text-slate-400" />
+                <LevelTag tone="subject">과목</LevelTag>
+                <span className="text-sm text-slate-800">{subject.title}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mono className="hidden text-xs text-slate-400 sm:inline">{subject.id}</Mono>
+                <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] text-slate-500" title="과목 자신의 낙관적 락 번호. 뼈대와 따로 오른다">
+                  rev {subject.revision}
+                </span>
+              </div>
+            </div>
+          ))}
+          <AddInline
+            label="과목 추가"
+            placeholder="과목 이름 (예: 수학)"
+            variant="ghost"
+            disabled={locked}
+            pending={createSubject.isPending}
+            error={createSubject.error ? createSubject.error.message : null}
+            onSubmit={(title) => createSubject.mutate(title)}
+          />
+        </div>
       </div>
     </div>
   )
 }
 
 /** 학년·학기 같은 단계 이름표. 같은 모양의 카드가 겹쳐도 어느 단계인지 바로 보이게 한다 */
-function LevelTag({ tone, children }: { tone: 'grade' | 'semester'; children: ReactNode }) {
+function LevelTag({ tone, children }: { tone: 'grade' | 'semester' | 'subject'; children: ReactNode }) {
   return (
     <span
       className={clsx(
         'rounded px-1.5 py-0.5 text-[11px] font-semibold ring-1 ring-inset',
-        tone === 'grade' ? 'bg-brand-50 text-brand-700 ring-brand-200' : 'bg-white text-slate-600 ring-slate-200',
+        tone === 'grade'
+          ? 'bg-brand-50 text-brand-700 ring-brand-200'
+          : tone === 'semester'
+            ? 'bg-white text-slate-600 ring-slate-200'
+            : 'bg-emerald-50 text-emerald-700 ring-emerald-200',
       )}
     >
       {children}

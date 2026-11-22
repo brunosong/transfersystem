@@ -3,7 +3,9 @@ package com.brunosong.deployment.system.authoring.service.application.rest;
 import com.brunosong.deployment.system.authoring.service.CurriculumCreateService;
 import com.brunosong.deployment.system.authoring.service.CurriculumEditService;
 import com.brunosong.deployment.system.authoring.service.CurriculumQueryService;
+import com.brunosong.deployment.system.authoring.service.SubjectCreateService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
+import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.entity.Grade;
 import com.brunosong.deployment.system.authoring.service.entity.Semester;
@@ -33,6 +35,7 @@ public class CurriculumController {
     private final CurriculumCreateService curriculumCreateService;
     private final CurriculumQueryService curriculumQueryService;
     private final CurriculumEditService curriculumEditService;
+    private final SubjectCreateService subjectCreateService;
 
     /**
      * 커리큘럼을 만든다. 번호를 받아 빈 뼈대 초안이 생긴다.
@@ -129,6 +132,36 @@ public class CurriculumController {
         CurriculumEditService.AddedSemester added = curriculumEditService.addSemester(
                 curriculumId, gradeId, request.title(), request.description(), request.revision());
         return new AddSemesterResponse(added.semester().getId(), added.revision());
+    }
+
+    // ─── 과목 초안. 뼈대와 다른 애그리거트라 뼈대의 revision 을 받지 않는다 ───
+
+    /** 한 커리큘럼의 과목 목록. 과목마다 자기 revision 이 있다 */
+    @GetMapping("/{curriculumId}/subjects")
+    public List<SubjectResponse> findSubjects(@PathVariable String curriculumId) {
+        return curriculumQueryService.findSubjects(curriculumId).stream().map(SubjectResponse::from).toList();
+    }
+
+    /**
+     * 과목을 만든다. 학기가 뼈대에 있어야 한다(없으면 404). 뼈대는 고치지 않으므로 뼈대 revision 은 필요 없다.
+     * 새 과목의 ID와 과목 자신의 revision(1)을 돌려준다
+     */
+    @PostMapping("/{curriculumId}/subjects")
+    @ResponseStatus(HttpStatus.CREATED)
+    public SubjectResponse createSubject(@PathVariable String curriculumId, @Valid @RequestBody CreateSubjectRequest request) {
+        return SubjectResponse.from(
+                subjectCreateService.create(curriculumId, request.semesterId(), request.title(), request.description()));
+    }
+
+    public record CreateSubjectRequest(@NotBlank String semesterId, @NotBlank String title, String description) {
+    }
+
+    public record SubjectResponse(String id, String semesterId, String title, String description, int revision) {
+
+        static SubjectResponse from(SubjectDraft subject) {
+            return new SubjectResponse(subject.getId(), subject.getSemesterId(), subject.getTitle(),
+                    subject.getDescription(), subject.getRevision());
+        }
     }
 
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {

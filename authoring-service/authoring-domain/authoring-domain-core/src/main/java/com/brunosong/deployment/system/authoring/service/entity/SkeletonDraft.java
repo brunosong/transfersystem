@@ -106,4 +106,13 @@ public class SkeletonDraft {
         grades.remove(findGrade(gradeId));
         revision++;
     }
+
+    /** 이 뼈대에 그 학기가 있는가. 과목을 만들 때 유스케이스가 묻는다. (과목은 뼈대 안을 모른다) */
+    public boolean hasSemester(String semesterId) {
+        return grades.stream()
+                .flatMap(g -> g.getSemesters().stream())
+                .anyMatch(s -> s.getId().equals(semesterId));
+    }
+
+
 }
