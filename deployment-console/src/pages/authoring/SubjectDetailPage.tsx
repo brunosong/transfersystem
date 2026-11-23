@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BookOpen, ChevronRight, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
+import { BookOpen, ChevronRight, FileText, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { authoringApi, isConflict, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
@@ -246,14 +246,45 @@ function UnitsSection({
         </Card>
       )}
       {subject.units.map((unit, index) => (
-        <UnitCard key={unit.id} unit={unit} order={index + 1} />
+        <UnitCard
+          key={unit.id}
+          curriculumId={curriculumId}
+          subject={subject}
+          unit={unit}
+          order={index + 1}
+          locked={locked}
+          onConflict={onConflict}
+        />
       ))}
     </div>
   )
 }
 
-/** 단원 카드. 차시는 다음 기능이라 자리만 있다 */
-function UnitCard({ unit, order }: { unit: Unit; order: number }) {
+/** 단원 카드. 안에 차시가 들어간다. 차시를 붙이면 과목의 revision 이 오른다 */
+function UnitCard({
+  curriculumId,
+  subject,
+  unit,
+  order,
+  locked,
+  onConflict,
+}: {
+  curriculumId: string
+  subject: SubjectDraft
+  unit: Unit
+  order: number
+  locked: boolean
+  onConflict: (message: string) => void
+}) {
+  const client = useQueryClient()
+  const addLesson = useMutation({
+    mutationFn: (title: string) => authoringApi.addLesson(curriculumId, subject.id, unit.id, title, subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+
   return (
     <Card>
       <CardHeader
@@ -266,7 +297,7 @@ function UnitCard({ unit, order }: { unit: Unit; order: number }) {
             <span>{unit.title}</span>
           </span>
         }
-        description={unit.description ? `${unit.description} · 차시 0개` : '차시 0개'}
+        description={unit.description ? `${unit.description} · 차시 ${unit.lessons.length}개` : `차시 ${unit.lessons.length}개`}
         action={
           <div className="flex items-center gap-1">
             <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{unit.id}</Mono>
@@ -276,8 +307,31 @@ function UnitCard({ unit, order }: { unit: Unit; order: number }) {
         }
       />
       <div className="py-4 pr-4 pl-8">
-        <div className="border-l-2 border-amber-100 pl-4">
-          <p className="py-1 text-sm text-slate-400">차시는 준비 중입니다</p>
+        <div className="space-y-1.5 border-l-2 border-amber-100 pl-4">
+          {unit.lessons.length === 0 && <p className="py-1 text-sm text-slate-400">아직 차시가 없습니다</p>}
+          {unit.lessons.map((lesson, index) => (
+            <div key={lesson.id} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <FileText className="size-4 text-slate-400" />
+                <LevelTag tone="lesson">차시 {index + 1}</LevelTag>
+                <span className="text-sm text-slate-800">{lesson.title}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{lesson.id}</Mono>
+                <NotYetButton icon={Pencil} label="차시 수정" />
+                <NotYetButton icon={Trash2} label="차시 삭제" />
+              </div>
+            </div>
+          ))}
+          <AddInline
+            label="차시 추가"
+            placeholder="차시 이름 (예: 1차시 자연수의 덧셈)"
+            variant="ghost"
+            disabled={locked}
+            pending={addLesson.isPending}
+            error={addLesson.error && !isConflict(addLesson.error) ? addLesson.error.message : null}
+            onSubmit={(title) => addLesson.mutate(title)}
+          />
         </div>
       </div>
     </Card>

@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
+import com.brunosong.deployment.system.authoring.service.exception.UnitNotFoundException;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -72,5 +73,18 @@ public class SubjectDraft {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("과목 제목이 비어 있다");
         }
+    }
+
+    /** 단원에 차시를 붙인다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
+    public void addLesson(String unitId, Lesson lesson) {
+        findUnit(unitId).addLesson(lesson);
+        revision++;
+    }
+
+    private Unit findUnit(String unitId) {
+        return units.stream()
+                .filter(u -> u.getId().equals(unitId))
+                .findFirst()
+                .orElseThrow(() -> new UnitNotFoundException(id, unitId));
     }
 }

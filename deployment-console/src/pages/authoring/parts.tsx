@@ -13,7 +13,7 @@ export const subjectsKey = (curriculumId: string) => ['authoring', 'subjects', c
 export type Handlers = { onSuccess: () => void; onError: (error: Error) => void }
 
 /** 학년·학기 같은 단계 이름표. 같은 모양의 카드가 겹쳐도 어느 단계인지 바로 보이게 한다 */
-export function LevelTag({ tone, children }: { tone: 'grade' | 'semester' | 'subject' | 'unit'; children: ReactNode }) {
+export function LevelTag({ tone, children }: { tone: 'grade' | 'semester' | 'subject' | 'unit' | 'lesson'; children: ReactNode }) {
   return (
     <span
       className={clsx(
@@ -24,7 +24,9 @@ export function LevelTag({ tone, children }: { tone: 'grade' | 'semester' | 'sub
             ? 'bg-white text-slate-600 ring-slate-200'
             : tone === 'subject'
               ? 'bg-emerald-50 text-emerald-700 ring-emerald-200'
-              : 'bg-amber-50 text-amber-800 ring-amber-200',
+              : tone === 'unit'
+                ? 'bg-amber-50 text-amber-800 ring-amber-200'
+                : 'bg-white text-slate-600 ring-slate-200',
       )}
     >
       {children}

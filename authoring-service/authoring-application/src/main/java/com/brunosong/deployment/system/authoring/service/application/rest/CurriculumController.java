@@ -182,6 +182,25 @@ public class CurriculumController {
     public record EditSubjectRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 
+    /**
+     * 단원에 차시를 하나 붙인다. revision 은 그 과목의 revision 이다.
+     * 그사이 누가 먼저 그 과목을 고쳤으면 409, 과목이나 단원이 없으면 404
+     */
+    @PostMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}/lessons")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddLessonResponse addLesson(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                       @PathVariable String unitId, @Valid @RequestBody AddLessonRequest request) {
+        SubjectEditService.AddedLesson added = subjectEditService.addLesson(
+                curriculumId, subjectId, unitId, request.title(), request.description(), request.revision());
+        return new AddLessonResponse(added.lesson().getId(), added.revision());
+    }
+
+    public record AddLessonRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
+    public record AddLessonResponse(String lessonId, int revision) {
+    }
+
     public record AddUnitRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 
@@ -196,14 +215,20 @@ public class CurriculumController {
 
         static SubjectResponse from(SubjectDraft subject) {
             List<UnitResponse> units = subject.getUnits().stream()
-                    .map(u -> new UnitResponse(u.getId(), u.getTitle(), u.getDescription()))
+                    .map(u -> new UnitResponse(u.getId(), u.getTitle(), u.getDescription(),
+                            u.getLessons().stream()
+                                    .map(l -> new LessonResponse(l.getId(), l.getTitle(), l.getDescription()))
+                                    .toList()))
                     .toList();
             return new SubjectResponse(subject.getId(), subject.getSemesterId(), subject.getTitle(),
                     subject.getDescription(), units, subject.getRevision());
         }
     }
 
-    public record UnitResponse(String id, String title, String description) {
+    public record UnitResponse(String id, String title, String description, List<LessonResponse> lessons) {
+    }
+
+    public record LessonResponse(String id, String title, String description) {
     }
 
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {

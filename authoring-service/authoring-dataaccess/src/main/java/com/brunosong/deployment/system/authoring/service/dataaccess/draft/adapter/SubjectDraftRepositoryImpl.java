@@ -1,7 +1,9 @@
 package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapter;
 
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.LessonEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SubjectDraftEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.UnitEntity;
+import com.brunosong.deployment.system.authoring.service.entity.Lesson;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.entity.Unit;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SubjectDraftRepository;
@@ -74,7 +76,10 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
 
     private static List<UnitEntity> toUnitEntities(List<Unit> units) {
         return units.stream()
-                .map(u -> new UnitEntity(u.getId(), u.getTitle(), u.getDescription()))
+                .map(u -> new UnitEntity(u.getId(), u.getTitle(), u.getDescription(),
+                        u.getLessons().stream()
+                                .map(l -> new LessonEntity(l.getId(), l.getTitle(), l.getDescription()))
+                                .toList()))
                 .toList();
     }
 
@@ -84,9 +89,17 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
             return List.of();
         }
         return entities.stream()
-                .map(e -> Unit.restore(e.id(), e.title(), e.description()))
+                .map(e -> Unit.restore(e.id(), e.title(), e.description(), toLessons(e.lessons())))
                 .toList();
     }
 
-
+    private static List<Lesson> toLessons(List<LessonEntity> entities) {
+        // 차시 칸이 생기기 전에 넣은 단원(Unit 1)에는 lessons 가 없어서 null 로 온다
+        if (entities == null) {
+            return List.of();
+        }
+        return entities.stream()
+                .map(e -> Lesson.restore(e.id(), e.title(), e.description()))
+                .toList();
+    }
 }

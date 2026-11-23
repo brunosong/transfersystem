@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.authoring.service;
 
+import com.brunosong.deployment.system.authoring.service.entity.Lesson;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.entity.Unit;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
@@ -24,6 +25,14 @@ public class SubjectEditServiceImpl implements SubjectEditService {
         Unit unit = Unit.create(title, description);
         SubjectDraft subject = change(curriculumId, subjectId, expectedRevision, s -> s.addUnit(unit));
         return new AddedUnit(unit, subject.getRevision());
+    }
+
+    @Override
+    public AddedLesson addLesson(String curriculumId, String subjectId, String unitId, String title,
+                                 String description, int expectedRevision) {
+        Lesson lesson = Lesson.create(title, description);
+        SubjectDraft subject = change(curriculumId, subjectId, expectedRevision, s -> s.addLesson(unitId, lesson));
+        return new AddedLesson(lesson, subject.getRevision());
     }
 
     @Override

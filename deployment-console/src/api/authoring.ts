@@ -27,10 +27,17 @@ export interface SkeletonDraft {
 }
 
 /** 과목 초안. 뼈대와 다른 애그리거트라 revision 을 따로 갖는다 */
+export interface Lesson {
+  id: string
+  title: string
+  description: string | null
+}
+
 export interface Unit {
   id: string
   title: string
   description: string | null
+  lessons: Lesson[]
 }
 
 export interface SubjectDraft {
@@ -117,6 +124,14 @@ export const authoringApi = {
   addUnit: (curriculumId: string, subjectId: string, title: string, revision: number) =>
     request<{ unitId: string; revision: number }>(
       `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units`,
+      'POST',
+      { title, revision },
+    ),
+
+  /** revision 은 그 과목의 revision 이다 */
+  addLesson: (curriculumId: string, subjectId: string, unitId: string, title: string, revision: number) =>
+    request<{ lessonId: string; revision: number }>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons`,
       'POST',
       { title, revision },
     ),
