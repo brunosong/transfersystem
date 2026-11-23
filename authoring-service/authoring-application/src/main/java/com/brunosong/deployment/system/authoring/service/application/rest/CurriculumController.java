@@ -1,9 +1,9 @@
 package com.brunosong.deployment.system.authoring.service.application.rest;
 
-import com.brunosong.deployment.system.authoring.service.CurriculumCreateService;
-import com.brunosong.deployment.system.authoring.service.CurriculumEditService;
-import com.brunosong.deployment.system.authoring.service.CurriculumQueryService;
-import com.brunosong.deployment.system.authoring.service.SubjectCreateService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumCreateService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumEditService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumQueryService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectCreateService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;

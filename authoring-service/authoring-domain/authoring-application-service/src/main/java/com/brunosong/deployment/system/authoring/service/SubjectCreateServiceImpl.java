@@ -7,6 +7,7 @@ import com.brunosong.deployment.system.authoring.service.exception.SemesterNotFo
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SubjectDraftRepository;
 import lombok.RequiredArgsConstructor;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectCreateService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,11 +16,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class SubjectCreateService {
+public class SubjectCreateServiceImpl implements SubjectCreateService {
 
     private final SkeletonDraftRepository skeletonDraftRepository;
     private final SubjectDraftRepository subjectDraftRepository;
 
+    @Override
     public SubjectDraft create(String curriculumId, String semesterId, String title, String description) {
         // 1. 뼈대를 읽는다. 커리큘럼이 없으면 404
         SkeletonDraft skeleton = skeletonDraftRepository.findById(curriculumId)
