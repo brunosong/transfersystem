@@ -4,6 +4,7 @@ import com.brunosong.deployment.system.authoring.service.ports.input.service.Cur
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumEditService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumQueryService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectCreateService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectEditService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
@@ -36,6 +37,7 @@ public class CurriculumController {
     private final CurriculumQueryService curriculumQueryService;
     private final CurriculumEditService curriculumEditService;
     private final SubjectCreateService subjectCreateService;
+    private final SubjectEditService subjectEditService;
 
     /**
      * 커리큘럼을 만든다. 번호를 받아 빈 뼈대 초안이 생긴다.
@@ -153,15 +155,41 @@ public class CurriculumController {
                 subjectCreateService.create(curriculumId, request.semesterId(), request.title(), request.description()));
     }
 
+    /**
+     * 과목에 단원을 하나 붙인다. revision 은 그 과목의 revision 이다(뼈대 revision 이 아니다).
+     * 그사이 누가 먼저 그 과목을 고쳤으면 409, 커리큘럼에 그 과목이 없으면 404
+     */
+    @PostMapping("/{curriculumId}/subjects/{subjectId}/units")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AddUnitResponse addUnit(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                   @Valid @RequestBody AddUnitRequest request) {
+        SubjectEditService.AddedUnit added = subjectEditService.addUnit(
+                curriculumId, subjectId, request.title(), request.description(), request.revision());
+        return new AddUnitResponse(added.unit().getId(), added.revision());
+    }
+
+    public record AddUnitRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
+    public record AddUnitResponse(String unitId, int revision) {
+    }
+
     public record CreateSubjectRequest(@NotBlank String semesterId, @NotBlank String title, String description) {
     }
 
-    public record SubjectResponse(String id, String semesterId, String title, String description, int revision) {
+    public record SubjectResponse(String id, String semesterId, String title, String description,
+                                  List<UnitResponse> units, int revision) {
 
         static SubjectResponse from(SubjectDraft subject) {
+            List<UnitResponse> units = subject.getUnits().stream()
+                    .map(u -> new UnitResponse(u.getId(), u.getTitle(), u.getDescription()))
+                    .toList();
             return new SubjectResponse(subject.getId(), subject.getSemesterId(), subject.getTitle(),
-                    subject.getDescription(), subject.getRevision());
+                    subject.getDescription(), units, subject.getRevision());
         }
+    }
+
+    public record UnitResponse(String id, String title, String description) {
     }
 
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {

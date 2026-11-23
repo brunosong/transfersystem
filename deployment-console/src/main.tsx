@@ -7,6 +7,7 @@ import { Button, Card, EmptyState } from './components/ui'
 import './index.css'
 import { CurriculumDetailPage } from './pages/authoring/CurriculumDetailPage'
 import { CurriculumListPage } from './pages/authoring/CurriculumListPage'
+import { SubjectDetailPage } from './pages/authoring/SubjectDetailPage'
 import { ContentsPage } from './pages/ContentsPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { DeploymentDetailPage } from './pages/DeploymentDetailPage'
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
       { path: 'contents', element: <ContentsPage /> },
       { path: 'authoring', element: <CurriculumListPage /> },
       { path: 'authoring/:curriculumId', element: <CurriculumDetailPage /> },
+      { path: 'authoring/:curriculumId/subjects/:subjectId', element: <SubjectDetailPage /> },
       { path: 'deployments', element: <DeploymentsPage /> },
       { path: 'deployments/new', element: <NewDeploymentPage /> },
       { path: 'deployments/:deploymentId', element: <DeploymentDetailPage /> },

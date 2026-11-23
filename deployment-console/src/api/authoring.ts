@@ -27,11 +27,18 @@ export interface SkeletonDraft {
 }
 
 /** 과목 초안. 뼈대와 다른 애그리거트라 revision 을 따로 갖는다 */
+export interface Unit {
+  id: string
+  title: string
+  description: string | null
+}
+
 export interface SubjectDraft {
   id: string
   semesterId: string
   title: string
   description: string | null
+  units: Unit[]
   revision: number
 }
 
@@ -101,6 +108,14 @@ export const authoringApi = {
 
   createSubject: (curriculumId: string, semesterId: string, title: string) =>
     request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects`, 'POST', { semesterId, title }),
+
+  /** revision 은 그 과목의 revision 이다 */
+  addUnit: (curriculumId: string, subjectId: string, title: string, revision: number) =>
+    request<{ unitId: string; revision: number }>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units`,
+      'POST',
+      { title, revision },
+    ),
 
   removeGrade: (curriculumId: string, gradeId: string, revision: number) =>
     request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}?revision=${revision}`, 'DELETE'),
