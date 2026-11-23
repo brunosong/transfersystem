@@ -62,4 +62,8 @@ public class Unit {
             throw new IllegalArgumentException("단원 제목이 비어 있다");
         }
     }
+
+    void removeLesson(Lesson lesson) {
+        lessons.remove(lesson);
+    }
 }

@@ -19,4 +19,7 @@ public interface SubjectDraftRepository {
 
     /** 지금 revision 이 expectedRevision 일 때만 바꾼다. 바꿨으면 true, 누가 먼저 고쳤으면 false */
     boolean update(SubjectDraft draft, int expectedRevision);
+
+    /** 지금 revision 이 expectedRevision 일 때만 지운다. 지웠으면 true, 누가 먼저 고쳤으면 false */
+    boolean delete(String subjectId, int expectedRevision);
 }

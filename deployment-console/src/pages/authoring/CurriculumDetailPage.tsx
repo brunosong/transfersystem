@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
 import { authoringApi, isConflict, type Grade, type Semester, type SkeletonDraft, type SubjectDraft } from '../../api/authoring'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
-import { AddInline, draftKey, type Handlers, LevelTag, NotYetButton, subjectsKey } from './parts'
+import { AddInline, draftKey, type Handlers, LevelTag, subjectsKey } from './parts'
 import { PublishBadge } from './PublishBadge'
 
 
@@ -349,6 +349,14 @@ function SemesterRow({
       authoringApi.editSemester(draft.curriculumId, grade.id, semester.id, title.trim(), description.trim(), draft.revision),
     ...handlers,
   })
+  // 과목이 남아 있으면 서버가 422 로 막는다(과목이 갈 곳을 잃지 않게). 그 이유를 아래에 보여 준다
+  const removeSemester = useMutation({
+    mutationFn: () => authoringApi.removeSemester(draft.curriculumId, grade.id, semester.id, draft.revision),
+    ...handlers,
+  })
+  const confirmRemove = () => {
+    if (window.confirm(`'${semester.title}' 학기를 지웁니다.`)) removeSemester.mutate()
+  }
 
   if (editing) {
     return (
@@ -393,9 +401,23 @@ function SemesterRow({
           <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학기 수정" aria-label="학기 수정">
             <Pencil className="size-4" />
           </Button>
-          <NotYetButton icon={Trash2} label="학기 삭제" />
+          <Button
+            variant="ghost"
+            className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+            disabled={locked || removeSemester.isPending}
+            onClick={confirmRemove}
+            title="학기 삭제"
+            aria-label="학기 삭제"
+          >
+            <Trash2 className="size-4" />
+          </Button>
         </div>
       </div>
+      {removeSemester.error && !isConflict(removeSemester.error) && (
+        <Notice tone="danger" className="mx-4 mb-3">
+          {removeSemester.error.message}
+        </Notice>
+      )}
 
       {/* 과목은 학기 안에 보이지만, 저장은 따로 한다(다른 애그리거트). 그래서 과목마다 자기 revision 을 보인다 */}
       <div className="space-y-1.5 px-4 pb-3 pl-10">

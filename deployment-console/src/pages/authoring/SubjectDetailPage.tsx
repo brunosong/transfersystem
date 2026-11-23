@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BookOpen, ChevronRight, FileText, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { authoringApi, isConflict, type Lesson, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
-import { AddInline, draftKey, LevelTag, NotYetButton, subjectsKey } from './parts'
+import { AddInline, draftKey, LevelTag, subjectsKey } from './parts'
 
 /**
  * 과목 상세. 과목 안의 단원(그리고 다음에 차시)을 고친다.
@@ -133,6 +133,22 @@ function SubjectHeader({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(subject.title)
   const [description, setDescription] = useState(subject.description ?? '')
+  const navigate = useNavigate()
+  // 과목을 지우면 단원과 차시도 함께 사라진다. 지운 뒤에는 커리큘럼 화면으로 돌아간다
+  const removeSubject = useMutation({
+    mutationFn: () => authoringApi.removeSubject(curriculumId, subject.id, subject.revision),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: subjectsKey(curriculumId) })
+      navigate(`/authoring/${curriculumId}`)
+    },
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+  const confirmRemoveSubject = () => {
+    const units = subject.units.length > 0 ? `\n단원 ${subject.units.length}개와 그 안의 차시도 함께 지워집니다.` : ''
+    if (window.confirm(`'${subject.title}' 과목을 지웁니다.${units}`)) removeSubject.mutate()
+  }
   const editSubject = useMutation({
     mutationFn: () => authoringApi.editSubject(curriculumId, subject.id, title.trim(), description.trim(), subject.revision),
     onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
@@ -194,13 +210,27 @@ function SubjectHeader({
         </p>
         {subject.description && <p className="mt-1 text-sm text-slate-600">{subject.description}</p>}
       </div>
-      {/* 다른 학기로 옮기기, 지우기는 아직 서버에 없다 */}
+      {/* 다른 학기로 옮기기는 아직 서버에 없다 */}
       <div className="flex items-center gap-1">
         <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="과목 수정" aria-label="과목 수정">
           <Pencil className="size-4" />
         </Button>
-        <NotYetButton icon={Trash2} label="과목 삭제" />
+        <Button
+          variant="ghost"
+          className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+          disabled={locked || removeSubject.isPending}
+          onClick={confirmRemoveSubject}
+          title="과목 삭제"
+          aria-label="과목 삭제"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </div>
+      {removeSubject.error && !isConflict(removeSubject.error) && (
+        <Notice tone="danger" className="w-full">
+          {removeSubject.error.message}
+        </Notice>
+      )}
     </div>
   )
 }
@@ -288,6 +318,17 @@ function UnitCard({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(unit.title)
   const [description, setDescription] = useState(unit.description ?? '')
+  const removeUnit = useMutation({
+    mutationFn: () => authoringApi.removeUnit(curriculumId, subject.id, unit.id, subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+  const confirmRemoveUnit = () => {
+    const lessons = unit.lessons.length > 0 ? `\n차시 ${unit.lessons.length}개도 함께 지워집니다.` : ''
+    if (window.confirm(`'${unit.title}' 단원을 지웁니다.${lessons}`)) removeUnit.mutate()
+  }
   const editUnit = useMutation({
     mutationFn: () =>
       authoringApi.editUnit(curriculumId, subject.id, unit.id, title.trim(), description.trim(), subject.revision),
@@ -340,7 +381,16 @@ function UnitCard({
               <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="단원 수정" aria-label="단원 수정">
                 <Pencil className="size-4" />
               </Button>
-              <NotYetButton icon={Trash2} label="단원 삭제" />
+              <Button
+                variant="ghost"
+                className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                disabled={locked || removeUnit.isPending}
+                onClick={confirmRemoveUnit}
+                title="단원 삭제"
+                aria-label="단원 삭제"
+              >
+                <Trash2 className="size-4" />
+              </Button>
             </div>
           }
         />
@@ -397,6 +447,13 @@ function LessonRow({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(lesson.title)
   const [description, setDescription] = useState(lesson.description ?? '')
+  const removeLesson = useMutation({
+    mutationFn: () => authoringApi.removeLesson(curriculumId, subject.id, unit.id, lesson.id, subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
   const editLesson = useMutation({
     mutationFn: () =>
       authoringApi.editLesson(curriculumId, subject.id, unit.id, lesson.id, title.trim(), description.trim(), subject.revision),
@@ -446,7 +503,16 @@ function LessonRow({
         <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="차시 수정" aria-label="차시 수정">
           <Pencil className="size-4" />
         </Button>
-        <NotYetButton icon={Trash2} label="차시 삭제" />
+        <Button
+          variant="ghost"
+          className="px-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+          disabled={locked || removeLesson.isPending}
+          onClick={() => window.confirm(`'${lesson.title}' 차시를 지웁니다.`) && removeLesson.mutate()}
+          title="차시 삭제"
+          aria-label="차시 삭제"
+        >
+          <Trash2 className="size-4" />
+        </Button>
       </div>
     </div>
   )

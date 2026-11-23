@@ -19,8 +19,17 @@ public interface CurriculumEditService {
     /** 학년의 제목과 설명을 고친다. 학년이 없으면 GradeNotFoundException(404) */
     SkeletonDraft editGrade(String curriculumId, String gradeId, String title, String description, int expectedRevision);
 
-    /** 학년을 지운다. 그 안의 학기도 함께 사라진다. 학년이 없으면 GradeNotFoundException(404) */
+    /**
+     * 학년을 지운다. 그 안의 학기도 함께 사라진다. 학년이 없으면 GradeNotFoundException(404).
+     * 그 학년의 학기에 과목이 남아 있으면 SemesterHasSubjectsException(422)
+     */
     SkeletonDraft removeGrade(String curriculumId, String gradeId, int expectedRevision);
+
+    /**
+     * 학기를 지운다. 학년이나 학기가 없으면 각각의 NotFoundException(404).
+     * 그 학기에 과목이 남아 있으면 SemesterHasSubjectsException(422)
+     */
+    SkeletonDraft removeSemester(String curriculumId, String gradeId, String semesterId, int expectedRevision);
 
     /** 학년에 학기를 붙인다. 학년이 없으면 GradeNotFoundException(404) */
     AddedSemester addSemester(String curriculumId, String gradeId, String title, String description, int expectedRevision);

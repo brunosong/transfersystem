@@ -101,6 +101,19 @@ public class SubjectDraft {
                 .orElseThrow(() -> new LessonNotFoundException(unitId, lessonId));
     }
 
+    /** 단원을 지운다. 그 안의 차시도 함께 사라진다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
+    public void removeUnit(String unitId) {
+        units.remove(findUnit(unitId));
+        revision++;
+    }
+
+    /** 차시를 지운다. 과목의 revision 이 1 오른다. 단원이나 차시가 없으면 각각의 NotFoundException */
+    public void removeLesson(String unitId, String lessonId) {
+        Lesson lesson = findLesson(unitId, lessonId);
+        findUnit(unitId).removeLesson(lesson);
+        revision++;
+    }
+
     private Unit findUnit(String unitId) {
         return units.stream()
                 .filter(u -> u.getId().equals(unitId))

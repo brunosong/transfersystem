@@ -107,6 +107,22 @@ public class SkeletonDraft {
         revision++;
     }
 
+    /** 학기를 지운다. revision 이 1 오른다. 학년이나 학기가 없으면 각각의 NotFoundException */
+    public void removeSemester(String gradeId, String semesterId) {
+        Semester semester = findSemester(gradeId, semesterId);
+        findGrade(gradeId).removeSemester(semester);
+        revision++;
+    }
+
+    /** 그 학년의 학기 ID들. 학년을 지우기 전에 과목이 남아 있는지 볼 때 쓴다. 학년이 없으면 빈 목록 */
+    public List<String> semesterIdsOf(String gradeId) {
+        return grades.stream()
+                .filter(g -> g.getId().equals(gradeId))
+                .flatMap(g -> g.getSemesters().stream())
+                .map(Semester::getId)
+                .toList();
+    }
+
     /** 이 뼈대에 그 학기가 있는가. 과목을 만들 때 유스케이스가 묻는다. (과목은 뼈대 안을 모른다) */
     public boolean hasSemester(String semesterId) {
         return grades.stream()

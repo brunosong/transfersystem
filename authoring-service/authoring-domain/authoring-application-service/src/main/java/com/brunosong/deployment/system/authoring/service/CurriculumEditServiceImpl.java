@@ -3,13 +3,16 @@ package com.brunosong.deployment.system.authoring.service;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
+import com.brunosong.deployment.system.authoring.service.exception.SemesterHasSubjectsException;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.SubjectDraftRepository;
 import com.brunosong.deployment.system.authoring.service.entity.Grade;
 import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import lombok.RequiredArgsConstructor;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumEditService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -22,6 +25,8 @@ import java.util.function.Consumer;
 public class CurriculumEditServiceImpl implements CurriculumEditService {
 
     private final SkeletonDraftRepository skeletonDraftRepository;
+    // 학년·학기를 지우기 전에 과목이 남아 있는지 본다. 과목은 다른 애그리거트라 따로 읽는다
+    private final SubjectDraftRepository subjectDraftRepository;
 
     @Override
     public SkeletonDraft edit(String curriculumId, String title, String description, int expectedRevision) {
@@ -67,7 +72,31 @@ public class CurriculumEditServiceImpl implements CurriculumEditService {
 
     @Override
     public SkeletonDraft removeGrade(String curriculumId, String gradeId, int expectedRevision) {
-        return change(curriculumId, expectedRevision, draft -> draft.removeGrade(gradeId));
+        return change(curriculumId, expectedRevision, draft -> {
+            checkNoSubjects(curriculumId, draft.semesterIdsOf(gradeId));
+            draft.removeGrade(gradeId);
+        });
+    }
+
+    @Override
+    public SkeletonDraft removeSemester(String curriculumId, String gradeId, String semesterId, int expectedRevision) {
+        return change(curriculumId, expectedRevision, draft -> {
+            checkNoSubjects(curriculumId, List.of(semesterId));
+            draft.removeSemester(gradeId, semesterId);
+        });
+    }
+
+    /**
+     * 과목이 남아 있는 학기는 지울 수 없다(애그리거트 사이 규칙). 과목은 뼈대 밖에 있어서 루트가 볼 수 없다.
+     * 확인한 뒤 지우기 전에 누가 그 학기에 과목을 만들 수 있다. 그 틈은 공개할 때 다시 본다(ADR 0009)
+     */
+    private void checkNoSubjects(String curriculumId, List<String> semesterIds) {
+        long count = subjectDraftRepository.findByCurriculumId(curriculumId).stream()
+                .filter(s -> semesterIds.contains(s.getSemesterId()))
+                .count();
+        if (count > 0) {
+            throw new SemesterHasSubjectsException(count);
+        }
     }
 
 

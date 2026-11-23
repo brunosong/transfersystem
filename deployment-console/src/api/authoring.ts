@@ -87,6 +87,8 @@ async function request<T>(path: string, method = 'GET', body?: unknown): Promise
     const error = await response.json().catch(() => null)
     throw new ApiError(response.status, error?.detail ?? `요청이 실패했습니다 (${response.status})`)
   }
+  // 과목 지우기는 돌려줄 것이 없어 204 다
+  if (response.status === 204) return undefined as T
   return response.json() as Promise<T>
 }
 
@@ -158,6 +160,28 @@ export const authoringApi = {
       `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons`,
       'POST',
       { title, revision },
+    ),
+
+  removeSemester: (curriculumId: string, gradeId: string, semesterId: string, revision: number) =>
+    request<SkeletonDraft>(
+      `${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/semesters/${id(semesterId)}?revision=${revision}`,
+      'DELETE',
+    ),
+
+  /** revision 은 그 과목의 revision 이다 */
+  removeSubject: (curriculumId: string, subjectId: string, revision: number) =>
+    request<void>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}?revision=${revision}`, 'DELETE'),
+
+  removeUnit: (curriculumId: string, subjectId: string, unitId: string, revision: number) =>
+    request<SubjectDraft>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}?revision=${revision}`,
+      'DELETE',
+    ),
+
+  removeLesson: (curriculumId: string, subjectId: string, unitId: string, lessonId: string, revision: number) =>
+    request<SubjectDraft>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons/${id(lessonId)}?revision=${revision}`,
+      'DELETE',
     ),
 
   removeGrade: (curriculumId: string, gradeId: string, revision: number) =>

@@ -102,4 +102,12 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
                 .map(e -> Lesson.restore(e.id(), e.title(), e.description()))
                 .toList();
     }
+
+    @Override
+    public boolean delete(String subjectId, int expectedRevision) {
+        // 고치기와 같은 조건이다. 남이 방금 고친 과목을 보지 못한 채 지우지 않게 한다
+        return mongoTemplate.remove(
+                Query.query(Criteria.where("_id").is(subjectId).and("revision").is(expectedRevision)),
+                SubjectDraftEntity.class).getDeletedCount() == 1;
+    }
 }

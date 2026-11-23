@@ -218,6 +218,38 @@ public class CurriculumController {
                 curriculumId, subjectId, unitId, lessonId, request.title(), request.description(), request.revision()));
     }
 
+    // ─── 지우기. revision 은 쿼리로 받는다(DELETE 의 본문은 버려지기도 한다) ───
+
+    /** 학기를 지운다. 과목이 남아 있으면 422, 누가 먼저 고쳤으면 409, 없으면 404 */
+    @DeleteMapping("/{curriculumId}/grades/{gradeId}/semesters/{semesterId}")
+    public CurriculumResponse removeSemester(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                             @PathVariable String semesterId, @RequestParam int revision) {
+        return CurriculumResponse.from(curriculumEditService.removeSemester(curriculumId, gradeId, semesterId, revision));
+    }
+
+    /** 과목을 지운다. 단원과 차시도 함께 사라진다. revision 은 그 과목의 revision 이다 */
+    @DeleteMapping("/{curriculumId}/subjects/{subjectId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeSubject(@PathVariable String curriculumId, @PathVariable String subjectId,
+                              @RequestParam int revision) {
+        subjectEditService.removeSubject(curriculumId, subjectId, revision);
+    }
+
+    /** 단원을 지운다. 그 안의 차시도 함께 사라진다 */
+    @DeleteMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}")
+    public SubjectResponse removeUnit(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                      @PathVariable String unitId, @RequestParam int revision) {
+        return SubjectResponse.from(subjectEditService.removeUnit(curriculumId, subjectId, unitId, revision));
+    }
+
+    /** 차시를 지운다 */
+    @DeleteMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}/lessons/{lessonId}")
+    public SubjectResponse removeLesson(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                        @PathVariable String unitId, @PathVariable String lessonId,
+                                        @RequestParam int revision) {
+        return SubjectResponse.from(subjectEditService.removeLesson(curriculumId, subjectId, unitId, lessonId, revision));
+    }
+
     public record EditLessonRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 

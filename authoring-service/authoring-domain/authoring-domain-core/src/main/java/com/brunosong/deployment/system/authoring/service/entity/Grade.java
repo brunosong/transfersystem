@@ -62,4 +62,7 @@ public class Grade {
         this.description = description;
     }
 
+    void removeSemester(Semester semester) {
+        semesters.remove(semester);
+    }
 }

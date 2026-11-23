@@ -28,6 +28,16 @@ public interface SubjectEditService {
     SubjectDraft editLesson(String curriculumId, String subjectId, String unitId, String lessonId, String title,
                             String description, int expectedRevision);
 
+    /** 과목을 지운다. 단원과 차시도 함께 사라진다. 과목이 없으면 404, 누가 먼저 고쳤으면 409 */
+    void removeSubject(String curriculumId, String subjectId, int expectedRevision);
+
+    /** 단원을 지운다. 그 안의 차시도 함께 사라진다. 과목이나 단원이 없으면 404 */
+    SubjectDraft removeUnit(String curriculumId, String subjectId, String unitId, int expectedRevision);
+
+    /** 차시를 지운다. 과목·단원·차시가 없으면 404 */
+    SubjectDraft removeLesson(String curriculumId, String subjectId, String unitId, String lessonId,
+                              int expectedRevision);
+
     /** 단원 추가의 결과. 새 단원과 저장된 뒤의 과목 revision */
     record AddedUnit(Unit unit, int revision) {
     }
