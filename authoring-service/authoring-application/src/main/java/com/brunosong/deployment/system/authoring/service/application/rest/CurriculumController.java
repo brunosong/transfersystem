@@ -195,6 +195,35 @@ public class CurriculumController {
         return new AddLessonResponse(added.lesson().getId(), added.revision());
     }
 
+    /**
+     * 단원의 제목과 설명을 고친다. revision 은 그 과목의 revision 이다.
+     * 그사이 누가 먼저 그 과목을 고쳤으면 409, 과목이나 단원이 없으면 404. 고친 과목을 돌려준다
+     */
+    @PutMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}")
+    public SubjectResponse editUnit(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                    @PathVariable String unitId, @Valid @RequestBody EditUnitRequest request) {
+        return SubjectResponse.from(subjectEditService.editUnit(
+                curriculumId, subjectId, unitId, request.title(), request.description(), request.revision()));
+    }
+
+    /**
+     * 차시의 제목과 설명을 고친다. revision 은 그 과목의 revision 이다.
+     * 그사이 누가 먼저 그 과목을 고쳤으면 409, 과목·단원·차시가 없으면 404. 고친 과목을 돌려준다
+     */
+    @PutMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}/lessons/{lessonId}")
+    public SubjectResponse editLesson(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                      @PathVariable String unitId, @PathVariable String lessonId,
+                                      @Valid @RequestBody EditLessonRequest request) {
+        return SubjectResponse.from(subjectEditService.editLesson(
+                curriculumId, subjectId, unitId, lessonId, request.title(), request.description(), request.revision()));
+    }
+
+    public record EditLessonRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
+    public record EditUnitRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
     public record AddLessonRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 

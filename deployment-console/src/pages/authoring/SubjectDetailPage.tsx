@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BookOpen, ChevronRight, FileText, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { authoringApi, isConflict, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
+import { authoringApi, isConflict, type Lesson, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
 import { AddInline, draftKey, LevelTag, NotYetButton, subjectsKey } from './parts'
 
@@ -284,44 +284,81 @@ function UnitCard({
       if (isConflict(error)) onConflict(error.message)
     },
   })
+  // 연필을 누르면 단원 머리가 입력칸으로 바뀐다
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(unit.title)
+  const [description, setDescription] = useState(unit.description ?? '')
+  const editUnit = useMutation({
+    mutationFn: () =>
+      authoringApi.editUnit(curriculumId, subject.id, unit.id, title.trim(), description.trim(), subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
 
   return (
     <Card>
-      <CardHeader
-        title={
-          <span className="flex items-center gap-2">
-            <span className="grid size-7 place-items-center rounded-lg bg-amber-50 text-amber-700">
-              <Layers className="size-4" />
-            </span>
-            <LevelTag tone="unit">단원 {order}</LevelTag>
-            <span>{unit.title}</span>
-          </span>
-        }
-        description={unit.description ? `${unit.description} · 차시 ${unit.lessons.length}개` : `차시 ${unit.lessons.length}개`}
-        action={
-          <div className="flex items-center gap-1">
-            <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{unit.id}</Mono>
-            <NotYetButton icon={Pencil} label="단원 수정" />
-            <NotYetButton icon={Trash2} label="단원 삭제" />
+      {editing ? (
+        <form
+          className="space-y-2 border-b border-slate-100 px-5 py-4"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault()
+            editUnit.mutate()
+          }}
+        >
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="단원 이름" aria-label="단원 이름" autoFocus disabled={locked} />
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="단원 설명" disabled={locked} />
           </div>
-        }
-      />
+          {editUnit.error && !isConflict(editUnit.error) && <Notice tone="danger">{editUnit.error.message}</Notice>}
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditing(false)}>
+              취소
+            </Button>
+            <Button type="submit" disabled={locked || !title.trim() || editUnit.isPending}>
+              {editUnit.isPending && <Loader2 className="size-4 animate-spin" />}
+              저장
+            </Button>
+          </div>
+        </form>
+      ) : (
+        <CardHeader
+          title={
+            <span className="flex items-center gap-2">
+              <span className="grid size-7 place-items-center rounded-lg bg-amber-50 text-amber-700">
+                <Layers className="size-4" />
+              </span>
+              <LevelTag tone="unit">단원 {order}</LevelTag>
+              <span>{unit.title}</span>
+            </span>
+          }
+          description={unit.description ? `${unit.description} · 차시 ${unit.lessons.length}개` : `차시 ${unit.lessons.length}개`}
+          action={
+            <div className="flex items-center gap-1">
+              <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{unit.id}</Mono>
+              <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="단원 수정" aria-label="단원 수정">
+                <Pencil className="size-4" />
+              </Button>
+              <NotYetButton icon={Trash2} label="단원 삭제" />
+            </div>
+          }
+        />
+      )}
       <div className="py-4 pr-4 pl-8">
         <div className="space-y-1.5 border-l-2 border-amber-100 pl-4">
           {unit.lessons.length === 0 && <p className="py-1 text-sm text-slate-400">아직 차시가 없습니다</p>}
           {unit.lessons.map((lesson, index) => (
-            <div key={lesson.id} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-              <div className="flex items-center gap-2">
-                <FileText className="size-4 text-slate-400" />
-                <LevelTag tone="lesson">차시 {index + 1}</LevelTag>
-                <span className="text-sm text-slate-800">{lesson.title}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{lesson.id}</Mono>
-                <NotYetButton icon={Pencil} label="차시 수정" />
-                <NotYetButton icon={Trash2} label="차시 삭제" />
-              </div>
-            </div>
+            <LessonRow
+              key={lesson.id}
+              curriculumId={curriculumId}
+              subject={subject}
+              unit={unit}
+              lesson={lesson}
+              order={index + 1}
+              locked={locked}
+              onConflict={onConflict}
+            />
           ))}
           <AddInline
             label="차시 추가"
@@ -335,5 +372,82 @@ function UnitCard({
         </div>
       </div>
     </Card>
+  )
+}
+
+/** 차시 한 줄. 연필을 누르면 이름과 설명을 고친다. 차시를 고쳐도 과목의 revision 이 오른다 */
+function LessonRow({
+  curriculumId,
+  subject,
+  unit,
+  lesson,
+  order,
+  locked,
+  onConflict,
+}: {
+  curriculumId: string
+  subject: SubjectDraft
+  unit: Unit
+  lesson: Lesson
+  order: number
+  locked: boolean
+  onConflict: (message: string) => void
+}) {
+  const client = useQueryClient()
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(lesson.title)
+  const [description, setDescription] = useState(lesson.description ?? '')
+  const editLesson = useMutation({
+    mutationFn: () =>
+      authoringApi.editLesson(curriculumId, subject.id, unit.id, lesson.id, title.trim(), description.trim(), subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+
+  if (editing) {
+    return (
+      <form
+        className="space-y-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2"
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault()
+          editLesson.mutate()
+        }}
+      >
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="차시 이름" aria-label="차시 이름" autoFocus disabled={locked} />
+          <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="차시 설명" disabled={locked} />
+        </div>
+        {editLesson.error && !isConflict(editLesson.error) && <Notice tone="danger">{editLesson.error.message}</Notice>}
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setEditing(false)}>
+            취소
+          </Button>
+          <Button type="submit" disabled={locked || !title.trim() || editLesson.isPending}>
+            {editLesson.isPending && <Loader2 className="size-4 animate-spin" />}
+            저장
+          </Button>
+        </div>
+      </form>
+    )
+  }
+
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+      <div className="flex items-center gap-2">
+        <FileText className="size-4 text-slate-400" />
+        <LevelTag tone="lesson">차시 {order}</LevelTag>
+        <span className="text-sm text-slate-800">{lesson.title}</span>
+        {lesson.description && <span className="text-xs text-slate-500">{lesson.description}</span>}
+      </div>
+      <div className="flex items-center gap-1">
+        <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{lesson.id}</Mono>
+        <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="차시 수정" aria-label="차시 수정">
+          <Pencil className="size-4" />
+        </Button>
+        <NotYetButton icon={Trash2} label="차시 삭제" />
+      </div>
+    </div>
   )
 }

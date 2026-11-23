@@ -31,9 +31,7 @@ public class Unit {
 
     /** 새 단원. 차시는 아직 없다. ID는 시스템이 만든다 */
     public static Unit create(String title, String description) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("단원 제목이 비어 있다");
-        }
+        checkTitle(title);
         return new Unit("UNIT-" + UUID.randomUUID(), title, description, List.of());
     }
 
@@ -51,5 +49,17 @@ public class Unit {
 
     void addLesson(Lesson lesson) {
         lessons.add(lesson);
+    }
+
+    void edit(String title, String description) {
+        checkTitle(title);
+        this.title = title;
+        this.description = description;
+    }
+
+    private static void checkTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("단원 제목이 비어 있다");
+        }
     }
 }

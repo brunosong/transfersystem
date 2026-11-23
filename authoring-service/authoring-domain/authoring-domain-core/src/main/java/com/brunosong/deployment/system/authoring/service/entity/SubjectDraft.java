@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
+import com.brunosong.deployment.system.authoring.service.exception.LessonNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.UnitNotFoundException;
 import lombok.Getter;
 
@@ -69,6 +70,12 @@ public class SubjectDraft {
         revision++;
     }
 
+    /** 단원의 제목과 설명을 고친다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
+    public void editUnit(String unitId, String title, String description) {
+        findUnit(unitId).edit(title, description);
+        revision++;
+    }
+
     private static void checkTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("과목 제목이 비어 있다");
@@ -79,6 +86,19 @@ public class SubjectDraft {
     public void addLesson(String unitId, Lesson lesson) {
         findUnit(unitId).addLesson(lesson);
         revision++;
+    }
+
+    /** 차시의 제목과 설명을 고친다. 과목의 revision 이 1 오른다. 단원이나 차시가 없으면 각각의 NotFoundException */
+    public void editLesson(String unitId, String lessonId, String title, String description) {
+        findLesson(unitId, lessonId).edit(title, description);
+        revision++;
+    }
+
+    private Lesson findLesson(String unitId, String lessonId) {
+        return findUnit(unitId).getLessons().stream()
+                .filter(l -> l.getId().equals(lessonId))
+                .findFirst()
+                .orElseThrow(() -> new LessonNotFoundException(unitId, lessonId));
     }
 
     private Unit findUnit(String unitId) {

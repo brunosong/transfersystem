@@ -20,6 +20,14 @@ public interface SubjectEditService {
     AddedLesson addLesson(String curriculumId, String subjectId, String unitId, String title, String description,
                           int expectedRevision);
 
+    /** 단원의 제목과 설명을 고친다. 과목이 없으면 SubjectNotFoundException, 단원이 없으면 UnitNotFoundException(둘 다 404) */
+    SubjectDraft editUnit(String curriculumId, String subjectId, String unitId, String title, String description,
+                          int expectedRevision);
+
+    /** 차시의 제목과 설명을 고친다. 과목·단원·차시가 없으면 각각의 NotFoundException(404) */
+    SubjectDraft editLesson(String curriculumId, String subjectId, String unitId, String lessonId, String title,
+                            String description, int expectedRevision);
+
     /** 단원 추가의 결과. 새 단원과 저장된 뒤의 과목 revision */
     record AddedUnit(Unit unit, int revision) {
     }

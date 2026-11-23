@@ -129,6 +129,30 @@ export const authoringApi = {
     ),
 
   /** revision 은 그 과목의 revision 이다 */
+  editUnit: (curriculumId: string, subjectId: string, unitId: string, title: string, description: string, revision: number) =>
+    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}`, 'PUT', {
+      title,
+      description,
+      revision,
+    }),
+
+  /** revision 은 그 과목의 revision 이다 */
+  editLesson: (
+    curriculumId: string,
+    subjectId: string,
+    unitId: string,
+    lessonId: string,
+    title: string,
+    description: string,
+    revision: number,
+  ) =>
+    request<SubjectDraft>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons/${id(lessonId)}`,
+      'PUT',
+      { title, description, revision },
+    ),
+
+  /** revision 은 그 과목의 revision 이다 */
   addLesson: (curriculumId: string, subjectId: string, unitId: string, title: string, revision: number) =>
     request<{ lessonId: string; revision: number }>(
       `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons`,

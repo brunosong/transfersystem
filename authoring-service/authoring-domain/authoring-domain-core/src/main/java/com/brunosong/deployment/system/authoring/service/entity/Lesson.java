@@ -26,14 +26,26 @@ public class Lesson {
 
     /** 새 차시. ID는 시스템이 만든다 */
     public static Lesson create(String title, String description) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("차시 제목이 비어 있다");
-        }
+        checkTitle(title);
         return new Lesson("LESSON-" + UUID.randomUUID(), title, description);
     }
 
     /** 저장소에서 읽은 값으로 다시 만든다 */
     public static Lesson restore(String id, String title, String description) {
         return new Lesson(id, title, description);
+    }
+
+    // ─── 루트(SubjectDraft)만 부른다 ───
+
+    void edit(String title, String description) {
+        checkTitle(title);
+        this.title = title;
+        this.description = description;
+    }
+
+    private static void checkTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("차시 제목이 비어 있다");
+        }
     }
 }
