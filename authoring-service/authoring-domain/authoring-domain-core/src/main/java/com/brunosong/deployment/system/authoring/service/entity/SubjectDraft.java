@@ -42,9 +42,7 @@ public class SubjectDraft {
      * 학기가 뼈대에 있는지는 여기서 보지 않는다. 과목은 뼈대 안을 모르기 때문이다(유스케이스가 본다)
      */
     public static SubjectDraft create(String curriculumId, String semesterId, String title, String description) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("과목 제목이 비어 있다.");
-        }
+        checkTitle(title);
         return new SubjectDraft("SUBJECT-" + UUID.randomUUID(), curriculumId, semesterId, title, description, FIRST_REVISION, List.of());
     }
 
@@ -60,5 +58,19 @@ public class SubjectDraft {
     public void addUnit(Unit unit) {
         units.add(unit);
         revision++;
+    }
+
+    /** 과목 제목과 설명을 고친다. revision 이 1 오른다 */
+    public void edit(String title, String description) {
+        checkTitle(title);
+        this.title = title;
+        this.description = description;
+        revision++;
+    }
+
+    private static void checkTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("과목 제목이 비어 있다");
+        }
     }
 }

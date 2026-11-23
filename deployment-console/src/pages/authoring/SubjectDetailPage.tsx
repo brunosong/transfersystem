@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { BookOpen, ChevronRight, Layers, Pencil, RotateCw, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { BookOpen, ChevronRight, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
+import { type FormEvent, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { authoringApi, isConflict, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
-import { Button, Card, CardHeader, EmptyState, ErrorState, Mono, Notice, Skeleton } from '../../components/ui'
+import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
 import { AddInline, draftKey, LevelTag, NotYetButton, subjectsKey } from './parts'
 
 /**
@@ -80,7 +80,15 @@ export function SubjectDetailPage() {
         </Card>
       ) : (
         <>
-          <SubjectHeader subject={subject} draft={draft.data} />
+          {/* revision 이 바뀌면 머리의 입력 상태도 처음으로 돌린다 */}
+          <SubjectHeader
+            key={`header-${subject.revision}`}
+            curriculumId={curriculumId}
+            subject={subject}
+            draft={draft.data}
+            locked={conflict !== null}
+            onConflict={setConflict}
+          />
 
           {conflict && (
             <Notice tone="warning" title="다른 사람이 먼저 이 과목을 고쳤습니다">
@@ -107,11 +115,65 @@ export function SubjectDetailPage() {
   )
 }
 
-function SubjectHeader({ subject, draft }: { subject: SubjectDraft; draft?: SkeletonDraft }) {
+function SubjectHeader({
+  curriculumId,
+  subject,
+  draft,
+  locked,
+  onConflict,
+}: {
+  curriculumId: string
+  subject: SubjectDraft
+  draft?: SkeletonDraft
+  locked: boolean
+  onConflict: (message: string) => void
+}) {
+  const client = useQueryClient()
+  // 연필을 누르면 머리가 입력칸으로 바뀐다
+  const [editing, setEditing] = useState(false)
+  const [title, setTitle] = useState(subject.title)
+  const [description, setDescription] = useState(subject.description ?? '')
+  const editSubject = useMutation({
+    mutationFn: () => authoringApi.editSubject(curriculumId, subject.id, title.trim(), description.trim(), subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+
   // 뼈대에서 이 과목의 학년·학기 이름을 찾는다. 뼈대를 못 읽었거나 학기가 지워졌으면 ID만 보인다
   const place = draft?.grades
     .flatMap((g) => g.semesters.map((s) => ({ grade: g.title, semester: s.title, semesterId: s.id })))
     .find((p) => p.semesterId === subject.semesterId)
+
+  if (editing) {
+    return (
+      <Card>
+        <form
+          className="space-y-3 p-5"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault()
+            editSubject.mutate()
+          }}
+        >
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="과목 이름" aria-label="과목 이름" autoFocus disabled={locked} />
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="과목 설명" disabled={locked} />
+          </div>
+          {editSubject.error && !isConflict(editSubject.error) && <Notice tone="danger">{editSubject.error.message}</Notice>}
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => setEditing(false)}>
+              취소
+            </Button>
+            <Button type="submit" disabled={locked || !title.trim() || editSubject.isPending}>
+              {editSubject.isPending && <Loader2 className="size-4 animate-spin" />}
+              저장 (과목 revision {subject.revision} 기준)
+            </Button>
+          </div>
+        </form>
+      </Card>
+    )
+  }
 
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
@@ -130,10 +192,13 @@ function SubjectHeader({ subject, draft }: { subject: SubjectDraft; draft?: Skel
           <span>·</span>
           <span title="이 과목의 낙관적 락 번호. 뼈대와 따로 오른다">과목 revision {subject.revision}</span>
         </p>
+        {subject.description && <p className="mt-1 text-sm text-slate-600">{subject.description}</p>}
       </div>
-      {/* 과목 이름 고치기, 다른 학기로 옮기기, 지우기는 아직 서버에 없다 */}
+      {/* 다른 학기로 옮기기, 지우기는 아직 서버에 없다 */}
       <div className="flex items-center gap-1">
-        <NotYetButton icon={Pencil} label="과목 수정" />
+        <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="과목 수정" aria-label="과목 수정">
+          <Pencil className="size-4" />
+        </Button>
         <NotYetButton icon={Trash2} label="과목 삭제" />
       </div>
     </div>

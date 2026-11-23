@@ -168,6 +168,20 @@ public class CurriculumController {
         return new AddUnitResponse(added.unit().getId(), added.revision());
     }
 
+    /**
+     * 과목 제목과 설명을 고친다. revision 은 그 과목의 revision 이다.
+     * 그사이 누가 먼저 그 과목을 고쳤으면 409, 커리큘럼에 그 과목이 없으면 404. 고친 과목을 돌려준다
+     */
+    @PutMapping("/{curriculumId}/subjects/{subjectId}")
+    public SubjectResponse editSubject(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                       @Valid @RequestBody EditSubjectRequest request) {
+        return SubjectResponse.from(subjectEditService.editSubject(
+                curriculumId, subjectId, request.title(), request.description(), request.revision()));
+    }
+
+    public record EditSubjectRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    }
+
     public record AddUnitRequest(@NotBlank String title, String description, @NotNull Integer revision) {
     }
 

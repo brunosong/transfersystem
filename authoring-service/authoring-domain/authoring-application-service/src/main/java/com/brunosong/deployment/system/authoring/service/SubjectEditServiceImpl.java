@@ -26,6 +26,11 @@ public class SubjectEditServiceImpl implements SubjectEditService {
         return new AddedUnit(unit, subject.getRevision());
     }
 
+    @Override
+    public SubjectDraft editSubject(String curriculumId, String subjectId, String title, String description, int expectedRevision) {
+        return change(curriculumId, subjectId, expectedRevision, draft -> draft.edit(title, description));
+    }
+
     /**
      * 모든 과목 고치기가 거치는 흐름. 뼈대의 change 와 같다.
      * 1. 과목을 읽는다. 없거나 다른 커리큘럼의 과목이면 404

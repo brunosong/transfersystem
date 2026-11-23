@@ -110,6 +110,10 @@ export const authoringApi = {
     request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects`, 'POST', { semesterId, title }),
 
   /** revision 은 그 과목의 revision 이다 */
+  editSubject: (curriculumId: string, subjectId: string, title: string, description: string, revision: number) =>
+    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}`, 'PUT', { title, description, revision }),
+
+  /** revision 은 그 과목의 revision 이다 */
   addUnit: (curriculumId: string, subjectId: string, title: string, revision: number) =>
     request<{ unitId: string; revision: number }>(
       `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units`,
