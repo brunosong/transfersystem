@@ -2,11 +2,14 @@ package com.brunosong.deployment.system.authoring.service.entity;
 
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 
 /**
- * 과목 초안(애그리거트 루트). 과목 하나와 그 아래 단원, 차시를 담는다. 단원과 차시는 다음 기능에서 더한다.
+ * 과목 초안(애그리거트 루트). 과목 하나와 그 아래 단원, 차시를 담는다. 차시는 다음 기능에서 더한다.
  * 뼈대와 다른 애그리거트라 revision 을 따로 갖는다. 그래서 서로 다른 과목은 동시에 고쳐도 부딪히지 않는다.
  * 뼈대는 ID(curriculumId, semesterId)로만 가리킨다
  */
@@ -21,15 +24,17 @@ public class SubjectDraft {
     private String title;
     private String description;
     private int revision;
+    private final List<Unit> units;
 
     private SubjectDraft(String id, String curriculumId, String semesterId, String title, String description,
-                         int revision) {
+                         int revision, List<Unit> units) {
         this.id = id;
         this.curriculumId = curriculumId;
         this.semesterId = semesterId;
         this.title = title;
         this.description = description;
         this.revision = revision;
+        this.units = new ArrayList<>(units);
     }
 
     /**
@@ -40,11 +45,20 @@ public class SubjectDraft {
         if (title == null || title.isBlank()) {
             throw new IllegalArgumentException("과목 제목이 비어 있다.");
         }
-        return new SubjectDraft("SUBJECT-" + UUID.randomUUID(), curriculumId, semesterId, title, description, FIRST_REVISION);
+        return new SubjectDraft("SUBJECT-" + UUID.randomUUID(), curriculumId, semesterId, title, description, FIRST_REVISION, List.of());
     }
 
     /** 저장소에서 읽은 값으로 다시 만든다. revision 을 그대로 받는다. */
-    public static SubjectDraft restore(String id, String curriculumId, String semesterId, String title, String description, int revision) {
-        return new SubjectDraft(id, curriculumId, semesterId, title, description, revision);
+    public static SubjectDraft restore(String id, String curriculumId, String semesterId, String title, String description, int revision, List<Unit> units) {
+        return new SubjectDraft(id, curriculumId, semesterId, title, description, revision, units);
+    }
+
+    public List<Unit> getUnits() {
+        return Collections.unmodifiableList(units);
+    }
+
+    public void addUnit(Unit unit) {
+        units.add(unit);
+        revision++;
     }
 }

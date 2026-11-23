@@ -6,6 +6,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 
 @Getter
 @AllArgsConstructor
@@ -23,4 +25,6 @@ public class SubjectDraftEntity {
     private String title;
     private String description;
     private int revision;
+
+    private List<UnitEntity> units;
 }
