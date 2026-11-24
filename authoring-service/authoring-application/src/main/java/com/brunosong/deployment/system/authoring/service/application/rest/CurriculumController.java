@@ -2,12 +2,14 @@ package com.brunosong.deployment.system.authoring.service.application.rest;
 
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumCreateService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumEditService;
+import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumPublishService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.CurriculumQueryService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectCreateService;
 import com.brunosong.deployment.system.authoring.service.ports.input.service.SubjectEditService;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
+import com.brunosong.deployment.system.authoring.service.entity.CurriculumVersion;
 import com.brunosong.deployment.system.authoring.service.entity.Grade;
 import com.brunosong.deployment.system.authoring.service.entity.MoveDirection;
 import com.brunosong.deployment.system.authoring.service.entity.Semester;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/curricula")
@@ -41,6 +44,7 @@ public class CurriculumController {
     private final CurriculumEditService curriculumEditService;
     private final SubjectCreateService subjectCreateService;
     private final SubjectEditService subjectEditService;
+    private final CurriculumPublishService curriculumPublishService;
 
     /**
      * 커리큘럼을 만든다. 번호를 받아 빈 뼈대 초안이 생긴다.
@@ -59,9 +63,12 @@ public class CurriculumController {
                                            @RequestParam(defaultValue = "0") int page,
                                            @RequestParam(defaultValue = "20") int size) {
         SkeletonDraftPage found = curriculumQueryService.findPage(q, page, size);
+        // 공개 상태(최신 판 번호)는 진열대에서 한 번에 읽는다. 공개한 적이 없으면 null
+        Map<String, Integer> lastVersions = curriculumQueryService.lastVersionNumbers(
+                found.items().stream().map(SkeletonDraft::getCurriculumId).toList());
         List<CurriculumListItem> items = found.items().stream()
                 .map(d -> new CurriculumListItem(d.getCurriculumId(), d.getTitle(), d.getSortOrder(), d.getGrades().size(),
-                        d.getRevision()))
+                        lastVersions.get(d.getCurriculumId()), d.getRevision()))
                 .toList();
         return new CurriculumListResponse(items, found.total());
     }
@@ -225,6 +232,40 @@ public class CurriculumController {
                 request.revision()));
     }
 
+    // ─── 공개. 초안을 판으로 고정해 배포가 읽는 곳에 놓는다(ADR 0008) ───
+
+    /**
+     * 공개한다. 화면이 공개할 때 본 뼈대 revision 과 과목마다의 revision 을 보낸다.
+     * 하나라도 지금과 다르면 409(그사이 누가 고쳤다), 바뀐 것이 없거나 초안이 어긋나면 422
+     */
+    @PostMapping("/{curriculumId}/publish")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PublishResponse publish(@PathVariable String curriculumId, @Valid @RequestBody PublishRequest request) {
+        CurriculumVersion published = curriculumPublishService.publish(
+                curriculumId, request.skeletonRevision(), request.subjectRevisions());
+        return new PublishResponse(published.version(), published.publishedAt().toString());
+    }
+
+    /** 판 기록. 최근 판이 먼저다 */
+    @GetMapping("/{curriculumId}/versions")
+    public List<VersionResponse> findVersions(@PathVariable String curriculumId) {
+        return curriculumQueryService.findVersions(curriculumId).stream()
+                .map(v -> new VersionResponse(v.version(), v.publishedAt().toString(), v.basedOn().skeletonRevision(),
+                        v.basedOn().subjectRevisions()))
+                .toList();
+    }
+
+    /** subjectRevisions 는 과목 ID → 그 과목의 revision. 과목이 없으면 빈 객체 */
+    public record PublishRequest(@NotNull Integer skeletonRevision, @NotNull Map<String, Integer> subjectRevisions) {
+    }
+
+    public record PublishResponse(int version, String publishedAt) {
+    }
+
+    public record VersionResponse(int version, String publishedAt, int skeletonRevision,
+                                  Map<String, Integer> subjectRevisions) {
+    }
+
     // ─── 순서 옮기기. 목록 안의 자리가 순서인 단계(학년, 학기, 단원, 차시)를 한 칸 옮긴다 ───
 
     @PostMapping("/{curriculumId}/grades/{gradeId}/move")
@@ -340,7 +381,8 @@ public class CurriculumController {
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {
     }
 
-    public record CurriculumListItem(String curriculumId, String title, int sortOrder, int gradeCount, int revision) {
+    public record CurriculumListItem(String curriculumId, String title, int sortOrder, int gradeCount,
+                                     Integer lastVersion, int revision) {
     }
 
     public record CreateCurriculumRequest(@NotBlank String title, String description) {

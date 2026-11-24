@@ -1,13 +1,10 @@
 package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapter;
 
-import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.GradeEntity;
-import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SemesterEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.mapper.SkeletonDraftDataAccessMapper;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
-import com.brunosong.deployment.system.authoring.service.entity.Grade;
-import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -21,33 +18,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-/** 뼈대 초안을 skeleton_drafts 컬렉션에 넣는다 */
+/** 뼈대 초안을 skeleton_drafts 컬렉션에 넣고 읽는다. 모양 바꾸기는 SkeletonDraftDataAccessMapper 가 한다 */
 @Component
 @RequiredArgsConstructor
 public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
     private final MongoTemplate mongoTemplate;
+    private final SkeletonDraftDataAccessMapper mapper;
 
     @Override
     public void save(SkeletonDraft draft) {
-        // 도메인 객체를 문서 모양으로 바꾼다.
-        SkeletonDraftEntity entity = new SkeletonDraftEntity(
-                draft.getCurriculumId(),
-                draft.getTitle(),
-                draft.getDescription(),
-                draft.getSortOrder(),
-                toGradeEntities(draft.getGrades()),
-                draft.getRevision()
-        );
-
         // 새로 넣기만 한다. 같은 _id (커리큘럼 ID)가 이미 있으면 Mongo가 오류를 낸다.
-        mongoTemplate.insert(entity);
+        mongoTemplate.insert(mapper.toEntity(draft));
     }
 
     @Override
     public Optional<SkeletonDraft> findById(String curriculumId) {
         SkeletonDraftEntity entity = mongoTemplate.findById(curriculumId, SkeletonDraftEntity.class);
-        return Optional.ofNullable(entity).map(SkeletonDraftRepositoryImpl::toDomain);
+        return Optional.ofNullable(entity).map(mapper::toDomain);
     }
 
     @Override
@@ -66,11 +54,10 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
         // 2. 전체 개수를 먼저 센다. 쪽을 자르기 전에 세야 전체가 나온다.
         long total = mongoTemplate.count(query, SkeletonDraftEntity.class);
 
-        // 3. ID 순으로 그 쪽만 읽는다.
-        // 정렬 순서대로, 같으면 ID 순으로 읽는다
+        // 3. 정렬 순서대로, 같으면 ID 순으로 그 쪽만 읽는다
         query.with(Sort.by("sortOrder", "_id")).skip((long) page * size).limit(size);
         List<SkeletonDraft> items = mongoTemplate.find(query, SkeletonDraftEntity.class).stream()
-                .map(SkeletonDraftRepositoryImpl::toDomain)
+                .map(mapper::toDomain)
                 .toList();
 
         return new SkeletonDraftPage(items, total);
@@ -87,47 +74,11 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                         .set("title", draft.getTitle())
                         .set("description", draft.getDescription())
                         .set("sortOrder", draft.getSortOrder())
-                        .set("grades", toGradeEntities(draft.getGrades()))
+                        .set("grades", mapper.toGradeEntities(draft.getGrades()))
                         .set("revision", draft.getRevision()),
                 SkeletonDraftEntity.class);
 
         // 조건에 맞는 문서가 없었다. = revision이 이미 바뀌었다.
         return result.getMatchedCount() == 1;
-    }
-
-    private static List<GradeEntity> toGradeEntities(List<Grade> grades) {
-        return grades.stream()
-                .map(g -> new GradeEntity(g.getId(), g.getTitle(), g.getDescription(),
-                        g.getSemesters().stream()
-                                .map(s -> new SemesterEntity(s.getId(), s.getTitle(), s.getDescription()))
-                                .toList()))
-                .toList();
-    }
-
-    // 문서를 도메인 객체로 되돌린다. 저장된 revision 을 그대로 쓴다
-    private static SkeletonDraft toDomain(SkeletonDraftEntity e) {
-        // 정렬 순서 칸이 생기기 전에 만든 문서는 0 으로 읽는다(맨 앞)
-        return SkeletonDraft.restore(e.getCurriculumId(), e.getTitle(), e.getDescription(),
-                e.getSortOrder() == null ? 0 : e.getSortOrder(), toGrades(e.getGrades()), e.getRevision());
-    }
-
-    private static List<Grade> toGrades(List<GradeEntity> entities) {
-        // 학년 칸이 생기기 전에 만든 문서(CUR001, CUR002)에는 grades 가 없어서 null 로 온다
-        if (entities == null) {
-            return List.of();
-        }
-        return entities.stream()
-                .map(e -> Grade.restore(e.id(), e.title(), e.description(), toSemesters(e.semesters())))
-                .toList();
-    }
-
-    private static List<Semester> toSemesters(List<SemesterEntity> entities) {
-        // 학기 칸이 생기기 전에 넣은 학년(CUR001 의 Grade 1)에는 semesters 가 없어서 null 로 온다
-        if (entities == null) {
-            return List.of();
-        }
-        return entities.stream()
-                .map(e -> Semester.restore(e.id(), e.title(), e.description()))
-                .toList();
     }
 }

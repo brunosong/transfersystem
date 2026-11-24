@@ -4,9 +4,19 @@ import { BookOpen, CalendarRange, ChevronRight, GraduationCap, Loader2, Pencil, 
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
-import { authoringApi, isConflict, type Grade, type MoveDirection, type Semester, type SkeletonDraft, type SubjectDraft } from '../../api/authoring'
-import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
-import { AddInline, draftKey, type Handlers, LevelTag, MoveButtons, subjectsKey } from './parts'
+import {
+  authoringApi,
+  isConflict,
+  type Grade,
+  type MoveDirection,
+  type Semester,
+  type SkeletonDraft,
+  type SubjectDraft,
+  type VersionSummary,
+} from '../../api/authoring'
+import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton, Table, Td, Th } from '../../components/ui'
+import { AddInline, draftKey, type Handlers, LevelTag, MoveButtons, subjectsKey, versionsKey } from './parts'
+import { formatDateTime } from '../../lib/format'
 import { PublishBadge } from './PublishBadge'
 
 
@@ -36,12 +46,25 @@ export function CurriculumDetailPage() {
     staleTime: Infinity,
     retry: false,
   })
+  // 과목과 판 기록은 머리(공개 버튼, 공개 상태)와 탭이 함께 쓴다. 그래서 페이지에서 읽는다
+  const subjects = useQuery({
+    queryKey: subjectsKey(curriculumId),
+    queryFn: () => authoringApi.listSubjects(curriculumId),
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
+  })
+  const versions = useQuery({
+    queryKey: versionsKey(curriculumId),
+    queryFn: () => authoringApi.listVersions(curriculumId),
+    refetchOnWindowFocus: false,
+  })
   const [conflict, setConflict] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('structure')
 
   const reload = () => {
     setConflict(null)
     void client.invalidateQueries({ queryKey: draftKey(curriculumId) })
+    void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) })
   }
   const handlers: Handlers = {
     onSuccess: () => void client.invalidateQueries({ queryKey: draftKey(curriculumId) }),
@@ -84,7 +107,13 @@ export function CurriculumDetailPage() {
         </Card>
       ) : (
         <>
-          <DetailHeader draft={draft.data} />
+          <DetailHeader
+            draft={draft.data}
+            subjects={subjects.data}
+            lastVersion={versions.data?.[0]}
+            locked={conflict !== null}
+            onConflict={setConflict}
+          />
 
           {conflict && (
             <Notice tone="warning" title="다른 사람이 먼저 고쳤습니다">
@@ -117,7 +146,7 @@ export function CurriculumDetailPage() {
           <div key={draft.data.revision}>
             {tab === 'structure' && <StructureTab draft={draft.data} locked={conflict !== null} handlers={handlers} />}
             {tab === 'info' && <InfoTab draft={draft.data} locked={conflict !== null} handlers={handlers} />}
-            {tab === 'versions' && <VersionsTab />}
+            {tab === 'versions' && <VersionsTab versions={versions.data} draft={draft.data} />}
           </div>
         </>
       )}
@@ -125,13 +154,54 @@ export function CurriculumDetailPage() {
   )
 }
 
-function DetailHeader({ draft }: { draft: SkeletonDraft }) {
+/** 초안이 가장 최근 판을 만든 초안과 같은가. revision 이 하나라도 다르면 공개 뒤에 고친 것이다 */
+function sameAsVersion(draft: SkeletonDraft, subjects: SubjectDraft[], version: VersionSummary): boolean {
+  if (draft.revision !== version.skeletonRevision) return false
+  const published = version.subjectRevisions
+  if (Object.keys(published).length !== subjects.length) return false
+  return subjects.every((s) => published[s.id] === s.revision)
+}
+
+function DetailHeader({
+  draft,
+  subjects,
+  lastVersion,
+  locked,
+  onConflict,
+}: {
+  draft: SkeletonDraft
+  subjects?: SubjectDraft[]
+  lastVersion?: VersionSummary
+  locked: boolean
+  onConflict: (message: string) => void
+}) {
+  const client = useQueryClient()
+  const changed = lastVersion !== undefined && subjects !== undefined && !sameAsVersion(draft, subjects, lastVersion)
+  // 공개는 화면이 지금 보고 있는 revision 들을 그대로 보낸다. 그사이 누가 고쳤으면 서버가 409 로 막는다
+  const publish = useMutation({
+    mutationFn: () =>
+      authoringApi.publish(
+        draft.curriculumId,
+        draft.revision,
+        Object.fromEntries((subjects ?? []).map((s) => [s.id, s.revision])),
+      ),
+    onSuccess: () => void client.invalidateQueries({ queryKey: versionsKey(draft.curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
+  const confirmPublish = () => {
+    const next = (lastVersion?.version ?? 0) + 1
+    const count = subjects?.length ?? 0
+    if (window.confirm(`지금 보이는 내용(과목 ${count}개)으로 판 ${next}을 공개합니다.\n배포는 이 판을 읽습니다.`)) publish.mutate()
+  }
+
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">{draft.title}</h1>
-          <PublishBadge />
+          <PublishBadge version={lastVersion?.version} changedSincePublish={changed} />
         </div>
         <p className="mt-1 flex items-center gap-2 text-sm text-slate-500">
           <Mono>{draft.curriculumId}</Mono>
@@ -139,11 +209,18 @@ function DetailHeader({ draft }: { draft: SkeletonDraft }) {
           <span title="낙관적 락 번호. 고칠 때마다 1씩 오르고, 고칠 때 이 값을 함께 보낸다">revision {draft.revision}</span>
         </p>
       </div>
-      {/* 공개는 아직 서버에 없다. 자리만 잡아 둔다 */}
-      <Button disabled title="공개 기능은 준비 중입니다">
-        <Upload className="size-4" />
-        공개
-      </Button>
+      <div className="flex flex-col items-end gap-2">
+        <Button disabled={locked || subjects === undefined || publish.isPending} onClick={confirmPublish}>
+          {publish.isPending ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+          공개
+        </Button>
+        {publish.error && !isConflict(publish.error) && (
+          <Notice tone="danger" className="max-w-sm">
+            {publish.error.message}
+          </Notice>
+        )}
+        {publish.isSuccess && <p className="text-xs text-emerald-700">판 {publish.data.version}을 공개했습니다</p>}
+      </div>
     </div>
   )
 }
@@ -151,10 +228,12 @@ function DetailHeader({ draft }: { draft: SkeletonDraft }) {
 // ─── 구성: 학년 > 학기 > 과목 ──────────────────────────────────
 
 function StructureTab({ draft, locked, handlers }: { draft: SkeletonDraft; locked: boolean; handlers: Handlers }) {
+  // 페이지가 읽은 것과 같은 키라 다시 부르지 않고 같은 값을 쓴다
   const subjects = useQuery({
     queryKey: subjectsKey(draft.curriculumId),
     queryFn: () => authoringApi.listSubjects(draft.curriculumId),
     refetchOnWindowFocus: false,
+    staleTime: Infinity,
   })
   const addGrade = useMutation({
     mutationFn: (title: string) => authoringApi.addGrade(draft.curriculumId, title, draft.revision),
@@ -566,14 +645,61 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 
 // ─── 판 기록 ────────────────────────────────────────────────────
 
-/** 공개할 때마다 판이 하나씩 쌓인다. 공개 기능이 아직 없어서 비어 있다 */
-function VersionsTab() {
+/** 공개할 때마다 판이 하나씩 쌓인다(창고, curriculum_versions). 맨 위가 배포가 읽는 판이다(진열대) */
+function VersionsTab({ versions, draft }: { versions?: VersionSummary[]; draft: SkeletonDraft }) {
+  if (versions === undefined) {
+    return (
+      <Card>
+        <div className="p-5">
+          <Skeleton className="h-24 w-full" />
+        </div>
+      </Card>
+    )
+  }
+  if (versions.length === 0) {
+    return (
+      <Card>
+        <EmptyState
+          title="아직 공개한 판이 없습니다"
+          description="오른쪽 위 [공개]를 누르면 그 순간의 커리큘럼이 판 1로 고정됩니다. 배포는 가장 최근 판을 읽습니다."
+        />
+      </Card>
+    )
+  }
   return (
     <Card>
-      <EmptyState
-        title="아직 공개한 판이 없습니다"
-        description="공개하면 그 순간의 커리큘럼이 판 1, 판 2 … 로 쌓이고, 배포는 가장 최근 판을 읽습니다. 공개 기능은 준비 중입니다."
-      />
+      <CardHeader title="판 기록" description={`판 ${versions.length}개. 맨 위가 배포가 읽는 판입니다`} />
+      <Table>
+        <thead>
+          <tr>
+            <Th>판</Th>
+            <Th>공개한 때</Th>
+            <Th>뼈대 revision</Th>
+            <Th>과목</Th>
+            <Th />
+          </tr>
+        </thead>
+        <tbody>
+          {versions.map((v, index) => (
+            <tr key={v.version}>
+              <Td className="font-medium tabular-nums">판 {v.version}</Td>
+              <Td className="text-slate-600">{formatDateTime(v.publishedAt)}</Td>
+              <Td className="text-slate-600 tabular-nums">{v.skeletonRevision}</Td>
+              <Td className="text-slate-600">{Object.keys(v.subjectRevisions).length}개</Td>
+              <Td>
+                {index === 0 && (
+                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                    배포가 읽는 판
+                  </span>
+                )}
+              </Td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <p className="border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+        지금 초안: 뼈대 revision {draft.revision}. 판의 내용은 고치지 않습니다. 고치려면 초안을 고치고 다시 공개합니다.
+      </p>
     </Card>
   )
 }

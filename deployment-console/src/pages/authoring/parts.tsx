@@ -8,6 +8,8 @@ import { Button, Input, Notice } from '../../components/ui'
 export const draftKey = (curriculumId: string) => ['authoring', 'draft', curriculumId] as const
 // 과목은 뼈대와 다른 애그리거트라 따로 읽고, 따로 새로 고친다
 export const subjectsKey = (curriculumId: string) => ['authoring', 'subjects', curriculumId] as const
+// 판 기록. 공개할 때만 바뀐다
+export const versionsKey = (curriculumId: string) => ['authoring', 'versions', curriculumId] as const
 
 /** 성공하면 다시 읽고, 409 면 충돌로 남긴다. 고치기마다 같은 처리를 쓴다 */
 export type Handlers = { onSuccess: () => void; onError: (error: Error) => void }

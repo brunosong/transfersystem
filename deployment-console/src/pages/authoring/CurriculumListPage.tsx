@@ -120,7 +120,7 @@ function ListBody({ list, onCreate }: { list: UseQueryResult<ListPage, Error>; o
             <Td className="text-slate-600 tabular-nums">{item.sortOrder}</Td>
             <Td className="text-slate-600">{item.gradeCount}개</Td>
             <Td>
-              <PublishBadge />
+              <PublishBadge version={item.lastVersion} />
             </Td>
             {/* 누가 언제 고쳤는지는 아직 저장하지 않는다 */}
             <Td className="text-slate-400">—</Td>

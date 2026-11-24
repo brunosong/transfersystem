@@ -61,12 +61,22 @@ export interface CurriculumListItem {
   title: string
   sortOrder: number
   gradeCount: number
+  /** 가장 최근 판 번호. 공개한 적이 없으면 null */
+  lastVersion: number | null
   revision: number
 }
 
 export interface CurriculumListPage {
   items: CurriculumListItem[]
   total: number
+}
+
+/** 판 기록 한 줄. 어떤 초안(뼈대 revision, 과목마다 revision)으로 만들었는지 담는다 */
+export interface VersionSummary {
+  version: number
+  publishedAt: string
+  skeletonRevision: number
+  subjectRevisions: Record<string, number>
 }
 
 /** 한 칸 옮기는 방향. 학년, 학기, 단원, 차시는 목록 안의 자리가 순서다 */
@@ -108,6 +118,18 @@ const id = encodeURIComponent
 export const authoringApi = {
   list: (q: string, page: number, size: number) =>
     request<CurriculumListPage>(`${BASE}?${new URLSearchParams({ q, page: String(page), size: String(size) })}`),
+
+  /**
+   * 공개. 화면이 지금 보고 있는 뼈대 revision 과 과목마다의 revision 을 보낸다.
+   * 그사이 누가 고쳤으면 409, 바뀐 것이 없거나 초안이 어긋나면 422
+   */
+  publish: (curriculumId: string, skeletonRevision: number, subjectRevisions: Record<string, number>) =>
+    request<{ version: number; publishedAt: string }>(`${BASE}/${id(curriculumId)}/publish`, 'POST', {
+      skeletonRevision,
+      subjectRevisions,
+    }),
+
+  listVersions: (curriculumId: string) => request<VersionSummary[]>(`${BASE}/${id(curriculumId)}/versions`),
 
   create: (title: string, description: string) =>
     request<{ curriculumId: string; revision: number }>(BASE, 'POST', { title, description }),

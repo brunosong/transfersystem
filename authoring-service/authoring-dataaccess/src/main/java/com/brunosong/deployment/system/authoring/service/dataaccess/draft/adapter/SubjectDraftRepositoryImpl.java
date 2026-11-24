@@ -1,11 +1,8 @@
 package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapter;
 
-import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.LessonEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SubjectDraftEntity;
-import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.UnitEntity;
-import com.brunosong.deployment.system.authoring.service.entity.Lesson;
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.mapper.SubjectDraftDataAccessMapper;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
-import com.brunosong.deployment.system.authoring.service.entity.Unit;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SubjectDraftRepository;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -19,40 +16,32 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
+/** 과목 초안을 subject_drafts 컬렉션에 넣고 읽는다. 모양 바꾸기는 SubjectDraftDataAccessMapper 가 한다 */
 @Component
 @RequiredArgsConstructor
 public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
 
     private final MongoTemplate mongoTemplate;
+    private final SubjectDraftDataAccessMapper mapper;
 
     @Override
     public void save(SubjectDraft draft) {
-
-        SubjectDraftEntity entity = new SubjectDraftEntity(
-                draft.getId(),
-                draft.getCurriculumId(),
-                draft.getSemesterId(),
-                draft.getTitle(),
-                draft.getDescription(),
-                draft.getSortOrder(),
-                toUnitEntities(draft.getUnits()),
-                draft.getRevision());
-
-        mongoTemplate.insert(entity);
+        // 새로 넣기만 한다. 같은 _id 가 있으면 Mongo 가 오류를 낸다
+        mongoTemplate.insert(mapper.toEntity(draft));
     }
 
     @Override
     public List<SubjectDraft> findByCurriculumId(String curriculumId) {
         Query query = Query.query(Criteria.where("curriculumId").is(curriculumId)).with(Sort.by("sortOrder", "title"));
         return mongoTemplate.find(query, SubjectDraftEntity.class).stream()
-                .map(SubjectDraftRepositoryImpl::toDomain)
+                .map(mapper::toDomain)
                 .toList();
     }
 
     @Override
     public Optional<SubjectDraft> findById(String subjectId) {
         return Optional.ofNullable(mongoTemplate.findById(subjectId, SubjectDraftEntity.class))
-                .map(SubjectDraftRepositoryImpl::toDomain);
+                .map(mapper::toDomain);
     }
 
     @Override
@@ -65,47 +54,10 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
                         .set("title", draft.getTitle())
                         .set("description", draft.getDescription())
                         .set("sortOrder", draft.getSortOrder())
-                        .set("units", toUnitEntities(draft.getUnits()))
+                        .set("units", mapper.toUnitEntities(draft.getUnits()))
                         .set("revision", draft.getRevision()),
                 SubjectDraftEntity.class);
         return result.getMatchedCount() == 1;
-    }
-
-    private static SubjectDraft toDomain(SubjectDraftEntity e) {
-        return SubjectDraft.restore(e.getId(), e.getCurriculumId(), e.getSemesterId(), e.getTitle(),
-                e.getDescription(), e.getSortOrder() == null ? 0 : e.getSortOrder(), toUnits(e.getUnits()),
-                e.getRevision());
-    }
-
-    private static List<UnitEntity> toUnitEntities(List<Unit> units) {
-        return units.stream()
-                .map(u -> new UnitEntity(u.getId(), u.getTitle(), u.getDescription(),
-                        u.getLessons().stream()
-                                .map(l -> new LessonEntity(l.getId(), l.getTitle(), l.getDescription(), l.getLearningLevel()))
-                                .toList()))
-                .toList();
-    }
-
-    private static List<Unit> toUnits(List<UnitEntity> entities) {
-        // 단원 칸이 생기기 전에 만든 과목(Math, 과학)에는 units 가 없어서 null 로 온다
-        if (entities == null) {
-            return List.of();
-        }
-        return entities.stream()
-                .map(e -> Unit.restore(e.id(), e.title(), e.description(), toLessons(e.lessons())))
-                .toList();
-    }
-
-    private static List<Lesson> toLessons(List<LessonEntity> entities) {
-        // 차시 칸이 생기기 전에 넣은 단원(Unit 1)에는 lessons 가 없어서 null 로 온다
-        if (entities == null) {
-            return List.of();
-        }
-        return entities.stream()
-                // 학습 수준 칸이 생기기 전에 넣은 차시는 null 이라 1로 읽는다
-                .map(e -> Lesson.restore(e.id(), e.title(), e.description(),
-                        e.learningLevel() == null ? Lesson.MIN_LEARNING_LEVEL : e.learningLevel()))
-                .toList();
     }
 
     @Override

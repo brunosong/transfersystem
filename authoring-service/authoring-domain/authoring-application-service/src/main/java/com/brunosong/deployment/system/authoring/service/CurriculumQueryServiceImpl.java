@@ -3,7 +3,9 @@ package com.brunosong.deployment.system.authoring.service;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.CurriculumVersionRepository;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
+import com.brunosong.deployment.system.authoring.service.ports.output.repository.VersionSummary;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SubjectDraftRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import com.brunosong.deployment.system.authoring.service.ports.input.service.Cur
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /** 커리큘럼 읽기. 편집 화면을 열 때 내용과 revision 을 함께 준다 */
 @Service
@@ -19,6 +22,7 @@ public class CurriculumQueryServiceImpl implements CurriculumQueryService {
 
     private final SkeletonDraftRepository skeletonDraftRepository;
     private final SubjectDraftRepository subjectDraftRepository;
+    private final CurriculumVersionRepository curriculumVersionRepository;
 
     @Override
     public SkeletonDraft find(String curriculumId) {
@@ -37,5 +41,15 @@ public class CurriculumQueryServiceImpl implements CurriculumQueryService {
     @Override
     public List<SubjectDraft> findSubjects(String curriculumId) {
         return subjectDraftRepository.findByCurriculumId(curriculumId);
+    }
+
+    @Override
+    public List<VersionSummary> findVersions(String curriculumId) {
+        return curriculumVersionRepository.findSummaries(curriculumId);
+    }
+
+    @Override
+    public Map<String, Integer> lastVersionNumbers(List<String> curriculumIds) {
+        return curriculumVersionRepository.lastVersionNumbers(curriculumIds);
     }
 }

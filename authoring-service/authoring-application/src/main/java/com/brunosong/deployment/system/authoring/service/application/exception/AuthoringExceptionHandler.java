@@ -3,6 +3,7 @@ package com.brunosong.deployment.system.authoring.service.application.exception;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.GradeNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.LessonNotFoundException;
+import com.brunosong.deployment.system.authoring.service.exception.PublishRejectedException;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
 import com.brunosong.deployment.system.authoring.service.exception.SemesterHasSubjectsException;
 import com.brunosong.deployment.system.authoring.service.exception.SemesterNotFoundException;
@@ -25,11 +26,11 @@ public class AuthoringExceptionHandler {
     }
 
     /**
-     * 규칙 때문에 할 수 없다(과목이 남은 학기 지우기). 409 는 "다시 불러와라"라는 뜻으로 쓰고 있어서 422 로 나눈다.
+     * 규칙 때문에 할 수 없다(과목이 남은 학기 지우기, 바뀐 것이 없거나 어긋난 초안 공개). 409 는 "다시 불러와라"라는 뜻으로 쓰고 있어서 422 로 나눈다.
      * 다시 불러와도 같은 결과라, 화면은 이유를 보여 주기만 한다
      */
-    @ExceptionHandler(SemesterHasSubjectsException.class)
-    public ProblemDetail handleRuleViolation(SemesterHasSubjectsException e) {
+    @ExceptionHandler({SemesterHasSubjectsException.class, PublishRejectedException.class})
+    public ProblemDetail handleRuleViolation(RuntimeException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
     }
 
