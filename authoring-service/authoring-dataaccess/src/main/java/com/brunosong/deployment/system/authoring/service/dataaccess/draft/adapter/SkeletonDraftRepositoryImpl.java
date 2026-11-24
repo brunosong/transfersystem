@@ -2,83 +2,64 @@ package com.brunosong.deployment.system.authoring.service.dataaccess.draft.adapt
 
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.entity.SkeletonDraftEntity;
 import com.brunosong.deployment.system.authoring.service.dataaccess.draft.mapper.SkeletonDraftDataAccessMapper;
+import com.brunosong.deployment.system.authoring.service.dataaccess.draft.repository.SkeletonDraftMongoRepository;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftRepository;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-/** 뼈대 초안을 skeleton_drafts 컬렉션에 넣고 읽는다. 모양 바꾸기는 SkeletonDraftDataAccessMapper 가 한다 */
+/**
+ * 뼈대 초안을 skeleton_drafts 컬렉션에 넣고 읽는다. Spring Data 의 Repository(SkeletonDraftMongoRepository)를 쓴다.
+ * 모양 바꾸기는 SkeletonDraftDataAccessMapper 가 한다
+ */
 @Component
 @RequiredArgsConstructor
 public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
-    private final MongoTemplate mongoTemplate;
+    private final SkeletonDraftMongoRepository repository;
     private final SkeletonDraftDataAccessMapper mapper;
 
     @Override
     public void save(SkeletonDraft draft) {
-        // 새로 넣기만 한다. 같은 _id (커리큘럼 ID)가 이미 있으면 Mongo가 오류를 낸다.
-        mongoTemplate.insert(mapper.toEntity(draft));
+        // save 가 아니라 insert 다. Repository 의 save 는 같은 _id 가 있으면 말없이 덮어쓴다.
+        // insert 는 같은 _id(커리큘럼 ID)가 있으면 거절한다
+        repository.insert(mapper.toEntity(draft));
     }
 
     @Override
     public Optional<SkeletonDraft> findById(String curriculumId) {
-        SkeletonDraftEntity entity = mongoTemplate.findById(curriculumId, SkeletonDraftEntity.class);
-        return Optional.ofNullable(entity).map(mapper::toDomain);
+        return repository.findById(curriculumId).map(mapper::toDomain);
     }
 
     @Override
     public SkeletonDraftPage findPage(String keyword, int page, int size) {
-        // 1. 조건: keyword 가 ID(_id)나 제목에 들어 있으면, 비었으면 조건 없이 전부
-        Query query = new Query();
-        if (keyword != null && !keyword.isBlank()) {
-            // 사람이 친 글자를 정규식 기호로 읽지 않게 감싼다. "i"는 대소문자를 가리지 않는다.
-            String pattern = Pattern.quote(keyword.trim());
-            query.addCriteria(new Criteria().orOperator(
-                    Criteria.where("_id").regex(pattern, "i"),
-                    Criteria.where("title").regex(pattern, "i")
-            ));
-        }
+        // 정렬 순서대로, 같으면 ID 순으로. curriculumId 는 문서의 _id 라 Spring 이 _id 로 바꿔 정렬한다
+        Pageable pageable = PageRequest.of(page, size, Sort.by("sortOrder", "curriculumId"));
 
-        // 2. 전체 개수를 먼저 센다. 쪽을 자르기 전에 세야 전체가 나온다.
-        long total = mongoTemplate.count(query, SkeletonDraftEntity.class);
+        // keyword 가 비면 전부, 있으면 ID나 제목으로 찾는다. 사람이 친 글자를 정규식 기호로 읽지 않게 감싼다
+        Page<SkeletonDraftEntity> found = (keyword == null || keyword.isBlank())
+                ? repository.findAll(pageable)
+                : repository.search(Pattern.quote(keyword.trim()), pageable);
 
-        // 3. 정렬 순서대로, 같으면 ID 순으로 그 쪽만 읽는다
-        query.with(Sort.by("sortOrder", "_id")).skip((long) page * size).limit(size);
-        List<SkeletonDraft> items = mongoTemplate.find(query, SkeletonDraftEntity.class).stream()
-                .map(mapper::toDomain)
-                .toList();
-
-        return new SkeletonDraftPage(items, total);
+        // Page 는 그 쪽의 목록과 전체 개수를 함께 갖고 있다(MongoTemplate 에서는 count 를 따로 불렀다)
+        return new SkeletonDraftPage(found.map(mapper::toDomain).getContent(), found.getTotalElements());
     }
 
     @Override
     public boolean update(SkeletonDraft draft, int expectedRevision) {
-        UpdateResult result = mongoTemplate.updateFirst(
-                // 조건 : 이 커리큘럼이고, revision 이 내가 본 값일 때만
-                Query.query(Criteria.where("_id").is(draft.getCurriculumId())
-                        .and("revision").is(expectedRevision)),
-                // 고친 내용과 새 revision을 넣는다.
-                new Update()
-                        .set("title", draft.getTitle())
-                        .set("description", draft.getDescription())
-                        .set("sortOrder", draft.getSortOrder())
-                        .set("grades", mapper.toGradeEntities(draft.getGrades()))
-                        .set("revision", draft.getRevision()),
-                SkeletonDraftEntity.class);
-
-        // 조건에 맞는 문서가 없었다. = revision이 이미 바뀌었다.
-        return result.getMatchedCount() == 1;
+        // 조건(revision 이 내가 본 값)과 갱신을 한 번의 명령으로 보낸다. 바뀐 문서가 1 이면 성공, 0 이면 누가 먼저 고쳤다
+        long modified = repository.updateIfRevision(
+                draft.getCurriculumId(), expectedRevision,
+                draft.getTitle(), draft.getDescription(), draft.getSortOrder(),
+                mapper.toGradeEntities(draft.getGrades()), draft.getRevision());
+        return modified == 1;
     }
 }
