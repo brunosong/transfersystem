@@ -1,6 +1,6 @@
 package com.brunosong.deployment.system.authoring.service.entity;
 
-import com.brunosong.deployment.system.authoring.service.exception.SemesterNotFoundException;
+import com.brunosong.deployment.system.authoring.service.exception.PublishRejectedException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,7 +59,8 @@ public record CurriculumVersion(
         // 1. 과목이 가리키는 학기가 뼈대에 다 있는지 본다
         for (SubjectDraft subject : subjects) {
             if (!skeleton.hasSemester(subject.getSemesterId())) {
-                throw new SemesterNotFoundException(subject.getSemesterId());
+                throw new PublishRejectedException(
+                        "과목 '" + subject.getTitle() + "' 이 가리키는 학기가 뼈대에 없다. 과목을 다른 학기로 옮기거나 지운 뒤 공개하라");
             }
         }
 
