@@ -33,6 +33,14 @@ public class AuthoringExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, e.getMessage());
     }
 
+    /**
+     * 도메인이 값을 거절했다(빈 제목, 1~5 밖의 학습 수준 등). API 검사를 지나 도메인에서 걸려도 400 이 되게 한다
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleInvalid(IllegalArgumentException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
     /** 낙관적 락에 걸렸다. 화면은 다시 불러온 뒤 고치게 한다 */
     @ExceptionHandler(RevisionConflictException.class)
     public ProblemDetail handleConflict(RevisionConflictException e) {

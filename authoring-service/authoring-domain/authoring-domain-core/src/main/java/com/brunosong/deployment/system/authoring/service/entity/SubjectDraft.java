@@ -9,11 +9,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-
 /**
- * 과목 초안(애그리거트 루트). 과목 하나와 그 아래 단원, 차시를 담는다. 차시는 다음 기능에서 더한다.
+ * 과목 초안(애그리거트 루트). 과목 하나와 그 아래 단원, 차시를 담는다.
  * 뼈대와 다른 애그리거트라 revision 을 따로 갖는다. 그래서 서로 다른 과목은 동시에 고쳐도 부딪히지 않는다.
- * 뼈대는 ID(curriculumId, semesterId)로만 가리킨다
+ * 뼈대는 ID(curriculumId, semesterId)로만 가리킨다(ADR 0009)
+ *
+ * 순서: 한 학기 안의 과목끼리는 sortOrder 숫자로 정한다(과목마다 다른 애그리거트라 목록이 없다).
+ * 단원과 차시는 목록 안의 자리가 순서이고, 위아래로 옮긴다
  */
 @Getter
 public class SubjectDraft {
@@ -25,48 +27,60 @@ public class SubjectDraft {
     private String semesterId;
     private String title;
     private String description;
-    private int revision;
+    private int sortOrder;
     private final List<Unit> units;
+    private int revision;
 
     private SubjectDraft(String id, String curriculumId, String semesterId, String title, String description,
-                         int revision, List<Unit> units) {
+                         int sortOrder, List<Unit> units, int revision) {
         this.id = id;
         this.curriculumId = curriculumId;
         this.semesterId = semesterId;
         this.title = title;
         this.description = description;
+        this.sortOrder = sortOrder;
+        this.units = new ArrayList<>(units);   // 안에서 고칠 수 있게 우리 목록으로 복사한다
         this.revision = revision;
-        this.units = new ArrayList<>(units);
     }
 
     /**
-     * 새 과목. ID는 시스템이 만든다.
+     * 새 과목. ID는 시스템이 만든다. 정렬 순서는 유스케이스가 정해 준다(그 학기의 맨 뒤).
      * 학기가 뼈대에 있는지는 여기서 보지 않는다. 과목은 뼈대 안을 모르기 때문이다(유스케이스가 본다)
      */
-    public static SubjectDraft create(String curriculumId, String semesterId, String title, String description) {
+    public static SubjectDraft create(String curriculumId, String semesterId, String title, String description,
+                                      int sortOrder) {
         checkTitle(title);
-        return new SubjectDraft("SUBJECT-" + UUID.randomUUID(), curriculumId, semesterId, title, description, FIRST_REVISION, List.of());
+        return new SubjectDraft("SUBJECT-" + UUID.randomUUID(), curriculumId, semesterId, title, description,
+                sortOrder, List.of(), FIRST_REVISION);
     }
 
-    /** 저장소에서 읽은 값으로 다시 만든다. revision 을 그대로 받는다. */
-    public static SubjectDraft restore(String id, String curriculumId, String semesterId, String title, String description, int revision, List<Unit> units) {
-        return new SubjectDraft(id, curriculumId, semesterId, title, description, revision, units);
+    /** 저장소에서 읽은 값으로 다시 만든다. revision 을 그대로 받는다 */
+    public static SubjectDraft restore(String id, String curriculumId, String semesterId, String title,
+                                       String description, int sortOrder, List<Unit> units, int revision) {
+        return new SubjectDraft(id, curriculumId, semesterId, title, description, sortOrder, units, revision);
     }
 
+    /** 밖에서는 읽기만 한다. 고치려면 아래 메서드를 쓴다 */
     public List<Unit> getUnits() {
         return Collections.unmodifiableList(units);
     }
 
-    public void addUnit(Unit unit) {
-        units.add(unit);
-        revision++;
-    }
+    // ─── 과목 ───
 
-    /** 과목 제목과 설명을 고친다. revision 이 1 오른다 */
-    public void edit(String title, String description) {
+    /** 과목 제목, 설명, 정렬 순서를 고친다. revision 이 1 오른다 */
+    public void edit(String title, String description, int sortOrder) {
         checkTitle(title);
         this.title = title;
         this.description = description;
+        this.sortOrder = sortOrder;
+        revision++;
+    }
+
+    // ─── 단원 ───
+
+    /** 단원을 맨 뒤에 붙인다. 과목의 revision 이 1 오른다 */
+    public void addUnit(Unit unit) {
+        units.add(unit);
         revision++;
     }
 
@@ -76,11 +90,20 @@ public class SubjectDraft {
         revision++;
     }
 
-    private static void checkTitle(String title) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("과목 제목이 비어 있다");
+    /** 단원을 한 칸 옮긴다. 옮겼을 때만 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
+    public void moveUnit(String unitId, MoveDirection direction) {
+        if (ListOrder.move(units, findUnit(unitId), direction)) {
+            revision++;
         }
     }
+
+    /** 단원을 지운다. 그 안의 차시도 함께 사라진다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
+    public void removeUnit(String unitId) {
+        units.remove(findUnit(unitId));
+        revision++;
+    }
+
+    // ─── 차시 ───
 
     /** 단원에 차시를 붙인다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
     public void addLesson(String unitId, Lesson lesson) {
@@ -88,23 +111,17 @@ public class SubjectDraft {
         revision++;
     }
 
-    /** 차시의 제목과 설명을 고친다. 과목의 revision 이 1 오른다. 단원이나 차시가 없으면 각각의 NotFoundException */
-    public void editLesson(String unitId, String lessonId, String title, String description) {
-        findLesson(unitId, lessonId).edit(title, description);
+    /** 차시의 제목, 설명, 학습 수준을 고친다. 과목의 revision 이 1 오른다. 단원이나 차시가 없으면 각각의 NotFoundException */
+    public void editLesson(String unitId, String lessonId, String title, String description, int learningLevel) {
+        findLesson(unitId, lessonId).edit(title, description, learningLevel);
         revision++;
     }
 
-    private Lesson findLesson(String unitId, String lessonId) {
-        return findUnit(unitId).getLessons().stream()
-                .filter(l -> l.getId().equals(lessonId))
-                .findFirst()
-                .orElseThrow(() -> new LessonNotFoundException(unitId, lessonId));
-    }
-
-    /** 단원을 지운다. 그 안의 차시도 함께 사라진다. 과목의 revision 이 1 오른다. 단원이 없으면 UnitNotFoundException */
-    public void removeUnit(String unitId) {
-        units.remove(findUnit(unitId));
-        revision++;
+    /** 단원 안에서 차시를 한 칸 옮긴다. 옮겼을 때만 revision 이 1 오른다 */
+    public void moveLesson(String unitId, String lessonId, MoveDirection direction) {
+        if (findUnit(unitId).moveLesson(findLesson(unitId, lessonId), direction)) {
+            revision++;
+        }
     }
 
     /** 차시를 지운다. 과목의 revision 이 1 오른다. 단원이나 차시가 없으면 각각의 NotFoundException */
@@ -119,5 +136,18 @@ public class SubjectDraft {
                 .filter(u -> u.getId().equals(unitId))
                 .findFirst()
                 .orElseThrow(() -> new UnitNotFoundException(id, unitId));
+    }
+
+    private Lesson findLesson(String unitId, String lessonId) {
+        return findUnit(unitId).getLessons().stream()
+                .filter(l -> l.getId().equals(lessonId))
+                .findFirst()
+                .orElseThrow(() -> new LessonNotFoundException(unitId, lessonId));
+    }
+
+    private static void checkTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("과목 제목이 비어 있다");
+        }
     }
 }

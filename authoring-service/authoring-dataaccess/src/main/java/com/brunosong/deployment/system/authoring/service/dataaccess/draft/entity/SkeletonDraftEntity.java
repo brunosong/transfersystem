@@ -18,6 +18,10 @@ public class SkeletonDraftEntity {
 
     private String title;
     private String description;
+
+    // 커리큘럼끼리의 정렬 순서. 이 칸이 생기기 전에 만든 문서는 null 이다
+    private Integer sortOrder;
+
     private List<GradeEntity> grades;
 
     // 낙관적 락에 쓰는 번호. 고치기 기능에서 조건부 갱신의 조건이 된다.

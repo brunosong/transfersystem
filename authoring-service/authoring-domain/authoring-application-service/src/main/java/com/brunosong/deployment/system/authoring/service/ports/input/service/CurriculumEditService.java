@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.authoring.service.ports.input.service;
 
 import com.brunosong.deployment.system.authoring.service.entity.Grade;
+import com.brunosong.deployment.system.authoring.service.entity.MoveDirection;
 import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 
@@ -10,8 +11,15 @@ import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
  */
 public interface CurriculumEditService {
 
-    /** 커리큘럼 제목과 설명을 고친다 */
-    SkeletonDraft edit(String curriculumId, String title, String description, int expectedRevision);
+    /** 커리큘럼 제목, 설명, 정렬 순서를 고친다 */
+    SkeletonDraft edit(String curriculumId, String title, String description, int sortOrder, int expectedRevision);
+
+    /** 학년을 한 칸 옮긴다. 맨 끝이라 못 옮기면 그대로 둔다. 학년이 없으면 GradeNotFoundException(404) */
+    SkeletonDraft moveGrade(String curriculumId, String gradeId, MoveDirection direction, int expectedRevision);
+
+    /** 학년 안에서 학기를 한 칸 옮긴다. 학년이나 학기가 없으면 각각의 NotFoundException(404) */
+    SkeletonDraft moveSemester(String curriculumId, String gradeId, String semesterId, MoveDirection direction,
+                               int expectedRevision);
 
     /** 학년을 하나 붙인다. 새 학년의 ID와 새 revision 을 돌려준다 */
     AddedGrade addGrade(String curriculumId, String title, String description, int expectedRevision);

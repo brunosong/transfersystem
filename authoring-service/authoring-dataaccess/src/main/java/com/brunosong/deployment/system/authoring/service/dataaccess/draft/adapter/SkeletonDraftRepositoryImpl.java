@@ -35,6 +35,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                 draft.getCurriculumId(),
                 draft.getTitle(),
                 draft.getDescription(),
+                draft.getSortOrder(),
                 toGradeEntities(draft.getGrades()),
                 draft.getRevision()
         );
@@ -66,7 +67,8 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
         long total = mongoTemplate.count(query, SkeletonDraftEntity.class);
 
         // 3. ID 순으로 그 쪽만 읽는다.
-        query.with(Sort.by("_id")).skip((long) page * size).limit(size);
+        // 정렬 순서대로, 같으면 ID 순으로 읽는다
+        query.with(Sort.by("sortOrder", "_id")).skip((long) page * size).limit(size);
         List<SkeletonDraft> items = mongoTemplate.find(query, SkeletonDraftEntity.class).stream()
                 .map(SkeletonDraftRepositoryImpl::toDomain)
                 .toList();
@@ -84,6 +86,7 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
                 new Update()
                         .set("title", draft.getTitle())
                         .set("description", draft.getDescription())
+                        .set("sortOrder", draft.getSortOrder())
                         .set("grades", toGradeEntities(draft.getGrades()))
                         .set("revision", draft.getRevision()),
                 SkeletonDraftEntity.class);
@@ -103,8 +106,9 @@ public class SkeletonDraftRepositoryImpl implements SkeletonDraftRepository {
 
     // 문서를 도메인 객체로 되돌린다. 저장된 revision 을 그대로 쓴다
     private static SkeletonDraft toDomain(SkeletonDraftEntity e) {
+        // 정렬 순서 칸이 생기기 전에 만든 문서는 0 으로 읽는다(맨 앞)
         return SkeletonDraft.restore(e.getCurriculumId(), e.getTitle(), e.getDescription(),
-                toGrades(e.getGrades()), e.getRevision());
+                e.getSortOrder() == null ? 0 : e.getSortOrder(), toGrades(e.getGrades()), e.getRevision());
     }
 
     private static List<Grade> toGrades(List<GradeEntity> entities) {

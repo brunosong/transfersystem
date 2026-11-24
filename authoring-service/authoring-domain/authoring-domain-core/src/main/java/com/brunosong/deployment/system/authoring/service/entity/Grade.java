@@ -65,4 +65,8 @@ public class Grade {
     void removeSemester(Semester semester) {
         semesters.remove(semester);
     }
+
+    boolean moveSemester(Semester semester, MoveDirection direction) {
+        return ListOrder.move(semesters, semester, direction);
+    }
 }

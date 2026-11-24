@@ -22,6 +22,8 @@ export interface SkeletonDraft {
   curriculumId: string
   title: string
   description: string | null
+  /** 커리큘럼끼리의 정렬 순서. 작을수록 앞이다 */
+  sortOrder: number
   grades: Grade[]
   revision: number
 }
@@ -31,6 +33,8 @@ export interface Lesson {
   id: string
   title: string
   description: string | null
+  /** 학습 수준 1~5. 배포가 반드시 요구하는 칸이다 */
+  learningLevel: number
 }
 
 export interface Unit {
@@ -45,6 +49,8 @@ export interface SubjectDraft {
   semesterId: string
   title: string
   description: string | null
+  /** 한 학기 안의 과목끼리의 정렬 순서. 작을수록 앞이다 */
+  sortOrder: number
   units: Unit[]
   revision: number
 }
@@ -53,6 +59,7 @@ export interface SubjectDraft {
 export interface CurriculumListItem {
   curriculumId: string
   title: string
+  sortOrder: number
   gradeCount: number
   revision: number
 }
@@ -61,6 +68,9 @@ export interface CurriculumListPage {
   items: CurriculumListItem[]
   total: number
 }
+
+/** 한 칸 옮기는 방향. 학년, 학기, 단원, 차시는 목록 안의 자리가 순서다 */
+export type MoveDirection = 'UP' | 'DOWN'
 
 export function isConflict(error: unknown): boolean {
   return error instanceof ApiError && error.status === 409
@@ -104,8 +114,39 @@ export const authoringApi = {
 
   get: (curriculumId: string) => request<SkeletonDraft>(`${BASE}/${id(curriculumId)}`),
 
-  edit: (curriculumId: string, title: string, description: string, revision: number) =>
-    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}`, 'PUT', { title, description, revision }),
+  edit: (curriculumId: string, title: string, description: string, sortOrder: number, revision: number) =>
+    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}`, 'PUT', { title, description, sortOrder, revision }),
+
+  moveGrade: (curriculumId: string, gradeId: string, direction: MoveDirection, revision: number) =>
+    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/move`, 'POST', { direction, revision }),
+
+  moveSemester: (curriculumId: string, gradeId: string, semesterId: string, direction: MoveDirection, revision: number) =>
+    request<SkeletonDraft>(`${BASE}/${id(curriculumId)}/grades/${id(gradeId)}/semesters/${id(semesterId)}/move`, 'POST', {
+      direction,
+      revision,
+    }),
+
+  /** revision 은 그 과목의 revision 이다 */
+  moveUnit: (curriculumId: string, subjectId: string, unitId: string, direction: MoveDirection, revision: number) =>
+    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/move`, 'POST', {
+      direction,
+      revision,
+    }),
+
+  /** revision 은 그 과목의 revision 이다 */
+  moveLesson: (
+    curriculumId: string,
+    subjectId: string,
+    unitId: string,
+    lessonId: string,
+    direction: MoveDirection,
+    revision: number,
+  ) =>
+    request<SubjectDraft>(
+      `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons/${id(lessonId)}/move`,
+      'POST',
+      { direction, revision },
+    ),
 
   addGrade: (curriculumId: string, title: string, revision: number) =>
     request<{ gradeId: string; revision: number }>(`${BASE}/${id(curriculumId)}/grades`, 'POST', { title, revision }),
@@ -119,8 +160,13 @@ export const authoringApi = {
     request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects`, 'POST', { semesterId, title }),
 
   /** revision 은 그 과목의 revision 이다 */
-  editSubject: (curriculumId: string, subjectId: string, title: string, description: string, revision: number) =>
-    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}`, 'PUT', { title, description, revision }),
+  editSubject: (curriculumId: string, subjectId: string, title: string, description: string, sortOrder: number, revision: number) =>
+    request<SubjectDraft>(`${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}`, 'PUT', {
+      title,
+      description,
+      sortOrder,
+      revision,
+    }),
 
   /** revision 은 그 과목의 revision 이다 */
   addUnit: (curriculumId: string, subjectId: string, title: string, revision: number) =>
@@ -146,12 +192,13 @@ export const authoringApi = {
     lessonId: string,
     title: string,
     description: string,
+    learningLevel: number,
     revision: number,
   ) =>
     request<SubjectDraft>(
       `${BASE}/${id(curriculumId)}/subjects/${id(subjectId)}/units/${id(unitId)}/lessons/${id(lessonId)}`,
       'PUT',
-      { title, description, revision },
+      { title, description, learningLevel, revision },
     ),
 
   /** revision 은 그 과목의 revision 이다 */

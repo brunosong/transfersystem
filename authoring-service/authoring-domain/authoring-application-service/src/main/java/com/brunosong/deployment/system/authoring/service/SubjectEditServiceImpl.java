@@ -1,6 +1,7 @@
 package com.brunosong.deployment.system.authoring.service;
 
 import com.brunosong.deployment.system.authoring.service.entity.Lesson;
+import com.brunosong.deployment.system.authoring.service.entity.MoveDirection;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.entity.Unit;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
@@ -56,8 +57,21 @@ public class SubjectEditServiceImpl implements SubjectEditService {
     }
 
     @Override
-    public SubjectDraft editSubject(String curriculumId, String subjectId, String title, String description, int expectedRevision) {
-        return change(curriculumId, subjectId, expectedRevision, draft -> draft.edit(title, description));
+    public SubjectDraft editSubject(String curriculumId, String subjectId, String title, String description,
+                                    int sortOrder, int expectedRevision) {
+        return change(curriculumId, subjectId, expectedRevision, draft -> draft.edit(title, description, sortOrder));
+    }
+
+    @Override
+    public SubjectDraft moveUnit(String curriculumId, String subjectId, String unitId, MoveDirection direction,
+                                 int expectedRevision) {
+        return change(curriculumId, subjectId, expectedRevision, s -> s.moveUnit(unitId, direction));
+    }
+
+    @Override
+    public SubjectDraft moveLesson(String curriculumId, String subjectId, String unitId, String lessonId,
+                                   MoveDirection direction, int expectedRevision) {
+        return change(curriculumId, subjectId, expectedRevision, s -> s.moveLesson(unitId, lessonId, direction));
     }
 
     @Override
@@ -67,9 +81,9 @@ public class SubjectEditServiceImpl implements SubjectEditService {
 
     @Override
     public SubjectDraft editLesson(String curriculumId, String subjectId, String unitId, String lessonId, String title,
-                                   String description, int expectedRevision) {
+                                   String description, int learningLevel, int expectedRevision) {
         return change(curriculumId, subjectId, expectedRevision,
-                draft -> draft.editLesson(unitId, lessonId, title, description));
+                draft -> draft.editLesson(unitId, lessonId, title, description, learningLevel));
     }
 
     /**

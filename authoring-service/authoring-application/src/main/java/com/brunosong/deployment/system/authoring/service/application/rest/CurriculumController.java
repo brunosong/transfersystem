@@ -9,8 +9,11 @@ import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.entity.SubjectDraft;
 import com.brunosong.deployment.system.authoring.service.ports.output.repository.SkeletonDraftPage;
 import com.brunosong.deployment.system.authoring.service.entity.Grade;
+import com.brunosong.deployment.system.authoring.service.entity.MoveDirection;
 import com.brunosong.deployment.system.authoring.service.entity.Semester;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +60,8 @@ public class CurriculumController {
                                            @RequestParam(defaultValue = "20") int size) {
         SkeletonDraftPage found = curriculumQueryService.findPage(q, page, size);
         List<CurriculumListItem> items = found.items().stream()
-                .map(d -> new CurriculumListItem(d.getCurriculumId(), d.getTitle(), d.getGrades().size(), d.getRevision()))
+                .map(d -> new CurriculumListItem(d.getCurriculumId(), d.getTitle(), d.getSortOrder(), d.getGrades().size(),
+                        d.getRevision()))
                 .toList();
         return new CurriculumListResponse(items, found.total());
     }
@@ -75,7 +79,8 @@ public class CurriculumController {
     @PutMapping("/{curriculumId}")
     public CurriculumResponse edit(@PathVariable String curriculumId, @Valid @RequestBody EditCurriculumRequest request) {
         return CurriculumResponse.from(
-                curriculumEditService.edit(curriculumId, request.title(), request.description(), request.revision()));
+                curriculumEditService.edit(curriculumId, request.title(), request.description(), request.sortOrder(),
+                        request.revision()));
     }
 
     /**
@@ -176,10 +181,11 @@ public class CurriculumController {
     public SubjectResponse editSubject(@PathVariable String curriculumId, @PathVariable String subjectId,
                                        @Valid @RequestBody EditSubjectRequest request) {
         return SubjectResponse.from(subjectEditService.editSubject(
-                curriculumId, subjectId, request.title(), request.description(), request.revision()));
+                curriculumId, subjectId, request.title(), request.description(), request.sortOrder(), request.revision()));
     }
 
-    public record EditSubjectRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    public record EditSubjectRequest(@NotBlank String title, String description, @NotNull Integer sortOrder,
+                                     @NotNull Integer revision) {
     }
 
     /**
@@ -215,7 +221,45 @@ public class CurriculumController {
                                       @PathVariable String unitId, @PathVariable String lessonId,
                                       @Valid @RequestBody EditLessonRequest request) {
         return SubjectResponse.from(subjectEditService.editLesson(
-                curriculumId, subjectId, unitId, lessonId, request.title(), request.description(), request.revision()));
+                curriculumId, subjectId, unitId, lessonId, request.title(), request.description(), request.learningLevel(),
+                request.revision()));
+    }
+
+    // ─── 순서 옮기기. 목록 안의 자리가 순서인 단계(학년, 학기, 단원, 차시)를 한 칸 옮긴다 ───
+
+    @PostMapping("/{curriculumId}/grades/{gradeId}/move")
+    public CurriculumResponse moveGrade(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                        @Valid @RequestBody MoveRequest request) {
+        return CurriculumResponse.from(
+                curriculumEditService.moveGrade(curriculumId, gradeId, request.direction(), request.revision()));
+    }
+
+    @PostMapping("/{curriculumId}/grades/{gradeId}/semesters/{semesterId}/move")
+    public CurriculumResponse moveSemester(@PathVariable String curriculumId, @PathVariable String gradeId,
+                                           @PathVariable String semesterId, @Valid @RequestBody MoveRequest request) {
+        return CurriculumResponse.from(curriculumEditService.moveSemester(
+                curriculumId, gradeId, semesterId, request.direction(), request.revision()));
+    }
+
+    /** revision 은 그 과목의 revision 이다 */
+    @PostMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}/move")
+    public SubjectResponse moveUnit(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                    @PathVariable String unitId, @Valid @RequestBody MoveRequest request) {
+        return SubjectResponse.from(subjectEditService.moveUnit(
+                curriculumId, subjectId, unitId, request.direction(), request.revision()));
+    }
+
+    /** revision 은 그 과목의 revision 이다 */
+    @PostMapping("/{curriculumId}/subjects/{subjectId}/units/{unitId}/lessons/{lessonId}/move")
+    public SubjectResponse moveLesson(@PathVariable String curriculumId, @PathVariable String subjectId,
+                                      @PathVariable String unitId, @PathVariable String lessonId,
+                                      @Valid @RequestBody MoveRequest request) {
+        return SubjectResponse.from(subjectEditService.moveLesson(
+                curriculumId, subjectId, unitId, lessonId, request.direction(), request.revision()));
+    }
+
+    /** direction 은 UP 또는 DOWN */
+    public record MoveRequest(@NotNull MoveDirection direction, @NotNull Integer revision) {
     }
 
     // ─── 지우기. revision 은 쿼리로 받는다(DELETE 의 본문은 버려지기도 한다) ───
@@ -250,7 +294,8 @@ public class CurriculumController {
         return SubjectResponse.from(subjectEditService.removeLesson(curriculumId, subjectId, unitId, lessonId, revision));
     }
 
-    public record EditLessonRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    public record EditLessonRequest(@NotBlank String title, String description,
+                                    @NotNull @Min(1) @Max(5) Integer learningLevel, @NotNull Integer revision) {
     }
 
     public record EditUnitRequest(@NotBlank String title, String description, @NotNull Integer revision) {
@@ -271,38 +316,39 @@ public class CurriculumController {
     public record CreateSubjectRequest(@NotBlank String semesterId, @NotBlank String title, String description) {
     }
 
-    public record SubjectResponse(String id, String semesterId, String title, String description,
+    public record SubjectResponse(String id, String semesterId, String title, String description, int sortOrder,
                                   List<UnitResponse> units, int revision) {
 
         static SubjectResponse from(SubjectDraft subject) {
             List<UnitResponse> units = subject.getUnits().stream()
                     .map(u -> new UnitResponse(u.getId(), u.getTitle(), u.getDescription(),
                             u.getLessons().stream()
-                                    .map(l -> new LessonResponse(l.getId(), l.getTitle(), l.getDescription()))
+                                    .map(l -> new LessonResponse(l.getId(), l.getTitle(), l.getDescription(), l.getLearningLevel()))
                                     .toList()))
                     .toList();
             return new SubjectResponse(subject.getId(), subject.getSemesterId(), subject.getTitle(),
-                    subject.getDescription(), units, subject.getRevision());
+                    subject.getDescription(), subject.getSortOrder(), units, subject.getRevision());
         }
     }
 
     public record UnitResponse(String id, String title, String description, List<LessonResponse> lessons) {
     }
 
-    public record LessonResponse(String id, String title, String description) {
+    public record LessonResponse(String id, String title, String description, int learningLevel) {
     }
 
     public record CurriculumListResponse(List<CurriculumListItem> items, long total) {
     }
 
-    public record CurriculumListItem(String curriculumId, String title, int gradeCount, int revision) {
+    public record CurriculumListItem(String curriculumId, String title, int sortOrder, int gradeCount, int revision) {
     }
 
     public record CreateCurriculumRequest(@NotBlank String title, String description) {
     }
 
     // revision 을 빠뜨리면 0 으로 들어가 늘 409 가 되므로, 빠뜨린 것을 400 으로 알려 준다
-    public record EditCurriculumRequest(@NotBlank String title, String description, @NotNull Integer revision) {
+    public record EditCurriculumRequest(@NotBlank String title, String description, @NotNull Integer sortOrder,
+                                        @NotNull Integer revision) {
     }
 
     public record AddGradeRequest(@NotBlank String title, String description, @NotNull Integer revision) {
@@ -326,12 +372,13 @@ public class CurriculumController {
     public record CreateCurriculumResponse(String curriculumId, int revision) {
     }
 
-    public record CurriculumResponse(String curriculumId, String title, String description,
+    public record CurriculumResponse(String curriculumId, String title, String description, int sortOrder,
                                      List<GradeResponse> grades, int revision) {
 
         static CurriculumResponse from(SkeletonDraft draft) {
             List<GradeResponse> grades = draft.getGrades().stream().map(GradeResponse::from).toList();
-            return new CurriculumResponse(draft.getCurriculumId(), draft.getTitle(), draft.getDescription(), grades, draft.getRevision());
+            return new CurriculumResponse(draft.getCurriculumId(), draft.getTitle(), draft.getDescription(),
+                    draft.getSortOrder(), grades, draft.getRevision());
         }
     }
 

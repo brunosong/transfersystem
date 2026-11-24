@@ -66,4 +66,8 @@ public class Unit {
     void removeLesson(Lesson lesson) {
         lessons.remove(lesson);
     }
+
+    boolean moveLesson(Lesson lesson, MoveDirection direction) {
+        return ListOrder.move(lessons, lesson, direction);
+    }
 }

@@ -34,15 +34,16 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
                 draft.getSemesterId(),
                 draft.getTitle(),
                 draft.getDescription(),
-                draft.getRevision(),
-                toUnitEntities(draft.getUnits()));
+                draft.getSortOrder(),
+                toUnitEntities(draft.getUnits()),
+                draft.getRevision());
 
         mongoTemplate.insert(entity);
     }
 
     @Override
     public List<SubjectDraft> findByCurriculumId(String curriculumId) {
-        Query query = Query.query(Criteria.where("curriculumId").is(curriculumId)).with(Sort.by("title"));
+        Query query = Query.query(Criteria.where("curriculumId").is(curriculumId)).with(Sort.by("sortOrder", "title"));
         return mongoTemplate.find(query, SubjectDraftEntity.class).stream()
                 .map(SubjectDraftRepositoryImpl::toDomain)
                 .toList();
@@ -63,6 +64,7 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
                         .set("semesterId", draft.getSemesterId())
                         .set("title", draft.getTitle())
                         .set("description", draft.getDescription())
+                        .set("sortOrder", draft.getSortOrder())
                         .set("units", toUnitEntities(draft.getUnits()))
                         .set("revision", draft.getRevision()),
                 SubjectDraftEntity.class);
@@ -71,14 +73,15 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
 
     private static SubjectDraft toDomain(SubjectDraftEntity e) {
         return SubjectDraft.restore(e.getId(), e.getCurriculumId(), e.getSemesterId(), e.getTitle(),
-                e.getDescription(), e.getRevision(), toUnits(e.getUnits()));
+                e.getDescription(), e.getSortOrder() == null ? 0 : e.getSortOrder(), toUnits(e.getUnits()),
+                e.getRevision());
     }
 
     private static List<UnitEntity> toUnitEntities(List<Unit> units) {
         return units.stream()
                 .map(u -> new UnitEntity(u.getId(), u.getTitle(), u.getDescription(),
                         u.getLessons().stream()
-                                .map(l -> new LessonEntity(l.getId(), l.getTitle(), l.getDescription()))
+                                .map(l -> new LessonEntity(l.getId(), l.getTitle(), l.getDescription(), l.getLearningLevel()))
                                 .toList()))
                 .toList();
     }
@@ -99,7 +102,9 @@ public class SubjectDraftRepositoryImpl implements SubjectDraftRepository {
             return List.of();
         }
         return entities.stream()
-                .map(e -> Lesson.restore(e.id(), e.title(), e.description()))
+                // 학습 수준 칸이 생기기 전에 넣은 차시는 null 이라 1로 읽는다
+                .map(e -> Lesson.restore(e.id(), e.title(), e.description(),
+                        e.learningLevel() == null ? Lesson.MIN_LEARNING_LEVEL : e.learningLevel()))
                 .toList();
     }
 

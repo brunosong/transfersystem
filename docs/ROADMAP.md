@@ -78,6 +78,8 @@
 - [x] 모듈 뼈대 (`authoring-container`, `authoring-domain`, `authoring-dataaccess`, `authoring-application`). 로컬 8002에서 뜨고 레플리카 셋 Mongo에 붙는 것 확인 (2026-11-20)
 - [ ] 초안 API (~~목록~~ `GET /api/v1/curricula?q=&page=&size=` 2026-11-21, ~~만들기~~ `POST /api/v1/curricula` 2026-11-21, ~~읽기~~ `GET /api/v1/curricula/{id}` 2026-11-21, ~~고치기~~ `PUT /api/v1/curricula/{id}` 뼈대의 제목·설명, 낙관적 락 409 2026-11-21, ~~학년 추가~~ `POST /api/v1/curricula/{id}/grades` 2026-11-21, ~~학기 추가~~ `POST .../grades/{gradeId}/semesters` 2026-11-21, ~~학년 수정~~ `PUT .../grades/{gradeId}`, ~~학기 수정~~ `PUT .../semesters/{semesterId}` 2026-11-21, ~~학년 삭제~~ `DELETE .../grades/{gradeId}?revision=` 학기도 함께 2026-11-22, 학기 삭제, ~~과목 만들기·목록~~ `POST/GET .../subjects` 따로 저장하는 애그리거트, 뼈대 revision 은 그대로 2026-11-22, ~~단원 추가~~ `POST .../subjects/{subjectId}/units` 과목 revision 만 오름 2026-11-23, ~~과목 수정~~ `PUT .../subjects/{subjectId}` 2026-11-23, ~~차시 추가~~ `POST .../units/{unitId}/lessons` 2026-11-23, ~~단원·차시 수정~~ `PUT .../units/{unitId}`, `PUT .../lessons/{lessonId}` 2026-11-23, ~~학기·과목·단원·차시 삭제~~ 과목이 남은 학기·학년은 422 2026-11-24, 차시의 세부 칸 lessonNumber·learningLevel·format)와 공개 API
 - [ ] 배포의 원본 저장소가 공개본 컬렉션을 가리키게 한다. 시드 생성기 대신 저작 서비스로 시드를 넣는다
+- [x] 순서: 커리큘럼·과목은 정렬 순서 숫자, 학년·학기·단원·차시는 목록 자리를 위·아래로 옮긴다 ([저작 모델 6.1](domain/authoring-model.md#61-순서), 2026-11-24)
+- [ ] 커리큘럼 정렬 순서를 대상까지 보낸다: 청크 계약(뼈대 내용)과 대상 DB에 칸 추가 ([ADR 0006](adr/0006-chunk-content-contract.md))
 - [ ] 화면: `deployment-console`에 저작 메뉴. ~~서비스 탭~~, ~~목록·상세 화면~~(2026-11-21, [화면 설계](ui/screens.md#저작-커리큘럼-목록과-상세-2026-11-21). 만들기, 제목·설명, 학년·학기 추가, 409 안내가 돈다. 개발 서버만 저작 서비스로 넘긴다). ~~과목 상세 화면~~(`/authoring/{id}/subjects/{subjectId}`, 단원 추가). 남은 것: 공개·과목·판 기록 기능, nginx 경로, 모의 모드
 
 ## 대상 에이전트 떼어 내기 ([ADR 0002](adr/0002-target-agent.md) 이행 계획)

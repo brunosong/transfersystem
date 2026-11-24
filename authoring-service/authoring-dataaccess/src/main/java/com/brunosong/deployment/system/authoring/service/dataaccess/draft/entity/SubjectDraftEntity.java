@@ -24,7 +24,10 @@ public class SubjectDraftEntity {
     private String semesterId;
     private String title;
     private String description;
-    private int revision;
+    // 한 학기 안의 과목끼리의 정렬 순서. 이 칸이 생기기 전에 만든 문서는 null 이다
+    private Integer sortOrder;
 
     private List<UnitEntity> units;
+
+    private int revision;
 }

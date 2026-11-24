@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Loader2, Pencil, Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, Loader2, Pencil, Plus } from 'lucide-react'
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Button, Input, Notice } from '../../components/ui'
 
@@ -95,3 +95,38 @@ export function AddInline({
   )
 }
 
+/**
+ * 위·아래로 한 칸 옮기는 버튼. 목록 안의 자리가 순서인 단계(학년, 학기, 단원, 차시)에 쓴다.
+ * 맨 위(맨 아래)면 그 버튼을 끈다
+ */
+export function MoveButtons({
+  index,
+  count,
+  disabled,
+  label,
+  onMove,
+}: {
+  index: number
+  count: number
+  disabled: boolean
+  label: string
+  onMove: (direction: 'UP' | 'DOWN') => void
+}) {
+  return (
+    <span className="inline-flex">
+      <Button variant="ghost" className="px-1.5" disabled={disabled || index === 0} onClick={() => onMove('UP')} title={`${label} 위로`} aria-label={`${label} 위로`}>
+        <ChevronUp className="size-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        className="px-1.5"
+        disabled={disabled || index === count - 1}
+        onClick={() => onMove('DOWN')}
+        title={`${label} 아래로`}
+        aria-label={`${label} 아래로`}
+      >
+        <ChevronDown className="size-4" />
+      </Button>
+    </span>
+  )
+}

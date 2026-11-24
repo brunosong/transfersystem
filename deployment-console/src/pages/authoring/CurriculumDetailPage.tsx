@@ -4,9 +4,9 @@ import { BookOpen, CalendarRange, ChevronRight, GraduationCap, Loader2, Pencil, 
 import { type FormEvent, type ReactNode, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { isNotFound } from '../../api'
-import { authoringApi, isConflict, type Grade, type Semester, type SkeletonDraft, type SubjectDraft } from '../../api/authoring'
+import { authoringApi, isConflict, type Grade, type MoveDirection, type Semester, type SkeletonDraft, type SubjectDraft } from '../../api/authoring'
 import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
-import { AddInline, draftKey, type Handlers, LevelTag, subjectsKey } from './parts'
+import { AddInline, draftKey, type Handlers, LevelTag, MoveButtons, subjectsKey } from './parts'
 import { PublishBadge } from './PublishBadge'
 
 
@@ -216,6 +216,11 @@ function GradeCard({
     mutationFn: () => authoringApi.editGrade(draft.curriculumId, grade.id, title.trim(), description.trim(), draft.revision),
     ...handlers,
   })
+  const moveGrade = useMutation({
+    mutationFn: (direction: MoveDirection) => authoringApi.moveGrade(draft.curriculumId, grade.id, direction, draft.revision),
+    ...handlers,
+  })
+  const gradeIndex = draft.grades.findIndex((g) => g.id === grade.id)
   const removeGrade = useMutation({
     mutationFn: () => authoringApi.removeGrade(draft.curriculumId, grade.id, draft.revision),
     ...handlers,
@@ -267,6 +272,13 @@ function GradeCard({
           action={
             <div className="flex items-center gap-1">
               <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{grade.id}</Mono>
+              <MoveButtons
+                index={gradeIndex}
+                count={draft.grades.length}
+                disabled={locked || moveGrade.isPending}
+                label="학년"
+                onMove={(direction) => moveGrade.mutate(direction)}
+              />
               <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학년 수정" aria-label="학년 수정">
                 <Pencil className="size-4" />
               </Button>
@@ -350,6 +362,12 @@ function SemesterRow({
     ...handlers,
   })
   // 과목이 남아 있으면 서버가 422 로 막는다(과목이 갈 곳을 잃지 않게). 그 이유를 아래에 보여 준다
+  const moveSemester = useMutation({
+    mutationFn: (direction: MoveDirection) =>
+      authoringApi.moveSemester(draft.curriculumId, grade.id, semester.id, direction, draft.revision),
+    ...handlers,
+  })
+  const semesterIndex = grade.semesters.findIndex((s) => s.id === semester.id)
   const removeSemester = useMutation({
     mutationFn: () => authoringApi.removeSemester(draft.curriculumId, grade.id, semester.id, draft.revision),
     ...handlers,
@@ -398,6 +416,13 @@ function SemesterRow({
         </div>
         <div className="flex items-center gap-1">
           <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{semester.id}</Mono>
+          <MoveButtons
+            index={semesterIndex}
+            count={grade.semesters.length}
+            disabled={locked || moveSemester.isPending}
+            label="학기"
+            onMove={(direction) => moveSemester.mutate(direction)}
+          />
           <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="학기 수정" aria-label="학기 수정">
             <Pencil className="size-4" />
           </Button>
@@ -461,8 +486,9 @@ function InfoTab({ draft, locked, handlers }: { draft: SkeletonDraft; locked: bo
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(draft.title)
   const [description, setDescription] = useState(draft.description ?? '')
+  const [sortOrder, setSortOrder] = useState(String(draft.sortOrder))
   const edit = useMutation({
-    mutationFn: () => authoringApi.edit(draft.curriculumId, title.trim(), description.trim(), draft.revision),
+    mutationFn: () => authoringApi.edit(draft.curriculumId, title.trim(), description.trim(), Number(sortOrder), draft.revision),
     ...handlers,
   })
 
@@ -493,12 +519,18 @@ function InfoTab({ draft, locked, handlers }: { draft: SkeletonDraft; locked: bo
           <Row label="설명">
             <Input value={description} onChange={(e) => setDescription(e.target.value)} disabled={locked} />
           </Row>
+          <Row label="정렬 순서">
+            <div className="flex items-center gap-2">
+              <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} disabled={locked} className="w-28" />
+              <span className="text-xs text-slate-500">작을수록 목록 앞에 섭니다. 사이에 끼우려면 빈 숫자(예: 15)를 쓰세요</span>
+            </div>
+          </Row>
           {edit.error && !isConflict(edit.error) && <Notice tone="danger">{edit.error.message}</Notice>}
           <div className="flex justify-end gap-2">
             <Button variant="secondary" onClick={() => setEditing(false)}>
               취소
             </Button>
-            <Button type="submit" disabled={locked || !title.trim() || edit.isPending}>
+            <Button type="submit" disabled={locked || !title.trim() || sortOrder === '' || edit.isPending}>
               {edit.isPending && <Loader2 className="size-4 animate-spin" />}
               저장
             </Button>
@@ -511,6 +543,7 @@ function InfoTab({ draft, locked, handlers }: { draft: SkeletonDraft; locked: bo
           </Row>
           <Row label="제목">{draft.title}</Row>
           <Row label="설명">{draft.description || <span className="text-slate-400">없음</span>}</Row>
+          <Row label="정렬 순서">{draft.sortOrder}</Row>
           <Row label="revision">{draft.revision}</Row>
           {/* 누가 언제 고쳤는지는 아직 저장하지 않는다 */}
           <Row label="최근 수정">

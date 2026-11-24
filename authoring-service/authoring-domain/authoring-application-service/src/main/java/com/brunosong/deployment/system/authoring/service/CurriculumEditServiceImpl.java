@@ -1,5 +1,6 @@
 package com.brunosong.deployment.system.authoring.service;
 
+import com.brunosong.deployment.system.authoring.service.entity.MoveDirection;
 import com.brunosong.deployment.system.authoring.service.entity.SkeletonDraft;
 import com.brunosong.deployment.system.authoring.service.exception.CurriculumNotFoundException;
 import com.brunosong.deployment.system.authoring.service.exception.RevisionConflictException;
@@ -29,8 +30,20 @@ public class CurriculumEditServiceImpl implements CurriculumEditService {
     private final SubjectDraftRepository subjectDraftRepository;
 
     @Override
-    public SkeletonDraft edit(String curriculumId, String title, String description, int expectedRevision) {
-        return change(curriculumId, expectedRevision, draft -> draft.edit(title, description));
+    public SkeletonDraft edit(String curriculumId, String title, String description, int sortOrder,
+                              int expectedRevision) {
+        return change(curriculumId, expectedRevision, draft -> draft.edit(title, description, sortOrder));
+    }
+
+    @Override
+    public SkeletonDraft moveGrade(String curriculumId, String gradeId, MoveDirection direction, int expectedRevision) {
+        return change(curriculumId, expectedRevision, draft -> draft.moveGrade(gradeId, direction));
+    }
+
+    @Override
+    public SkeletonDraft moveSemester(String curriculumId, String gradeId, String semesterId, MoveDirection direction,
+                                      int expectedRevision) {
+        return change(curriculumId, expectedRevision, draft -> draft.moveSemester(gradeId, semesterId, direction));
     }
 
     /**

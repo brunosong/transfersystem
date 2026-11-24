@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { BookOpen, ChevronRight, FileText, Layers, Loader2, Pencil, RotateCw, Trash2 } from 'lucide-react'
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { authoringApi, isConflict, type Lesson, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
-import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Skeleton } from '../../components/ui'
-import { AddInline, draftKey, LevelTag, subjectsKey } from './parts'
+import { authoringApi, isConflict, type Lesson, type MoveDirection, type SkeletonDraft, type SubjectDraft, type Unit } from '../../api/authoring'
+import { Button, Card, CardHeader, EmptyState, ErrorState, Input, Mono, Notice, Select, Skeleton } from '../../components/ui'
+import { AddInline, draftKey, LevelTag, MoveButtons, subjectsKey } from './parts'
 
 /**
  * 과목 상세. 과목 안의 단원(그리고 다음에 차시)을 고친다.
@@ -133,6 +133,7 @@ function SubjectHeader({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(subject.title)
   const [description, setDescription] = useState(subject.description ?? '')
+  const [sortOrder, setSortOrder] = useState(String(subject.sortOrder))
   const navigate = useNavigate()
   // 과목을 지우면 단원과 차시도 함께 사라진다. 지운 뒤에는 커리큘럼 화면으로 돌아간다
   const removeSubject = useMutation({
@@ -150,7 +151,7 @@ function SubjectHeader({
     if (window.confirm(`'${subject.title}' 과목을 지웁니다.${units}`)) removeSubject.mutate()
   }
   const editSubject = useMutation({
-    mutationFn: () => authoringApi.editSubject(curriculumId, subject.id, title.trim(), description.trim(), subject.revision),
+    mutationFn: () => authoringApi.editSubject(curriculumId, subject.id, title.trim(), description.trim(), Number(sortOrder), subject.revision),
     onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
     onError: (error: Error) => {
       if (isConflict(error)) onConflict(error.message)
@@ -176,6 +177,11 @@ function SubjectHeader({
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="과목 이름" aria-label="과목 이름" autoFocus disabled={locked} />
             <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="과목 설명" disabled={locked} />
           </div>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            정렬 순서
+            <Input type="number" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} aria-label="정렬 순서" disabled={locked} className="w-28" />
+            <span className="text-xs text-slate-500">같은 학기 안에서 작을수록 앞에 섭니다</span>
+          </label>
           {editSubject.error && !isConflict(editSubject.error) && <Notice tone="danger">{editSubject.error.message}</Notice>}
           <div className="flex justify-end gap-2">
             <Button variant="ghost" onClick={() => setEditing(false)}>
@@ -205,6 +211,8 @@ function SubjectHeader({
           <span>{place ? `${place.grade} · ${place.semester}` : <Mono>{subject.semesterId}</Mono>}</span>
           <span>·</span>
           <Mono>{subject.id}</Mono>
+          <span>·</span>
+          <span>정렬 순서 {subject.sortOrder}</span>
           <span>·</span>
           <span title="이 과목의 낙관적 락 번호. 뼈대와 따로 오른다">과목 revision {subject.revision}</span>
         </p>
@@ -318,6 +326,13 @@ function UnitCard({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(unit.title)
   const [description, setDescription] = useState(unit.description ?? '')
+  const moveUnit = useMutation({
+    mutationFn: (direction: MoveDirection) => authoringApi.moveUnit(curriculumId, subject.id, unit.id, direction, subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
   const removeUnit = useMutation({
     mutationFn: () => authoringApi.removeUnit(curriculumId, subject.id, unit.id, subject.revision),
     onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
@@ -378,6 +393,13 @@ function UnitCard({
           action={
             <div className="flex items-center gap-1">
               <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{unit.id}</Mono>
+              <MoveButtons
+                index={order - 1}
+                count={subject.units.length}
+                disabled={locked || moveUnit.isPending}
+                label="단원"
+                onMove={(direction) => moveUnit.mutate(direction)}
+              />
               <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="단원 수정" aria-label="단원 수정">
                 <Pencil className="size-4" />
               </Button>
@@ -447,6 +469,15 @@ function LessonRow({
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(lesson.title)
   const [description, setDescription] = useState(lesson.description ?? '')
+  const [learningLevel, setLearningLevel] = useState(lesson.learningLevel)
+  const moveLesson = useMutation({
+    mutationFn: (direction: MoveDirection) =>
+      authoringApi.moveLesson(curriculumId, subject.id, unit.id, lesson.id, direction, subject.revision),
+    onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
+    onError: (error: Error) => {
+      if (isConflict(error)) onConflict(error.message)
+    },
+  })
   const removeLesson = useMutation({
     mutationFn: () => authoringApi.removeLesson(curriculumId, subject.id, unit.id, lesson.id, subject.revision),
     onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
@@ -456,7 +487,16 @@ function LessonRow({
   })
   const editLesson = useMutation({
     mutationFn: () =>
-      authoringApi.editLesson(curriculumId, subject.id, unit.id, lesson.id, title.trim(), description.trim(), subject.revision),
+      authoringApi.editLesson(
+        curriculumId,
+        subject.id,
+        unit.id,
+        lesson.id,
+        title.trim(),
+        description.trim(),
+        learningLevel,
+        subject.revision,
+      ),
     onSuccess: () => void client.invalidateQueries({ queryKey: subjectsKey(curriculumId) }),
     onError: (error: Error) => {
       if (isConflict(error)) onConflict(error.message)
@@ -476,6 +516,22 @@ function LessonRow({
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="차시 이름" aria-label="차시 이름" autoFocus disabled={locked} />
           <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="설명" aria-label="차시 설명" disabled={locked} />
         </div>
+        <label className="flex items-center gap-2 text-sm text-slate-600">
+          학습 수준
+          <Select
+            value={learningLevel}
+            onChange={(e) => setLearningLevel(Number(e.target.value))}
+            aria-label="학습 수준"
+            disabled={locked}
+            className="w-24"
+          >
+            {[1, 2, 3, 4, 5].map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </Select>
+        </label>
         {editLesson.error && !isConflict(editLesson.error) && <Notice tone="danger">{editLesson.error.message}</Notice>}
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setEditing(false)}>
@@ -496,10 +552,20 @@ function LessonRow({
         <FileText className="size-4 text-slate-400" />
         <LevelTag tone="lesson">차시 {order}</LevelTag>
         <span className="text-sm text-slate-800">{lesson.title}</span>
+        <span className="rounded bg-white px-1.5 py-0.5 text-[11px] text-slate-500 ring-1 ring-inset ring-slate-200" title="학습 수준 1~5">
+          수준 {lesson.learningLevel}
+        </span>
         {lesson.description && <span className="text-xs text-slate-500">{lesson.description}</span>}
       </div>
       <div className="flex items-center gap-1">
         <Mono className="mr-2 hidden text-xs text-slate-400 sm:inline">{lesson.id}</Mono>
+        <MoveButtons
+          index={order - 1}
+          count={unit.lessons.length}
+          disabled={locked || moveLesson.isPending}
+          label="차시"
+          onMove={(direction) => moveLesson.mutate(direction)}
+        />
         <Button variant="ghost" className="px-2" disabled={locked} onClick={() => setEditing(true)} title="차시 수정" aria-label="차시 수정">
           <Pencil className="size-4" />
         </Button>

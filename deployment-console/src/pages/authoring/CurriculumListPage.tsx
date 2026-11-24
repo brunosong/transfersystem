@@ -98,6 +98,7 @@ function ListBody({ list, onCreate }: { list: UseQueryResult<ListPage, Error>; o
         <tr>
           <Th>커리큘럼 ID</Th>
           <Th>제목</Th>
+          <Th>정렬 순서</Th>
           <Th>학년</Th>
           <Th>공개</Th>
           <Th>최근 수정</Th>
@@ -116,6 +117,7 @@ function ListBody({ list, onCreate }: { list: UseQueryResult<ListPage, Error>; o
                 {item.title}
               </Link>
             </Td>
+            <Td className="text-slate-600 tabular-nums">{item.sortOrder}</Td>
             <Td className="text-slate-600">{item.gradeCount}개</Td>
             <Td>
               <PublishBadge />

@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SubjectCreateServiceImpl implements SubjectCreateService {
 
+    private static final int SORT_GAP = 10;
+
     private final SkeletonDraftRepository skeletonDraftRepository;
     private final SubjectDraftRepository subjectDraftRepository;
 
@@ -33,7 +35,12 @@ public class SubjectCreateServiceImpl implements SubjectCreateService {
         }
 
         // 3. 과목을 만들어 따로 저장한다. 뼈대는 고치지 않으므로 뼈대의 revision 은 그대로다
-        SubjectDraft subject = SubjectDraft.create(curriculumId, semesterId, title, description);
+        //    정렬 순서는 그 학기의 맨 뒤(가장 큰 값 + 10)다. 사이에 끼울 빈 숫자가 남는다
+        int sortOrder = subjectDraftRepository.findByCurriculumId(curriculumId).stream()
+                .filter(s -> s.getSemesterId().equals(semesterId))
+                .mapToInt(SubjectDraft::getSortOrder)
+                .max().orElse(0) + SORT_GAP;
+        SubjectDraft subject = SubjectDraft.create(curriculumId, semesterId, title, description, sortOrder);
         subjectDraftRepository.save(subject);
         return subject;
     }
