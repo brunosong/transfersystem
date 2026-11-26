@@ -254,7 +254,7 @@ function SourceForm({ editing, onDone }: { editing: NonNullable<Editing>; onDone
           <Input value={form.database} onChange={(e) => set('database', e.target.value)} placeholder="learningDB" />
         </Field>
         <Field label={form.dbType === 'MONGO' ? '컬렉션' : '테이블'} error={shown('tableOrCollection')}>
-          <Input value={form.tableOrCollection} onChange={(e) => set('tableOrCollection', e.target.value)} placeholder="CurriculumData" />
+          <Input value={form.tableOrCollection} onChange={(e) => set('tableOrCollection', e.target.value)} placeholder="published_curricula" />
         </Field>
       </div>
       <div className="grid grid-cols-2 gap-3">

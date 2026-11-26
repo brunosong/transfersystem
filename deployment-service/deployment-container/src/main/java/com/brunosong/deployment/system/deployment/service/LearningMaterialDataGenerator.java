@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Random;
 
 
+/**
+ * 큰 커리큘럼 문서(문서 하나 약 10MB)를 CurriculumData 에 넣는다. 메시지 크기를 잴 때만 쓴다(시스템 설계 architecture.md).
+ * 배포는 이제 이 컬렉션을 읽지 않는다. 배포가 읽는 시드는 infrastructure/seed/seed-curricula.mjs 가 저작 서비스로 넣는다
+ */
 public class LearningMaterialDataGenerator {
 
     public static String connectionString = "mongodb://root:example@localhost:27017/exampledb?authSource=admin";
