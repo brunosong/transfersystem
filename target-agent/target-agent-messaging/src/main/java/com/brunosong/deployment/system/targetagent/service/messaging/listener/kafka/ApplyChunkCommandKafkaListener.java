@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -20,6 +21,8 @@ public class ApplyChunkCommandKafkaListener {
 
     private final ApplyChunkCommandListener applyChunkCommandListener;
     private final TargetAgentMessagingDataMapper targetAgentMessagingDataMapper;
+    /** 지금 처리 중인 명령 수. 컨슈머 스레드끼리 함께 세므로 AtomicInteger 를 쓴다 */
+    private final AtomicInteger inFlight = new AtomicInteger();
 
     public ApplyChunkCommandKafkaListener(ApplyChunkCommandListener applyChunkCommandListener,
                                              TargetAgentMessagingDataMapper targetAgentMessagingDataMapper) {
@@ -42,6 +45,12 @@ public class ApplyChunkCommandKafkaListener {
         // 이 건부터 다시 시도된다
         for (int index = 0; index < message.size(); index++) {
             ApplyChunkCommand command = message.get(index);
+            // 대상 DB에 동시에 몇 건이 들어가는지 보려고 시작과 끝을 남긴다(ADR 0010 실험).
+            // 스레드 이름은 로그 패턴에 이미 찍힌다
+            int running = inFlight.incrementAndGet();
+            long startedAt = System.currentTimeMillis();
+            log.info("반영 시작. 동시={}, partition={}, offset={}, key={}, chunkNo={}",
+                    running, partitions.get(index), offsets.get(index), keys.get(index), command.getChunkNo());
             try {
                 ApplyChunkRequest request = targetAgentMessagingDataMapper.toApplyChunkRequest(command);
 
@@ -49,6 +58,10 @@ public class ApplyChunkCommandKafkaListener {
             } catch (RuntimeException e) {
                 throw new BatchListenerFailedException(
                         "반영 명령 처리에 실패했습니다. deploymentId=" + command.getDeploymentId(), e, index);
+            } finally {
+                log.info("반영 끝. 동시={}, partition={}, offset={}, {}ms",
+                        inFlight.decrementAndGet(), partitions.get(index), offsets.get(index),
+                        System.currentTimeMillis() - startedAt);
             }
         }
     }
