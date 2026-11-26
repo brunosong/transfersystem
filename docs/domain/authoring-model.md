@@ -233,6 +233,7 @@ sequenceDiagram
 | 옛 판으로 초안 되돌리기 | 판이 남아 있으므로 나중에 더할 수 있다 |
 | 로그인 | 지금 화면처럼 이름만 고른다. 그 이름을 `updatedBy`, `publishedBy`로 남긴다 |
 | 차시 하나씩 고치는 API | 과목 하나를 통째로 저장한다. 과목 편집 화면 하나로 충분하다 |
+| 차시의 `format` 같은 세부 칸 | 배포가 읽지 않는다. 차시에는 배포의 변환기가 반드시 요구하는 `learningLevel`만 두고, `lessonNumber`는 공개할 때 매긴다. 세부 칸이 필요해지면 `attributes`로 넘긴다([ADR 0006](../adr/0006-chunk-content-contract.md)) (2026-11-26) |
 | 자동 병합 | 4절 |
 
 ## 9. 시스템 설계로 넘기는 것
