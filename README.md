@@ -153,6 +153,10 @@
    ./mvnw -pl target-agent/target-agent-container org.springframework.boot:spring-boot-maven-plugin:3.3.5:run -Dspring-boot.run.profiles=local
    ```
    - Kafka는 Zookeeper가 다 뜬 뒤에 띄웁니다. 함께 띄우면 브로커가 Zookeeper에 붙지 못하고 꺼질 수 있습니다.
+   - 배포가 읽을 커리큘럼은 저작 서비스(http://localhost:8002)가 공개한 것뿐입니다. 처음에는 시드를 한 번 넣습니다. 커리큘럼 5개를 만들고 공개하며, 이미 있으면 멈춥니다.
+     ```bash
+     node infrastructure/seed/seed-curricula.mjs
+     ```
    - 아웃박스에 쌓이기만 하고 Kafka로 나가지 않게 보려면 실행 인자에 `--deployment-service.outbox-scheduler.initial-delay=86400000`(첫 실행을 하루 뒤로)을 넣습니다.
 
 6. **화면(deployment-console) 실행**
