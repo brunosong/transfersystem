@@ -95,7 +95,7 @@ flowchart LR
 ## 3. 메시지 크기
 
 ### 재 본 값
-시드 생성기(`LearningMaterialDataGenerator`)와 같은 구조로 만들어 쟀다. 이 생성기와 `CurriculumData` 컬렉션은 이 측정을 다시 하려고 남겨 둔다(배포는 2026-11-26부터 공개본을 읽는다). 시드 커리큘럼 하나는 과목 40개, 단원 200개, 차시 20,000개다.
+시드 생성기(`LearningMaterialDataGenerator`)와 같은 구조로 만들어 쟀다. 이 생성기와 `CurriculumData` 컬렉션은 2026-11-26에 지웠다. 다시 재려면 저작 시드 스크립트(`infrastructure/seed/seed-curricula.mjs`)의 규모를 키운다. 시드 커리큘럼 하나는 과목 40개, 단원 200개, 차시 20,000개다.
 
 | | 과목 청크 하나 | 커리큘럼 전체 |
 |---|---|---|

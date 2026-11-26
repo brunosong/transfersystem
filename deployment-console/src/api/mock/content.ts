@@ -1,5 +1,5 @@
 // 원본 저장소에 들어 있는 커리큘럼을 흉내 낸다.
-// ID 규칙과 제목은 deployment-service 의 시드 생성기(LearningMaterialDataGenerator)를 따른다.
+// ID 규칙과 제목은 옛 시드 생성기(2026-11-26에 지움)를 따른다.
 // 같은 입력이면 항상 같은 트리가 나오므로 저장하지 않고 그때그때 만든다.
 
 import type { CurriculumTree, GradeNode, LevelCounts } from '../types'
