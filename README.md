@@ -137,6 +137,8 @@
    docker-compose -f common.yml -f kafka_cluster.yml up -d
    # 카프카 토픽 초기화
    docker-compose -f common.yml -f init-kafka.yml up -d
+   # Kafka UI (http://localhost:8090). 토픽에 오간 Avro 메시지를 JSON 으로 풀어서 본다
+   docker-compose -f common.yml -f kafka_ui.yml up -d
    # 데이터베이스 (필요한 것만 실행)
    # Mongo는 트랜잭션을 쓰려고 단일 노드 레플리카 셋(rs0)으로 뜬다. 처음에는 헬스체크가 rs.initiate()를 해 주므로 healthy가 될 때까지 기다린다
    docker-compose -f mongodb.yml up -d

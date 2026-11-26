@@ -1,0 +1,16 @@
+version: '3.7'
+
+# Kafka UI. 토픽에 오간 메시지를 Schema Registry 로 풀어서 JSON 으로 보여 준다.
+# kafka-manager 는 토픽·오프셋까지만 보이고, Avro 메시지 내용은 못 본다.
+# 8080 은 deployment-service 가 쓰므로 8090 으로 띄운다 (http://localhost:8090)
+services:
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.2
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-1:9092
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8081
+    networks:
+      - ${GLOBAL_NETWORK:-kafka}
