@@ -60,7 +60,9 @@ data:
     db.createRole({
       role: "curriculumDataRoles",
       privileges: [
-        { resource: { db: "learningDB", collection: "CurriculumData" }, actions: ["find", "insert", "update", "remove"] }
+        { resource: { db: "learningDB", collection: "CurriculumData" }, actions: ["find", "insert", "update", "remove"] },
+        // 배포는 저작 서비스의 공개본만 읽는다. 초안 컬렉션은 읽지 못하게 이 컬렉션 하나만 연다
+        { resource: { db: "learningDB", collection: "published_curricula" }, actions: ["find"] }
       ],
       roles: []
     });
