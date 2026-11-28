@@ -2,6 +2,7 @@ package com.brunosong.deployment.system.targetagent.service.config.datasources;
 
 import com.brunosong.deployment.system.targetagent.service.config.OnlineCampusRoutingDataSourceContextHolder;
 import com.brunosong.deployment.system.targetagent.service.domain.valueobject.DataSourceType;
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -43,6 +44,10 @@ public class OnlineCampusDataSourceConfig {
             @Qualifier("onlineCampusProdDataSource") DataSource onlineCampusProdDataSource,
             @Qualifier("onlineCampusDevDataSource") DataSource onlineCampusDevDataSource) {
 
+        // 대상 DB마다 표를 만든다. 라우팅 DataSource 로 한 번만 돌리면 기본 DB(DEV)에만 생긴다
+        migrate(onlineCampusProdDataSource);
+        migrate(onlineCampusDevDataSource);
+
         AbstractRoutingDataSource onlineCampusRoutingDataSources = new AbstractRoutingDataSource() {
             @Override
             protected Object determineCurrentLookupKey() {
@@ -83,7 +88,16 @@ public class OnlineCampusDataSourceConfig {
         props.put("hibernate.format_sql", true);
         props.put("hibernate.show_sql", true);
         props.put("hibernate.generate_statistics", true);
-        props.put("hibernate.hbm2ddl.auto", "update"); // H2용, 테이블 자동 생성
+        // 표는 Flyway 가 만든다(db/target/online-campus). Hibernate 는 엔티티와 표가 맞는지만 본다
+        props.put("hibernate.hbm2ddl.auto", "validate");
         return props;
+    }
+
+    private void migrate(DataSource dataSource) {
+        Flyway.configure()
+                .dataSource(dataSource)
+                .locations("classpath:db/target/online-campus")
+                .load()
+                .migrate();
     }
 }
