@@ -152,6 +152,7 @@
    # deployment-service (http://localhost:8080)
    ./mvnw -pl deployment-service/deployment-container org.springframework.boot:spring-boot-maven-plugin:3.3.5:run -Dspring-boot.run.profiles=local
    # target-agent (http://localhost:8001). local 프로파일은 대상 DB로 메모리 H2 를 써서, 끄면 반영된 데이터가 사라집니다
+   # 반영된 데이터는 H2 콘솔(http://localhost:8001/h2-console)에서 봅니다. JDBC URL 은 jdbc:h2:mem:online_campus_dev 처럼 넣고 사용자는 sa, 비밀번호는 비웁니다
    ./mvnw -pl target-agent/target-agent-container org.springframework.boot:spring-boot-maven-plugin:3.3.5:run -Dspring-boot.run.profiles=local
    ```
    - Kafka는 Zookeeper가 다 뜬 뒤에 띄웁니다. 함께 띄우면 브로커가 Zookeeper에 붙지 못하고 꺼질 수 있습니다.

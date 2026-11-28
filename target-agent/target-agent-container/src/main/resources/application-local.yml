@@ -32,6 +32,11 @@ spring:
         username: sa
         password:
         driver-class-name: org.h2.Driver
+  # 대상 DB(메모리 H2)에 무엇이 저장됐는지 보려고 켠다. http://localhost:8001/h2-console
+  # JDBC URL 에 jdbc:h2:mem:online_campus_dev 처럼 위 주소를 넣고 sa 로 들어간다
+  h2:
+    console:
+      enabled: true
   data:
     jpa:
       hibernate:
