@@ -4,6 +4,7 @@ import com.brunosong.deployment.system.targetagent.service.DataPersistService;
 import com.brunosong.deployment.system.targetagent.service.domain.valueobject.AppliedContent;
 import com.brunosong.deployment.system.targetagent.service.domain.valueobject.TargetSystemEnvironment;
 import com.brunosong.deployment.system.targetagent.service.handler.DataPersistHandler;
+import com.brunosong.deployment.system.targetagent.service.ports.output.repository.BootcampRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,7 +17,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -33,6 +33,10 @@ class DataPersistHandlerTest {
 
     @MockBean
     OnlineCampusDataPersistHelper onlineCampusDataPersistHelper;
+
+    // 부트캠프 도우미가 저장소를 받으므로 빈을 만들 수 있게 가짜를 둔다. 이 테스트에서 부르지는 않는다
+    @MockBean
+    BootcampRepository bootcampRepository;
 
     @Test
     @DisplayName("대상 시스템이 ONLINE_CAMPUS 이면 온라인캠퍼스 어댑터에 맡기고 반영 내용을 돌려준다")
@@ -54,7 +58,7 @@ class DataPersistHandlerTest {
     @Test
     @DisplayName("어댑터가 프록시로 감싸져 있어도 대상 시스템을 찾는다")
     void testSupportsProxiedAdapter() {
-        // @Transactional 때문에 실행 환경에서는 어댑터가 CGLIB 프록시가 된다. Mock 으로는 이 상황이 재현되지 않는다
+        // 어댑터에 @Transactional 같은 것이 붙으면 실행 환경에서 CGLIB 프록시가 된다. Mock 으로는 이 상황이 재현되지 않는다
         ProxyFactory factory = new ProxyFactory(new OnlineCampusDataPersistHelper(null));
         factory.setProxyTargetClass(true);
         DataPersistService proxied = (DataPersistService) factory.getProxy();
@@ -67,12 +71,5 @@ class DataPersistHandlerTest {
     void testSupports() {
         assertTrue(dataPersistHandler.supports("BOOTCAMP"));
         assertFalse(dataPersistHandler.supports("UNKNOWN"));
-    }
-
-    @Test
-    @DisplayName("부트캠프는 반영하지 않았으므로 성공으로 알리지 않는다")
-    void testBootcampIsNotReportedAsApplied() {
-        assertThrows(UnsupportedOperationException.class,
-                () -> dataPersistHandler.persist("BOOTCAMP", TargetSystemEnvironment.DEV, "CUR001", null));
     }
 }
