@@ -13,8 +13,9 @@ public class CurriculumRepositoryImpl implements CurriculumRepository {
 
     private final CurriculumPersistHandler curriculumPersistHandler;
 
+    // 이름을 적지 않으면 기본(Postgres) 트랜잭션 매니저를 탄다. 대상 DB의 트랜잭션 매니저를 적어 준다
     @Override
-    @Transactional
+    @Transactional(transactionManager = "onlineCampusTransactionManager")
     public ApplyOutcome saveOrUpdate(String curriculumId, ChunkContent content) {
         return switch (content) {
             case ChunkContent.Skeleton skeleton -> curriculumPersistHandler.curriculumToLesson(curriculumId, skeleton);

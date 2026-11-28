@@ -13,7 +13,6 @@ import com.brunosong.deployment.system.domain.valueobject.BrunoSongServiceType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -43,8 +42,9 @@ public class OnlineCampusDataPersistHelper implements DataPersistService {
         }
     }
 
-    @Transactional
-    public AppliedContent applyToOnlineCampus(String curriculumId, ChunkContent content) {
+    // 트랜잭션은 저장소(CurriculumRepositoryImpl)가 대상 DB의 트랜잭션 매니저로 연다.
+    // 전에는 여기에 @Transactional 이 있었지만 같은 클래스 안에서 불러 적용되지 않았다(self-invocation)
+    private AppliedContent applyToOnlineCampus(String curriculumId, ChunkContent content) {
         ApplyOutcome applyOutcome = curriculumRepository.saveOrUpdate(curriculumId, content);
         log.info("Successfully saved content with id: {}", applyOutcome.id());
 

@@ -94,10 +94,10 @@
 ## Phase 1. 정확성 버그 수정
 *목표: 데이터가 맞는 DB에, 맞는 트랜잭션으로 써짐.*
 
-- [ ] `OnlineCampusDataSourceConfig`: DEV 대신 라우팅 DataSource를 반환
-- [ ] 대상별 트랜잭션 매니저 명시, self-invocation 제거
+- [x] `OnlineCampusDataSourceConfig`: DEV 대신 라우팅 DataSource를 반환 (2026-11-28. PROD 명령도 DEV DB에 쓰이던 것. CUR004를 두 환경에 보내 각 DB에 따로 들어간 것을 H2 콘솔로 확인)
+- [x] 대상별 트랜잭션 매니저 명시, self-invocation 제거 (2026-11-28. 온라인캠퍼스 저장소가 `onlineCampusTransactionManager`를 쓴다)
 - [ ] `DataPersistHandler`: 프록시에서도 안전한 어노테이션 조회
-- [ ] `H2Dialect` 하드코딩과 `hbm2ddl.auto=update` 제거
+- [ ] `H2Dialect` 하드코딩과 `hbm2ddl.auto=update` 제거: ~~온라인캠퍼스 `hbm2ddl`~~(2026-11-28, 대상 DB마다 Flyway `db/target/online-campus`, Hibernate는 `validate`). 남은 것: 부트캠프, `H2Dialect`
 - [ ] Bootcamp 저장 실제 구현
 - [ ] deployment-service 버그: admin id 하드코딩, `Optional.get()` (`totalChunkSize`가 0으로 저장되던 것은 2026-11-12에 고쳤다)
 - [x] 원본 읽기: `DynamicDataSourceConnector`의 `null` 반환, 요청마다 `MongoClient` 생성, MySQL 풀을 쓸 때마다 닫던 문제, Mongo 문서를 드라이버가 바로 JSON으로 씀

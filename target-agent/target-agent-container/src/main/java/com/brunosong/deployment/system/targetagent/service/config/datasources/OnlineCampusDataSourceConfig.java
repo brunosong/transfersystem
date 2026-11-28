@@ -61,7 +61,8 @@ public class OnlineCampusDataSourceConfig {
 
         onlineCampusRoutingDataSources.setTargetDataSources(targetDataSources);
         onlineCampusRoutingDataSources.setDefaultTargetDataSource(onlineCampusDevDataSource);
-        return onlineCampusDevDataSource;
+        // 전에는 여기서 DEV DataSource 를 돌려줘서 PROD 명령도 DEV DB에 저장됐다
+        return onlineCampusRoutingDataSources;
     }
 
     @Bean(name = "onlineCampusEntityManagerFactory")
